@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>turko</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +21,7 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 .hidden{display:none!important}
 #auth{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:32px 24px}
 #main{height:100vh;display:flex;flex-direction:column;overflow:hidden}
-.topbar{background:#161512;border-bottom:1px solid #2f2b27;padding:0 16px;height:50px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:10}
+.topbar{background:#161512;border-bottom:1px solid #2f2b27;padding:env(safe-area-inset-top) 16px 0;min-height:calc(50px + env(safe-area-inset-top));display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:10}
 .logo{color:#e8e6e3;font-size:17px;font-weight:700;display:flex;align-items:center;gap:6px}
 .topbar-user{color:#e8e6e3;font-size:13px;font-weight:600;cursor:pointer}
 .topbar-user:hover{text-decoration:underline}
@@ -180,11 +181,11 @@ textarea:focus{border-color:#5a5754}
 .chart-title{font-size:11px;color:#5a5754;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
 canvas{width:100%!important;display:block}
 /* navbar */
-.navbar{background:#1d1a16;border-top:1px solid #2f2b27;display:flex;flex-shrink:0;position:sticky;bottom:0;z-index:10;padding-bottom:env(safe-area-inset-bottom)}
+.navbar{background:#1d1a16;border-top:1px solid #2f2b27;display:flex;flex-shrink:0;position:sticky;bottom:0;z-index:10;padding-bottom:max(env(safe-area-inset-bottom), 8px)}
 .nbtn{flex:1;min-height:52px;padding:10px 0;background:none;border:none;color:#5a5754;font-size:10px;text-transform:uppercase;letter-spacing:.8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative;transition:color .15s ease}
 .nbtn.on{color:#e8e6e3;border-top:2px solid #e8e6e3}
 .nbtn:active{opacity:.7}
-.nicon{font-size:20px;line-height:1}
+.nicon{width:22px;height:22px;display:block}
 .badge{position:absolute;top:7px;right:calc(50% - 18px);background:#c33;color:#fff;border-radius:8px;padding:0 5px;font-size:9px;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center}
 /* topbar dropdown */
 .t-dropdown{position:absolute;right:0;top:38px;background:#1d1a16;border:1px solid #2f2b27;border-radius:4px;min-width:150px;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,0.5)}
@@ -356,9 +357,18 @@ canvas{width:100%!important;display:block}
     </div>
   </div>
   <div class="navbar">
-    <button class="nbtn on" data-page="home"><span class="nicon">⌂</span><span>Home</span><span id="badge" class="badge hidden"></span></button>
-    <button class="nbtn" data-page="leaderboard"><span class="nicon">◈</span><span>Classifica</span></button>
-    <button class="nbtn" data-page="profile-me"><span class="nicon">◉</span><span>Profilo</span></button>
+    <button class="nbtn on" data-page="home">
+      <svg class="nicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+      <span>Home</span><span id="badge" class="badge hidden"></span>
+    </button>
+    <button class="nbtn" data-page="leaderboard">
+      <svg class="nicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="7" width="4" height="14"/><rect x="17" y="3" width="4" height="18"/></svg>
+      <span>Classifica</span>
+    </button>
+    <button class="nbtn" data-page="profile-me">
+      <svg class="nicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span>Profilo</span>
+    </button>
   </div>
 </div>
 
