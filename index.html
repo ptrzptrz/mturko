@@ -25,7 +25,7 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 .hidden{display:none!important}
 #auth{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:32px 24px}
 #main{height:100dvh;display:flex;flex-direction:column;overflow:hidden}
-.topbar{background:#161512;border-bottom:1px solid #2f2b27;padding:env(safe-area-inset-top,20px) 16px 0;min-height:calc(50px + env(safe-area-inset-top,20px));display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:10}
+.topbar{background:#161512;border-bottom:1px solid #2f2b27;padding:env(safe-area-inset-top,20px) 20px 0;min-height:calc(50px + env(safe-area-inset-top,20px));display:flex;align-items:center;flex-shrink:0;position:sticky;top:0;z-index:10}
 .logo{color:#e8e6e3;font-size:17px;font-weight:700;display:flex;align-items:center;gap:6px}
 .topbar-user{color:#e8e6e3;font-size:13px;font-weight:600;cursor:pointer}
 .topbar-user:hover{text-decoration:underline}
@@ -58,7 +58,8 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 .stat-v{font-size:22px;font-weight:700;color:#e8e6e3}
 .stat-v.g{color:#629924}.stat-v.r{color:#c33}
 .stat-l{font-size:10px;color:#5a5754;text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
-.btn-new{background:transparent;color:#e8e6e3;border:1px solid #3d3a35;border-radius:3px;padding:11px 16px;font-size:17px;font-weight:600;width:100%;flex:1}
+.btn-new{background:#e8e6e3;color:#161512;border:none;border-radius:8px;padding:16px;font-size:17px;font-weight:700;width:100%;flex:1;letter-spacing:-.2px;transition:opacity .15s ease}
+.btn-new:active{opacity:.8}
 .home-sticky{flex-shrink:0;padding-bottom:8px}
 #home-flusso{height:140px;margin-bottom:10px;display:flex;flex-direction:column;overflow:visible}
 .no-focus-style:focus{border-color:#3d3a35!important;outline:none}
@@ -191,24 +192,23 @@ canvas{width:100%!important;display:block}
 .nbtn:active{opacity:.7}
 .nicon{width:22px;height:22px;display:block}
 .badge{position:absolute;top:7px;right:calc(50% - 18px);background:#c33;color:#fff;border-radius:8px;padding:0 5px;font-size:9px;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center}
-/* topbar dropdown */
-.t-dropdown{position:absolute;right:0;top:38px;background:#1d1a16;border:1px solid #2f2b27;border-radius:4px;min-width:150px;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,0.5)}
-.dd-elo{font-size:15px;font-weight:700;color:#e8e6e3;text-align:center;padding:10px 14px 8px;border-bottom:1px solid #2f2b27}
-.dd-item{padding:9px 14px;font-size:13px;color:#e8e6e3;cursor:pointer}
-.dd-item:hover{background:#2f2b27;color:#fff}
-.dd-logout{color:#5a5754;border-top:1px solid #2f2b27}
-.dd-logout:hover{color:#c33;background:#2f2b27}
+
 /* divider section label - Lichess style */
 .divider{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:#5a5754;margin:16px 0 12px;text-transform:uppercase;letter-spacing:1px}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:#2f2b27}
 /* home stats - big ELO */
-.home-stats-wrap{background:#1d1a16;border:1px solid #2f2b27;border-radius:4px;padding:8px 16px 16px;margin-bottom:12px;position:relative;display:flex;flex-direction:column;justify-content:flex-start}
-.home-elo-header{display:flex;align-items:center;gap:5px;margin-bottom:6px}
+.home-stats-wrap{background:#1d1a16;border:1px solid #2f2b27;border-radius:8px;padding:12px 16px;margin-bottom:12px;position:relative;display:flex;align-items:center;justify-content:space-between}
+.home-elo-header{display:flex;align-items:center;gap:5px}
 .home-elo-label{font-size:10px;color:#5a5754;text-transform:uppercase;letter-spacing:1.5px}
 .home-elo-info{width:13px;height:13px;border-radius:50%;border:1px solid #3d3a35;color:#5a5754;font-size:8px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;line-height:1}
-.home-elo-big{font-size:32px;font-weight:700;color:#e8e6e3;line-height:1;letter-spacing:-1px}
-.home-elo-trend{font-size:20px;line-height:1;margin-left:8px;display:inline-flex;align-items:center;vertical-align:middle;position:relative;top:0}
-.home-elo-value{text-align:center;display:flex;align-items:center;justify-content:center}
+.home-elo-big{font-size:28px;font-weight:700;color:#e8e6e3;line-height:1;letter-spacing:-1px}
+.home-elo-trend{font-size:18px;line-height:1;margin-left:6px;display:inline-flex;align-items:center}
+.home-elo-value{display:flex;align-items:center}
+.home-stats-row{display:flex;gap:20px}
+.home-stat{display:flex;flex-direction:column;align-items:center;gap:1px}
+.hs-v{font-size:16px;font-weight:700;color:#e8e6e3}
+.hs-v.g{color:#629924}.hs-v.r{color:#c33}
+.hs-l{font-size:9px;color:#5a5754;text-transform:uppercase;letter-spacing:.8px}
 .elo-tooltip{position:absolute;top:calc(100% + 6px);left:16px;width:220px;background:#252220;border:1px solid #4a4540;border-radius:4px;padding:10px 12px;z-index:30;box-shadow:0 4px 16px rgba(0,0,0,0.5);display:none}
 .elo-tooltip.visible{display:block}
 .elo-tooltip-title{font-size:11px;font-weight:600;color:#e8e6e3;margin-bottom:6px}
@@ -263,18 +263,7 @@ canvas{width:100%!important;display:block}
 <!-- MAIN -->
 <div id="main" class="hidden">
   <div class="topbar">
-    <div style="display:flex;align-items:center;gap:10px">
-      <div class="logo">turko</div>
-      <span id="t-stats" style="font-size:11px;color:#3d3a35"></span>
-    </div>
-    <div style="position:relative">
-      <span id="t-nick" class="topbar-user" onclick="toggleDropdown()"></span>
-      <div id="t-dropdown" class="t-dropdown hidden">
-        <div id="dd-elo" class="dd-elo"></div>
-        <div class="dd-item" onclick="openMyProfile();toggleDropdown()">Il mio profilo</div>
-        <div class="dd-item dd-logout" id="btn-logout">Esci</div>
-      </div>
-    </div>
+    <div class="logo">turko</div>
   </div>
   <div class="pages">
     <!-- HOME -->
@@ -293,16 +282,23 @@ canvas{width:100%!important;display:block}
           </div>
         </div>
         <div class="home-stats-wrap">
-          <div class="home-elo-header">
-            <span class="home-elo-label">ELO</span>
-            <span class="home-elo-info" onclick="toggleEloTooltip(event)">?</span>
+          <div style="position:relative">
+            <div class="home-elo-header">
+              <span class="home-elo-label">ELO</span>
+              <span class="home-elo-info" onclick="toggleEloTooltip(event)">?</span>
+            </div>
+            <div class="home-elo-value">
+              <span class="home-elo-big" id="s-elo">—</span><span class="home-elo-trend" id="s-elo-trend"></span>
+            </div>
+            <div class="elo-tooltip" id="elo-tooltip">
+              <div class="elo-tooltip-title">Come funziona l'ELO</div>
+              <div class="elo-tooltip-text">Il punteggio ELO misura la tua forza relativa agli altri giocatori. Vinci contro un avversario forte → guadagni più punti. Perdi contro uno debole → perdi di più.<br><br><strong style="color:#e8e6e3">K variabile:</strong> K=40 prime 30 partite, K=32 standard, K=20 se ELO ≥ 2000.<br><br><strong style="color:#e8e6e3">Anti-farming:</strong> dalla 4ª partita dello stesso giorno con lo stesso avversario i punti si dimezzano.</div>
+            </div>
           </div>
-          <div class="home-elo-value">
-            <span class="home-elo-big" id="s-elo">—</span><span class="home-elo-trend" id="s-elo-trend"></span>
-          </div>
-          <div class="elo-tooltip" id="elo-tooltip">
-            <div class="elo-tooltip-title">Come funziona l'ELO</div>
-            <div class="elo-tooltip-text">Il punteggio ELO misura la tua forza relativa agli altri giocatori. Vinci contro un avversario forte → guadagni più punti. Perdi contro uno debole → perdi di più.<br><br><strong style="color:#e8e6e3">K variabile:</strong> K=40 prime 30 partite, K=32 standard, K=20 se ELO ≥ 2000.<br><br><strong style="color:#e8e6e3">Anti-farming:</strong> dalla 4ª partita dello stesso giorno con lo stesso avversario i punti si dimezzano.</div>
+          <div class="home-stats-row">
+            <div class="home-stat"><div id="s-wins" class="hs-v g">0</div><div class="hs-l">Vinte</div></div>
+            <div class="home-stat"><div id="s-losses" class="hs-v r">0</div><div class="hs-l">Perse</div></div>
+            <div class="home-stat"><div id="s-draws" class="hs-v">0</div><div class="hs-l">Patte</div></div>
           </div>
         </div>
         <div class="divider">Partite recenti</div>
@@ -357,6 +353,7 @@ canvas{width:100%!important;display:block}
       <div class="prof-scroll">
         <div id="prof-activity"></div>
         <div id="prof-matches" class="hidden"></div>
+        <div id="prof-logout-wrap"></div>
       </div>
     </div>
   </div>
@@ -632,7 +629,7 @@ async function enterApp(player) {
   startRealtime();
 }
 
-$("btn-logout").onclick = async () => {
+async function doLogout() {
   stopPolling();
   stopRealtime();
   await db.patch("players", `id=eq.${me.id}`, {last_seen_at: new Date(0).toISOString()});
@@ -641,7 +638,7 @@ $("btn-logout").onclick = async () => {
   $("main").classList.add("hidden");
   $("auth").classList.remove("hidden");
   $("l-nick").value = ""; $("l-pass").value = "";
-};
+}
 
 // --- DATA ---
 let eloCache = {}; // match_id -> {elo_before, elo_after}
@@ -717,32 +714,16 @@ setInterval(updateCountdowns, 1000);
 function getP(id) { return players.find(p => p.id===id); }
 
 function updateTopbar() {
-  $("t-nick").textContent = me.nickname;
-  const ddElo = $("dd-elo");
-  if(ddElo) ddElo.textContent = me.elo;
   $("s-elo").textContent = me.elo;
-  // freccia trend — ultimo entry eloCache
-  const lastElo = Object.values(eloCache).sort((a,b) => new Date(b.created_at||0) - new Date(a.created_at||0))[0];
-  const trendEl = $("s-elo-trend");
-  if(trendEl && lastElo) {
-    const delta = lastElo.elo_after - lastElo.elo_before;
-    trendEl.textContent = delta > 0 ? "↑" : delta < 0 ? "↓" : "";
-    trendEl.style.color = delta > 0 ? "#629924" : "#c33";
-  }
-  const now = Date.now();
-  const online = players.filter(p => p.last_seen_at && (now - new Date(p.last_seen_at).getTime()) < 2 * 60 * 1000).length;
-  const total = players.length;
-  $("t-stats").textContent = total > 0 ? `${online} online · ${total} iscritti` : "";
+  $("s-wins").textContent = me.wins;
+  $("s-losses").textContent = me.losses;
+  $("s-draws").textContent = me.draws;
+  // aggiorna trend ELO
+  const trend = $("s-elo-trend");
+  if(trend) trend.textContent = "";
 }
 
-function toggleDropdown() {
-  $("t-dropdown").classList.toggle("hidden");
-}
-document.addEventListener("click", e => {
-  if(!e.target.closest("#t-nick") && !e.target.closest("#t-dropdown")) {
-    $("t-dropdown")?.classList.add("hidden");
-  }
-});
+
 
 // --- HOME ---
 function renderHome() {
@@ -1300,6 +1281,14 @@ async function openProfile(playerId, fromPage, noPush) {
   if(playerId === me.id) db.patch("players", `id=eq.${me.id}`, {last_seen_at: new Date().toISOString()});
 
   renderProfileHeader(player);
+  const logoutWrap = $("prof-logout-wrap");
+  if(logoutWrap) {
+    if(playerId === me.id) {
+      logoutWrap.innerHTML = `<div style="padding:32px 0 8px;text-align:center"><button onclick="doLogout()" style="background:none;border:none;color:#3d3a35;font-size:13px;cursor:pointer;padding:8px 16px;font-family:inherit">Esci dall'account</button></div>`;
+    } else {
+      logoutWrap.innerHTML = '';
+    }
+  }
   $("prof-elo").textContent = player.elo;
   $("prof-wins").textContent = player.wins;
   $("prof-losses").textContent = player.losses;
