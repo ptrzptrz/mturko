@@ -20,13 +20,13 @@
 body{background:#161512;font-family:'Inter',system-ui,sans-serif;color:#e8e6e3;max-width:480px;margin:0 auto;height:100dvh;overflow:hidden}
 input,select,textarea{background:#2a2724;border:1px solid #3a3630;border-radius:10px;color:#e8e6e3;padding:13px 14px;font-size:16px;font-family:inherit;width:100%;outline:none;display:block}
 input:focus,select:focus,textarea:focus{border-color:#5a5754}
-input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0px 1000px #2a2724 inset;-webkit-text-fill-color:#e8e6e3}
+input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0px 1000px #161512 inset;-webkit-text-fill-color:#e8e6e3}
 input::placeholder,textarea::placeholder{color:#4a4642}
 button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-color:transparent;outline:none}
 .hidden{display:none!important}
 
 /* ── Layout ── */
-#auth{min-height:100dvh;display:flex;flex-direction:column;justify-content:center;padding:40px 24px;gap:40px}
+#auth{min-height:100dvh;display:flex;flex-direction:column;justify-content:flex-start;padding:env(safe-area-inset-top,40px) 24px 40px;padding-top:max(env(safe-area-inset-top,0px) + 60px, 80px);gap:40px}
 #main{height:100dvh;display:flex;flex-direction:column;overflow:hidden}
 .pages{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .pages::-webkit-scrollbar{display:none}
@@ -53,11 +53,10 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 .auth-tagline{font-size:12px;color:#3a3630;letter-spacing:2px;text-transform:uppercase;margin-top:8px;display:block}
 .box{padding:0}
 .box-label{font-size:11px;color:#4a4642;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:24px;display:block}
-.frow{margin-bottom:6px;position:relative}
+.frow{margin-bottom:16px;position:relative}
 .auth-input{background:transparent;border:none;border-bottom:1px solid #2a2724;border-radius:0;padding:14px 0;font-size:17px;font-weight:500;color:#e8e6e3;width:100%;outline:none;display:block;transition:border-color .2s ease}
 .auth-input:focus{border-bottom-color:#e8e6e3}
 .auth-input::placeholder{color:#3a3630;font-weight:400;font-size:15px}
-.auth-input:-webkit-autofill,.auth-input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0px 1000px #161512 inset;-webkit-text-fill-color:#e8e6e3}
 .btn-g{background:#e8e6e3;color:#161512;border-radius:12px;padding:17px 16px;font-size:16px;font-weight:700;width:100%;margin-top:12px;display:block;transition:transform .15s cubic-bezier(.34,1.56,.64,1),opacity .15s ease;letter-spacing:-.2px}
 .box .btn-g{margin-top:32px}
 .btn-g:active{transform:scale(0.97);opacity:.9}
@@ -257,7 +256,7 @@ canvas{width:100%!important;display:block}
     <div class="frow"><input id="r-conf" class="auth-input" type="password" placeholder="conferma password" autocomplete="new-password"></div>
     <div id="r-err" class="err"></div>
     <button id="r-btn" class="btn-g">Registrati</button>
-    <button id="r-tolog" class="btn-o">← Accedi</button>
+    <button id="r-tolog" class="btn-o">Accedi</button>
   </div>
 </div>
 
