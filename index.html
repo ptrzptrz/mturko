@@ -115,10 +115,39 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 .pname{font-size:15px;color:#e8e6e3;font-weight:600}
 .pelo{font-size:12px;color:#4a4642;margin-top:2px}
 
-/* Toggle bianco/nero — grande e chiaro */
-.color-toggle{display:flex;border:1px solid #2f2b27;border-radius:8px;overflow:hidden;margin-top:6px}
-.color-toggle button{flex:1;padding:7px 0;font-size:12px;background:transparent;color:#5a5754;border:none;cursor:pointer;transition:background .15s,color .15s;font-family:inherit}
-.color-toggle button.active{background:#e8e6e3;color:#161512;font-weight:700}
+
+
+
+/* ── Action sheet colore ── */
+.asheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:200;display:flex;align-items:flex-end;pointer-events:none;transition:background .3s}
+.asheet-overlay.visible{background:rgba(0,0,0,.75);pointer-events:all}
+.asheet{background:#1a1714;border-radius:24px 24px 0 0;padding:0 16px 40px;width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,0,.24,1)}
+.asheet-overlay.visible .asheet{transform:translateY(0)}
+.asheet-handle{width:32px;height:3px;background:#2f2b27;border-radius:2px;margin:14px auto 22px}
+.asheet-eyebrow{font-size:11px;color:#5a5754;text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px}
+.asheet-opp{font-size:22px;font-weight:800;color:#e8e6e3;text-align:center;margin-bottom:28px;letter-spacing:-.4px}
+/* I due blocchi colore — l'interfaccia principale */
+.asheet-colors{display:flex;gap:8px;margin-bottom:12px;height:96px}
+.asheet-color-btn{flex:1;border:none;border-radius:16px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;transition:transform .15s cubic-bezier(.34,1.56,.64,1),opacity .15s;position:relative}
+.asheet-color-btn:active{transform:scale(.96)}
+/* Bianco */
+.asheet-color-white{background:#e8e6e3}
+.asheet-color-white .asheet-color-name{font-size:14px;font-weight:700;color:#161512;letter-spacing:-.2px}
+.asheet-color-white .asheet-color-sub{font-size:10px;color:#8a8784;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+/* Nero */
+.asheet-color-black{background:#111009;box-shadow:inset 0 0 0 1px #2a2724}
+.asheet-color-black .asheet-color-name{font-size:14px;font-weight:700;color:#e8e6e3;letter-spacing:-.2px}
+.asheet-color-black .asheet-color-sub{font-size:10px;color:#4a4642;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+/* Stato non selezionato — opacità ridotta */
+.asheet-color-btn:not(.selected){opacity:.38}
+/* Checkmark selezionato */
+.asheet-color-btn.selected::before{content:'';position:absolute;inset:0;border-radius:16px;box-shadow:inset 0 0 0 2px #629924}
+/* CTA */
+.asheet-cta{width:100%;background:#629924;border:none;border-radius:14px;padding:16px;color:#fff;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .15s,transform .12s;margin-bottom:8px}
+.asheet-cta:active{opacity:.85;transform:scale(.99)}
+.asheet-cta:disabled{background:#2a3d10;color:#4a5a30;cursor:not-allowed}
+.asheet-cancel{width:100%;padding:14px;background:transparent;border:none;color:#5a5754;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;transition:color .15s}
+.asheet-cancel:active{color:#888}
 
 /* Card partita IN CORSO — la più importante */
 .card-live{background:#1d1a16;border:1px solid #3a3630;border-radius:14px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
@@ -919,6 +948,28 @@ function updateTopbar() {
 
 
 // --- HOME ---
+
+// Formato partita: Bianco vs Nero, bianco sempre primo
+function matchLabel(m) {
+  if(!m.white_player_id) {
+    const p1 = getP(m.p1), p2 = getP(m.p2);
+    return `${p1?.nickname||"?"} — ${p2?.nickname||"?"}`;
+  }
+  const white = getP(m.white_player_id);
+  const blackId = m.p1 === m.white_player_id ? m.p2 : m.p1;
+  const black = getP(blackId);
+  return `${white?.nickname||"?"} — ${black?.nickname||"?"}`;
+}
+function matchLabelShort(m, myId) {
+  if(!m.white_player_id) {
+    const opp = getP(m.p1===myId ? m.p2 : m.p1);
+    return opp?.nickname||"?";
+  }
+  const white = getP(m.white_player_id);
+  const blackId = m.p1 === m.white_player_id ? m.p2 : m.p1;
+  const black = getP(blackId);
+  return `${white?.nickname||"?"} — ${black?.nickname||"?"}`;
+}
 function renderHome() {
   const incomingChallenges = matches.filter(m => m.status==="pending_challenge" && m.p2===me.id);
   const sentChallenges     = matches.filter(m => m.status==="pending_challenge" && m.p1===me.id);
@@ -946,18 +997,18 @@ function renderHome() {
   const challengeHtml = incomingChallenges.map(m => {
     const opp = getP(m.p1);
     const colorLabel = m.white_player_id
-      ? (m.white_player_id===me.id ? '♔ Tu giochi col bianco' : `♔ ${opp?.nickname||"?"} gioca col bianco`)
-      : 'Colore non specificato';
+      ? (m.white_player_id===me.id ? 'Tu — bianco' : `${opp?.nickname||"?"} — bianco`)
+      : '';
     return `<div class="card-challenge">
       <div class="card-challenge-label">
-        <span>Sfida ricevuta</span>
+        <span>Partita proposta</span>
         <span class="card-challenge-cd" id="cd-${m.id}"></span>
       </div>
       <div class="card-challenge-name">${opp?.nickname||"?"}</div>
       <div class="card-challenge-color">${colorLabel} · ELO ${opp?.elo||"?"}</div>
       <div class="card-challenge-btns">
-        <button class="btn-accept" onclick="acceptChallenge('${m.id}')">Accetta</button>
-        <button class="btn-decline" onclick="rejectChallenge('${m.id}')">Rifiuta</button>
+        <button class="btn-accept" onclick="acceptChallenge('${m.id}')">Conferma</button>
+        <button class="btn-decline" onclick="rejectChallenge('${m.id}')">Declina</button>
       </div>
     </div>`;
   }).join("");
@@ -967,7 +1018,7 @@ function renderHome() {
     const opp = getP(m.p2);
     return `<div class="card-pending">
       <div class="card-pending-left">
-        <div class="card-pending-label">Sfida inviata · <span id="cd-${m.id}"></span></div>
+        <div class="card-pending-label">In attesa di conferma · <span id="cd-${m.id}"></span></div>
         <div class="card-pending-name">${opp?.nickname||"?"}</div>
       </div>
       <button class="btn-cancel" onclick="cancelChallenge('${m.id}')">Annulla</button>
@@ -998,12 +1049,7 @@ function renderHome() {
 
   if(liveCard) {
     const m = liveCard.m;
-    const p1 = getP(m.p1), p2 = getP(m.p2);
-    const vsLabel = m.white_player_id
-      ? (m.white_player_id===m.p1
-          ? `♔ ${p1?.nickname||"?"} vs ♚ ${p2?.nickname||"?"}`
-          : `♚ ${p1?.nickname||"?"} vs ♔ ${p2?.nickname||"?"}`)
-      : `${p1?.nickname||"?"} vs ${p2?.nickname||"?"}`;
+    const vsLabel = matchLabel(m);
     ongoingHtml += `<div class="card-live" id="card-live-${m.id}">
       <div class="card-live-label"><span class="live-dot"></span>In corso</div>
       <div class="card-live-vs">${vsLabel}</div>
@@ -1140,48 +1186,84 @@ function renderHomeSearch() {
     const onlineDot = `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${isOnline?'#4a7c1f':'#2f2b27'};flex-shrink:0"></span>`;
     const statusLabel = isBusy ? ' · in partita' : !isOnline ? ' · offline' : '';
     const canChallenge = isOnline && !isBusy;
-    const ch = colorChoice[p.id]; // undefined, 'me', 'opp', null
+
     return `<div class="prow" onclick="openProfile('${p.id}', 'home')">
-      <div style="flex:1;min-width:0">
+      <div>
         <div class="pname" style="display:flex;align-items:center;gap:6px">${onlineDot}${p.nickname}<span style="font-size:11px;color:#4a4642;font-weight:400">${statusLabel}</span></div>
-        <div class="pelo">ELO ${p.elo} · ${p.wins}V ${p.losses}P ${p.draws}=</div>
-        ${canChallenge ? `<div class="color-toggle" onclick="event.stopPropagation()">
-          <button onclick="setColor('${p.id}','me')" class="${ch==='me'?'active':''}">♔ Io bianco</button>
-          <button onclick="setColor('${p.id}','opp')" class="${ch==='opp'?'active':''}">♔ ${p.nickname} bianco</button>
-          <button onclick="setColor('${p.id}',null)" class="${ch===null?'active':''}">—</button>
-        </div>` : ''}
+        <div class="pelo">ELO ${p.elo}</div>
       </div>
-      ${canChallenge ? `<button class="btn-sm" style="margin-left:8px;align-self:flex-start;flex-shrink:0" onclick="event.stopPropagation();challengeFromHome('${p.id}',this)">Sfida</button>` : ''}
+      ${canChallenge ? `<button class="btn-sm" onclick="event.stopPropagation();openColorSheet('${p.id}')">Sfida</button>` : ''}
     </div>`;
   }).join("");
 }
 
-function setColor(oppId, val) {
-  colorChoice[oppId] = val;
-  renderHomeSearch();
+// ── Action sheet colore ──
+let sheetOppId = null;
+let sheetColorChoice = 'me'; // default: io bianco
+
+function openColorSheet(oppId) {
+  const opp = getP(oppId);
+  if(!opp) return;
+  sheetOppId = oppId;
+  sheetColorChoice = 'me'; // default: io ho il bianco
+  // Nomi fissi: bianco=me, nero=opp (cambiano con selectSheetColor)
+  $('asheet-opp-name').textContent = `vs ${opp.nickname}`;
+  $('asheet-label-white').textContent = me.nickname;
+  $('asheet-label-black').textContent = opp.nickname;
+  $('asheet-btn-white').classList.add('selected');
+  $('asheet-btn-black').classList.remove('selected');
+  const overlay = $('color-sheet-overlay');
+  overlay.style.display = 'flex';
+  requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('visible')));
 }
 
-async function challengeFromHome(oppId, btn) {
-  if(btn) { btn.disabled=true; btn.textContent="..."; }
-  // controlla localmente se ho già una partita active senza aver inserito il mio risultato
+function closeColorSheet() {
+  const overlay = $('color-sheet-overlay');
+  overlay.classList.remove('visible');
+  setTimeout(() => { overlay.style.display = 'none'; sheetOppId = null; }, 320);
+}
+
+function selectSheetColor(choice) {
+  sheetColorChoice = choice;
+  const opp = getP(sheetOppId);
+  // bianco = chi ha scelto bianco, nero = l'altro
+  if(choice === 'me') {
+    $('asheet-label-white').textContent = me.nickname;
+    $('asheet-label-black').textContent = opp?.nickname || '?';
+  } else {
+    $('asheet-label-white').textContent = opp?.nickname || '?';
+    $('asheet-label-black').textContent = me.nickname;
+  }
+  $('asheet-btn-white').classList.toggle('selected', choice === 'me');
+  $('asheet-btn-black').classList.toggle('selected', choice === 'opp');
+}
+
+async function confirmColorSheet() {
+  if(!sheetOppId) return;
+  const oppId = sheetOppId;
+  const btn = $('asheet-confirm');
+  closeColorSheet();
+
+  // controlla partita in corso
   const myActive = matches.find(m => m.status==='active' && !m.tournament_id && (m.p1===me.id||m.p2===me.id));
   if(myActive) {
     const isP1 = myActive.p1===me.id;
     const myRes = isP1 ? myActive.result_p1 : myActive.result_p2;
-    if(!myRes) {
-      if(btn) { btn.disabled=false; btn.textContent="Sfida"; }
-      return toast("Inserisci prima il risultato della partita in corso.", "err");
-    }
+    if(!myRes) return toast("Inserisci prima il risultato della partita in corso.", "err");
   }
-  const choiceKey = colorChoice[oppId];
-  const whiteId = choiceKey === 'me' ? me.id : choiceKey === 'opp' ? oppId : null;
-  delete colorChoice[oppId];
+
+  const whiteId = sheetColorChoice === 'me' ? me.id : oppId;
   const res = await db.rpc("create_challenge", {opponent_id: oppId, white_player_id: whiteId});
-  if(btn) { btn.disabled=false; btn.textContent="Sfida"; }
   if(res?.error) return toast(res.error, "err");
   if(Array.isArray(res) && res[0]?.error) return toast(res[0].error, "err");
   closeHomeSearch();
   await fetchAll();
+  toast("Sfida inviata!");
+}
+
+// vecchia challengeFromHome mantenuta per compatibilità search page
+async function challengeFromHome(oppId, btn) {
+  openColorSheet(oppId);
 }
 
 // --- SEARCH ---
@@ -1225,12 +1307,12 @@ async function challenge(oppId, btn) {
     const isP1 = myActive.p1===me.id;
     const myRes = isP1 ? myActive.result_p1 : myActive.result_p2;
     if(!myRes) {
-      if(btn) { btn.disabled=false; btn.textContent="Sfida"; }
+      if(btn) { btn.disabled=false; btn.textContent="Registra"; }
       return toast("Inserisci prima il risultato della partita in corso.", "err");
     }
   }
   const res = await db.rpc("create_challenge", {opponent_id: oppId, white_player_id: null});
-  if(btn) { btn.disabled = false; btn.textContent = "Sfida"; }
+  if(btn) { btn.disabled = false; btn.textContent = "Registra"; }
   if(res?.error) return toast(res.error, "err");
   if(Array.isArray(res) && res[0]?.error) return toast(res[0].error, "err");
   await fetchAll();
@@ -1357,7 +1439,7 @@ async function submitResultInline(matchId, myResult, btn) {
 
 
 let currentMatchId = null;
-let colorChoice = {};
+// colorChoice rimosso — ora gestito da action sheet
 
 
 
@@ -1369,35 +1451,24 @@ function openMatchDirect(m, opp) {
   const myResult = isP1 ? m.result_p1 : m.result_p2;
   const oppResult = isP1 ? m.result_p2 : m.result_p1;
 
-  const p1 = getP(m.p1);
-  const p2 = getP(m.p2);
-  const myColor = m.white_player_id
-    ? (m.white_player_id===me.id ? "♔" : "♚")
-    : "";
-  const oppColor = m.white_player_id
-    ? (m.white_player_id===me.id ? "♚" : "♔")
-    : "";
+  // Bianco vs Nero — bianco sempre primo, nessun simbolo
   $("match-vs").innerHTML = `
-    <div style="font-size:13px;color:#e8e6e3;font-weight:600;margin-bottom:4px">
-      ${myColor} ${me.nickname} <span style="color:#5a5754;font-size:11px">${me.elo||""}</span>
-      <span style="color:#3d3a35;margin:0 8px">vs</span>
-      ${oppColor} ${opp?.nickname||"?"} <span style="color:#5a5754;font-size:11px">${opp?.elo||""}</span>
-    </div>`;
+    <div style="font-size:22px;font-weight:800;color:#e8e6e3;letter-spacing:-.3px;margin-bottom:4px">${matchLabel(m)}</div>
+    <div style="font-size:12px;color:#5a5754">${m.white_player_id ? (m.white_player_id===me.id ? 'Tu — bianco' : `${opp?.nickname||"?"} — bianco`) : ''}</div>`;
 
   $("match-btns").innerHTML = `
     <button onclick="submitResult('${m.id}','${resWin}')" class="rbtn r-win">Ho vinto</button>
     <button onclick="submitResult('${m.id}','draw')" class="rbtn r-draw">Patta</button>
     <button onclick="submitResult('${m.id}','${resLoss}')" class="rbtn r-loss">Ho perso</button>`;
 
-  // se ho già inserito, mostra stato attesa
   if(myResult && !oppResult) {
     const myLabel = myResult===resWin ? "Hai vinto" : myResult==="draw" ? "Patta" : "Hai perso";
-    const myColor = myResult===resWin ? "#629924" : myResult==="draw" ? "#888" : "#c33";
+    const myColorVal = myResult===resWin ? "#629924" : myResult==="draw" ? "#888" : "#c33";
     $("match-btns").innerHTML = `
       <div style="text-align:center;padding:20px 0">
-        <div style="font-size:13px;color:#5a5754;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Hai inserito</div>
-        <div style="font-size:22px;font-weight:700;color:${myColor};margin-bottom:16px">${myLabel}</div>
-        <div style="font-size:12px;color:#5a5754">In attesa che ${opp?.nickname||"?"} inserisca il suo risultato...</div>
+        <div style="font-size:12px;color:#5a5754;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Risultato inserito</div>
+        <div style="font-size:24px;font-weight:800;color:${myColorVal};margin-bottom:16px">${myLabel}</div>
+        <div style="font-size:12px;color:#5a5754">In attesa che ${opp?.nickname||"?"} inserisca il suo...</div>
       </div>`;
   }
   showPage("match");
@@ -1787,5 +1858,26 @@ document.querySelectorAll(".nbtn").forEach(btn => {
   btn.onclick = () => showPage(btn.dataset.page);
 });
 </script>
+
+<!-- ACTION SHEET COLORE -->
+<div class="asheet-overlay" id="color-sheet-overlay" onclick="closeColorSheet()">
+  <div class="asheet" onclick="event.stopPropagation()">
+    <div class="asheet-handle"></div>
+    <div class="asheet-eyebrow">Chi gioca col bianco?</div>
+    <div class="asheet-opp" id="asheet-opp-name"></div>
+    <div class="asheet-colors">
+      <button class="asheet-color-btn asheet-color-white selected" id="asheet-btn-white" onclick="selectSheetColor('me')">
+        <span class="asheet-color-name" id="asheet-label-white"></span>
+        <span class="asheet-color-sub">Bianco</span>
+      </button>
+      <button class="asheet-color-btn asheet-color-black" id="asheet-btn-black" onclick="selectSheetColor('opp')">
+        <span class="asheet-color-name" id="asheet-label-black"></span>
+        <span class="asheet-color-sub">Nero</span>
+      </button>
+    </div>
+    <button class="asheet-cta" id="asheet-confirm" onclick="confirmColorSheet()">Sfida</button>
+    <button class="asheet-cancel" onclick="closeColorSheet()">Annulla</button>
+  </div>
+</div>
 </body>
 </html>
