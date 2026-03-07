@@ -121,33 +121,32 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 /* ── Action sheet colore ── */
 .asheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:200;display:flex;align-items:flex-end;pointer-events:none;transition:background .3s}
 .asheet-overlay.visible{background:rgba(0,0,0,.75);pointer-events:all}
-.asheet{background:#1a1714;border-radius:24px 24px 0 0;padding:0 16px 40px;width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,0,.24,1)}
+.asheet{background:#1a1714;border-radius:24px 24px 0 0;padding:24px 16px 40px;width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,0,.24,1)}
 .asheet-overlay.visible .asheet{transform:translateY(0)}
-.asheet-handle{width:32px;height:3px;background:#2f2b27;border-radius:2px;margin:14px auto 22px}
-.asheet-eyebrow{font-size:11px;color:#5a5754;text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px}
-.asheet-opp{font-size:22px;font-weight:800;color:#e8e6e3;text-align:center;margin-bottom:28px;letter-spacing:-.4px}
+.asheet-eyebrow{font-size:11px;color:#5a5754;text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
 /* I due blocchi colore — l'interfaccia principale */
-.asheet-colors{display:flex;gap:8px;margin-bottom:12px;height:96px}
-.asheet-color-btn{flex:1;border:none;border-radius:16px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;transition:transform .15s cubic-bezier(.34,1.56,.64,1),opacity .15s;position:relative}
+.asheet-colors{display:flex;gap:8px;margin-bottom:12px}
+.asheet-color-btn{flex:1;border:none;border-radius:16px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:transform .15s cubic-bezier(.34,1.56,.64,1),opacity .15s;position:relative;height:88px}
 .asheet-color-btn:active{transform:scale(.96)}
 /* Bianco */
 .asheet-color-white{background:#e8e6e3}
 .asheet-color-white .asheet-color-name{font-size:14px;font-weight:700;color:#161512;letter-spacing:-.2px}
-.asheet-color-white .asheet-color-sub{font-size:10px;color:#8a8784;text-transform:uppercase;letter-spacing:1px;font-weight:600}
 /* Nero */
 .asheet-color-black{background:#111009;box-shadow:inset 0 0 0 1px #2a2724}
 .asheet-color-black .asheet-color-name{font-size:14px;font-weight:700;color:#e8e6e3;letter-spacing:-.2px}
-.asheet-color-black .asheet-color-sub{font-size:10px;color:#4a4642;text-transform:uppercase;letter-spacing:1px;font-weight:600}
-/* Stato non selezionato — opacità ridotta */
-.asheet-color-btn:not(.selected){opacity:.38}
-/* Checkmark selezionato */
-.asheet-color-btn.selected::before{content:'';position:absolute;inset:0;border-radius:16px;box-shadow:inset 0 0 0 2px #629924}
+/* Colore sempre visibile — selezione = pieno, non selezionato = attenuato */
+.asheet-color-white{background:#e8e6e3}
+.asheet-color-white .asheet-color-name{color:#161512}
+.asheet-color-black{background:#0d0c0a;box-shadow:inset 0 0 0 1px #2a2724}
+.asheet-color-black .asheet-color-name{color:#e8e6e3}
+/* Non selezionato: opacità ridotta ma colore intatto */
+.asheet-color-btn:not(.selected){opacity:.35}
+/* Selezionato: pieno */
+.asheet-color-btn.selected{opacity:1}
 /* CTA */
-.asheet-cta{width:100%;background:#629924;border:none;border-radius:14px;padding:16px;color:#fff;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .15s,transform .12s;margin-bottom:8px}
+.asheet-cta{width:100%;background:#e8e6e3;border:none;border-radius:14px;padding:16px;color:#161512;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .15s,transform .12s;margin-bottom:8px}
 .asheet-cta:active{opacity:.85;transform:scale(.99)}
-.asheet-cta:disabled{background:#2a3d10;color:#4a5a30;cursor:not-allowed}
-.asheet-cancel{width:100%;padding:14px;background:transparent;border:none;color:#5a5754;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;transition:color .15s}
-.asheet-cancel:active{color:#888}
+.asheet-cta:disabled{background:#252220;color:#3a3630;cursor:not-allowed}
 
 /* Card partita IN CORSO — la più importante */
 .card-live{background:#1d1a16;border:1px solid #3a3630;border-radius:14px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
@@ -163,7 +162,7 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 @keyframes expandIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 .rbtn-inline{width:100%;padding:14px 18px;border-radius:10px;font-size:15px;font-weight:700;text-align:left;cursor:pointer;transition:opacity .15s;border:none;font-family:inherit}
 .rbtn-inline:active{opacity:.8}
-.rbtn-inline.win{background:#629924;color:#fff}
+.rbtn-inline.win{background:#e8e6e3;color:#161512}
 .rbtn-inline.draw{background:#2a2724;color:#e8e6e3;border:1px solid #3a3630}
 .rbtn-inline.loss{background:transparent;color:#5a5754;border:1px solid #252220}
 .btn-result{flex:1;background:#e8e6e3;color:#161512;border:none;border-radius:10px;padding:13px 0;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s}
@@ -172,16 +171,21 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 .btn-result.disputed{background:rgba(200,50,50,.15);color:#c33;border:1px solid rgba(200,50,50,.3)}
 
 /* Card sfida ricevuta */
-.card-challenge{background:#1d1a16;border:1px solid #3a3630;border-radius:12px;padding:14px;margin-bottom:8px}
-.card-challenge-label{font-size:10px;color:#e8e6e3;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
-.card-challenge-cd{font-size:10px;color:#5a5754;font-weight:400;letter-spacing:0;text-transform:none}
-.card-challenge-name{font-size:17px;font-weight:700;color:#e8e6e3;margin-bottom:3px}
-.card-challenge-color{font-size:12px;color:#5a5754;margin-bottom:12px}
-.card-challenge-btns{display:flex;gap:8px}
-.btn-accept{flex:1;background:#e8e6e3;color:#161512;border:none;border-radius:10px;padding:12px 0;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s}
-.btn-accept:active{opacity:.8}
-.btn-decline{background:transparent;color:#c33;border:1px solid rgba(200,50,50,.3);border-radius:10px;padding:12px 16px;font-size:14px;cursor:pointer;transition:opacity .15s;font-family:inherit}
-.btn-decline:active{opacity:.7}
+.card-challenge{background:#1d1a16;border:1px solid #2f2b27;border-radius:14px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
+.card-challenge::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:#e8e6e3;opacity:.5}
+.card-challenge-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.card-challenge-name{font-size:20px;font-weight:800;color:#e8e6e3;letter-spacing:-.3px}
+.card-challenge-cd{font-size:12px;color:#5a5754}
+.card-challenge-color{display:flex;align-items:center;gap:6px;margin-bottom:16px}
+.color-chip{width:18px;height:18px;border-radius:4px;flex-shrink:0}
+.color-chip.white{background:#e8e6e3}
+.color-chip.black{background:#0d0c0a;box-shadow:inset 0 0 0 1px #3a3630}
+.color-chip-label{font-size:13px;color:#8a8784}
+.card-challenge-btns{display:flex;gap:8px;align-items:center}
+.btn-accept{flex:1;background:#e8e6e3;color:#161512;border:none;border-radius:10px;padding:13px 0;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .12s;font-family:inherit}
+.btn-accept:active{opacity:.8;transform:scale(.98)}
+.btn-decline{background:transparent;color:#5a5754;border:none;padding:13px 14px;font-size:14px;cursor:pointer;transition:opacity .15s;font-family:inherit;white-space:nowrap}
+.btn-decline:active{opacity:.5}
 
 /* Card sfida inviata + in attesa */
 .card-pending{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:12px 14px;margin-bottom:7px;display:flex;align-items:center;gap:12px}
@@ -999,15 +1003,22 @@ function renderHome() {
     const colorLabel = m.white_player_id
       ? (m.white_player_id===me.id ? 'Tu — bianco' : `${opp?.nickname||"?"} — bianco`)
       : '';
+    // chip colore: chi ha il bianco
+    const myColor = m.white_player_id === me.id ? 'white' : 'black';
+    const myColorLabel = m.white_player_id
+      ? (m.white_player_id === me.id ? 'Tu giochi col bianco' : 'Tu giochi col nero')
+      : 'Colore non specificato';
     return `<div class="card-challenge">
-      <div class="card-challenge-label">
-        <span>Partita proposta</span>
+      <div class="card-challenge-top">
+        <div class="card-challenge-name">${opp?.nickname||"?"}</div>
         <span class="card-challenge-cd" id="cd-${m.id}"></span>
       </div>
-      <div class="card-challenge-name">${opp?.nickname||"?"}</div>
-      <div class="card-challenge-color">${colorLabel} · ELO ${opp?.elo||"?"}</div>
+      <div class="card-challenge-color">
+        <div class="color-chip ${myColor}"></div>
+        <span class="color-chip-label">${myColorLabel}</span>
+      </div>
       <div class="card-challenge-btns">
-        <button class="btn-accept" onclick="acceptChallenge('${m.id}')">Conferma</button>
+        <button class="btn-accept" onclick="acceptChallenge('${m.id}')">Accetta</button>
         <button class="btn-decline" onclick="rejectChallenge('${m.id}')">Declina</button>
       </div>
     </div>`;
@@ -1207,7 +1218,6 @@ function openColorSheet(oppId) {
   sheetOppId = oppId;
   sheetColorChoice = 'me'; // default: io ho il bianco
   // Nomi fissi: bianco=me, nero=opp (cambiano con selectSheetColor)
-  $('asheet-opp-name').textContent = `vs ${opp.nickname}`;
   $('asheet-label-white').textContent = me.nickname;
   $('asheet-label-black').textContent = opp.nickname;
   $('asheet-btn-white').classList.add('selected');
@@ -1862,21 +1872,16 @@ document.querySelectorAll(".nbtn").forEach(btn => {
 <!-- ACTION SHEET COLORE -->
 <div class="asheet-overlay" id="color-sheet-overlay" onclick="closeColorSheet()">
   <div class="asheet" onclick="event.stopPropagation()">
-    <div class="asheet-handle"></div>
     <div class="asheet-eyebrow">Chi gioca col bianco?</div>
-    <div class="asheet-opp" id="asheet-opp-name"></div>
     <div class="asheet-colors">
       <button class="asheet-color-btn asheet-color-white selected" id="asheet-btn-white" onclick="selectSheetColor('me')">
         <span class="asheet-color-name" id="asheet-label-white"></span>
-        <span class="asheet-color-sub">Bianco</span>
       </button>
       <button class="asheet-color-btn asheet-color-black" id="asheet-btn-black" onclick="selectSheetColor('opp')">
         <span class="asheet-color-name" id="asheet-label-black"></span>
-        <span class="asheet-color-sub">Nero</span>
       </button>
     </div>
-    <button class="asheet-cta" id="asheet-confirm" onclick="confirmColorSheet()">Sfida</button>
-    <button class="asheet-cancel" onclick="closeColorSheet()">Annulla</button>
+    <button class="asheet-cta" id="asheet-confirm" onclick="confirmColorSheet()">Conferma</button>
   </div>
 </div>
 </body>
