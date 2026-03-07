@@ -764,6 +764,28 @@ async function fetchAll() {
 
   updateTopbar();
   await cleanupExpired();
+
+  // notifiche automatiche basate su cambi di stato
+  if(Array.isArray(done)) {
+    done.forEach(m => {
+      const wasActive = prevMatches.find(p => p.id === m.id && p.status === 'active');
+      if(wasActive) {
+        if(m.result === 'cancelled') {
+          toast("Partita annullata.", "err");
+        } else if(m.result) {
+          const isP1 = m.p1 === me.id;
+          const won = m.result === 'p1' ? isP1 : m.result === 'p2' ? !isP1 : null;
+          const elo = eloCache[m.id];
+          const delta = elo ? (elo.elo_after - elo.elo_before) : null;
+          const deltaStr = delta !== null ? ` (${delta >= 0 ? '+' : ''}${delta} ELO)` : '';
+          if(won === null) toast(`Patta confermata!${deltaStr}`);
+          else if(won) toast(`Vittoria confermata!${deltaStr}`);
+          else toast(`Sconfitta registrata.${deltaStr}`);
+        }
+      }
+    });
+  }
+
   renderHome();
 }
 
@@ -1117,7 +1139,7 @@ async function cancelChallenge(matchId) {
 
 
 // --- pulizia partite scadute ---
-const CHALLENGE_EXPIRE_MS = 3 * 60 * 1000;      // 3 minuti
+const CHALLENGE_EXPIRE_MS = 2 * 60 * 1000;      // 2 minuti (allineato al cron DB)
 const MATCH_EXPIRE_MS = 2 * 60 * 1000;          // TEST: 2 minuti (produzione: 24 ore)
 
 async function cleanupExpired() {
@@ -1136,23 +1158,8 @@ async function cleanupExpired() {
     }
     return false;
   });
-  for(const m of expired) {
-    if(m.status === 'active') {
-      // timeout 24h: se uno ha inserito vale quello, altrimenti annulla
-      if(m.result_p1 && !m.result_p2) {
-        await db.patch("matches", `id=eq.${m.id}`, {result: m.result_p1});
-        await db.rpc("confirm_match", {match_id: m.id});
-      } else if(m.result_p2 && !m.result_p1) {
-        await db.patch("matches", `id=eq.${m.id}`, {result: m.result_p2});
-        await db.rpc("confirm_match", {match_id: m.id});
-      } else {
-        await db.patch("matches", `id=eq.${m.id}`, {status:"done", result:"cancelled"});
-      }
-    } else {
-      await db.delete("matches", `id=eq.${m.id}`);
-    }
-  }
-  if(expired.length > 0) await fetchAll();
+  // timeout gestito dal cron DB (cleanup_expired_matches ogni minuto)
+  // il frontend non interviene più sui timeout
 }
 
 function countdownStr(createdAt, expireMs) {
@@ -1234,7 +1241,6 @@ function openMatchDirect(m, opp) {
         <div style="font-size:12px;color:#5a5754">In attesa che ${opp?.nickname||"?"} inserisca il suo risultato...</div>
       </div>`;
   }
-  if(m.disputed) showDisagreement(m.id);
   showPage("match");
 }
 
@@ -1243,41 +1249,15 @@ async function submitResult(matchId, myResult) {
   if(!m) return;
   const isP1 = m.p1 === me.id;
   const field = isP1 ? "result_p1" : "result_p2";
+  // Il trigger auto_confirm_match nel DB gestisce tutto:
+  // - se entrambi hanno inserito e coincidono → chiude e calcola ELO
+  // - se divergono → setta disputed=true, azzera i risultati
+  // - se secondo disaccordo → annulla la partita
   await db.patch("matches", `id=eq.${matchId}`, {[field]: myResult});
-  // rileggi la partita aggiornata
-  const updated = await db.get("matches", `id=eq.${matchId}&select=*`);
-  const um = Array.isArray(updated) ? updated[0] : null;
-  if(um && um.result_p1 && um.result_p2) {
-    if(um.result_p1 === um.result_p2) {
-      // coincidono — conferma automatica
-      await db.rpc("confirm_match", {match_id: matchId});
-      // aggiorna is_playing subito senza aspettare il cron
-      await db.patch("players", `id=eq.${me.id}`, {is_playing: false});
-      activeMatch = null;
-      await fetchAll();
-      toast("Risultato confermato! ELO aggiornato.");
-      showPage("home");
-    } else if(um.disputed) {
-      // secondo disaccordo — annulla
-      await db.patch("matches", `id=eq.${matchId}`, {status:"done", result:"cancelled"});
-      activeMatch = null;
-      await fetchAll();
-      toast("Disaccordo persistente. Partita annullata.", "err");
-      showPage("home");
-    } else {
-      // primo disaccordo — marca come disputed, entrambi devono reinserire
-      await db.patch("matches", `id=eq.${matchId}`, {result_p1: null, result_p2: null, disputed: true});
-      activeMatch = null;
-      await fetchAll();
-      showDisagreement(matchId);
-    }
-  } else {
-    // solo uno ha inserito — aspetta l'altro
-    activeMatch = null;
-    await fetchAll();
-    toast("Risultato inviato. Aspetta che anche l'altro inserisca.");
-    showPage("home");
-  }
+  activeMatch = null;
+  await fetchAll();
+  // fetchAll aggiornerà lo stato — renderHome mostrerà il feedback corretto
+  showPage("home");
 }
 
 function showDisagreement(matchId) {
