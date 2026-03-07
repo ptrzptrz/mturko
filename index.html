@@ -92,10 +92,12 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 #home-scroll::-webkit-scrollbar{display:none}
 
 /* Bottone nuova partita — primario, inline */
-.btn-new-match{width:100%;background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:15px 18px;font-size:15px;font-weight:700;display:flex;align-items:center;gap:10px;cursor:pointer;text-align:left;position:relative;overflow:hidden;max-height:80px;opacity:1;margin-bottom:12px;transition:max-height .35s cubic-bezier(.4,0,.2,1),opacity .25s ease,margin-bottom .35s ease,padding .35s ease}
+.btn-new-match{width:100%;background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:15px 18px;font-size:15px;font-weight:700;display:flex;align-items:center;gap:10px;cursor:pointer;text-align:left;position:relative;overflow:hidden;max-height:80px;opacity:1;margin-bottom:12px;transition:max-height .55s cubic-bezier(.4,0,.2,1),opacity .55s cubic-bezier(.4,0,.2,1),margin-bottom .55s cubic-bezier(.4,0,.2,1),padding .55s cubic-bezier(.4,0,.2,1)}
+.btn-new-match::after{content:'';position:absolute;top:0;left:-80%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent);animation:shimmer 2.5s linear infinite;pointer-events:none}
+@keyframes shimmer{0%{left:-60%}100%{left:130%}}
 .btn-new-match:active{opacity:.75;transform:scale(0.985)}
-.btn-new-match.hidden{max-height:0!important;opacity:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important;pointer-events:none}
-.btn-new-match .btn-new-icon{width:28px;height:28px;border-radius:50%;background:#161512;color:#e8e6e3;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.btn-new-match.collapsed{max-height:0!important;opacity:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important;pointer-events:none}
+.btn-new-match .btn-new-icon{width:28px;height:28px;border-radius:50%;background:#161512;color:#e8e6e3;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .45s cubic-bezier(.34,1.56,.64,1)}
 .btn-new-match.open .btn-new-icon{transform:rotate(45deg)}
 
 
@@ -1050,11 +1052,11 @@ function renderHome() {
   const blockNew = !!liveMatch || incomingChallenges.length > 0 || sentChallenges.length > 0;
   const searchOpen = $("home-search").classList.contains("open");
   const btnNew = $("btn-newmatch");
-  if(blockNew) {
-    btnNew.classList.add("hidden");
-    if(searchOpen) closeHomeSearch();
+  if(blockNew || searchOpen) {
+    btnNew.classList.add("collapsed");
+    if(blockNew && searchOpen) closeHomeSearch();
   } else {
-    if(!searchOpen) btnNew.classList.remove("hidden");
+    btnNew.classList.remove("collapsed");
   }
 
   // ── STORICO ──
@@ -1105,7 +1107,7 @@ $("btn-newmatch").onclick = () => {
 function openHomeSearch() {
   $("home-search").classList.add("open");
   $("btn-newmatch").classList.add("open");   // icona ruota 45°
-  $("btn-newmatch").classList.add("hidden"); // bottone collassa
+  $("btn-newmatch").classList.add("collapsed"); // bottone collassa
   $("home-search-input").value = "";
   renderHomeSearch();
   setTimeout(() => $("home-search-input").focus(), 350);
@@ -1115,16 +1117,8 @@ function closeHomeSearch() {
   $("home-search").classList.remove("open");
   $("home-search-input").value = "";
   $("home-search-results").innerHTML = "";
-  $("btn-newmatch").classList.remove("open"); // icona torna a +
-  // mostra bottone solo se non bloccato
-  const liveMatch = matches.find(m => m.status==="active" && !m.tournament_id && (() => {
-    const isP1 = m.p1===me.id; return !(isP1 ? m.result_p1 : m.result_p2);
-  })());
-  const incomingChallenges = matches.filter(m => m.status==="pending_challenge" && m.p2===me.id);
-  const sentChallenges = matches.filter(m => m.status==="pending_challenge" && m.p1===me.id);
-  if(!liveMatch && incomingChallenges.length === 0 && sentChallenges.length === 0) {
-    $("btn-newmatch").classList.remove("hidden");
-  }
+  $("btn-newmatch").classList.remove("open");
+  // Non toccare collapsed qui — ci pensa renderHome dopo fetchAll
 }
 
 $("home-search-input").addEventListener("input", renderHomeSearch);
