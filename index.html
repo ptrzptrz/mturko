@@ -28,12 +28,11 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 /* ── Layout ── */
 #auth{min-height:100dvh;display:flex;flex-direction:column;justify-content:flex-start;padding:env(safe-area-inset-top,40px) 24px 40px;padding-top:max(env(safe-area-inset-top,0px) + 60px, 80px);gap:40px}
 #main{height:100dvh;display:flex;flex-direction:column;overflow:hidden}
-.pages{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.pages::-webkit-scrollbar{display:none}
-.page{display:none}
-.page.active{display:block}
-#page-home.active{display:flex;flex-direction:column;height:100%}
-#page-profile.active,#page-lb.active{display:flex;flex-direction:column;height:100%;overflow:hidden}
+.pages{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.page{display:none;flex:1;overflow:hidden}
+.page.active{display:flex;flex-direction:column}
+#page-home.active{height:100%}
+#page-profile.active,#page-lb.active,#page-search.active,#page-match.active,#page-tourn.active{overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 
 /* ── Topbar ── */
 .topbar{background:#161512;padding:env(safe-area-inset-top,20px) 20px 0;min-height:calc(50px + env(safe-area-inset-top,20px));display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
@@ -86,13 +85,87 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── Home ── */
-.home-sticky{flex-shrink:0;padding:12px 16px 0}
-#home-flusso{margin-bottom:10px;display:flex;flex-direction:column;min-height:56px}
-.fab{position:fixed;bottom:calc(52px + max(env(safe-area-inset-bottom),8px) + 16px);right:20px;width:52px;height:52px;border-radius:50%;background:#e8e6e3;color:#161512;border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.5);transition:transform .15s cubic-bezier(.34,1.56,.64,1),opacity .15s ease;z-index:50;cursor:pointer}
-.fab:active{transform:scale(0.92);opacity:.9}
-.fab.hidden{opacity:0;pointer-events:none;transform:scale(0.8)}
-.no-focus-style:focus{border-color:#3a3630!important;outline:none}
-#home-pending:not(:empty),#home-ongoing:not(:empty){margin-bottom:8px}
+/* home-top: sticky, mai scrolla */
+.home-top{padding:12px 16px 0;flex-shrink:0}
+/* home-scroll: tutto il resto, scrolla */
+#home-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px calc(16px + env(safe-area-inset-bottom,0px))}
+#home-scroll::-webkit-scrollbar{display:none}
+
+/* Bottone nuova partita — primario, inline */
+.btn-new-match{width:100%;background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:15px 18px;font-size:15px;font-weight:700;display:flex;align-items:center;gap:10px;cursor:pointer;text-align:left;position:relative;overflow:hidden;max-height:80px;opacity:1;margin-bottom:12px;transition:max-height .35s cubic-bezier(.4,0,.2,1),opacity .25s ease,margin-bottom .35s ease,padding .35s ease}
+.btn-new-match:active{opacity:.75;transform:scale(0.985)}
+.btn-new-match.hidden{max-height:0!important;opacity:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important;pointer-events:none}
+.btn-new-match .btn-new-icon{width:28px;height:28px;border-radius:50%;background:#161512;color:#e8e6e3;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.btn-new-match.open .btn-new-icon{transform:rotate(45deg)}
+
+
+/* Search inline — si espande sotto il bottone */
+.home-search{overflow:hidden;max-height:0;transition:max-height .3s cubic-bezier(.4,0,.2,1);margin-bottom:0}
+.home-search.open{max-height:600px;margin-bottom:12px}
+.home-search-inner{padding-top:2px}
+.home-search-bar{position:relative;margin-bottom:8px}
+.home-search-bar input{padding-right:40px;border-radius:10px}
+.home-search-bar .close-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#5a5754;font-size:18px;cursor:pointer;line-height:1;padding:4px}
+
+/* Lista giocatori nella search */
+.prow{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:13px 14px;margin-bottom:7px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .15s}
+.prow:active{border-color:#3a3630}
+.pname{font-size:15px;color:#e8e6e3;font-weight:600}
+.pelo{font-size:12px;color:#4a4642;margin-top:2px}
+
+/* Toggle bianco/nero — grande e chiaro */
+.color-toggle{display:flex;border:1px solid #2f2b27;border-radius:8px;overflow:hidden;margin-top:6px}
+.color-toggle button{flex:1;padding:7px 0;font-size:12px;background:transparent;color:#5a5754;border:none;cursor:pointer;transition:background .15s,color .15s;font-family:inherit}
+.color-toggle button.active{background:#e8e6e3;color:#161512;font-weight:700}
+
+/* Card partita IN CORSO — la più importante */
+.card-live{background:#1d1a16;border:1px solid #3a3630;border-radius:14px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
+.card-live::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:#629924}
+.card-live.card-live-disputed::before{background:#c33}
+.card-live-label{font-size:10px;color:#629924;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#629924;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.card-live-vs{font-size:20px;font-weight:800;color:#e8e6e3;margin-bottom:4px;letter-spacing:-.3px}
+.card-live-sub{font-size:12px;color:#5a5754;margin-bottom:14px}
+.card-live-actions{display:flex;gap:8px;flex-direction:column}
+.card-live-result-expanded{margin-top:4px;display:flex;flex-direction:column;gap:8px;animation:expandIn .2s cubic-bezier(.4,0,.2,1)}
+@keyframes expandIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.rbtn-inline{width:100%;padding:14px 18px;border-radius:10px;font-size:15px;font-weight:700;text-align:left;cursor:pointer;transition:opacity .15s;border:none;font-family:inherit}
+.rbtn-inline:active{opacity:.8}
+.rbtn-inline.win{background:#629924;color:#fff}
+.rbtn-inline.draw{background:#2a2724;color:#e8e6e3;border:1px solid #3a3630}
+.rbtn-inline.loss{background:transparent;color:#5a5754;border:1px solid #252220}
+.btn-result{flex:1;background:#e8e6e3;color:#161512;border:none;border-radius:10px;padding:13px 0;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.btn-result:active{opacity:.8}
+.btn-result.waiting{background:#1d1a16;color:#5a5754;border:1px solid #2f2b27;cursor:default}
+.btn-result.disputed{background:rgba(200,50,50,.15);color:#c33;border:1px solid rgba(200,50,50,.3)}
+
+/* Card sfida ricevuta */
+.card-challenge{background:#1d1a16;border:1px solid #3a3630;border-radius:12px;padding:14px;margin-bottom:8px}
+.card-challenge-label{font-size:10px;color:#e8e6e3;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.card-challenge-cd{font-size:10px;color:#5a5754;font-weight:400;letter-spacing:0;text-transform:none}
+.card-challenge-name{font-size:17px;font-weight:700;color:#e8e6e3;margin-bottom:3px}
+.card-challenge-color{font-size:12px;color:#5a5754;margin-bottom:12px}
+.card-challenge-btns{display:flex;gap:8px}
+.btn-accept{flex:1;background:#e8e6e3;color:#161512;border:none;border-radius:10px;padding:12px 0;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.btn-accept:active{opacity:.8}
+.btn-decline{background:transparent;color:#c33;border:1px solid rgba(200,50,50,.3);border-radius:10px;padding:12px 16px;font-size:14px;cursor:pointer;transition:opacity .15s;font-family:inherit}
+.btn-decline:active{opacity:.7}
+
+/* Card sfida inviata + in attesa */
+.card-pending{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:12px 14px;margin-bottom:7px;display:flex;align-items:center;gap:12px}
+.card-pending-left{flex:1;min-width:0}
+.card-pending-label{font-size:10px;color:#5a5754;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:3px}
+.card-pending-name{font-size:14px;font-weight:600;color:#e8e6e3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn-cancel{background:transparent;color:#5a5754;border:1px solid #2f2b27;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;flex-shrink:0;font-family:inherit;transition:border-color .15s,color .15s}
+.btn-cancel:active{color:#c33;border-color:rgba(200,50,50,.4)}
+
+/* Gruppo "in attesa" collassato */
+.waiting-group{background:#161512;border:1px solid #252220;border-radius:10px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.waiting-group-label{font-size:12px;color:#5a5754;flex:1}
+.waiting-group-count{font-size:11px;color:#4a4642;background:#1d1a16;border-radius:6px;padding:2px 8px}
+
+#home-pending:not(:empty),#home-ongoing:not(:empty){margin-bottom:0}
 
 /* ── ELO strip ── */
 .elo-info-btn{width:13px;height:13px;border-radius:50%;border:1px solid #3a3630;color:#4a4642;font-size:8px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
@@ -100,8 +173,7 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 .elo-tooltip.visible{display:block}
 .elo-tooltip-title{font-size:11px;font-weight:700;color:#e8e6e3;margin-bottom:6px}
 .elo-tooltip-text{font-size:10px;color:#5a5754;line-height:1.6}
-#home-history{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px 16px}
-#home-history::-webkit-scrollbar{display:none}
+#home-history{margin-top:0}
 
 /* ── Home stats block ── */
 
@@ -199,15 +271,21 @@ canvas{width:100%!important;display:block}
 .mcard-result{font-size:13px;font-weight:600}
 .mcard-result.win{color:#629924}.mcard-result.loss{color:#c33}.mcard-result.draw{color:#555}
 .mcard-elo{font-size:11px;margin-top:2px}
-.hrow{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:11px 14px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
-.hrow-left{flex:1}
-.hrow-opp{font-size:14px;color:#e8e6e3;font-weight:600}
-.hrow-date{font-size:11px;color:#4a4642;margin-top:1px}
-.hrow-right{text-align:right}
-.hrow-result{font-size:13px;font-weight:500}
+.hrow{background:#1d1a16;border:1px solid #252220;border-radius:10px;padding:11px 14px;margin-bottom:6px;display:flex;align-items:center;gap:12px}
+.hrow-accent{width:3px;border-radius:2px;align-self:stretch;flex-shrink:0}
+.hrow-accent.win{background:#629924}
+.hrow-accent.loss{background:#c33}
+.hrow-accent.draw{background:#3a3630}
+.hrow-accent.cancelled{background:#2a2826}
+.hrow-left{flex:1;min-width:0}
+.hrow-opp{font-size:14px;color:#e8e6e3;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hrow-meta{font-size:11px;color:#4a4642;margin-top:2px;display:flex;gap:6px;align-items:center}
+.hrow-right{text-align:right;flex-shrink:0}
+.hrow-result{font-size:13px;font-weight:700}
 .hrow-result.win{color:#629924}
 .hrow-result.loss{color:#c33}
-.hrow-result.draw{color:#555}
+.hrow-result.draw{color:#6a6560}
+.hrow-result.cancelled{color:#3a3630}
 .hrow-elo{font-size:11px;margin-top:2px}
 .elo-up{color:#629924}
 .elo-down{color:#c33}
@@ -271,25 +349,32 @@ canvas{width:100%!important;display:block}
   <div class="pages">
     <!-- HOME -->
     <div id="page-home" class="page active">
-      <div class="home-sticky">
-        <div id="home-flusso" style="position:relative">
-          <div id="home-pending"></div>
-          <div id="home-ongoing"></div>
-          <button class="fab" id="btn-newmatch" aria-label="Nuova partita">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-          <div id="home-search-panel" class="hidden" style="position:relative">
-            <div style="position:relative;height:100%">
-              <input id="home-search-input" placeholder="cerca nickname..." autocorrect="off" autocapitalize="none" spellcheck="false" style="padding-right:40px" class="no-focus-style">
-              <button onclick="closeHomeSearch()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#5a5754;font-size:18px;cursor:pointer;line-height:1">✕</button>
+      <!-- Zona sticky: bottone + search sempre visibili -->
+      <div class="home-top">
+        <button class="btn-new-match" id="btn-newmatch">
+          <span class="btn-new-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </span>
+          <span>Nuova partita</span>
+        </button>
+        <div class="home-search" id="home-search">
+          <div class="home-search-inner">
+            <div class="home-search-bar">
+              <input id="home-search-input" placeholder="cerca nickname..." autocorrect="off" autocapitalize="none" spellcheck="false">
+              <button class="close-btn" onclick="closeHomeSearch()">✕</button>
             </div>
-            <div id="home-search-results" style="position:absolute;top:100%;left:0;right:0;background:#1d1a16;z-index:20;max-height:240px;overflow-y:auto;border:1px solid #2f2b27;border-top:none;border-radius:0 0 3px 3px;scrollbar-width:none;display:none"></div>
+            <div id="home-search-results"></div>
           </div>
         </div>
-
-        <div class="divider">Partite recenti</div>
       </div>
-      <div id="home-history" style="overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
+
+      <!-- Zona scrollabile: card attive + storico -->
+      <div id="home-scroll">
+        <div id="home-pending"></div>
+        <div id="home-ongoing"></div>
+        <div class="divider">Partite recenti</div>
+        <div id="home-history"></div>
+      </div>
     </div>
     <!-- SEARCH -->
     <div id="page-search" class="page">
@@ -771,17 +856,33 @@ async function fetchAll() {
       const wasActive = prevMatches.find(p => p.id === m.id && p.status === 'active');
       if(wasActive) {
         if(m.result === 'cancelled') {
-          toast("Partita annullata.", "err");
+          // Transient: spiega perché è stata annullata
+          const wasDisputed = wasActive.disputed;
+          toast(wasDisputed
+            ? "Partita annullata — secondo disaccordo."
+            : "Partita annullata per timeout.", "err");
         } else if(m.result) {
           const isP1 = m.p1 === me.id;
           const won = m.result === 'p1' ? isP1 : m.result === 'p2' ? !isP1 : null;
           const elo = eloCache[m.id];
           const delta = elo ? (elo.elo_after - elo.elo_before) : null;
-          const deltaStr = delta !== null ? ` (${delta >= 0 ? '+' : ''}${delta} ELO)` : '';
-          if(won === null) toast(`Patta confermata!${deltaStr}`);
-          else if(won) toast(`Vittoria confermata!${deltaStr}`);
-          else toast(`Sconfitta registrata.${deltaStr}`);
+          const deltaStr = delta !== null
+            ? ` · ELO ${delta >= 0 ? '+' : ''}${delta}`
+            : '';
+          if(won === null) toast(`Patta confermata${deltaStr} ♟`);
+          else if(won) toast(`Vittoria confermata${deltaStr} ♔`);
+          else toast(`Sconfitta registrata${deltaStr}`);
         }
+      }
+    });
+  }
+  // notifica se una partita è diventata disputed (l'altro ha inserito diverso)
+  if(Array.isArray(ms)) {
+    ms.forEach(m => {
+      const prev = prevMatches.find(p => p.id === m.id);
+      if(prev && !prev.disputed && m.disputed) {
+        const opp = players.find(p => p.id === (m.p1===me.id ? m.p2 : m.p1));
+        toast(`${opp?.nickname||"?"} ha inserito un risultato diverso. Reinserisci.`, "err");
       }
     });
   }
@@ -819,107 +920,144 @@ function updateTopbar() {
 function renderHome() {
   const incomingChallenges = matches.filter(m => m.status==="pending_challenge" && m.p2===me.id);
   const sentChallenges     = matches.filter(m => m.status==="pending_challenge" && m.p1===me.id);
-  const ongoing = matches.find(m => m.status==="active" && !m.tournament_id);
-  const ongoingNeedsMyInput = ongoing && (() => {
-    const isP1 = ongoing.p1===me.id;
-    const myRes = isP1 ? ongoing.result_p1 : ongoing.result_p2;
-    return !myRes; // true se devo ancora inserire
-  })();
-
+  const allActive = matches.filter(m => m.status==="active" && !m.tournament_id);
+  // partita "in corso" = ho ancora da inserire il risultato
+  const liveMatch = allActive.find(m => {
+    const isP1 = m.p1===me.id;
+    return !(isP1 ? m.result_p1 : m.result_p2);
+  });
+  // partite in attesa = ho già inserito, aspetto l'altro
+  const waitingMatches = allActive.filter(m => {
+    const isP1 = m.p1===me.id;
+    return (isP1 ? m.result_p1 : m.result_p2) && !m.disputed;
+  });
+  // partite in disaccordo = devo reinserire
+  const disputedMatches = allActive.filter(m => m.disputed);
   const done = matches.filter(m => m.status==="done" && (m.p1===me.id||m.p2===me.id)).slice(0,15);
 
-  const alertCount = incomingChallenges.length;
+  // badge sfide
   const badge = $("badge");
-  if(alertCount > 0) { badge.textContent = alertCount; badge.classList.remove("hidden"); }
+  if(incomingChallenges.length > 0) { badge.textContent = incomingChallenges.length; badge.classList.remove("hidden"); }
   else badge.classList.add("hidden");
 
-  // sfide normali ricevute
+  // ── SFIDE RICEVUTE ──
   const challengeHtml = incomingChallenges.map(m => {
     const opp = getP(m.p1);
-    return `<div class="ongoing-card" style="border-left:3px solid #e8e6e3;align-items:center">
-      <div class="ongoing-left">
-        <div style="font-size:10px;color:#5a5754;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:3px">Sfida ricevuta · <span id="cd-${m.id}"></span></div>
-        <div style="font-size:15px;font-weight:600;color:#e8e6e3">${opp?.nickname||"?"}</div>
-        ${m.white_player_id ? `<div style="font-size:11px;color:#5a5754;margin-top:2px">${m.white_player_id===me.id?'♔ Tu col bianco':'♔ '+opp?.nickname+' col bianco'}</div>` : ''}
+    const colorLabel = m.white_player_id
+      ? (m.white_player_id===me.id ? '♔ Tu giochi col bianco' : `♔ ${opp?.nickname||"?"} gioca col bianco`)
+      : 'Colore non specificato';
+    return `<div class="card-challenge">
+      <div class="card-challenge-label">
+        <span>Sfida ricevuta</span>
+        <span class="card-challenge-cd" id="cd-${m.id}"></span>
       </div>
-      <div style="display:flex;gap:6px;flex-shrink:0">
-        <button class="btn-sm" onclick="acceptChallenge('${m.id}')">Accetta</button>
-        <button class="btn-no" style="padding:7px 13px;font-size:13px" onclick="rejectChallenge('${m.id}')">Rifiuta</button>
+      <div class="card-challenge-name">${opp?.nickname||"?"}</div>
+      <div class="card-challenge-color">${colorLabel} · ELO ${opp?.elo||"?"}</div>
+      <div class="card-challenge-btns">
+        <button class="btn-accept" onclick="acceptChallenge('${m.id}')">Accetta</button>
+        <button class="btn-decline" onclick="rejectChallenge('${m.id}')">Rifiuta</button>
       </div>
     </div>`;
   }).join("");
 
-  // sfide inviate
+  // ── SFIDE INVIATE ──
   const sentHtml = sentChallenges.map(m => {
     const opp = getP(m.p2);
-    return `<div class="ongoing-card" style="border-left:3px solid #e8e6e3;align-items:center">
-      <div class="ongoing-left">
-        <div style="font-size:10px;color:#5a5754;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:3px">Sfida inviata · <span id="cd-${m.id}"></span></div>
-        <div style="font-size:15px;font-weight:600;color:#e8e6e3">${opp?.nickname||"?"}</div>
+    return `<div class="card-pending">
+      <div class="card-pending-left">
+        <div class="card-pending-label">Sfida inviata · <span id="cd-${m.id}"></span></div>
+        <div class="card-pending-name">${opp?.nickname||"?"}</div>
       </div>
-      <button class="btn-no" style="padding:7px 13px;font-size:13px;flex-shrink:0" onclick="cancelChallenge('${m.id}')">Annulla</button>
+      <button class="btn-cancel" onclick="cancelChallenge('${m.id}')">Annulla</button>
     </div>`;
   }).join("");
 
-
-
-  // aggancia long press dopo render
   $("home-pending").innerHTML = challengeHtml + sentHtml;
   updateCountdowns();
 
+  // ── CARD PARTITA ATTIVA: disputed ha priorità assoluta su liveMatch ──
+  // Una partita non può essere sia live che disputed — ma se per qualche ragione
+  // lo fosse, mostriamo solo la versione disputed. Una card per partita.
+  let ongoingHtml = "";
 
-
-  // mostra tutte le partite active (può averne più d'una se ha già inserito il risultato)
-  const allActive = matches.filter(m => m.status==="active" && !m.tournament_id);
-  $("home-ongoing").innerHTML = allActive.map(m => {
-    const opp = getP(m.p1===me.id ? m.p2 : m.p1);
-    const p1 = getP(m.p1);
-    const p2 = getP(m.p2);
+  // Tutte le partite attive, deduplicando: disputed ha precedenza
+  const activeCards = allActive.map(m => {
     const isP1 = m.p1===me.id;
     const myRes = isP1 ? m.result_p1 : m.result_p2;
-    const statusLabel = m.disputed && !myRes
-      ? "⚠ Disaccordo — reinserisci il risultato"
-      : myRes ? `In attesa di ${opp?.nickname||"?"}`
-      : "Inserisci risultato";
-    const canClick = !myRes || (m.disputed && !myRes);
-    return `<div class="ongoing-card">
-      <div class="ongoing-left">
-        <div class="ongoing-opp">${
-          m.white_player_id
-            ? (m.white_player_id===m.p1
-                ? `♔ ${p1?.nickname||"?"} vs ♚ ${p2?.nickname||"?"}`
-                : `♚ ${p1?.nickname||"?"} vs ♔ ${p2?.nickname||"?"}`)
-            : `${p1?.nickname||"?"} vs ${p2?.nickname||"?"}`
-        }</div>
-        <div class="ongoing-meta">${statusLabel}</div>
-      </div>
-      <button class="btn-sm" style="${canClick?'':'opacity:0.4;cursor:default'}" onclick="${canClick?`openMatch('${m.id}')`:''}">${myRes&&!m.disputed?'In attesa':'Risultato'}</button>
-    </div>`;
-  }).join("");
+    if(m.disputed) return { m, type: 'disputed' };
+    if(!myRes) return { m, type: 'live' };
+    return { m, type: 'waiting' };
+  });
 
-  // aggiorna bottone nuova partita
-  // blocca nuova partita solo se devo ancora inserire il risultato o ho sfide in volo
-  const isMeBusy = ongoingNeedsMyInput || incomingChallenges.length > 0 || sentChallenges.length > 0;
-  const btnNew = $("btn-newmatch");
-  const searchOpen = !$("home-search-panel").classList.contains("hidden");
-  if(btnNew) {
-    if(isMeBusy) {
-      if(ongoingNeedsMyInput || incomingChallenges.length > 0 || sentChallenges.length > 0) {
-        // devo ancora agire o sfida in volo — chiudi barra
-        closeHomeSearch();
-      } else {
-        // ho già inserito il risultato, sto aspettando l'altro — barra aperta per nuova sfida
-        $("home-search-panel").classList.remove("hidden");
-        if(!$("home-search-input").value) renderHomeSearch();
-      }
-      btnNew.classList.add('hidden');
-    } else if(!searchOpen) {
-      btnNew.classList.remove('hidden');
-    }
+  // Mostra solo una card per le live/disputed, raggruppa le waiting
+  const liveCard = activeCards.find(c => c.type === 'live');
+  const disputedCards = activeCards.filter(c => c.type === 'disputed');
+  const waitingCards = activeCards.filter(c => c.type === 'waiting');
+
+  if(liveCard) {
+    const m = liveCard.m;
+    const p1 = getP(m.p1), p2 = getP(m.p2);
+    const vsLabel = m.white_player_id
+      ? (m.white_player_id===m.p1
+          ? `♔ ${p1?.nickname||"?"} vs ♚ ${p2?.nickname||"?"}`
+          : `♚ ${p1?.nickname||"?"} vs ♔ ${p2?.nickname||"?"}`)
+      : `${p1?.nickname||"?"} vs ${p2?.nickname||"?"}`;
+    ongoingHtml += `<div class="card-live" id="card-live-${m.id}">
+      <div class="card-live-label"><span class="live-dot"></span>In corso</div>
+      <div class="card-live-vs">${vsLabel}</div>
+      <div class="card-live-sub" id="card-live-sub-${m.id}">Inserisci il tuo risultato</div>
+      <div class="card-live-actions" id="card-live-actions-${m.id}">
+        <button class="btn-result" onclick="expandResult('${m.id}')">Inserisci risultato →</button>
+      </div>
+    </div>`;
   }
 
+  disputedCards.forEach(({ m }) => {
+    const opp = getP(m.p1===me.id ? m.p2 : m.p1);
+    ongoingHtml += `<div class="card-live card-live-disputed" id="card-live-${m.id}">
+      <div class="card-live-label" style="color:#c33"><span style="width:6px;height:6px;border-radius:50%;background:#c33;display:inline-block"></span>Disaccordo</div>
+      <div class="card-live-vs">vs ${opp?.nickname||"?"}</div>
+      <div class="card-live-sub" id="card-live-sub-${m.id}">Risultati diversi — reinserisci il tuo</div>
+      <div class="card-live-actions" id="card-live-actions-${m.id}">
+        <button class="btn-result disputed" onclick="expandResult('${m.id}')">Reinserisci →</button>
+      </div>
+    </div>`;
+  });
 
-  // history — usa eloCache, nessun fetch, completamente sincrona
+  // ── IN ATTESA ──
+  let waitingHtml = "";
+  if(waitingCards.length === 1) {
+    const m = waitingCards[0].m;
+    const opp = getP(m.p1===me.id ? m.p2 : m.p1);
+    waitingHtml = `<div class="card-pending">
+      <div class="card-pending-left">
+        <div class="card-pending-label">In attesa di conferma</div>
+        <div class="card-pending-name">vs ${opp?.nickname||"?"}</div>
+      </div>
+      <span style="font-size:11px;color:#4a4642">…</span>
+    </div>`;
+  } else if(waitingCards.length > 1) {
+    waitingHtml = `<div class="waiting-group">
+      <div class="waiting-group-label">${waitingCards.length} partite in attesa di conferma</div>
+      <span class="waiting-group-count">${waitingCards.length}</span>
+    </div>`;
+  }
+
+  $("home-ongoing").innerHTML = ongoingHtml + waitingHtml;
+
+  // ── BOTTONE NUOVA PARTITA ──
+  // Nascosto se: partita live, sfide in entrata, O sfide inviate in attesa
+  const blockNew = !!liveMatch || incomingChallenges.length > 0 || sentChallenges.length > 0;
+  const searchOpen = $("home-search").classList.contains("open");
+  const btnNew = $("btn-newmatch");
+  if(blockNew) {
+    btnNew.classList.add("hidden");
+    if(searchOpen) closeHomeSearch();
+  } else {
+    if(!searchOpen) btnNew.classList.remove("hidden");
+  }
+
+  // ── STORICO ──
   if(done.length === 0) {
     $("home-history").innerHTML = `<div class="empty" style="margin-top:16px">Nessuna partita ancora</div>`;
     return;
@@ -929,69 +1067,74 @@ function renderHome() {
     const isP1 = m.p1===me.id;
     const won = m.result==="p1" ? isP1 : m.result==="p2" ? !isP1 : null;
     const isCancelled = m.result === "cancelled";
-    const resultLabel = isCancelled ? "—" : won===null ? "Patta" : won ? "Vittoria" : "Sconfitta";
-    const resultClass = isCancelled ? "draw" : won===null ? "draw" : won ? "win" : "loss";
+    const resultLabel = isCancelled ? "Annullata" : won===null ? "Patta" : won ? "Vinta" : "Persa";
+    const resultClass = isCancelled ? "cancelled" : won===null ? "draw" : won ? "win" : "loss";
     const elo = eloCache[m.id];
     const eloDelta = elo ? (elo.elo_after - elo.elo_before) : null;
-    const eloStr = eloDelta !== null ? `<span class="${eloDelta>=0?'elo-up':'elo-down'}">${eloDelta>=0?'+':''}${eloDelta}</span>` : "";
-    const oppEloLabel = opp ? `<span style="font-size:11px;color:#5a5754;margin-left:5px;font-weight:400">${opp.elo}</span>` : '';
+    const eloStr = eloDelta !== null
+      ? `<span class="${eloDelta>=0?'elo-up':'elo-down'}">ELO ${eloDelta>=0?'+':''}${eloDelta}</span>`
+      : "";
+    const colorPiece = m.white_player_id ? (m.white_player_id===me.id ? '\u2654 ' : '\u265a ') : '';
     return `<div class="hrow">
+      <div class="hrow-accent ${resultClass}"></div>
       <div class="hrow-left">
-        <div class="hrow-opp">${opp?.nickname||"?"}${oppEloLabel}</div>
-        <div class="hrow-date">${timeAgo(m.created_at)}</div>
+        <div class="hrow-opp">${colorPiece}${opp?.nickname||"?"}</div>
+        <div class="hrow-meta">
+          <span>${timeAgo(m.created_at)}</span>
+          ${opp ? `<span style="color:#2e2b28">\u00b7</span><span>${opp.elo} ELO</span>` : ''}
+        </div>
       </div>
-      <div class="hrow-right" style="text-align:right">
-        <div class="hrow-result ${resultClass}" style="font-size:13px;font-weight:600">${resultLabel}</div>
-        <div class="hrow-elo" style="font-size:11px;margin-top:1px">${eloStr}</div>
+      <div class="hrow-right">
+        <div class="hrow-result ${resultClass}">${resultLabel}</div>
+        <div class="hrow-elo">${eloStr}</div>
       </div>
     </div>`;
   }).join("");
 }
 
 $("btn-newmatch").onclick = () => {
-  const panel = $("home-search-panel");
-  const isHidden = panel.classList.contains("hidden");
-  panel.classList.toggle("hidden");
-  $("btn-newmatch").classList.toggle("hidden", !isHidden);
-  if(isHidden) { $("home-search-input").value = ""; renderHomeSearch(); setTimeout(() => $("home-search-input").focus(), 50); }
+  const search = $("home-search");
+  const isOpen = search.classList.contains("open");
+  if(isOpen) {
+    closeHomeSearch();
+  } else {
+    openHomeSearch();
+  }
 };
 
-
-function showLogin() {
-  $("box-login").classList.remove("hidden");
-  $("box-reg").classList.add("hidden");
-}
-
-
-
-function toggleEloTooltip(e) {
-  e.stopPropagation();
-  ["elo-tooltip","elo-tooltip-prof"].forEach(id => {
-    const tt = $(id);
-    if(tt) tt.classList.toggle("visible");
-  });
-}
-document.addEventListener("click", () => {
-  const tt = $("elo-tooltip");
-  if(tt) tt.classList.remove("visible");
-});
-function closeHomeSearch() {
-  $("home-search-panel").classList.add("hidden");
-  $("btn-newmatch").classList.remove("hidden");
+function openHomeSearch() {
+  $("home-search").classList.add("open");
+  $("btn-newmatch").classList.add("open");   // icona ruota 45°
+  $("btn-newmatch").classList.add("hidden"); // bottone collassa
   $("home-search-input").value = "";
-  $("home-search-results").style.display = "none";
+  renderHomeSearch();
+  setTimeout(() => $("home-search-input").focus(), 350);
 }
+
+function closeHomeSearch() {
+  $("home-search").classList.remove("open");
+  $("home-search-input").value = "";
+  $("home-search-results").innerHTML = "";
+  $("btn-newmatch").classList.remove("open"); // icona torna a +
+  // mostra bottone solo se non bloccato
+  const liveMatch = matches.find(m => m.status==="active" && !m.tournament_id && (() => {
+    const isP1 = m.p1===me.id; return !(isP1 ? m.result_p1 : m.result_p2);
+  })());
+  const incomingChallenges = matches.filter(m => m.status==="pending_challenge" && m.p2===me.id);
+  const sentChallenges = matches.filter(m => m.status==="pending_challenge" && m.p1===me.id);
+  if(!liveMatch && incomingChallenges.length === 0 && sentChallenges.length === 0) {
+    $("btn-newmatch").classList.remove("hidden");
+  }
+}
+
 $("home-search-input").addEventListener("input", renderHomeSearch);
+
 function renderHomeSearch() {
   const q = $("home-search-input").value.toLowerCase();
   const res = $("home-search-results");
-  if(!q) { res.innerHTML = ""; res.style.display = "none"; $("home-search-input").style.borderRadius = ""; return; }
-  res.style.display = "block";
-  $("home-search-input").style.borderRadius = "3px 3px 0 0";
-  $("home-search-input").style.borderRadius = "3px 3px 0 0";
-  $("home-search-input").style.borderColor = "#629924";
+  if(!q) { res.innerHTML = `<div class="empty" style="margin-top:12px;font-size:13px">Inizia a digitare...</div>`; return; }
   const filtered = players.filter(p => p.id!==me.id && p.nickname.toLowerCase().includes(q));
-  if(!filtered.length) { res.innerHTML = `<div class="empty" style="margin-top:8px">Nessun giocatore trovato.</div>`; return; }
+  if(!filtered.length) { res.innerHTML = `<div class="empty" style="margin-top:12px;font-size:13px">Nessun giocatore trovato.</div>`; return; }
   const now = Date.now();
   res.innerHTML = filtered.map(p => {
     const isOnline = p.last_seen_at && (now - new Date(p.last_seen_at).getTime()) < ONLINE_MS;
@@ -1000,33 +1143,21 @@ function renderHomeSearch() {
       (m.p1===p.id||m.p2===p.id) &&
       ((m.p1===p.id && !m.result_p1) || (m.p2===p.id && !m.result_p2))
     );
-    const dot = isOnline
-      ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4a7c1f;margin-right:4px;vertical-align:middle"></span>`
-      : `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3d3a35;margin-right:4px;vertical-align:middle"></span>`;
-    const statusLabel = isBusy ? `<span style="font-size:11px;color:#5a5754">in partita</span>` : !isOnline ? `<span style="font-size:11px;color:#3d3a35">offline</span>` : '';
-    const canChallenge = !isBusy && isOnline;
-    const ch = colorChoice[p.id]; // undefined=non scelto, 'me', 'opp'
-    const bgMe = ch==='me' ? '#e8e6e3' : 'transparent';
-    const fgMe = ch==='me' ? '#161512' : '#5a5754';
-    const bgOpp = ch==='opp' ? '#e8e6e3' : 'transparent';
-    const fgOpp = ch==='opp' ? '#161512' : '#5a5754';
-    const bgNone = (!ch && ch!==null) || ch===undefined ? '#e8e6e3' : ch===null ? '#e8e6e3' : 'transparent';
-    // semplificato: nessuna selezione = — attivo di default visivamente
-    const bgN = (ch === undefined) ? '#2f2b27' : ch===null ? '#e8e6e3' : 'transparent';
-    const fgN = (ch === undefined) ? '#5a5754' : ch===null ? '#161512' : '#5a5754';
+    const onlineDot = `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${isOnline?'#4a7c1f':'#2f2b27'};flex-shrink:0"></span>`;
+    const statusLabel = isBusy ? ' · in partita' : !isOnline ? ' · offline' : '';
+    const canChallenge = isOnline && !isBusy;
+    const ch = colorChoice[p.id]; // undefined, 'me', 'opp', null
     return `<div class="prow" onclick="openProfile('${p.id}', 'home')">
       <div style="flex:1;min-width:0">
-        <div class="pname" style="display:flex;align-items:center;gap:4px">${dot}${p.nickname} ${statusLabel}</div>
+        <div class="pname" style="display:flex;align-items:center;gap:6px">${onlineDot}${p.nickname}<span style="font-size:11px;color:#4a4642;font-weight:400">${statusLabel}</span></div>
         <div class="pelo">ELO ${p.elo} · ${p.wins}V ${p.losses}P ${p.draws}=</div>
+        ${canChallenge ? `<div class="color-toggle" onclick="event.stopPropagation()">
+          <button onclick="setColor('${p.id}','me')" class="${ch==='me'?'active':''}">♔ Io bianco</button>
+          <button onclick="setColor('${p.id}','opp')" class="${ch==='opp'?'active':''}">♔ ${p.nickname} bianco</button>
+          <button onclick="setColor('${p.id}',null)" class="${ch===null?'active':''}">—</button>
+        </div>` : ''}
       </div>
-      ${canChallenge ? `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0" onclick="event.stopPropagation()">
-        <button class="btn-sm" onclick="challengeFromHome('${p.id}',this)">Sfida</button>
-        <div style="display:flex;border:1px solid #2f2b27;border-radius:3px;overflow:hidden">
-          <button onclick="setColor('${p.id}','me')" style="padding:3px 7px;font-size:11px;background:${bgMe};color:${fgMe};border:none;border-right:1px solid #2f2b27;cursor:pointer">♔ Io</button>
-          <button onclick="setColor('${p.id}','opp')" style="padding:3px 7px;font-size:11px;background:${bgOpp};color:${fgOpp};border:none;border-right:1px solid #2f2b27;cursor:pointer">♔ ${p.nickname}</button>
-          <button onclick="setColor('${p.id}',null)" style="padding:3px 7px;font-size:11px;background:${bgN};color:${fgN};border:none;cursor:pointer">—</button>
-        </div>
-      </div>` : isBusy ? `<span style="font-size:11px;color:#3d3a35">in partita</span>` : ''}
+      ${canChallenge ? `<button class="btn-sm" style="margin-left:8px;align-self:flex-start;flex-shrink:0" onclick="event.stopPropagation();challengeFromHome('${p.id}',this)">Sfida</button>` : ''}
     </div>`;
   }).join("");
 }
@@ -1055,8 +1186,7 @@ async function challengeFromHome(oppId, btn) {
   if(btn) { btn.disabled=false; btn.textContent="Sfida"; }
   if(res?.error) return toast(res.error, "err");
   if(Array.isArray(res) && res[0]?.error) return toast(res[0].error, "err");
-  $("home-search-panel").classList.add("hidden");
-  $("btn-newmatch").classList.remove("hidden");
+  closeHomeSearch();
   await fetchAll();
 }
 
@@ -1194,6 +1324,41 @@ function openMatch(matchId) {
   if(!m) return;
   activeMatch = m;
   openMatchDirect(m, getP(m.p1===me.id ? m.p2 : m.p1));
+}
+
+function expandResult(matchId) {
+  const m = matches.find(x => x.id===matchId);
+  if(!m) return;
+  const actionsEl = $("card-live-actions-" + matchId);
+  const subEl = $("card-live-sub-" + matchId);
+  if(!actionsEl) { openMatch(matchId); return; } // fallback
+  const isP1 = m.p1===me.id;
+  const resWin  = isP1 ? "p1" : "p2";
+  const resLoss = isP1 ? "p2" : "p1";
+  if(subEl) subEl.style.display = "none";
+  actionsEl.innerHTML = `<div class="card-live-result-expanded">
+    <button class="rbtn-inline win" onclick="submitResultInline('${matchId}','${resWin}',this)">Ho vinto</button>
+    <button class="rbtn-inline draw" onclick="submitResultInline('${matchId}','draw',this)">Patta</button>
+    <button class="rbtn-inline loss" onclick="submitResultInline('${matchId}','${resLoss}',this)">Ho perso</button>
+  </div>`;
+}
+
+async function submitResultInline(matchId, myResult, btn) {
+  if(btn) { btn.disabled=true; btn.style.opacity='0.6'; }
+  const m = matches.find(x => x.id===matchId);
+  if(!m) return;
+  const isP1 = m.p1 === me.id;
+  const field = isP1 ? "result_p1" : "result_p2";
+  await db.patch("matches", `id=eq.${matchId}`, {[field]: myResult});
+  activeMatch = null;
+  // Transient feedback prima di fetchAll
+  const cardEl = $("card-live-" + matchId);
+  if(cardEl) {
+    cardEl.style.transition = "opacity .3s";
+    cardEl.style.opacity = "0.4";
+  }
+  await fetchAll();
+  // fetchAll → renderHome → toast automatico dal trigger
 }
 
 
@@ -1617,8 +1782,8 @@ function showPage(name) {
   const navBtn = document.querySelector(`.nbtn[data-page="${name}"]`);
   if(navBtn) navBtn.classList.add("on");
   // FAB visibile solo in home
-  const fab = $("btn-newmatch");
-  if(fab) fab.style.display = (name === "home") ? "" : "none";
+  const btnNew = $("btn-newmatch");
+  if(btnNew) btnNew.style.display = (name === "home") ? "" : "none";
   if(name==="search") { $("search-input").value = ""; renderSearch(); setTimeout(() => $("search-input").focus(), 50); }
   if(name==="leaderboard") renderLeaderboard();
   if(name==="profile-me") { openProfile(me.id, "home"); }
