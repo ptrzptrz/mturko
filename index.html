@@ -1371,6 +1371,13 @@ async function cleanupExpired() {
   if(!me) return;
   const now = Date.now();
   const before = matches.length;
+
+  // identifica scadute prima di filtrare
+  const expiredChallenges = matches.filter(m => {
+    if(m.status !== 'pending_challenge') return false;
+    return (now - new Date(m.created_at).getTime()) > CHALLENGE_EXPIRE_MS;
+  });
+
   matches = matches.filter(m => {
     const age = now - new Date(m.created_at).getTime();
     if(m.status === 'pending_challenge') return age <= CHALLENGE_EXPIRE_MS;
@@ -1380,7 +1387,12 @@ async function cleanupExpired() {
     }
     return true;
   });
-  // se qualcosa è scaduto localmente, re-render immediato
+
+  // marca esplicitamente le sfide scadute nel DB — non aspettare il cron
+  for(const m of expiredChallenges) {
+    db.patch("matches", `id=eq.${m.id}`, {status: "done", result: "cancelled"}).catch(() => {});
+  }
+
   if(matches.length !== before) renderHome();
 }
 
