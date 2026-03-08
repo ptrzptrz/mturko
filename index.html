@@ -37,11 +37,12 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 /* ── Topbar ── */
 .topbar{background:#161512;padding:env(safe-area-inset-top,20px) 20px 0;min-height:calc(50px + env(safe-area-inset-top,20px));display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .topbar-right{display:flex;align-items:center;gap:16px}
-.topbar-identity{display:flex;align-items:baseline;gap:7px;cursor:pointer;padding:8px 0}
+.topbar-identity{display:flex;align-items:baseline;gap:7px;cursor:pointer;padding:8px 4px;border-radius:8px;transition:opacity .15s;-webkit-tap-highlight-color:transparent}
 .topbar-nick{font-size:14px;font-weight:600;color:#e8e6e3}
 .topbar-elo{font-size:14px;font-weight:400;color:#4a4642;transition:color .3s ease}
 .topbar-logout{background:none;border:none;color:#3a3630;font-size:12px;cursor:pointer;padding:4px;transition:color .15s ease}
 .topbar-logout:active{color:#e8e6e3}
+.topbar-identity:active{opacity:.6}
 .logo{color:#e8e6e3;font-size:15px;font-weight:700;letter-spacing:-.2px}
 
 /* ── Navbar ── */
@@ -75,11 +76,11 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 /* ── Common ── */
 .empty{color:#3a3630;text-align:center;margin-top:48px;font-size:14px}
 .slabel{font-size:11px;font-weight:600;color:#4a4642;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px}
-.divider{display:flex;align-items:center;gap:10px;font-size:10px;font-weight:600;color:#3a3630;margin:14px 0 10px;text-transform:uppercase;letter-spacing:1.2px}
+.divider{display:flex;align-items:center;gap:10px;font-size:10px;font-weight:600;color:#3a3630;margin:16px 0 8px;text-transform:uppercase;letter-spacing:1.2px}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:#252220}
 
 /* ── Notif ── */
-.notif{position:fixed;top:calc(env(safe-area-inset-top,20px) + 60px);left:50%;transform:translateX(-50%);background:#e8e6e3;color:#161512;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;max-width:90vw;display:none;box-shadow:0 4px 16px rgba(0,0,0,.4)}
+.notif{position:fixed;top:calc(env(safe-area-inset-top,20px) + 58px);left:50%;transform:translateX(-50%) translateY(-4px);background:#e8e6e3;color:#161512;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;max-width:90vw;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5);opacity:0;transition:opacity .2s,transform .2s}
 .notif.err{background:#c33;color:#fff}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.2);border-top-color:#161512;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -88,7 +89,7 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 /* home-top: sticky, mai scrolla */
 .home-top{padding:12px 16px 0;flex-shrink:0}
 /* home-scroll: tutto il resto, scrolla */
-#home-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px calc(16px + env(safe-area-inset-bottom,0px))}
+#home-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px calc(24px + env(safe-area-inset-bottom,0px))}
 #home-scroll::-webkit-scrollbar{display:none}
 
 /* Bottone nuova partita — primario, inline */
@@ -128,21 +129,15 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 .asheet-colors{display:flex;gap:8px;margin-bottom:12px}
 .asheet-color-btn{flex:1;border:none;border-radius:16px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:transform .15s cubic-bezier(.34,1.56,.64,1),opacity .15s;position:relative;height:88px}
 .asheet-color-btn:active{transform:scale(.96)}
-/* Bianco */
+/* Bianco — sempre sfondo chiaro */
 .asheet-color-white{background:#e8e6e3}
 .asheet-color-white .asheet-color-name{font-size:14px;font-weight:700;color:#161512;letter-spacing:-.2px}
-/* Nero */
-.asheet-color-black{background:#111009;box-shadow:inset 0 0 0 1px #2a2724}
-.asheet-color-black .asheet-color-name{font-size:14px;font-weight:700;color:#e8e6e3;letter-spacing:-.2px}
-/* Colore sempre visibile — selezione = pieno, non selezionato = attenuato */
-.asheet-color-white{background:#e8e6e3}
-.asheet-color-white .asheet-color-name{color:#161512}
+/* Nero — sempre sfondo scuro */
 .asheet-color-black{background:#0d0c0a;box-shadow:inset 0 0 0 1px #2a2724}
-.asheet-color-black .asheet-color-name{color:#e8e6e3}
-/* Non selezionato: opacità ridotta ma colore intatto */
-.asheet-color-btn:not(.selected){opacity:.35}
-/* Selezionato: pieno */
-.asheet-color-btn.selected{opacity:1}
+.asheet-color-black .asheet-color-name{font-size:14px;font-weight:700;color:#e8e6e3;letter-spacing:-.2px}
+/* Bianco sempre acceso, nero sempre attenuato */
+.asheet-color-white{opacity:1}
+.asheet-color-black{opacity:.38}
 /* CTA */
 .asheet-cta{width:100%;background:#e8e6e3;border:none;border-radius:14px;padding:16px;color:#161512;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .15s,transform .12s;margin-bottom:8px}
 .asheet-cta:active{opacity:.85;transform:scale(.99)}
@@ -150,41 +145,41 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 
 /* Card partita IN CORSO — la più importante */
 .card-live{background:#1d1a16;border:1px solid #3a3630;border-radius:14px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
-.card-live::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:#629924}
+.card-live::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:#629924;opacity:.8}
 .card-live.card-live-disputed::before{background:#c33}
-.card-live-label{font-size:10px;color:#629924;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.card-live-label{font-size:10px;color:#629924;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:5px}
 .live-dot{width:6px;height:6px;border-radius:50%;background:#629924;animation:pulse 1.5s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.card-live-vs{font-size:20px;font-weight:800;color:#e8e6e3;margin-bottom:4px;letter-spacing:-.3px}
-.card-live-sub{font-size:12px;color:#5a5754;margin-bottom:14px}
-.card-live-actions{display:flex;gap:8px;flex-direction:column}
+.card-live-vs{font-size:18px;font-weight:700;color:#e8e6e3;margin-bottom:6px;letter-spacing:-.2px}
+.card-live-sub{font-size:12px;color:#4a4642;margin-bottom:12px}
+.card-live-actions{display:flex;gap:8px;flex-direction:column;margin-top:0}
 .card-live-result-expanded{margin-top:4px;display:flex;flex-direction:column;gap:8px;animation:expandIn .2s cubic-bezier(.4,0,.2,1)}
 @keyframes expandIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 .rbtn-inline{width:100%;padding:14px 18px;border-radius:10px;font-size:15px;font-weight:700;text-align:left;cursor:pointer;transition:opacity .15s;border:none;font-family:inherit}
 .rbtn-inline:active{opacity:.8}
-.rbtn-inline.win{background:#e8e6e3;color:#161512}
-.rbtn-inline.draw{background:#2a2724;color:#e8e6e3;border:1px solid #3a3630}
-.rbtn-inline.loss{background:transparent;color:#5a5754;border:1px solid #252220}
-.btn-result{flex:1;background:#e8e6e3;color:#161512;border:none;border-radius:10px;padding:13px 0;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s}
-.btn-result:active{opacity:.8}
+.rbtn-inline.win{background:#e8e6e3;color:#161512;font-size:16px}
+.rbtn-inline.draw{background:#1d1a16;color:#e8e6e3;border:1px solid #2f2b27}
+.rbtn-inline.loss{background:transparent;color:#4a4642;border:1px solid #222}
+.btn-result{width:100%;background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:15px 18px;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .1s;text-align:left;display:flex;align-items:center;justify-content:space-between}
+.btn-result::after{content:'→';font-size:16px;opacity:.5}
+.btn-result:active{opacity:.8;transform:scale(.99)}
 .btn-result.waiting{background:#1d1a16;color:#5a5754;border:1px solid #2f2b27;cursor:default}
-.btn-result.disputed{background:rgba(200,50,50,.15);color:#c33;border:1px solid rgba(200,50,50,.3)}
+.btn-result.waiting::after{display:none}
+.btn-result.disputed{background:rgba(200,50,50,.12);color:#c33;border:1px solid rgba(200,50,50,.25)}
+.btn-result.disputed::after{content:'→';opacity:.5}
 
 /* Card sfida ricevuta */
-.card-challenge{background:#1d1a16;border:1px solid #2f2b27;border-radius:14px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
-.card-challenge::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:#e8e6e3;opacity:.5}
-.card-challenge-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.card-challenge-name{font-size:20px;font-weight:800;color:#e8e6e3;letter-spacing:-.3px}
-.card-challenge-cd{font-size:12px;color:#5a5754}
-.card-challenge-color{display:flex;align-items:center;gap:6px;margin-bottom:16px}
-.color-chip{width:18px;height:18px;border-radius:4px;flex-shrink:0}
-.color-chip.white{background:#e8e6e3}
-.color-chip.black{background:#0d0c0a;box-shadow:inset 0 0 0 1px #3a3630}
-.color-chip-label{font-size:13px;color:#8a8784}
+.card-challenge{background:#1d1a16;border:1px solid #2f2b27;border-radius:14px;padding:14px 16px 18px;margin-bottom:10px;position:relative;overflow:hidden}
+.card-challenge-progress{position:absolute;bottom:0;left:0;height:2px;background:#5a5754;transition:width 1s linear;border-radius:0 2px 2px 0}
+.card-challenge-progress.urgent{background:#c33}
+.card-challenge-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px}
+.card-challenge-who{font-size:10px;color:#4a4642;font-weight:600;margin-bottom:3px;text-transform:uppercase;letter-spacing:1.2px}
+.card-challenge-name{font-size:24px;font-weight:800;color:#e8e6e3;letter-spacing:-.5px;line-height:1}
+.card-challenge-color{font-size:12px;color:#5a5754;margin-bottom:14px}
 .card-challenge-btns{display:flex;gap:8px;align-items:center}
-.btn-accept{flex:1;background:#e8e6e3;color:#161512;border:none;border-radius:10px;padding:13px 0;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .12s;font-family:inherit}
+.btn-accept{flex:1;background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:14px 0;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .12s;font-family:inherit;letter-spacing:-.2px}
 .btn-accept:active{opacity:.8;transform:scale(.98)}
-.btn-decline{background:transparent;color:#5a5754;border:none;padding:13px 14px;font-size:14px;cursor:pointer;transition:opacity .15s;font-family:inherit;white-space:nowrap}
+.btn-decline{background:transparent;color:#4a4642;border:none;padding:14px 12px;font-size:14px;cursor:pointer;transition:opacity .15s;font-family:inherit;white-space:nowrap;font-weight:500}
 .btn-decline:active{opacity:.5}
 
 /* Card sfida inviata + in attesa */
@@ -200,7 +195,7 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 .waiting-group-label{font-size:12px;color:#5a5754;flex:1}
 .waiting-group-count{font-size:11px;color:#4a4642;background:#1d1a16;border-radius:6px;padding:2px 8px}
 
-#home-pending:not(:empty),#home-ongoing:not(:empty){margin-bottom:0}
+#home-pending:not(:empty){margin-bottom:4px}#home-ongoing:not(:empty){margin-bottom:0}
 
 /* ── ELO strip ── */
 .elo-info-btn{width:13px;height:13px;border-radius:50%;border:1px solid #3a3630;color:#4a4642;font-size:8px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
@@ -248,9 +243,10 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 /* ── Leaderboard ── */
 .lbrow{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:13px 14px;margin-bottom:6px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .15s}
 .lbrow:active{border-color:#3a3630}
-.lbrow.me{border-color:#3a3630}
+.lbrow.me{border-color:#3a3630;background:#1e1c18}
 .lbrank{font-size:13px;color:#4a4642;width:22px;text-align:center;flex-shrink:0}
 .lbname{font-size:15px;color:#e8e6e3;font-weight:600}
+.lbname.me{color:#e8e6e3}
 .lbrecord{font-size:11px;color:#4a4642;margin-top:2px}
 .lbelo{font-size:16px;font-weight:700;color:#e8e6e3;margin-left:auto}
 #lb-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:12px 16px}
@@ -407,7 +403,7 @@ canvas{width:100%!important;display:block}
       <div id="home-scroll">
         <div id="home-pending"></div>
         <div id="home-ongoing"></div>
-        <div class="divider">Partite recenti</div>
+        <div class="divider" id="home-history-divider" style="display:none">Partite recenti</div>
         <div id="home-history"></div>
       </div>
     </div>
@@ -417,10 +413,10 @@ canvas{width:100%!important;display:block}
       <div id="search-results"></div>
     </div>
     <!-- MATCH -->
-    <div id="page-match" class="page">
+    <div id="page-match" class="page" style="padding:16px;overflow-y:auto">
+      <button onclick="showPage('home')" style="background:none;border:none;color:#4a4642;font-size:13px;cursor:pointer;padding:4px 0;margin-bottom:8px;display:flex;align-items:center;gap:6px">← Indietro</button>
       <div id="match-vs" class="match-vs"></div>
-      <div id="match-btns"></div>
-
+      <div id="match-btns" style="padding:0 4px"></div>
     </div>
     <!-- LEADERBOARD -->
     <div id="page-lb" class="page">
@@ -514,9 +510,10 @@ const supabaseClient = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 let authToken = null;
 let me = null, players = [], matches = [], activeMatch = null, pollTimer = null, heartbeatTimer = null;
 
+
 function startPolling() {
   stopPolling();
-  pollTimer = setInterval(fetchAll, 15000); // 15s fallback
+  pollTimer = setInterval(fetchAll, 5000); // 5s — sfide in tempo reale
 }
 function stopPolling() {
   clearInterval(pollTimer);
@@ -547,15 +544,13 @@ function startRealtime() {
   realtimeOk = false;
   realtimeChannel = supabaseClient
     .channel('app-changes')
-    .on('postgres_changes', {event:'*', schema:'public', table:'matches', filter:`p1=eq.${me.id}`}, () => fetchAll())
-    .on('postgres_changes', {event:'*', schema:'public', table:'matches', filter:`p2=eq.${me.id}`}, () => fetchAll())
+    .on('postgres_changes', {event:'*', schema:'public', table:'matches'}, () => fetchAll())
     .on('postgres_changes', {event:'UPDATE', schema:'public', table:'players'}, (payload) => {
       if(payload.new && Array.isArray(players)) {
         const idx = players.findIndex(p => p.id === payload.new.id);
         if(idx !== -1) players[idx] = {...players[idx], ...payload.new};
         else players.push(payload.new);
         if(payload.new.id === me.id) me = {...me, ...payload.new};
-        // aggiorna sempre la lista se c'è una query attiva
         if($("home-search-input") && $("home-search-input").value) renderHomeSearch();
       }
     })
@@ -637,8 +632,16 @@ function toast(msg, type="ok") {
   el.textContent = msg;
   el.className = "notif" + (type==="err" ? " err" : "");
   el.style.display = "block";
+  // forza reflow per attivare transizione
+  el.getBoundingClientRect();
+  el.style.opacity = "1";
+  el.style.transform = "translateX(-50%) translateY(0)";
   clearTimeout(el._t);
-  el._t = setTimeout(() => el.style.display = "none", 2500);
+  el._t = setTimeout(() => {
+    el.style.opacity = "0";
+    el.style.transform = "translateX(-50%) translateY(-4px)";
+    setTimeout(() => { el.style.display = "none"; }, 200);
+  }, 2400);
 }
 function setErr(id, msg) {
   const el = $(id);
@@ -792,6 +795,7 @@ async function doRegister() {
 
 async function enterApp(player) {
   me = player;
+  players = []; matches = []; activeMatch = null; // reset stato precedente
   // fade out auth, then show main
   const authEl = $("auth");
   authEl.style.transition = "opacity .3s ease";
@@ -860,27 +864,7 @@ async function fetchAll() {
     }
   }
 
-  // auto-apri pagina risultato se una partita è diventata active (sfida accettata)
-  if(Array.isArray(ms)) {
-    const newActive = ms.find(m =>
-      m.status === 'active' && !m.tournament_id &&
-      (m.p1 === me.id || m.p2 === me.id)
-    );
-    const wasAlreadyActive = prevMatches.some(m => m.id === newActive?.id && m.status === 'active');
-    if(newActive && !wasAlreadyActive && !onMatchPage) {
-      const newOppId = newActive.p1 === me.id ? newActive.p2 : newActive.p1;
-      const opp = players.find(p => p.id === newOppId);
-      openMatchDirect(newActive, opp);
-    }
-    // auto-apri se disaccordo rilevato
-    if(!onMatchPage) {
-      const disputed = Array.isArray(ms) ? ms.find(m => m.disputed && (m.p1===me.id||m.p2===me.id)) : null;
-      if(disputed) {
-        const wasDisputed = prevMatches.find(m => m.id===disputed.id && m.disputed);
-        if(!wasDisputed) openMatchDirect(disputed, players.find(p => p.id===(disputed.p1===me.id?disputed.p2:disputed.p1)));
-      }
-    }
-  }
+  // nessun auto-open: la home mostra le card con bottone "Risultato"
 
   updateTopbar();
   await cleanupExpired();
@@ -928,15 +912,22 @@ async function fetchAll() {
 // aggiorna countdown ogni secondo — solo gli span, non riscrive il DOM
 function updateCountdowns() {
   if(!me) return;
+  let anyExpired = false;
   matches.forEach(m => {
-    const el = document.getElementById('cd-' + m.id);
-    if(!el) return;
-    if(m.status === 'pending_challenge') {
-      const cd = countdownStr(m.created_at, CHALLENGE_EXPIRE_MS);
-      el.innerHTML = cd === 'scaduta' ? '<span style="color:#c33">scaduta</span>' : cd;
+    if(m.status !== 'pending_challenge') return;
+    const elapsed = Date.now() - new Date(m.created_at).getTime();
+    const remaining = CHALLENGE_EXPIRE_MS - elapsed;
+    const pct = Math.max(0, Math.min(100, (remaining / CHALLENGE_EXPIRE_MS) * 100));
+    const urgent = pct < 20;
+    // aggiorna barra progress
+    const bar = document.getElementById('prog-' + m.id);
+    if(bar) {
+      bar.style.width = pct + '%';
+      bar.className = 'card-challenge-progress' + (urgent ? ' urgent' : '');
     }
+    if(remaining <= 0) anyExpired = true;
   });
-
+  if(anyExpired) cleanupExpired();
 }
 setInterval(updateCountdowns, 1000);
 
@@ -1003,20 +994,22 @@ function renderHome() {
     const colorLabel = m.white_player_id
       ? (m.white_player_id===me.id ? 'Tu — bianco' : `${opp?.nickname||"?"} — bianco`)
       : '';
-    // chip colore: chi ha il bianco
-    const myColor = m.white_player_id === me.id ? 'white' : 'black';
     const myColorLabel = m.white_player_id
-      ? (m.white_player_id === me.id ? 'Tu giochi col bianco' : 'Tu giochi col nero')
-      : 'Colore non specificato';
+      ? (m.white_player_id === me.id ? 'Giochi col bianco' : 'Giochi col nero')
+      : '';
+    const totalMs = CHALLENGE_EXPIRE_MS;
+    const elapsed = Date.now() - new Date(m.created_at).getTime();
+    const pct = Math.max(0, Math.min(100, ((totalMs - elapsed) / totalMs) * 100));
+    const urgent = pct < 20;
     return `<div class="card-challenge">
+      <div class="card-challenge-progress${urgent?' urgent':''}" id="prog-${m.id}" style="width:${pct}%"></div>
       <div class="card-challenge-top">
-        <div class="card-challenge-name">${opp?.nickname||"?"}</div>
-        <span class="card-challenge-cd" id="cd-${m.id}"></span>
+        <div>
+          <div class="card-challenge-who">ti sfida</div>
+          <div class="card-challenge-name">${opp?.nickname||"?"}</div>
+        </div>
       </div>
-      <div class="card-challenge-color">
-        <div class="color-chip ${myColor}"></div>
-        <span class="color-chip-label">${myColorLabel}</span>
-      </div>
+      ${myColorLabel ? `<div class="card-challenge-color">${myColorLabel}</div>` : ''}
       <div class="card-challenge-btns">
         <button class="btn-accept" onclick="acceptChallenge('${m.id}')">Accetta</button>
         <button class="btn-decline" onclick="rejectChallenge('${m.id}')">Declina</button>
@@ -1066,7 +1059,7 @@ function renderHome() {
       <div class="card-live-vs">${vsLabel}</div>
       <div class="card-live-sub" id="card-live-sub-${m.id}">Inserisci il tuo risultato</div>
       <div class="card-live-actions" id="card-live-actions-${m.id}">
-        <button class="btn-result" onclick="expandResult('${m.id}')">Inserisci risultato →</button>
+        <button class="btn-result" onclick="expandResult('${m.id}')">Inserisci risultato</button>
       </div>
     </div>`;
   }
@@ -1117,10 +1110,13 @@ function renderHome() {
   }
 
   // ── STORICO ──
+  const divider = $("home-history-divider");
   if(done.length === 0) {
-    $("home-history").innerHTML = `<div class="empty" style="margin-top:16px">Nessuna partita ancora</div>`;
+    if(divider) divider.style.display = 'none';
+    $("home-history").innerHTML = '';
     return;
   }
+  if(divider) divider.style.display = '';
   $("home-history").innerHTML = done.map(m => {
     const opp = getP(m.p1===me.id ? m.p2 : m.p1);
     const isP1 = m.p1===me.id;
@@ -1236,7 +1232,7 @@ function closeColorSheet() {
 function selectSheetColor(choice) {
   sheetColorChoice = choice;
   const opp = getP(sheetOppId);
-  // bianco = chi ha scelto bianco, nero = l'altro
+  // scambia solo i nomi — l'opacità è fissa per colore
   if(choice === 'me') {
     $('asheet-label-white').textContent = me.nickname;
     $('asheet-label-black').textContent = opp?.nickname || '?';
@@ -1244,22 +1240,21 @@ function selectSheetColor(choice) {
     $('asheet-label-white').textContent = opp?.nickname || '?';
     $('asheet-label-black').textContent = me.nickname;
   }
-  $('asheet-btn-white').classList.toggle('selected', choice === 'me');
-  $('asheet-btn-black').classList.toggle('selected', choice === 'opp');
 }
 
 async function confirmColorSheet() {
-  if(!sheetOppId) return;
   const oppId = sheetOppId;
   const btn = $('asheet-confirm');
   closeColorSheet();
 
-  // controlla partita in corso
-  const myActive = matches.find(m => m.status==='active' && !m.tournament_id && (m.p1===me.id||m.p2===me.id));
-  if(myActive) {
-    const isP1 = myActive.p1===me.id;
-    const myRes = isP1 ? myActive.result_p1 : myActive.result_p2;
-    if(!myRes) return toast("Inserisci prima il risultato della partita in corso.", "err");
+  // blocca solo se c'è una partita attiva dove non ho ancora inserito il risultato
+  const activeMatches = matches.filter(m => m.status === 'active' && !m.tournament_id && (m.p1===me.id||m.p2===me.id));
+  const myPending = activeMatches.find(m => {
+    const isP1 = m.p1 === me.id;
+    return !(isP1 ? m.result_p1 : m.result_p2);
+  });
+  if(myPending) {
+    return toast("Inserisci prima il risultato della partita in corso.", "err");
   }
 
   const whiteId = sheetColorChoice === 'me' ? me.id : oppId;
@@ -1312,14 +1307,15 @@ function renderSearch() {
 
 async function challenge(oppId, btn) {
   if(btn) { btn.disabled = true; btn.textContent = "..."; }
-  const myActive = matches.find(m => m.status==='active' && !m.tournament_id && (m.p1===me.id||m.p2===me.id));
-  if(myActive) {
-    const isP1 = myActive.p1===me.id;
-    const myRes = isP1 ? myActive.result_p1 : myActive.result_p2;
-    if(!myRes) {
-      if(btn) { btn.disabled=false; btn.textContent="Registra"; }
-      return toast("Inserisci prima il risultato della partita in corso.", "err");
-    }
+  const myPending2 = matches.find(m => {
+    if(m.status !== 'active' || m.tournament_id) return false;
+    if(m.p1 !== me.id && m.p2 !== me.id) return false;
+    const isP1 = m.p1 === me.id;
+    return !(isP1 ? m.result_p1 : m.result_p2);
+  });
+  if(myPending2) {
+    if(btn) { btn.disabled=false; btn.textContent="Sfida"; }
+    return toast("Inserisci prima il risultato della partita in corso.", "err");
   }
   const res = await db.rpc("create_challenge", {opponent_id: oppId, white_player_id: null});
   if(btn) { btn.disabled = false; btn.textContent = "Registra"; }
@@ -1361,21 +1357,18 @@ const MATCH_EXPIRE_MS = 2 * 60 * 1000;          // TEST: 2 minuti (produzione: 2
 async function cleanupExpired() {
   if(!me) return;
   const now = Date.now();
-  const expired = matches.filter(m => {
+  const before = matches.length;
+  matches = matches.filter(m => {
     const age = now - new Date(m.created_at).getTime();
-    if(m.status === 'pending_challenge') {
-      const limit = CHALLENGE_EXPIRE_MS;
-      return age > limit;
-    }
+    if(m.status === 'pending_challenge') return age <= CHALLENGE_EXPIRE_MS;
     if(m.status === 'active') {
-      // usa updated_at: si aggiorna quando uno inserisce il risultato
       const ageFromUpdate = now - new Date(m.updated_at || m.created_at).getTime();
-      return ageFromUpdate > MATCH_EXPIRE_MS;
+      return ageFromUpdate <= MATCH_EXPIRE_MS;
     }
-    return false;
+    return true;
   });
-  // timeout gestito dal cron DB (cleanup_expired_matches ogni minuto)
-  // il frontend non interviene più sui timeout
+  // se qualcosa è scaduto localmente, re-render immediato
+  if(matches.length !== before) renderHome();
 }
 
 function countdownStr(createdAt, expireMs) {
@@ -1527,10 +1520,13 @@ function showDisagreement(matchId) {
 function renderLeaderboard() {
   const sorted = [...players].sort((a,b) => b.elo - a.elo);
   $("lb-list").innerHTML = sorted.map((p,i) => {
-    return `<div class="lbrow${p.id===me.id?" me":""}" onclick="openProfile('${p.id}', 'leaderboard')">
-      <div class="lbrank">${i+1}</div>
+    const rankStr = i===0 ? '♛' : i===1 ? '2' : i===2 ? '3' : String(i+1);
+    const rankColor = i===0 ? '#b8a04a' : i===1 ? '#888' : i===2 ? '#8a6a3a' : '#4a4642';
+    const isMe = p.id===me.id;
+    return `<div class="lbrow${isMe?" me":""}" onclick="openProfile('${p.id}', 'leaderboard')">
+      <div class="lbrank" style="color:${rankColor};font-size:${i===0?'16':'13'}px">${rankStr}</div>
       <div style="flex:1">
-        <div class="lbname${p.id===me.id?" me":""}">${p.nickname}${p.id===me.id?' <span style="font-size:10px;color:#5a5754">tu</span>':""}</div>
+        <div class="lbname">${p.nickname}${isMe?' <span style="font-size:10px;color:#4a4642;font-weight:400">tu</span>':""}</div>
         <div class="lbrecord">${p.wins}V · ${p.losses}P · ${p.draws}=</div>
       </div>
       <div class="lbelo">${p.elo}</div>
