@@ -1307,9 +1307,13 @@ function closeColorSheet() {
     overlay.style.display = 'none';
     overlay.style.background = '';
     sheetOppId = null;
-    // forza repaint topbar su iOS per sbloccare status bar color
-    const tb = document.querySelector('.topbar');
-    if(tb) { tb.style.transform = 'translateZ(0)'; requestAnimationFrame(() => { tb.style.transform = ''; }); }
+    // forza iOS a ricampionare status bar color con micro-scroll
+    const scroller = $('home-scroll');
+    if(scroller) {
+      const top = scroller.scrollTop;
+      scroller.scrollTop = top + 1;
+      requestAnimationFrame(() => { scroller.scrollTop = top; });
+    }
   }, 20);
 }
 
