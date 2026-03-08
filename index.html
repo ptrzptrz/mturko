@@ -80,8 +80,9 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:#252220}
 
 /* ── Notif ── */
-.notif{position:fixed;top:calc(env(safe-area-inset-top,20px) + 58px);left:50%;transform:translateX(-50%) translateY(-4px);background:#e8e6e3;color:#161512;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;max-width:90vw;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5);opacity:0;transition:opacity .2s,transform .2s}
-.notif.err{background:#c33;color:#fff}
+.notif{position:fixed;top:calc(env(safe-area-inset-top,20px) + 58px);left:50%;transform:translateX(-50%) translateY(-4px);background:#e8e6e3;color:#161512;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;max-width:90vw;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5);opacity:0;transition:opacity .2s,transform .2s}
+.notif.err{background:#2a0f0f;color:#e87070;border:1px solid rgba(200,50,50,.2)}
+.notif.result{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 80px);transform:translateX(-50%) translateY(8px);font-size:15px;font-weight:700;padding:13px 24px;border-radius:16px}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.2);border-top-color:#161512;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -130,8 +131,8 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 .asheet-eyebrow{font-size:11px;color:#5a5754;text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
 /* I due blocchi colore — l'interfaccia principale */
 .asheet-colors{display:flex;gap:8px;margin-bottom:12px}
-.asheet-color-btn{flex:1;border:none;border-radius:16px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:transform .15s cubic-bezier(.34,1.56,.64,1),opacity .15s;position:relative;height:88px}
-.asheet-color-btn:active{transform:scale(.96)}
+.asheet-color-btn{flex:1;border:none;border-radius:16px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:transform .2s cubic-bezier(.34,1.56,.64,1),opacity .2s;position:relative;height:88px}
+.asheet-color-btn:active{transform:scale(.94)}
 /* Bianco — sempre sfondo chiaro */
 .asheet-color-white{background:#e8e6e3}
 .asheet-color-white .asheet-color-name{font-size:14px;font-weight:700;color:#161512;letter-spacing:-.2px}
@@ -152,56 +153,56 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 .card-live.card-live-disputed::before{background:#c33}
 .card-live-label{font-size:10px;color:#629924;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:5px}
 .live-dot{width:6px;height:6px;border-radius:50%;background:#629924;animation:pulse 1.5s ease-in-out infinite}
+.live-dot.red{background:#c33}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes cardEnter{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.card-enter{animation:cardEnter .4s cubic-bezier(.2,0,.2,1) both}
 .card-live-vs{font-size:18px;font-weight:700;color:#e8e6e3;margin-bottom:6px;letter-spacing:-.2px}
 .card-live-sub{font-size:12px;color:#4a4642;margin-bottom:12px}
 .card-live-actions{display:flex;gap:8px;flex-direction:column;margin-top:0}
 /* Action sheet risultato */
 .rsheet-context{font-size:13px;color:#5a5754;text-align:center;margin-bottom:16px;font-weight:500}
 .rsheet-btns{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
-.rsheet-btn{width:100%;padding:16px 20px;border-radius:14px;font-size:16px;font-weight:700;text-align:left;cursor:pointer;transition:opacity .15s,transform .1s;border:none;font-family:inherit;letter-spacing:-.2px}
+.rsheet-btn{width:100%;padding:16px 20px;border-radius:12px;font-size:16px;font-weight:700;text-align:left;cursor:pointer;transition:opacity .15s,transform .1s;border:none;font-family:inherit;letter-spacing:-.2px}
 .rsheet-btn:active{opacity:.8;transform:scale(.99)}
-.rsheet-btn.win{background:#e8e6e3;color:#161512}
-.rsheet-btn.draw{background:#2a2724;color:#e8e6e3;border:1px solid #3a3630}
-.rsheet-btn.loss{background:transparent;color:#4a4642;border:1px solid #252220}
+.rsheet-btn.win{background:#2a2724;color:#e8e6e3;border:1px solid #333}
+.rsheet-btn.draw{background:#2a2724;color:#6a6560;border:1px solid #333}
+.rsheet-btn.loss{background:#2a2724;color:#e8e6e3;border:1px solid #333}
 .rsheet-cancel{width:100%;background:transparent;border:none;color:#4a4642;font-size:15px;font-weight:500;padding:14px;cursor:pointer;font-family:inherit;transition:opacity .15s}
 .rsheet-cancel:active{opacity:.5}
-.btn-result{width:100%;background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:15px 18px;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .1s;text-align:left;display:flex;align-items:center;justify-content:space-between}
-.btn-result::after{content:'→';font-size:16px;opacity:.5}
-.btn-result:active{opacity:.8;transform:scale(.99)}
+.btn-result{width:100%;background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:15px 18px;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .2s cubic-bezier(.34,1.56,.64,1);text-align:left;display:flex;align-items:center;justify-content:space-between}
+.btn-result:not(.no-arrow)::after{content:'→';font-size:16px;opacity:.5}
+.btn-result:active{opacity:.8;transform:scale(.97)}
 .btn-result.waiting{background:#1d1a16;color:#5a5754;border:1px solid #2f2b27;cursor:default}
 .btn-result.waiting::after{display:none}
-.btn-result.disputed{background:rgba(200,50,50,.12);color:#c33;border:1px solid rgba(200,50,50,.25)}
-.btn-result.disputed::after{display:none}
+/* btn-result.disputed rimosso — usa stile primario standard */
+.waiting-dots{font-size:11px;color:#3a3630;flex-shrink:0}
 
 /* Card sfida ricevuta */
 .card-challenge{background:#1d1a16;border:1px solid #2a2724;border-radius:16px;padding:16px 16px 16px;margin-bottom:10px;position:relative;overflow:hidden}
-.card-challenge-progress{position:absolute;bottom:0;left:0;height:2px;background:#3a3630;transition:width 1s linear}
+.card-challenge-progress{position:absolute;bottom:0;left:0;height:3px;background:#629924;transition:width 1s linear}
 .card-challenge-progress.urgent{background:#c33}
 /* eyebrow + nome */
 .card-challenge-eyebrow{font-size:11px;color:#5a5754;font-weight:500;margin-bottom:5px;letter-spacing:.2px}
 .card-challenge-name{font-size:26px;font-weight:800;color:#e8e6e3;letter-spacing:-.6px;line-height:1;margin-bottom:10px}
 /* badge colore inline — pezzi reali, non testo grigio */
-.card-challenge-badge{display:inline-flex;align-items:center;gap:6px;margin-bottom:16px}
-.color-chip{width:18px;height:18px;border-radius:4px;flex-shrink:0}
-.color-chip.white{background:#e8e6e3}
-.color-chip.black{background:#0d0c0a;border:1px solid #3a3630}
-.card-challenge-badge-label{font-size:12px;color:#6a6560;font-weight:500}
+.card-challenge-opp-elo{font-size:14px;font-weight:500;color:#4a4642}
+.card-challenge-sub{font-size:13px;color:#5a5754;font-weight:500;margin-bottom:16px;margin-top:4px}
 /* bottoni */
 .card-challenge-btns{display:flex;gap:8px;align-items:center}
-.btn-accept{flex:1;background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:15px 0;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .1s;font-family:inherit;letter-spacing:-.2px}
-.btn-accept:active{opacity:.8;transform:scale(.98)}
-.btn-decline{background:transparent;color:#4a4642;border:none;padding:15px 14px;font-size:14px;cursor:pointer;transition:opacity .15s;font-family:inherit;white-space:nowrap;font-weight:500}
+.btn-accept{flex:1;background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:15px 0;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .2s cubic-bezier(.34,1.56,.64,1);font-family:inherit;letter-spacing:-.2px}
+.btn-accept:active{opacity:.8;transform:scale(.96)}
+.btn-decline{background:transparent;color:#6a6560;border:none;padding:15px 14px;font-size:14px;cursor:pointer;transition:opacity .15s;font-family:inherit;white-space:nowrap;font-weight:500}
 .btn-decline:active{opacity:.4}
 
 /* Card sfida inviata — stato passivo */
 .card-pending{background:#161512;border:1px solid #1e1c18;border-radius:14px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
 .card-pending-left{flex:1;min-width:0}
-.card-pending-eyebrow{font-size:11px;color:#3a3630;font-weight:500;margin-bottom:3px;display:flex;align-items:center;gap:5px}
-.card-pending-dot{width:5px;height:5px;border-radius:50%;background:#3a3630;animation:pulse 2s ease-in-out infinite}
+.card-pending-eyebrow{font-size:10px;color:#3a3630;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:5px;text-transform:uppercase;letter-spacing:1.2px}
+.card-pending-dot{width:5px;height:5px;border-radius:50%;background:#5a5754;animation:pulse 2s ease-in-out infinite}
 .card-pending-name{font-size:17px;font-weight:700;color:#6a6560;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.2px}
-.btn-cancel{background:transparent;color:#3a3630;border:none;padding:8px 0 8px 8px;font-size:13px;cursor:pointer;flex-shrink:0;font-family:inherit;transition:color .15s}
-.btn-cancel:active{color:#c33}
+.btn-cancel{background:transparent;color:#6a6560;border:none;padding:8px 0 8px 12px;font-size:14px;cursor:pointer;flex-shrink:0;font-family:inherit;transition:opacity .15s;font-weight:500}
+.btn-cancel:active{opacity:.4}
 
 /* Gruppo "in attesa" collassato */
 .waiting-group{background:#161512;border:1px solid #252220;border-radius:10px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer}
@@ -238,6 +239,9 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 .ongoing-meta{font-size:11px;color:#5a5754;margin-top:2px}
 .btn-sm{background:#2a2724;color:#e8e6e3;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;flex-shrink:0;transition:opacity .15s;border:1px solid #3a3630}
 .btn-sm:active{opacity:.7}
+.btn-play{background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:10px 18px;font-size:14px;font-weight:700;flex-shrink:0;cursor:pointer;font-family:inherit;transition:opacity .15s,transform .1s}
+.btn-play:active{opacity:.8;transform:scale(.97)}
+.btn-play.unavailable{background:transparent;color:#3a3630;border:1px solid #252220;cursor:default;font-weight:500;font-size:13px}
 
 /* ── Search / Prow ── */
 .prow{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:13px 14px;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:border-color .15s}
@@ -643,8 +647,10 @@ const $ = id => document.getElementById(id);
 function toast(msg, type="ok") {
   const el = $("notif");
   el.textContent = msg;
-  el.className = "notif" + (type==="err" ? " err" : "");
+  el.className = "notif" + (type==="err" ? " err" : type==="result" ? " result" : "");
   el.style.display = "block";
+  const isResult = type === "result";
+  const hideTransform = isResult ? "translateX(-50%) translateY(8px)" : "translateX(-50%) translateY(-4px)";
   // forza reflow per attivare transizione
   el.getBoundingClientRect();
   el.style.opacity = "1";
@@ -652,9 +658,9 @@ function toast(msg, type="ok") {
   clearTimeout(el._t);
   el._t = setTimeout(() => {
     el.style.opacity = "0";
-    el.style.transform = "translateX(-50%) translateY(-4px)";
+    el.style.transform = hideTransform;
     setTimeout(() => { el.style.display = "none"; }, 200);
-  }, 2400);
+  }, isResult ? 3000 : 2400);
 }
 function setErr(id, msg) {
   const el = $(id);
@@ -891,8 +897,8 @@ async function fetchAll() {
           // Transient: spiega perché è stata annullata
           const wasDisputed = wasActive.disputed;
           toast(wasDisputed
-            ? "Partita annullata — secondo disaccordo."
-            : "Partita annullata per timeout.", "err");
+            ? "Partita annullata — nessun accordo sul risultato"
+            : "Partita annullata — timeout", "err");
         } else if(m.result) {
           const isP1 = m.p1 === me.id;
           const won = m.result === 'p1' ? isP1 : m.result === 'p2' ? !isP1 : null;
@@ -901,9 +907,9 @@ async function fetchAll() {
           const deltaStr = delta !== null
             ? ` · ELO ${delta >= 0 ? '+' : ''}${delta}`
             : '';
-          if(won === null) toast(`Patta confermata${deltaStr} ♟`);
-          else if(won) toast(`Vittoria confermata${deltaStr} ♔`);
-          else toast(`Sconfitta registrata${deltaStr}`);
+          if(won === null) toast(`Patta${deltaStr}`, 'result');
+          else if(won) toast(`Vittoria${deltaStr}`, 'result');
+          else toast(`Sconfitta${deltaStr}`, 'result');
         }
       }
     });
@@ -914,7 +920,7 @@ async function fetchAll() {
       const prev = prevMatches.find(p => p.id === m.id);
       if(prev && !prev.disputed && m.disputed) {
         const opp = players.find(p => p.id === (m.p1===me.id ? m.p2 : m.p1));
-        toast(`${opp?.nickname||"?"} ha inserito un risultato diverso. Reinserisci.`, "err");
+        toast(`Risultato diverso da ${opp?.nickname||"?"}`, "err");
       }
     });
   }
@@ -979,6 +985,13 @@ function matchLabelShort(m, myId) {
   return `${white?.nickname||"?"} — ${black?.nickname||"?"}`;
 }
 function renderHome() {
+  // snapshot degli ID card già presenti nel DOM — solo le nuove animano
+  const existingIds = new Set(
+    [...document.querySelectorAll('#home-pending [data-mid], #home-ongoing [data-mid]')]
+      .map(el => el.dataset.mid)
+  );
+  const isNew = id => !existingIds.has(id);
+
   const incomingChallenges = matches.filter(m => m.status==="pending_challenge" && m.p2===me.id);
   const sentChallenges     = matches.filter(m => m.status==="pending_challenge" && m.p1===me.id);
   const allActive = matches.filter(m => m.status==="active" && !m.tournament_id);
@@ -1000,28 +1013,23 @@ function renderHome() {
   // ── SFIDE RICEVUTE ──
   const challengeHtml = incomingChallenges.map(m => {
     const opp = getP(m.p1);
-    const colorLabel = m.white_player_id
-      ? (m.white_player_id===me.id ? 'Tu — bianco' : `${opp?.nickname||"?"} — bianco`)
-      : '';
-    const myColorLabel = m.white_player_id
-      ? (m.white_player_id === me.id ? 'Giochi col bianco' : 'Giochi col nero')
-      : '';
     const totalMs = CHALLENGE_EXPIRE_MS;
     const elapsed = Date.now() - new Date(m.created_at).getTime();
     const pct = Math.max(0, Math.min(100, ((totalMs - elapsed) / totalMs) * 100));
     const urgent = pct < 20;
-    // badge colore: chip visivo invece di testo
+    const vsLabel = matchLabel(m);
+    const oppElo = opp?.elo || '—';
+    const myElo = me.elo || '—';
+    const whiteElo = m.white_player_id === me.id ? myElo : oppElo;
+    const blackElo = m.white_player_id === me.id ? oppElo : myElo;
     const amIWhite = m.white_player_id === me.id;
-    const colorBadge = m.white_player_id ? `
-      <div class="card-challenge-badge">
-        <div class="color-chip ${amIWhite?'white':'black'}"></div>
-        <span class="card-challenge-badge-label">Giochi col ${amIWhite?'bianco':'nero'}</span>
-      </div>` : '';
-    return `<div class="card-challenge">
+    const colorLine = m.white_player_id
+      ? `ti sfida — giochi col ${amIWhite ? 'bianco' : 'nero'}`
+      : 'ti sfida';
+    return `<div class="card-challenge${isNew(m.id)?' card-enter':''}" data-mid="${m.id}">
       <div class="card-challenge-progress${urgent?' urgent':''}" id="prog-${m.id}" style="width:${pct}%"></div>
-      <div class="card-challenge-eyebrow">ti sfida</div>
-      <div class="card-challenge-name">${opp?.nickname||"?"}</div>
-      ${colorBadge}
+      <div class="card-challenge-name">${opp?.nickname||"?"} <span class="card-challenge-opp-elo">(${oppElo})</span></div>
+      <div class="card-challenge-sub">${colorLine}</div>
       <div class="card-challenge-btns">
         <button class="btn-accept" onclick="acceptChallenge('${m.id}')">Accetta</button>
         <button class="btn-decline" onclick="rejectChallenge('${m.id}')">Declina</button>
@@ -1032,10 +1040,11 @@ function renderHome() {
   // ── SFIDE INVIATE ──
   const sentHtml = sentChallenges.map(m => {
     const opp = getP(m.p2);
-    return `<div class="card-pending">
+    const vsLabelSent = matchLabel(m);
+    return `<div class="card-pending${isNew(m.id)?' card-enter':''}" data-mid="${m.id}">
       <div class="card-pending-left">
         <div class="card-pending-eyebrow"><span class="card-pending-dot"></span>In attesa</div>
-        <div class="card-pending-name">${opp?.nickname||"?"}</div>
+        <div class="card-pending-name">${vsLabelSent}</div>
       </div>
       <button class="btn-cancel" onclick="cancelChallenge('${m.id}')">Annulla</button>
     </div>`;
@@ -1053,9 +1062,9 @@ function renderHome() {
   const activeCards = allActive.map(m => {
     const isP1 = m.p1===me.id;
     const myRes = isP1 ? m.result_p1 : m.result_p2;
-    if(m.disputed) return { m, type: 'disputed' };
+    if(m.disputed && !myRes) return { m, type: 'disputed' }; // disputed ma non ho ancora reinserito
     if(!myRes) return { m, type: 'live' };
-    return { m, type: 'waiting' };
+    return { m, type: 'waiting' }; // ho inserito (anche dopo disaccordo) → aspetto
   });
 
   // Mostra tutte le live, tutte le disputed, raggruppa le waiting
@@ -1065,24 +1074,24 @@ function renderHome() {
 
   liveCards.forEach(({ m }) => {
     const vsLabel = matchLabel(m);
-    ongoingHtml += `<div class="card-live" id="card-live-${m.id}">
+    ongoingHtml += `<div class="card-live card-enter" id="card-live-${m.id}">
       <div class="card-live-label"><span class="live-dot"></span>In corso</div>
       <div class="card-live-vs">${vsLabel}</div>
       <div class="card-live-sub" id="card-live-sub-${m.id}">Inserisci il tuo risultato</div>
       <div class="card-live-actions" id="card-live-actions-${m.id}">
-        <button class="btn-result" onclick="openResultSheet('${m.id}')">Inserisci risultato</button>
+        <button class="btn-result no-arrow" onclick="openResultSheet('${m.id}')">Inserisci risultato</button>
       </div>
     </div>`;
   });
 
   disputedCards.forEach(({ m }) => {
     const vsLabel = matchLabel(m);
-    ongoingHtml += `<div class="card-live card-live-disputed" id="card-live-${m.id}">
-      <div class="card-live-label" style="color:#c33"><span style="width:6px;height:6px;border-radius:50%;background:#c33;display:inline-block"></span>Disaccordo</div>
+    ongoingHtml += `<div class="card-live card-live-disputed card-enter" id="card-live-${m.id}">
+      <div class="card-live-label" style="color:#c33"><span class="live-dot red"></span>Disaccordo</div>
       <div class="card-live-vs">${vsLabel}</div>
-      <div class="card-live-sub" id="card-live-sub-${m.id}">Risultati diversi — reinserisci il tuo<br><span style="color:#4a4642;font-size:11px">Le nuove partite sono bloccate fino alla risoluzione</span></div>
+      <div class="card-live-sub" id="card-live-sub-${m.id}">Risultati diversi — reinserisci il tuo</div>
       <div class="card-live-actions" id="card-live-actions-${m.id}">
-        <button class="btn-result disputed" onclick="openResultSheet('${m.id}')">Reinserisci</button>
+        <button class="btn-result no-arrow" onclick="openResultSheet('${m.id}')">Reinserisci</button>
       </div>
     </div>`;
   });
@@ -1092,18 +1101,25 @@ function renderHome() {
   if(waitingCards.length === 1) {
     const m = waitingCards[0].m;
     const opp = getP(m.p1===me.id ? m.p2 : m.p1);
-    waitingHtml = `<div class="card-pending">
+    const vsLabelWait = matchLabel(m);
+    waitingHtml = `<div class="card-pending${isNew(m.id)?' card-enter':''}" data-mid="${m.id}">
       <div class="card-pending-left">
-        <div class="card-pending-label">In attesa di conferma</div>
-        <div class="card-pending-name">vs ${opp?.nickname||"?"}</div>
+        <div class="card-pending-eyebrow"><span class="card-pending-dot"></span>In attesa</div>
+        <div class="card-pending-name">${vsLabelWait}</div>
       </div>
-      <span style="font-size:11px;color:#4a4642">…</span>
+      <span class="waiting-dots">…</span>
     </div>`;
   } else if(waitingCards.length > 1) {
-    waitingHtml = `<div class="waiting-group">
-      <div class="waiting-group-label">${waitingCards.length} partite in attesa di conferma</div>
-      <span class="waiting-group-count">${waitingCards.length}</span>
-    </div>`;
+    waitingHtml = waitingCards.map(({ m }) => {
+      const vsLabelW = matchLabel(m);
+      return `<div class="card-pending${isNew(m.id)?' card-enter':''}" data-mid="${m.id}">
+        <div class="card-pending-left">
+          <div class="card-pending-eyebrow"><span class="card-pending-dot"></span>In attesa</div>
+          <div class="card-pending-name">${vsLabelW}</div>
+        </div>
+        <span class="waiting-dots">…</span>
+      </div>`;
+    }).join('');
   }
 
   $("home-ongoing").innerHTML = ongoingHtml + waitingHtml;
@@ -1215,12 +1231,15 @@ function renderHomeSearch() {
     const statusLabel = isBusy ? ' · in partita' : !isOnline ? ' · offline' : '';
     const canChallenge = isOnline && !isBusy;
 
+    const playBtn = canChallenge
+      ? `<button class="btn-play" onclick="event.stopPropagation();openColorSheet('${p.id}')">Gioca</button>`
+      : `<button class="btn-play unavailable" disabled>${isBusy ? 'In partita' : 'Offline'}</button>`;
     return `<div class="prow" onclick="openProfile('${p.id}', 'home')">
-      <div>
-        <div class="pname" style="display:flex;align-items:center;gap:6px">${onlineDot}${p.nickname}<span style="font-size:11px;color:#4a4642;font-weight:400">${statusLabel}</span></div>
-        <div class="pelo">ELO ${p.elo}</div>
+      <div style="flex:1;min-width:0">
+        <div class="pname" style="display:flex;align-items:center;gap:7px">${onlineDot}${p.nickname}</div>
+        <div class="pelo">${p.elo}${statusLabel ? ` · ${statusLabel.trim().replace('· ','')}` : ''}</div>
       </div>
-      ${canChallenge ? `<button class="btn-sm" onclick="event.stopPropagation();openColorSheet('${p.id}')">Sfida</button>` : ''}
+      ${playBtn}
     </div>`;
   }).join("");
 }
@@ -1261,6 +1280,10 @@ function selectSheetColor(choice) {
     $('asheet-label-white').textContent = opp?.nickname || '?';
     $('asheet-label-black').textContent = me.nickname;
   }
+  // micro-bounce sul bottone selezionato
+  const chosen = choice === 'me' ? $('asheet-btn-white') : $('asheet-btn-black');
+  chosen.style.transform = 'scale(1.05)';
+  setTimeout(() => { chosen.style.transform = ''; }, 180);
 }
 
 async function confirmColorSheet() {
@@ -1274,7 +1297,7 @@ async function confirmColorSheet() {
   if(Array.isArray(res) && res[0]?.error) return toast(res[0].error, "err");
   closeHomeSearch();
   await fetchAll();
-  toast("Sfida inviata!");
+  // sfida inviata — la card "In attesa" in home è il feedback sufficiente
 }
 
 // vecchia challengeFromHome mantenuta per compatibilità search page
@@ -1407,11 +1430,15 @@ function openResultSheet(matchId) {
   resultSheetMatchId = matchId;
   const isDisputed = m.disputed;
   const vsLabel = matchLabel(m);
-  const myColorLabel = m.white_player_id
-    ? (m.white_player_id === me.id ? 'Tu — bianco' : 'Tu — nero')
-    : '';
-  $('rsheet-eyebrow').textContent = isDisputed ? 'Disaccordo — reinserisci' : 'Inserisci risultato';
-  $('rsheet-context').textContent = myColorLabel ? `${vsLabel} · ${myColorLabel}` : vsLabel;
+  $('rsheet-eyebrow').textContent = isDisputed ? 'Disaccordo' : 'Inserisci risultato';
+  const white = m.white_player_id ? getP(m.white_player_id) : getP(m.p1);
+  const black = m.white_player_id ? getP(m.white_player_id === m.p1 ? m.p2 : m.p1) : getP(m.p2);
+  if(white && black) {
+    const disputedSub = isDisputed ? `<div style="font-size:11px;color:#5a5754;margin-top:2px;margin-bottom:2px">Reinserisci il tuo risultato</div>` : '';
+    $('rsheet-context').innerHTML = `${disputedSub}<span style="font-size:14px;color:#e8e6e3;font-weight:600">${white.nickname} <span style="font-size:11px;color:#4a4642;font-weight:400">(${white.elo})</span>&nbsp;&nbsp;${black.nickname} <span style="font-size:11px;color:#4a4642;font-weight:400">(${black.elo})</span></span>`;
+  } else {
+    $('rsheet-context').textContent = vsLabel;
+  }
   const overlay = $('result-sheet-overlay');
   overlay.style.display = 'flex';
   requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('visible')));
