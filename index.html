@@ -1302,7 +1302,19 @@ function openColorSheet(oppId) {
 function closeColorSheet() {
   const overlay = $('color-sheet-overlay');
   overlay.classList.remove('visible');
-  setTimeout(() => { overlay.style.display = 'none'; sheetOppId = null; }, 320);
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    sheetOppId = null;
+    // iOS black-translucent fix: flash overlay invisibile per forzare ricampionamento status bar
+    overlay.style.display = 'flex';
+    overlay.style.background = 'rgba(0,0,0,0.01)';
+    overlay.style.pointerEvents = 'none';
+    requestAnimationFrame(() => {
+      overlay.style.display = 'none';
+      overlay.style.background = '';
+      overlay.style.pointerEvents = '';
+    });
+  }, 320);
 }
 
 function selectSheetColor(choice) {
