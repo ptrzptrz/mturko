@@ -1302,7 +1302,15 @@ function openColorSheet(oppId) {
 function closeColorSheet() {
   const overlay = $('color-sheet-overlay');
   overlay.classList.remove('visible');
-  setTimeout(() => { overlay.style.display = 'none'; sheetOppId = null; }, 320);
+  overlay.style.background = 'rgba(0,0,0,0)';
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    overlay.style.background = '';
+    sheetOppId = null;
+    // forza repaint topbar su iOS per sbloccare status bar color
+    const tb = document.querySelector('.topbar');
+    if(tb) { tb.style.transform = 'translateZ(0)'; requestAnimationFrame(() => { tb.style.transform = ''; }); }
+  }, 20);
 }
 
 function selectSheetColor(choice) {
