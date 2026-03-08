@@ -984,25 +984,110 @@ function matchLabelShort(m, myId) {
   const black = getP(blackId);
   return `${white?.nickname||"?"} — ${black?.nickname||"?"}`;
 }
-function renderHome() {
-  // snapshot degli ID card già presenti nel DOM — solo le nuove animano
-  const existingIds = new Set(
-    [...document.querySelectorAll('#home-pending [data-mid], #home-ongoing [data-mid]')]
-      .map(el => el.dataset.mid)
-  );
-  const isNew = id => !existingIds.has(id);
+// ── Factory functions per card ──
+function makeCardChallenge(m) {
+  const opp = getP(m.p1);
+  const totalMs = CHALLENGE_EXPIRE_MS;
+  const elapsed = Date.now() - new Date(m.created_at).getTime();
+  const pct = Math.max(0, Math.min(100, ((totalMs - elapsed) / totalMs) * 100));
+  const urgent = pct < 20;
+  const oppElo = opp?.elo || '—';
+  const amIWhite = m.white_player_id === me.id;
+  const colorLine = m.white_player_id
+    ? `ti sfida — giochi col ${amIWhite ? 'bianco' : 'nero'}`
+    : 'ti sfida';
+  const el = document.createElement('div');
+  el.className = 'card-challenge card-enter';
+  el.dataset.mid = m.id;
+  el.innerHTML = `
+    <div class="card-challenge-progress${urgent?' urgent':''}" id="prog-${m.id}" style="width:${pct}%"></div>
+    <div class="card-challenge-name">${opp?.nickname||"?"} <span class="card-challenge-opp-elo">(${oppElo})</span></div>
+    <div class="card-challenge-sub">${colorLine}</div>
+    <div class="card-challenge-btns">
+      <button class="btn-accept" onclick="acceptChallenge('${m.id}')">Accetta</button>
+      <button class="btn-decline" onclick="rejectChallenge('${m.id}')">Declina</button>
+    </div>`;
+  return el;
+}
+function makeCardSent(m) {
+  const vsLabel = matchLabel(m);
+  const el = document.createElement('div');
+  el.className = 'card-pending card-enter';
+  el.dataset.mid = m.id;
+  el.innerHTML = `
+    <div class="card-pending-left">
+      <div class="card-pending-eyebrow"><span class="card-pending-dot"></span>In attesa</div>
+      <div class="card-pending-name">${vsLabel}</div>
+    </div>
+    <button class="btn-cancel" onclick="cancelChallenge('${m.id}')">Annulla</button>`;
+  return el;
+}
+function makeCardLive(m) {
+  const vsLabel = matchLabel(m);
+  const el = document.createElement('div');
+  el.className = 'card-live card-enter';
+  el.dataset.mid = m.id;
+  el.id = `card-live-${m.id}`;
+  el.innerHTML = `
+    <div class="card-live-label"><span class="live-dot"></span>In corso</div>
+    <div class="card-live-vs">${vsLabel}</div>
+    <div class="card-live-sub" id="card-live-sub-${m.id}">Inserisci il tuo risultato</div>
+    <div class="card-live-actions" id="card-live-actions-${m.id}">
+      <button class="btn-result no-arrow" onclick="openResultSheet('${m.id}')">Inserisci risultato</button>
+    </div>`;
+  return el;
+}
+function makeCardDisputed(m) {
+  const vsLabel = matchLabel(m);
+  const el = document.createElement('div');
+  el.className = 'card-live card-live-disputed card-enter';
+  el.dataset.mid = m.id;
+  el.id = `card-live-${m.id}`;
+  el.innerHTML = `
+    <div class="card-live-label" style="color:#c33"><span class="live-dot red"></span>Disaccordo</div>
+    <div class="card-live-vs">${vsLabel}</div>
+    <div class="card-live-sub" id="card-live-sub-${m.id}">Risultati diversi — reinserisci il tuo</div>
+    <div class="card-live-actions" id="card-live-actions-${m.id}">
+      <button class="btn-result no-arrow" onclick="openResultSheet('${m.id}')">Reinserisci</button>
+    </div>`;
+  return el;
+}
+function makeCardWaiting(m) {
+  const vsLabel = matchLabel(m);
+  const el = document.createElement('div');
+  el.className = 'card-pending card-enter';
+  el.dataset.mid = m.id;
+  el.innerHTML = `
+    <div class="card-pending-left">
+      <div class="card-pending-eyebrow"><span class="card-pending-dot"></span>In attesa</div>
+      <div class="card-pending-name">${vsLabel}</div>
+    </div>
+    <span class="waiting-dots">…</span>`;
+  return el;
+}
+// Riconcilia container con lista items {id, makeEl}
+// Aggiunge card nuove, rimuove sparite, non tocca le esistenti → no flicker
+function reconcileCards(container, items) {
+  const newIds = new Set(items.map(i => i.id));
+  // rimuovi sparite
+  container.querySelectorAll('[data-mid]').forEach(el => {
+    if(!newIds.has(el.dataset.mid)) el.remove();
+  });
+  // aggiungi nuove nella posizione corretta
+  items.forEach((item, idx) => {
+    if(!container.querySelector(`[data-mid="${item.id}"]`)) {
+      const el = item.makeEl();
+      const siblings = [...container.querySelectorAll('[data-mid]')];
+      if(idx >= siblings.length) container.appendChild(el);
+      else container.insertBefore(el, siblings[idx]);
+    }
+  });
+}
 
+function renderHome() {
   const incomingChallenges = matches.filter(m => m.status==="pending_challenge" && m.p2===me.id);
   const sentChallenges     = matches.filter(m => m.status==="pending_challenge" && m.p1===me.id);
   const allActive = matches.filter(m => m.status==="active" && !m.tournament_id);
-  // partita "in corso" = ho ancora da inserire il risultato (gestita da activeCards sotto)
-  // partite in attesa = ho già inserito, aspetto l'altro
-  const waitingMatches = allActive.filter(m => {
-    const isP1 = m.p1===me.id;
-    return (isP1 ? m.result_p1 : m.result_p2) && !m.disputed;
-  });
-  // partite in disaccordo = devo reinserire
-  const disputedMatches = allActive.filter(m => m.disputed);
   const done = matches.filter(m => m.status==="done" && (m.p1===me.id||m.p2===me.id)).slice(0,15);
 
   // badge sfide
@@ -1010,119 +1095,30 @@ function renderHome() {
   if(incomingChallenges.length > 0) { badge.textContent = incomingChallenges.length; badge.classList.remove("hidden"); }
   else badge.classList.add("hidden");
 
-  // ── SFIDE RICEVUTE ──
-  const challengeHtml = incomingChallenges.map(m => {
-    const opp = getP(m.p1);
-    const totalMs = CHALLENGE_EXPIRE_MS;
-    const elapsed = Date.now() - new Date(m.created_at).getTime();
-    const pct = Math.max(0, Math.min(100, ((totalMs - elapsed) / totalMs) * 100));
-    const urgent = pct < 20;
-    const vsLabel = matchLabel(m);
-    const oppElo = opp?.elo || '—';
-    const myElo = me.elo || '—';
-    const whiteElo = m.white_player_id === me.id ? myElo : oppElo;
-    const blackElo = m.white_player_id === me.id ? oppElo : myElo;
-    const amIWhite = m.white_player_id === me.id;
-    const colorLine = m.white_player_id
-      ? `ti sfida — giochi col ${amIWhite ? 'bianco' : 'nero'}`
-      : 'ti sfida';
-    return `<div class="card-challenge${isNew(m.id)?' card-enter':''}" data-mid="${m.id}">
-      <div class="card-challenge-progress${urgent?' urgent':''}" id="prog-${m.id}" style="width:${pct}%"></div>
-      <div class="card-challenge-name">${opp?.nickname||"?"} <span class="card-challenge-opp-elo">(${oppElo})</span></div>
-      <div class="card-challenge-sub">${colorLine}</div>
-      <div class="card-challenge-btns">
-        <button class="btn-accept" onclick="acceptChallenge('${m.id}')">Accetta</button>
-        <button class="btn-decline" onclick="rejectChallenge('${m.id}')">Declina</button>
-      </div>
-    </div>`;
-  }).join("");
-
-  // ── SFIDE INVIATE ──
-  const sentHtml = sentChallenges.map(m => {
-    const opp = getP(m.p2);
-    const vsLabelSent = matchLabel(m);
-    return `<div class="card-pending${isNew(m.id)?' card-enter':''}" data-mid="${m.id}">
-      <div class="card-pending-left">
-        <div class="card-pending-eyebrow"><span class="card-pending-dot"></span>In attesa</div>
-        <div class="card-pending-name">${vsLabelSent}</div>
-      </div>
-      <button class="btn-cancel" onclick="cancelChallenge('${m.id}')">Annulla</button>
-    </div>`;
-  }).join("");
-
-  $("home-pending").innerHTML = challengeHtml + sentHtml;
+  // ── SFIDE RICEVUTE + INVIATE ──
+  reconcileCards($("home-pending"), [
+    ...incomingChallenges.map(m => ({ id: m.id, makeEl: () => makeCardChallenge(m) })),
+    ...sentChallenges.map(m => ({ id: m.id, makeEl: () => makeCardSent(m) })),
+  ]);
   updateCountdowns();
 
-  // ── CARD PARTITA ATTIVA: disputed ha priorità assoluta su liveMatch ──
-  // Una partita non può essere sia live che disputed — ma se per qualche ragione
-  // lo fosse, mostriamo solo la versione disputed. Una card per partita.
-  let ongoingHtml = "";
-
-  // Tutte le partite attive, deduplicando: disputed ha precedenza
+  // ── CARD PARTITE ATTIVE ──
   const activeCards = allActive.map(m => {
     const isP1 = m.p1===me.id;
     const myRes = isP1 ? m.result_p1 : m.result_p2;
-    if(m.disputed && !myRes) return { m, type: 'disputed' }; // disputed ma non ho ancora reinserito
+    if(m.disputed && !myRes) return { m, type: 'disputed' };
     if(!myRes) return { m, type: 'live' };
-    return { m, type: 'waiting' }; // ho inserito (anche dopo disaccordo) → aspetto
+    return { m, type: 'waiting' };
   });
-
-  // Mostra tutte le live, tutte le disputed, raggruppa le waiting
-  const liveCards = activeCards.filter(c => c.type === 'live');
+  const liveCards     = activeCards.filter(c => c.type === 'live');
   const disputedCards = activeCards.filter(c => c.type === 'disputed');
-  const waitingCards = activeCards.filter(c => c.type === 'waiting');
+  const waitingCards  = activeCards.filter(c => c.type === 'waiting');
 
-  liveCards.forEach(({ m }) => {
-    const vsLabel = matchLabel(m);
-    ongoingHtml += `<div class="card-live card-enter" id="card-live-${m.id}">
-      <div class="card-live-label"><span class="live-dot"></span>In corso</div>
-      <div class="card-live-vs">${vsLabel}</div>
-      <div class="card-live-sub" id="card-live-sub-${m.id}">Inserisci il tuo risultato</div>
-      <div class="card-live-actions" id="card-live-actions-${m.id}">
-        <button class="btn-result no-arrow" onclick="openResultSheet('${m.id}')">Inserisci risultato</button>
-      </div>
-    </div>`;
-  });
-
-  disputedCards.forEach(({ m }) => {
-    const vsLabel = matchLabel(m);
-    ongoingHtml += `<div class="card-live card-live-disputed card-enter" id="card-live-${m.id}">
-      <div class="card-live-label" style="color:#c33"><span class="live-dot red"></span>Disaccordo</div>
-      <div class="card-live-vs">${vsLabel}</div>
-      <div class="card-live-sub" id="card-live-sub-${m.id}">Risultati diversi — reinserisci il tuo</div>
-      <div class="card-live-actions" id="card-live-actions-${m.id}">
-        <button class="btn-result no-arrow" onclick="openResultSheet('${m.id}')">Reinserisci</button>
-      </div>
-    </div>`;
-  });
-
-  // ── IN ATTESA ──
-  let waitingHtml = "";
-  if(waitingCards.length === 1) {
-    const m = waitingCards[0].m;
-    const opp = getP(m.p1===me.id ? m.p2 : m.p1);
-    const vsLabelWait = matchLabel(m);
-    waitingHtml = `<div class="card-pending${isNew(m.id)?' card-enter':''}" data-mid="${m.id}">
-      <div class="card-pending-left">
-        <div class="card-pending-eyebrow"><span class="card-pending-dot"></span>In attesa</div>
-        <div class="card-pending-name">${vsLabelWait}</div>
-      </div>
-      <span class="waiting-dots">…</span>
-    </div>`;
-  } else if(waitingCards.length > 1) {
-    waitingHtml = waitingCards.map(({ m }) => {
-      const vsLabelW = matchLabel(m);
-      return `<div class="card-pending${isNew(m.id)?' card-enter':''}" data-mid="${m.id}">
-        <div class="card-pending-left">
-          <div class="card-pending-eyebrow"><span class="card-pending-dot"></span>In attesa</div>
-          <div class="card-pending-name">${vsLabelW}</div>
-        </div>
-        <span class="waiting-dots">…</span>
-      </div>`;
-    }).join('');
-  }
-
-  $("home-ongoing").innerHTML = ongoingHtml + waitingHtml;
+  reconcileCards($("home-ongoing"), [
+    ...liveCards.map(({ m }) => ({ id: m.id, makeEl: () => makeCardLive(m) })),
+    ...disputedCards.map(({ m }) => ({ id: m.id, makeEl: () => makeCardDisputed(m) })),
+    ...waitingCards.map(({ m }) => ({ id: m.id, makeEl: () => makeCardWaiting(m) })),
+  ]);
 
   // ── BOTTONE NUOVA PARTITA ──
   const hasDisputed = disputedCards.length > 0;
