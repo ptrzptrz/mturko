@@ -982,11 +982,7 @@ function renderHome() {
   const incomingChallenges = matches.filter(m => m.status==="pending_challenge" && m.p2===me.id);
   const sentChallenges     = matches.filter(m => m.status==="pending_challenge" && m.p1===me.id);
   const allActive = matches.filter(m => m.status==="active" && !m.tournament_id);
-  // partita "in corso" = ho ancora da inserire il risultato
-  const liveMatch = allActive.find(m => {
-    const isP1 = m.p1===me.id;
-    return !(isP1 ? m.result_p1 : m.result_p2);
-  });
+  // partita "in corso" = ho ancora da inserire il risultato (gestita da activeCards sotto)
   // partite in attesa = ho già inserito, aspetto l'altro
   const waitingMatches = allActive.filter(m => {
     const isP1 = m.p1===me.id;
@@ -1062,13 +1058,12 @@ function renderHome() {
     return { m, type: 'waiting' };
   });
 
-  // Mostra solo una card per le live/disputed, raggruppa le waiting
-  const liveCard = activeCards.find(c => c.type === 'live');
+  // Mostra tutte le live, tutte le disputed, raggruppa le waiting
+  const liveCards = activeCards.filter(c => c.type === 'live');
   const disputedCards = activeCards.filter(c => c.type === 'disputed');
   const waitingCards = activeCards.filter(c => c.type === 'waiting');
 
-  if(liveCard) {
-    const m = liveCard.m;
+  liveCards.forEach(({ m }) => {
     const vsLabel = matchLabel(m);
     ongoingHtml += `<div class="card-live" id="card-live-${m.id}">
       <div class="card-live-label"><span class="live-dot"></span>In corso</div>
@@ -1078,7 +1073,7 @@ function renderHome() {
         <button class="btn-result" onclick="openResultSheet('${m.id}')">Inserisci risultato</button>
       </div>
     </div>`;
-  }
+  });
 
   disputedCards.forEach(({ m }) => {
     const vsLabel = matchLabel(m);
@@ -1115,7 +1110,7 @@ function renderHome() {
 
   // ── BOTTONE NUOVA PARTITA ──
   const hasDisputed = disputedCards.length > 0;
-  const blockNew = !!liveMatch || incomingChallenges.length > 0 || sentChallenges.length > 0;
+  const blockNew = liveCards.length > 0 || incomingChallenges.length > 0 || sentChallenges.length > 0;
   const searchOpen = $("home-search").classList.contains("open");
   const btnNew = $("btn-newmatch");
   const btnLabel = btnNew.querySelector("span:last-child");
