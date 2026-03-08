@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="turko">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#161512">
@@ -205,7 +205,7 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 .card-pending-left{flex:1;min-width:0}
 .card-pending-eyebrow{font-size:10px;color:#3a3630;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:5px;text-transform:uppercase;letter-spacing:1.2px}
 .card-pending-dot{width:5px;height:5px;border-radius:50%;background:#5a5754;animation:pulse 2s ease-in-out infinite}
-.card-pending-name{font-size:17px;font-weight:700;color:#6a6560;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.2px}
+.card-pending-name{font-size:17px;font-weight:700;color:#9a9690;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.2px}
 .btn-cancel{background:transparent;color:#6a6560;border:none;padding:8px 0 8px 12px;font-size:14px;cursor:pointer;flex-shrink:0;font-family:inherit;transition:opacity .15s;font-weight:500}
 .btn-cancel:active{opacity:.4}
 
@@ -1189,17 +1189,18 @@ function renderHome() {
     const elo = eloCache[m.id];
     const eloDelta = elo ? (elo.elo_after - elo.elo_before) : null;
     // delta significativo, no prefix "ELO", patta sempre grigio
+    const isDraw = won === null;
+    const eloClass = isDraw ? 'elo-draw' : eloDelta > 0 ? 'elo-up' : 'elo-down';
     const eloStr = (eloDelta !== null && eloDelta !== 0)
-      ? `<span class="${won===null ? 'elo-draw' : eloDelta>0 ? 'elo-up' : 'elo-down'}">${eloDelta>0?'+':''}${eloDelta}</span>`
+      ? `<span class="${eloClass}">${eloDelta>0?'+':''}${eloDelta}</span>`
       : "";
-    // pallino colore: bianco o nero, no pezzi unicode
+    // pallino SVG — più affidabile di span su Safari
     const colorDot = m.white_player_id
       ? (m.white_player_id===me.id
-          ? '<span class="color-dot color-dot-white"></span>'
-          : '<span class="color-dot color-dot-black"></span>')
+          ? '<svg width="8" height="8" viewBox="0 0 8 8" style="flex-shrink:0;margin-top:1px"><circle cx="4" cy="4" r="3" fill="#e8e6e3" stroke="#6a6560" stroke-width="1"/></svg>'
+          : '<svg width="8" height="8" viewBox="0 0 8 8" style="flex-shrink:0;margin-top:1px"><circle cx="4" cy="4" r="3" fill="#252220" stroke="#6a6560" stroke-width="1"/></svg>')
       : '';
     return `<div class="hrow">
-      <div class="hrow-accent ${resultClass}"></div>
       <div class="hrow-left">
         <div class="hrow-opp">${colorDot}${opp?.nickname||"?"}</div>
         <div class="hrow-meta">
