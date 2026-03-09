@@ -36,7 +36,9 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 #page-profile.active,#page-lb.active,#page-search.active,#page-match.active,#page-tourn.active{overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 
 /* ── Topbar ── */
-.topbar{background:#161512;padding:env(safe-area-inset-top,20px) 20px 0;min-height:calc(50px + env(safe-area-inset-top,20px));display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:100;transition:background .35s}
+.topbar{background:#161512;padding:env(safe-area-inset-top,20px) 20px 0;min-height:calc(50px + env(safe-area-inset-top,20px));display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:10000;transition:background .35s}
+body.sheet-open .topbar{background:#060504}
+body.sheet-open #sa-cover{background:#060504}
 .topbar-logout{background:none;border:none;color:#3a3630;font-size:12px;cursor:pointer;padding:4px;transition:color .15s ease}
 .topbar-logout:active{color:#e8e6e3}
 .logo{color:#e8e6e3;font-size:15px;font-weight:700;letter-spacing:-.2px}
@@ -131,7 +133,7 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 
 
 /* ── Action sheet colore ── */
-.asheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:10002;display:flex;align-items:flex-end;pointer-events:none}
+.asheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:10001;display:flex;align-items:flex-end;pointer-events:none}
 .asheet-overlay.visible{background:rgba(0,0,0,.75);pointer-events:all}
 .asheet{background:#1a1714;border-radius:24px 24px 0 0;padding:24px 16px 40px;width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,0,.24,1)}
 .asheet-overlay.visible .asheet{transform:translateY(0)}
@@ -363,7 +365,7 @@ canvas{width:100%!important;display:block}
 </head>
 <body>
 <!-- Copre la zona status-bar + topbar — z:9999 garantisce che iOS campioni il colore giusto e non il background degli overlay -->
-<div id="sa-cover" style="position:fixed;top:0;left:0;right:0;height:calc(env(safe-area-inset-top,20px) + 50px);background:transparent;z-index:9999;pointer-events:none;transition:background .35s"></div>
+<div id="sa-cover" style="position:fixed;top:0;left:0;right:0;height:calc(env(safe-area-inset-top,20px) + 50px);background:#161512;z-index:9999;pointer-events:none;transition:background .35s"></div>
 <div id="notif" class="notif"></div>
 
 <!-- AUTH -->
@@ -1358,8 +1360,7 @@ function openColorSheet(oppId) {
   const overlay = $('color-sheet-overlay');
   overlay.style.display = 'flex';
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    $('sa-cover').style.background = '#060504';
-    document.querySelector('.topbar').style.background = '#060504';
+    document.body.classList.add('sheet-open');
     overlay.classList.add('visible');
   }));
 }
@@ -1367,8 +1368,7 @@ function openColorSheet(oppId) {
 function closeColorSheet() {
   const overlay = $('color-sheet-overlay');
   overlay.classList.remove('visible');
-  $('sa-cover').style.background = 'transparent';
-  document.querySelector('.topbar').style.background = '#161512';
+  document.body.classList.remove('sheet-open');
   setTimeout(() => {
     overlay.style.display = 'none';
     sheetOppId = null;
@@ -1560,8 +1560,7 @@ function openResultSheet(matchId) {
   const overlay = $('result-sheet-overlay');
   overlay.style.display = 'flex';
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    $('sa-cover').style.background = '#060504';
-    document.querySelector('.topbar').style.background = '#060504';
+    document.body.classList.add('sheet-open');
     overlay.classList.add('visible');
   }));
 }
@@ -1569,8 +1568,7 @@ function openResultSheet(matchId) {
 function closeResultSheet() {
   const overlay = $('result-sheet-overlay');
   overlay.classList.remove('visible');
-  $('sa-cover').style.background = 'transparent';
-  document.querySelector('.topbar').style.background = '#161512';
+  document.body.classList.remove('sheet-open');
   setTimeout(() => {
     overlay.style.display = 'none';
     resultSheetMatchId = null;
