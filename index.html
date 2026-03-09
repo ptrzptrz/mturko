@@ -1362,19 +1362,19 @@ function openColorSheet(oppId) {
 }
 
 /* Forza iOS/WebKit a ricampionare la status-bar area dopo la chiusura
-   di un overlay fixed. Invalida il compositing layer del safe-area cover
-   (z:9999) con un ciclo transform + will-change. I doppi rAF garantiscono
-   che il display:none dell'overlay sia stato committato prima del nudge. */
+   di un overlay fixed. Replica il meccanismo che risolve il bug
+   naturalmente (apertura di un secondo sheet): ciclo display di un
+   elemento position:fixed;inset:0 con background #161512.
+   Il doppio rAF garantisce che il display:none dell'overlay chiuso
+   sia stato committato prima del flash. */
 function _nukeSafeArea() {
-  const sa = document.querySelector('[style*="z-index:9999"]');
-  if (!sa) return;
+  const d = document.createElement('div');
+  d.style.cssText = 'position:fixed;inset:0;background:#161512;z-index:9998;pointer-events:none';
+  document.body.appendChild(d);
+  // forza layout
+  d.offsetHeight;
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    sa.style.willChange = 'transform';
-    sa.style.transform = 'translateZ(1px)';
-    requestAnimationFrame(() => {
-      sa.style.transform = '';
-      sa.style.willChange = '';
-    });
+    d.remove();
   }));
 }
 
@@ -1384,7 +1384,8 @@ function closeColorSheet() {
   setTimeout(() => {
     overlay.style.display = 'none';
     sheetOppId = null;
-    _nukeSafeArea();
+    // aspetta che display:none sia committato, poi flash
+    requestAnimationFrame(() => _nukeSafeArea());
   }, 320);
 }
 
@@ -1578,7 +1579,11 @@ function openResultSheet(matchId) {
 function closeResultSheet() {
   const overlay = $('result-sheet-overlay');
   overlay.classList.remove('visible');
-  setTimeout(() => { overlay.style.display = 'none'; resultSheetMatchId = null; _nukeSafeArea(); }, 320);
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    resultSheetMatchId = null;
+    requestAnimationFrame(() => _nukeSafeArea());
+  }, 320);
 }
 
 async function confirmResultSheet(choice) {
