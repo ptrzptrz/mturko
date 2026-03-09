@@ -1355,11 +1355,16 @@ function openColorSheet(oppId) {
   $('asheet-label-black').textContent = opp.nickname;
   $('asheet-btn-white').classList.add('selected');
   $('asheet-btn-black').classList.remove('selected');
+  // cambio colore istantaneo — niente transition all'apertura
+  const sa = $('sa-cover');
+  const tb = document.querySelector('.topbar');
+  sa.style.transition = 'none';
+  tb.style.transition = 'none';
+  sa.style.background = '#060504';
+  tb.style.background = '#060504';
   const overlay = $('color-sheet-overlay');
   overlay.style.display = 'flex';
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    $('sa-cover').style.background = '#060504';
-    document.querySelector('.topbar').style.background = '#060504';
     overlay.classList.add('visible');
   }));
 }
@@ -1367,8 +1372,13 @@ function openColorSheet(oppId) {
 function closeColorSheet() {
   const overlay = $('color-sheet-overlay');
   overlay.classList.remove('visible');
-  $('sa-cover').style.background = '#161512';
-  document.querySelector('.topbar').style.background = '#161512';
+  // ritorno graduale
+  const sa = $('sa-cover');
+  const tb = document.querySelector('.topbar');
+  sa.style.transition = 'background .35s';
+  tb.style.transition = 'background .35s';
+  sa.style.background = '#161512';
+  tb.style.background = '#161512';
   setTimeout(() => {
     overlay.style.display = 'none';
     sheetOppId = null;
@@ -1557,11 +1567,16 @@ function openResultSheet(matchId) {
   } else {
     $('rsheet-context').textContent = vsLabel;
   }
+  // cambio colore istantaneo
+  const sa = $('sa-cover');
+  const tb = document.querySelector('.topbar');
+  sa.style.transition = 'none';
+  tb.style.transition = 'none';
+  sa.style.background = '#060504';
+  tb.style.background = '#060504';
   const overlay = $('result-sheet-overlay');
   overlay.style.display = 'flex';
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    $('sa-cover').style.background = '#060504';
-    document.querySelector('.topbar').style.background = '#060504';
     overlay.classList.add('visible');
   }));
 }
@@ -1569,8 +1584,12 @@ function openResultSheet(matchId) {
 function closeResultSheet() {
   const overlay = $('result-sheet-overlay');
   overlay.classList.remove('visible');
-  $('sa-cover').style.background = '#161512';
-  document.querySelector('.topbar').style.background = '#161512';
+  const sa = $('sa-cover');
+  const tb = document.querySelector('.topbar');
+  sa.style.transition = 'background .35s';
+  tb.style.transition = 'background .35s';
+  sa.style.background = '#161512';
+  tb.style.background = '#161512';
   setTimeout(() => {
     overlay.style.display = 'none';
     resultSheetMatchId = null;
