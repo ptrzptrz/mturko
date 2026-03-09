@@ -36,7 +36,7 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 #page-profile.active,#page-lb.active,#page-search.active,#page-match.active,#page-tourn.active{overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 
 /* ── Topbar ── */
-.topbar{background:#161512;padding:env(safe-area-inset-top,20px) 20px 0;min-height:calc(50px + env(safe-area-inset-top,20px));display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:fixed;top:0;left:0;right:0;max-width:480px;margin:0 auto;z-index:201}
+.topbar{background:#161512;padding:env(safe-area-inset-top,20px) 20px 0;min-height:calc(50px + env(safe-area-inset-top,20px));display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:fixed;top:0;left:0;right:0;max-width:480px;margin:0 auto;z-index:201;transition:background .35s}
 .topbar-logout{background:none;border:none;color:#3a3630;font-size:12px;cursor:pointer;padding:4px;transition:color .15s ease}
 .topbar-logout:active{color:#e8e6e3}
 .logo{color:#e8e6e3;font-size:15px;font-weight:700;letter-spacing:-.2px}
@@ -1359,6 +1359,7 @@ function openColorSheet(oppId) {
   overlay.style.display = 'flex';
   requestAnimationFrame(() => requestAnimationFrame(() => {
     $('sa-cover').style.background = '#060504';
+    document.querySelector('.topbar').style.background = '#060504';
     overlay.classList.add('visible');
   }));
 }
@@ -1367,6 +1368,7 @@ function closeColorSheet() {
   const overlay = $('color-sheet-overlay');
   overlay.classList.remove('visible');
   $('sa-cover').style.background = '#161512';
+  document.querySelector('.topbar').style.background = '#161512';
   setTimeout(() => {
     overlay.style.display = 'none';
     sheetOppId = null;
@@ -1559,6 +1561,7 @@ function openResultSheet(matchId) {
   overlay.style.display = 'flex';
   requestAnimationFrame(() => requestAnimationFrame(() => {
     $('sa-cover').style.background = '#060504';
+    document.querySelector('.topbar').style.background = '#060504';
     overlay.classList.add('visible');
   }));
 }
@@ -1567,6 +1570,7 @@ function closeResultSheet() {
   const overlay = $('result-sheet-overlay');
   overlay.classList.remove('visible');
   $('sa-cover').style.background = '#161512';
+  document.querySelector('.topbar').style.background = '#161512';
   setTimeout(() => {
     overlay.style.display = 'none';
     resultSheetMatchId = null;
