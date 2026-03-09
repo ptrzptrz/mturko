@@ -362,8 +362,8 @@ canvas{width:100%!important;display:block}
 </style>
 </head>
 <body>
-<!-- Copre la zona status-bar + topbar — z:9999 garantisce che iOS campioni #161512 e non il background degli overlay -->
-<div id="sa-cover" style="position:fixed;top:0;left:0;right:0;height:calc(env(safe-area-inset-top,20px) + 50px);background:#161512;z-index:9999;pointer-events:none"></div>
+<!-- Copre la zona status-bar + topbar — z:9999 garantisce che iOS campioni il colore giusto e non il background degli overlay -->
+<div id="sa-cover" style="position:fixed;top:0;left:0;right:0;height:calc(env(safe-area-inset-top,20px) + 50px);background:#161512;z-index:9999;pointer-events:none;transition:background .35s"></div>
 <div id="notif" class="notif"></div>
 
 <!-- AUTH -->
@@ -1350,42 +1350,24 @@ function openColorSheet(oppId) {
   const opp = getP(oppId);
   if(!opp) return;
   sheetOppId = oppId;
-  sheetColorChoice = 'me'; // default: io ho il bianco
-  // Nomi fissi: bianco=me, nero=opp (cambiano con selectSheetColor)
+  sheetColorChoice = 'me';
   $('asheet-label-white').textContent = me.nickname;
   $('asheet-label-black').textContent = opp.nickname;
   $('asheet-btn-white').classList.add('selected');
   $('asheet-btn-black').classList.remove('selected');
   const overlay = $('color-sheet-overlay');
   overlay.style.display = 'flex';
+  $('sa-cover').style.background = '#060504';
   requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('visible')));
-}
-
-/* Forza iOS/WebKit a ricampionare la status-bar area dopo la chiusura
-   di un overlay fixed. Replica il meccanismo che risolve il bug
-   naturalmente (apertura di un secondo sheet): ciclo display di un
-   elemento position:fixed;inset:0 con background #161512.
-   Il doppio rAF garantisce che il display:none dell'overlay chiuso
-   sia stato committato prima del flash. */
-function _nukeSafeArea() {
-  const d = document.createElement('div');
-  d.style.cssText = 'position:fixed;inset:0;background:#161512;z-index:9998;pointer-events:none';
-  document.body.appendChild(d);
-  // forza layout
-  d.offsetHeight;
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    d.remove();
-  }));
 }
 
 function closeColorSheet() {
   const overlay = $('color-sheet-overlay');
   overlay.classList.remove('visible');
+  $('sa-cover').style.background = '#161512';
   setTimeout(() => {
     overlay.style.display = 'none';
     sheetOppId = null;
-    // aspetta che display:none sia committato, poi flash
-    requestAnimationFrame(() => _nukeSafeArea());
   }, 320);
 }
 
@@ -1573,16 +1555,17 @@ function openResultSheet(matchId) {
   }
   const overlay = $('result-sheet-overlay');
   overlay.style.display = 'flex';
+  $('sa-cover').style.background = '#060504';
   requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('visible')));
 }
 
 function closeResultSheet() {
   const overlay = $('result-sheet-overlay');
   overlay.classList.remove('visible');
+  $('sa-cover').style.background = '#161512';
   setTimeout(() => {
     overlay.style.display = 'none';
     resultSheetMatchId = null;
-    requestAnimationFrame(() => _nukeSafeArea());
   }, 320);
 }
 
