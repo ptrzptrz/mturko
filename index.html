@@ -1366,11 +1366,11 @@ function openColorSheet(oppId) {
 function closeColorSheet() {
   const overlay = $('color-sheet-overlay');
   overlay.classList.remove('visible');
-  $('sa-cover').style.background = 'transparent';
   setTimeout(() => {
     overlay.style.display = 'none';
+    $('sa-cover').style.background = 'transparent';
     sheetOppId = null;
-  }, 320);
+  }, 350);
 }
 
 function selectSheetColor(choice) {
@@ -1566,11 +1566,11 @@ function openResultSheet(matchId) {
 function closeResultSheet() {
   const overlay = $('result-sheet-overlay');
   overlay.classList.remove('visible');
-  $('sa-cover').style.background = 'transparent';
   setTimeout(() => {
     overlay.style.display = 'none';
+    $('sa-cover').style.background = 'transparent';
     resultSheetMatchId = null;
-  }, 320);
+  }, 350);
 }
 
 async function confirmResultSheet(choice) {
