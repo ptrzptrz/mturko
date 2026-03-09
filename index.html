@@ -363,7 +363,7 @@ canvas{width:100%!important;display:block}
 </head>
 <body>
 <!-- Copre la zona status-bar + topbar — z:9999 garantisce che iOS campioni il colore giusto e non il background degli overlay -->
-<div id="sa-cover" style="position:fixed;top:0;left:0;right:0;height:calc(env(safe-area-inset-top,20px) + 50px);background:transparent;z-index:9999;pointer-events:none;transition:background .35s"></div>
+<div id="sa-cover" style="position:fixed;top:0;left:0;right:0;height:calc(env(safe-area-inset-top,20px) + 50px);background:#161512;z-index:9999;pointer-events:none;transition:background .35s"></div>
 <div id="notif" class="notif"></div>
 
 <!-- AUTH -->
@@ -1366,7 +1366,7 @@ function openColorSheet(oppId) {
 function closeColorSheet() {
   const overlay = $('color-sheet-overlay');
   overlay.classList.remove('visible');
-  $('sa-cover').style.background = 'transparent';
+  $('sa-cover').style.background = '#161512';
   setTimeout(() => {
     overlay.style.display = 'none';
     sheetOppId = null;
@@ -1566,7 +1566,7 @@ function openResultSheet(matchId) {
 function closeResultSheet() {
   const overlay = $('result-sheet-overlay');
   overlay.classList.remove('visible');
-  $('sa-cover').style.background = 'transparent';
+  $('sa-cover').style.background = '#161512';
   setTimeout(() => {
     overlay.style.display = 'none';
     resultSheetMatchId = null;
