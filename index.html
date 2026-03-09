@@ -5,40 +5,55 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="diag">
+<meta name="apple-mobile-web-app-title" content="diag2">
 <meta name="theme-color" content="#161512">
-<title>diag</title>
+<title>diag2</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:#161512;font-family:system-ui;color:#fff;height:100dvh;overflow:hidden}
 
-/* ZONA A — safe area inset (Dynamic Island area) */
-#zone-a{
+/* TEST 1: div semplice come nel diag precedente — funziona */
+#cover-simple{
   position:fixed;top:0;left:0;right:0;
-  height:env(safe-area-inset-top,0px);
+  height:calc(env(safe-area-inset-top,20px) + 50px);
   background:#ff0000;
-  z-index:99999;
+  z-index:10003;
   pointer-events:none;
+  display:none;
 }
 
-/* ZONA B — tra safe area e fine topbar (50px sotto safe area) */
-#zone-b{
-  position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;
-  height:50px;
+/* TEST 2: replica esatta della topbar turko */
+#cover-topbar{
   background:#0000ff;
-  z-index:99998;
-  pointer-events:none;
+  padding:env(safe-area-inset-top,20px) 20px 0;
+  min-height:calc(50px + env(safe-area-inset-top,20px));
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-shrink:0;
+  position:fixed;top:0;left:0;right:0;
+  max-width:480px;margin:0 auto;
+  z-index:10003;
 }
 
-/* ZONA C — il resto dello schermo */
-#zone-c{
-  margin-top:calc(env(safe-area-inset-top,0px) + 50px);
+/* TEST 3: come topbar ma senza contenuto */
+#cover-topbar-empty{
+  background:#00ff00;
+  padding:env(safe-area-inset-top,20px) 20px 0;
+  min-height:calc(50px + env(safe-area-inset-top,20px));
+  display:flex;
+  position:fixed;top:0;left:0;right:0;
+  max-width:480px;margin:0 auto;
+  z-index:10003;
+  display:none;
+}
+
+#content{
+  margin-top:calc(env(safe-area-inset-top,20px) + 50px);
   padding:20px;
-  background:#161512;
-  min-height:100dvh;
 }
 
-/* Overlay — simula l'action sheet */
+/* Overlay */
 #test-overlay{
   position:fixed;inset:0;
   background:rgba(0,0,0,0);
@@ -46,7 +61,6 @@ html,body{background:#161512;font-family:system-ui;color:#fff;height:100dvh;over
   display:none;
   align-items:flex-end;
   pointer-events:none;
-  transition:background .35s;
 }
 #test-overlay.visible{
   background:rgba(0,0,0,.75);
@@ -65,74 +79,79 @@ html,body{background:#161512;font-family:system-ui;color:#fff;height:100dvh;over
 }
 
 button{
-  display:block;width:100%;padding:16px;margin:8px 0;
+  display:block;width:100%;padding:14px;margin:6px 0;
   background:#e8e6e3;color:#161512;border:none;border-radius:12px;
-  font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;
 }
-.info{font-size:13px;color:#888;margin:12px 0;line-height:1.6}
-.label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#666;margin:20px 0 8px}
+.info{font-size:13px;color:#888;margin:8px 0;line-height:1.6}
+.label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#666;margin:16px 0 6px}
+.active-test{font-size:16px;font-weight:700;color:#e8e6e3;margin:8px 0}
 </style>
 </head>
 <body>
 
-<div id="zone-a"></div>
-<div id="zone-b"></div>
+<div id="cover-simple"></div>
+<div id="cover-topbar">
+  <span style="color:#fff;font-size:15px;font-weight:700">turko</span>
+  <span style="color:#666;font-size:12px">esci</span>
+</div>
+<div id="cover-topbar-empty"></div>
 
-<div id="zone-c">
-  <div class="label">Diagnostica Status Bar iOS</div>
+<div id="content">
+  <div class="label">Test attivo</div>
+  <div class="active-test" id="active-label">BLU — topbar replica (con contenuto)</div>
   
   <div class="info">
-    <strong style="color:#ff0000">ROSSO (zona A)</strong> = env(safe-area-inset-top) — area della Dynamic Island<br>
-    <strong style="color:#5555ff">BLU (zona B)</strong> = 50px sotto safe area — zona topbar<br>
-    <strong style="color:#999">GRIGIO</strong> = #161512 — resto dell'app
+    Ogni test cambia cosa copre la zona della status bar.<br>
+    Guarda il colore nella status bar e riporta.
   </div>
 
-  <div class="info">
-    Guarda la status bar (ora, segnale, batteria):<br>
-    • Se il testo della status bar è su sfondo <strong style="color:#ff0000">ROSSO</strong> → iOS campiona zona A<br>
-    • Se su sfondo <strong style="color:#5555ff">BLU</strong> → iOS campiona zona B<br>
-    • Se su sfondo <strong style="color:#999">SCURO</strong> → iOS campiona il body/altro
-  </div>
+  <button onclick="setTest('topbar')">BLU — Topbar replica (con testo)</button>
+  <button onclick="setTest('simple')">ROSSO — Div semplice (no contenuto)</button>
+  <button onclick="setTest('topbar-empty')">VERDE — Topbar stile ma vuota</button>
+  <button onclick="setTest('none')">NESSUNO — solo #161512 body</button>
 
-  <button onclick="openSheet()">Apri action sheet (simula sfida)</button>
-  <button onclick="toggleZoneA()" id="btn-a">Zona A: ROSSO (tap per cambiare)</button>
-  <button onclick="toggleZoneB()" id="btn-b">Zona B: BLU (tap per cambiare)</button>
-  <button onclick="toggleZindex()" id="btn-z">Overlay z: 10002 (tap per cambiare)</button>
+  <div style="height:1px;background:#333;margin:16px 0"></div>
+
+  <button onclick="openSheet()">Apri action sheet</button>
   
-  <div class="label" style="margin-top:24px">Cosa vedi?</div>
-  <div class="info" id="status">Apri lo sheet e osserva il colore nella zona della status bar. Poi screenshotta.</div>
-  
-  <div class="label" style="margin-top:16px">Zone heights</div>
-  <div class="info" id="measurements"></div>
+  <div class="info" style="margin-top:16px">
+    <strong>Procedura:</strong><br>
+    1. Per ogni test, guarda che colore ha la status bar SENZA sheet<br>
+    2. Poi apri lo sheet e guarda se cambia<br>
+    3. Chiudi e guarda se cambia<br>
+    4. Dimmi i risultati per ogni test
+  </div>
 </div>
 
 <div id="test-overlay" onclick="closeSheet()">
   <div id="test-sheet" onclick="event.stopPropagation()">
-    <div style="text-align:center;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px">Test action sheet</div>
-    <div style="font-size:14px;color:#ccc;margin-bottom:16px;text-align:center">
-      Guarda la zona sopra — che colore vedi nella status bar?
+    <div style="text-align:center;font-size:13px;color:#888;margin-bottom:16px">
+      Che colore vedi nella status bar adesso?
     </div>
     <button onclick="closeSheet()">Chiudi</button>
-    <button onclick="setOverlayColor('#161512')" style="background:#333;color:#fff">Zona A → #161512</button>
-    <button onclick="setOverlayColor('#060504')" style="background:#333;color:#fff">Zona A → #060504</button>
-    <button onclick="setOverlayColor('#000000')" style="background:#333;color:#fff">Zona A → #000000</button>
-    <button onclick="setOverlayColor('transparent')" style="background:#333;color:#fff">Zona A → transparent</button>
   </div>
 </div>
 
 <script>
-// Mostra measurements
-const sat = getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-top)');
-document.getElementById('measurements').innerHTML = `
-  safe-area-inset-top: ${getComputedStyle(document.getElementById('zone-a')).height}<br>
-  zone-b height: ${getComputedStyle(document.getElementById('zone-b')).height}<br>
-  window.innerHeight: ${window.innerHeight}px<br>
-  screen.height: ${screen.height}px
-`;
-
-let zoneAColor = '#ff0000';
-let zoneBColor = '#0000ff';
-let overlayZ = 10002;
+function setTest(mode) {
+  document.getElementById('cover-simple').style.display = 'none';
+  document.getElementById('cover-topbar').style.display = 'none';
+  document.getElementById('cover-topbar-empty').style.display = 'none';
+  
+  if(mode === 'simple') {
+    document.getElementById('cover-simple').style.display = 'block';
+    document.getElementById('active-label').textContent = 'ROSSO — Div semplice';
+  } else if(mode === 'topbar') {
+    document.getElementById('cover-topbar').style.display = 'flex';
+    document.getElementById('active-label').textContent = 'BLU — Topbar replica (con testo)';
+  } else if(mode === 'topbar-empty') {
+    document.getElementById('cover-topbar-empty').style.display = 'flex';
+    document.getElementById('active-label').textContent = 'VERDE — Topbar stile ma vuota';
+  } else {
+    document.getElementById('active-label').textContent = 'NESSUNO — solo body #161512';
+  }
+}
 
 function openSheet() {
   const overlay = document.getElementById('test-overlay');
@@ -146,36 +165,6 @@ function closeSheet() {
   const overlay = document.getElementById('test-overlay');
   overlay.classList.remove('visible');
   setTimeout(() => { overlay.style.display = 'none'; }, 350);
-}
-
-function toggleZoneA() {
-  const colors = ['#ff0000', '#161512', '#060504', '#000000', 'transparent'];
-  const idx = (colors.indexOf(zoneAColor) + 1) % colors.length;
-  zoneAColor = colors[idx];
-  document.getElementById('zone-a').style.background = zoneAColor;
-  document.getElementById('btn-a').textContent = `Zona A: ${zoneAColor} (tap per cambiare)`;
-}
-
-function toggleZoneB() {
-  const colors = ['#0000ff', '#161512', '#060504', '#000000', 'transparent'];
-  const idx = (colors.indexOf(zoneBColor) + 1) % colors.length;
-  zoneBColor = colors[idx];
-  document.getElementById('zone-b').style.background = zoneBColor;
-  document.getElementById('btn-b').textContent = `Zona B: ${zoneBColor} (tap per cambiare)`;
-}
-
-function toggleZindex() {
-  const values = [10002, 99999, 1, 0];
-  const idx = (values.indexOf(overlayZ) + 1) % values.length;
-  overlayZ = values[idx];
-  document.getElementById('test-overlay').style.zIndex = overlayZ;
-  document.getElementById('btn-z').textContent = `Overlay z: ${overlayZ} (tap per cambiare)`;
-}
-
-function setOverlayColor(color) {
-  document.getElementById('zone-a').style.background = color;
-  zoneAColor = color;
-  document.getElementById('btn-a').textContent = `Zona A: ${color}`;
 }
 </script>
 </body>
