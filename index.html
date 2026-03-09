@@ -1305,15 +1305,12 @@ function closeColorSheet() {
   setTimeout(() => {
     overlay.style.display = 'none';
     sheetOppId = null;
-    // iOS black-translucent fix: flash overlay invisibile per forzare ricampionamento status bar
-    overlay.style.display = 'flex';
-    overlay.style.background = 'rgba(0,0,0,0.01)';
-    overlay.style.pointerEvents = 'none';
-    requestAnimationFrame(() => {
-      overlay.style.display = 'none';
-      overlay.style.background = '';
-      overlay.style.pointerEvents = '';
-    });
+    // iOS black-translucent fix: ciclo display sulla topbar forza ricampionamento
+    const tb = document.querySelector('.topbar');
+    if(tb) {
+      tb.style.display = 'none';
+      requestAnimationFrame(() => { tb.style.display = ''; });
+    }
   }, 320);
 }
 
