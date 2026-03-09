@@ -5,128 +5,2068 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="cal">
+<meta name="apple-mobile-web-app-title" content="turko">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#161512">
-<title>cal</title>
+<title>turko</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"></noscript>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{background:#161512;font-family:system-ui;color:#fff;height:100dvh;overflow:hidden}
+/* ── Reset & Base ── */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{background:#161512}
+body{background:#161512;font-family:'Inter',system-ui,sans-serif;color:#e8e6e3;max-width:480px;margin:0 auto;height:100dvh;overflow:hidden}
+input,select,textarea{background:#2a2724;border:1px solid #3a3630;border-radius:10px;color:#e8e6e3;padding:13px 14px;font-size:16px;font-family:inherit;width:100%;outline:none;display:block}
+input:focus,select:focus,textarea:focus{border-color:#5a5754}
+input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0px 1000px #161512 inset;-webkit-text-fill-color:#e8e6e3}
+input::placeholder,textarea::placeholder{color:#4a4642}
+button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-color:transparent;outline:none}
+.hidden{display:none!important}
 
-#cover{
-  position:fixed;top:0;left:0;right:0;
-  height:calc(env(safe-area-inset-top,20px) + 50px);
-  background:#161512;
-  z-index:10003;
-  pointer-events:none;
-}
+/* ── Layout ── */
+#auth{min-height:100dvh;display:flex;flex-direction:column;justify-content:flex-start;padding:env(safe-area-inset-top,40px) 24px 40px;padding-top:max(env(safe-area-inset-top,0px) + 60px, 80px);gap:40px}
+#main{height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+.pages{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.page{display:none;flex:1;overflow:hidden}
+.page.active{display:flex;flex-direction:column}
+#page-home.active{height:100%}
+#page-profile.active,#page-lb.active,#page-search.active,#page-match.active,#page-tourn.active{overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 
-#content{
-  margin-top:calc(env(safe-area-inset-top,20px) + 50px);
-  padding:20px;
-  overflow-y:auto;
-  height:calc(100dvh - env(safe-area-inset-top,20px) - 50px);
-}
+/* ── Topbar ── */
+.topbar{background:#161512;padding:env(safe-area-inset-top,20px) 20px 0;min-height:calc(50px + env(safe-area-inset-top,20px));display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:100}
+.topbar-logout{background:none;border:none;color:#3a3630;font-size:12px;cursor:pointer;padding:4px;transition:color .15s ease}
+.topbar-logout:active{color:#e8e6e3}
+.logo{color:#e8e6e3;font-size:15px;font-weight:700;letter-spacing:-.2px}
 
-#test-overlay{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,0);
-  z-index:10002;
-  display:none;
-  align-items:flex-end;
-  pointer-events:none;
-}
-#test-overlay.visible{
-  background:rgba(0,0,0,.75);
-  pointer-events:all;
-}
-#test-sheet{
-  background:#1a1714;
-  border-radius:24px 24px 0 0;
-  padding:24px 16px calc(24px + env(safe-area-inset-bottom,0px));
-  width:100%;
-  transform:translateY(100%);
-  transition:transform .35s cubic-bezier(.32,0,.24,1);
-}
-#test-overlay.visible #test-sheet{
-  transform:translateY(0);
-}
+/* ── Navbar ── */
+.navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;display:flex;padding-bottom:max(env(safe-area-inset-bottom),8px);background:transparent;z-index:100}
+.navbar-frost{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:140px;background:linear-gradient(to top, #161512 50%, transparent 100%);pointer-events:none;z-index:99}
+.nbtn{flex:1;min-height:52px;padding:10px 0;background:none;border:none;color:#4a4642;font-size:10px;text-transform:uppercase;letter-spacing:.8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative;transition:color .2s ease}
+.nbtn.on{color:#e8e6e3}
+.nbtn:active{opacity:.6}
+.nicon{width:22px;height:22px;display:block}
+.badge{position:absolute;top:8px;right:calc(50% - 20px);background:#c33;color:#fff;border-radius:8px;padding:0 5px;font-size:9px;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center}
 
-button{
-  display:block;width:100%;padding:14px;margin:6px 0;
-  background:#e8e6e3;color:#161512;border:none;border-radius:12px;
-  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;
-}
-button.sm{background:#2a2724;color:#e8e6e3;font-size:13px;padding:10px;margin:4px 0}
-.info{font-size:13px;color:#888;margin:8px 0;line-height:1.6}
-.label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#666;margin:16px 0 6px}
-#color-val{font-size:20px;font-weight:700;color:#e8e6e3;margin:8px 0;font-family:monospace}
+/* ── Auth ── */
+.auth-wordmark{text-align:center;padding-top:8px}
+.auth-name{font-size:64px;font-weight:800;color:#e8e6e3;letter-spacing:-3px;line-height:1;display:block}
+.auth-tagline{font-size:12px;color:#3a3630;letter-spacing:2px;text-transform:uppercase;margin-top:8px;display:block}
+.box{padding:0}
+.box-label{font-size:11px;color:#4a4642;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:24px;display:block}
+.frow{margin-bottom:16px;position:relative}
+.auth-input{background:transparent;border:none;border-bottom:1px solid #2a2724;border-radius:0;padding:14px 0;font-size:17px;font-weight:500;color:#e8e6e3;width:100%;outline:none;display:block;transition:border-color .2s ease}
+.auth-input:focus{border-bottom-color:#e8e6e3}
+.auth-input::placeholder{color:#3a3630;font-weight:400;font-size:15px}
+.btn-g{background:#e8e6e3;color:#161512;border-radius:12px;padding:17px 16px;font-size:16px;font-weight:700;width:100%;margin-top:12px;display:block;transition:transform .15s cubic-bezier(.34,1.56,.64,1),opacity .15s ease;letter-spacing:-.2px}
+.box .btn-g{margin-top:32px}
+.btn-g:active{transform:scale(0.97);opacity:.9}
+.btn-g:disabled{background:#252220;color:#3a3630;cursor:not-allowed;transform:none}
+.btn-o{background:transparent;color:#4a4642;border:none;padding:16px;font-size:14px;width:100%;margin-top:4px;display:block;transition:color .15s ease}
+.btn-o:active{color:#e8e6e3}
+.err{color:#c33;font-size:13px;margin-top:12px;min-height:18px;opacity:0;transition:opacity .2s ease}
+.err.visible{opacity:1}
+.auth-hint{font-size:11px;color:#3a3630;margin-bottom:20px;line-height:1.5}
+
+/* ── Common ── */
+.empty{color:#3a3630;text-align:center;margin-top:48px;font-size:14px}
+.slabel{font-size:11px;font-weight:600;color:#4a4642;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px}
+.divider{display:flex;align-items:center;gap:10px;font-size:10px;font-weight:600;color:#3a3630;margin:16px 0 8px;text-transform:uppercase;letter-spacing:1.2px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:#252220}
+
+/* ── Notif ── */
+.notif{position:fixed;top:calc(env(safe-area-inset-top,20px) + 58px);left:50%;transform:translateX(-50%) translateY(-4px);background:#e8e6e3;color:#161512;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;max-width:90vw;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5);opacity:0;transition:opacity .2s,transform .2s}
+.notif.err{background:#2a0f0f;color:#e87070;border:1px solid rgba(200,50,50,.2)}
+.notif.result{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 80px);transform:translateX(-50%) translateY(8px);font-size:15px;font-weight:700;padding:13px 24px;border-radius:16px}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.2);border-top-color:#161512;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Home hero header ── */
+.home-hero{padding:12px 20px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s}
+.home-hero:active{opacity:.7}
+.home-hero-nick{font-size:11px;font-weight:600;color:#4a4642;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px}
+.home-hero-elo-row{display:flex;align-items:baseline;gap:10px}
+.home-hero-elo{font-size:48px;font-weight:800;color:#e8e6e3;letter-spacing:-2px;line-height:1}
+.home-hero-delta{font-size:16px;font-weight:600;letter-spacing:-.3px}
+.home-hero-delta.up{color:#629924}
+.home-hero-delta.down{color:#c33}
+
+/* ── Home ── */
+/* home-top: sticky, mai scrolla */
+.home-top{padding:12px 16px 0;flex-shrink:0}
+/* home-scroll: tutto il resto, scrolla */
+#home-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px calc(80px + env(safe-area-inset-bottom,0px))}
+#home-scroll::-webkit-scrollbar{display:none}
+
+/* Bottone nuova partita — primario, inline */
+.btn-new-match{width:100%;background:#e8e6e3;color:#161512;border:none;border-radius:14px!important;padding:15px 18px;font-size:15px;font-weight:700;display:flex;align-items:center;gap:10px;cursor:pointer;text-align:left;position:relative;overflow:hidden;max-height:80px;opacity:1;margin-bottom:12px;-webkit-appearance:none;transition:max-height .55s cubic-bezier(.4,0,.2,1),opacity .55s cubic-bezier(.4,0,.2,1),margin-bottom .55s cubic-bezier(.4,0,.2,1),padding .55s cubic-bezier(.4,0,.2,1)}
+.btn-new-match::after{content:'';position:absolute;top:0;left:-80%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent);animation:shimmer 2.5s linear infinite;pointer-events:none}
+@keyframes shimmer{0%{left:-60%}100%{left:130%}}
+.btn-new-match:active{opacity:.75;transform:scale(0.985)}
+.btn-new-match.collapsed{max-height:0!important;opacity:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important;pointer-events:none}
+.btn-new-match.blocked{background:#1d1a16;color:#4a4642;cursor:default;border:1px solid #2a2724}
+.btn-new-match.blocked::after{display:none}
+.btn-new-match.blocked .btn-new-icon{background:#2a2724;color:#4a4642}
+.btn-new-match .btn-new-icon{width:20px;height:20px;color:#161512;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .45s cubic-bezier(.34,1.56,.64,1)}
+.btn-new-match.open .btn-new-icon{transform:rotate(45deg)}
+
+
+/* Search inline — si espande sotto il bottone */
+.home-search{overflow:hidden;max-height:0;transition:max-height .3s cubic-bezier(.4,0,.2,1);margin-bottom:0}
+.home-search.open{max-height:600px;margin-bottom:12px}
+.home-search-inner{padding-top:2px}
+.home-search-bar{position:relative;margin-bottom:8px}
+.home-search-bar input{padding-right:40px;border-radius:10px}
+.home-search-bar .close-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#5a5754;font-size:18px;cursor:pointer;line-height:1;padding:4px}
+
+/* Lista giocatori nella search */
+.prow{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:13px 14px;margin-bottom:7px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .15s}
+.prow:active{border-color:#3a3630}
+.pname{font-size:15px;color:#e8e6e3;font-weight:600}
+.pelo{font-size:12px;color:#4a4642;margin-top:2px}
+
+
+
+
+/* ── Action sheet colore ── */
+.asheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:10002;display:flex;align-items:flex-end;pointer-events:none}
+.asheet-overlay.visible{background:rgba(0,0,0,.75);pointer-events:all}
+.asheet{background:#1a1714;border-radius:24px 24px 0 0;padding:24px 16px 40px;width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,0,.24,1)}
+.asheet-overlay.visible .asheet{transform:translateY(0)}
+.asheet-eyebrow{font-size:11px;color:#5a5754;text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
+/* I due blocchi colore — l'interfaccia principale */
+.asheet-colors{display:flex;gap:8px;margin-bottom:12px}
+.asheet-color-btn{flex:1;border:none;border-radius:16px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:transform .2s cubic-bezier(.34,1.56,.64,1),opacity .2s;position:relative;height:88px}
+.asheet-color-btn:active{transform:scale(.94)}
+/* Bianco — sempre sfondo chiaro */
+.asheet-color-white{background:#e8e6e3}
+.asheet-color-white .asheet-color-name{font-size:14px;font-weight:700;color:#161512;letter-spacing:-.2px}
+/* Nero — sempre sfondo scuro */
+.asheet-color-black{background:#1a1815;box-shadow:inset 0 0 0 1px #2a2724}
+.asheet-color-black .asheet-color-name{font-size:14px;font-weight:700;color:#e8e6e3;letter-spacing:-.2px}
+/* Bianco sempre acceso, nero sempre attenuato */
+.asheet-color-white{opacity:1}
+.asheet-color-black{opacity:.38}
+/* CTA */
+.asheet-cta{width:100%;background:#e8e6e3;border:none;border-radius:14px;padding:16px;color:#161512;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .15s,transform .12s;margin-bottom:8px}
+.asheet-cta:active{opacity:.85;transform:scale(.99)}
+.asheet-cta:disabled{background:#252220;color:#3a3630;cursor:not-allowed}
+
+/* Card partita IN CORSO — la più importante */
+.card-live{background:#1d1a16;border:1px solid #3a3630;border-radius:14px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
+.card-live::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:#629924;opacity:.8}
+.card-live.card-live-disputed::before{background:#c33}
+.card-live-label{font-size:10px;color:#629924;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#629924;animation:pulse 1.5s ease-in-out infinite}
+.live-dot.red{background:#c33}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes cardEnter{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.card-enter{animation:cardEnter .4s cubic-bezier(.2,0,.2,1) both}
+.card-live-vs{font-size:18px;font-weight:700;color:#e8e6e3;margin-bottom:6px;letter-spacing:-.2px}
+.card-live-sub{font-size:12px;color:#4a4642;margin-bottom:12px}
+.card-live-actions{display:flex;gap:8px;flex-direction:column;margin-top:0}
+/* Action sheet risultato */
+.rsheet-context{font-size:13px;color:#5a5754;text-align:center;margin-bottom:16px;font-weight:500}
+.rsheet-btns{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.rsheet-btn{width:100%;padding:16px 20px;border-radius:12px;font-size:16px;font-weight:700;text-align:left;cursor:pointer;transition:opacity .15s,transform .1s;border:none;font-family:inherit;letter-spacing:-.2px}
+.rsheet-btn:active{opacity:.8;transform:scale(.99)}
+.rsheet-btn.win{background:#2a2724;color:#e8e6e3;border:1px solid #333}
+.rsheet-btn.draw{background:#2a2724;color:#6a6560;border:1px solid #333}
+.rsheet-btn.loss{background:#2a2724;color:#e8e6e3;border:1px solid #333}
+.rsheet-cancel{width:100%;background:transparent;border:none;color:#4a4642;font-size:15px;font-weight:500;padding:14px;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.rsheet-cancel:active{opacity:.5}
+.btn-result{width:100%;background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:15px 18px;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .2s cubic-bezier(.34,1.56,.64,1);text-align:left;display:flex;align-items:center;justify-content:space-between}
+.btn-result:not(.no-arrow)::after{content:'→';font-size:16px;opacity:.5}
+.btn-result:active{opacity:.8;transform:scale(.97)}
+.btn-result.waiting{background:#1d1a16;color:#5a5754;border:1px solid #2f2b27;cursor:default}
+.btn-result.waiting::after{display:none}
+/* btn-result.disputed rimosso — usa stile primario standard */
+.waiting-dots{font-size:11px;color:#3a3630;flex-shrink:0}
+
+/* Card sfida ricevuta */
+.card-challenge{background:#1d1a16;border:1px solid #2a2724;border-radius:16px;padding:16px 16px 16px;margin-bottom:10px;position:relative;overflow:hidden}
+.card-challenge-progress{position:absolute;bottom:0;left:0;height:3px;background:#629924;transition:width 1s linear}
+.card-challenge-progress.urgent{background:#c33}
+/* eyebrow + nome */
+.card-challenge-eyebrow{font-size:11px;color:#5a5754;font-weight:500;margin-bottom:5px;letter-spacing:.2px}
+.card-challenge-name{font-size:26px;font-weight:800;color:#e8e6e3;letter-spacing:-.6px;line-height:1;margin-bottom:10px}
+/* badge colore inline — pezzi reali, non testo grigio */
+.card-challenge-opp-elo{font-size:14px;font-weight:500;color:#4a4642}
+.card-challenge-sub{font-size:13px;color:#5a5754;font-weight:500;margin-bottom:16px;margin-top:4px}
+/* bottoni */
+.card-challenge-btns{display:flex;gap:8px;align-items:center}
+.btn-accept{flex:1;background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:15px 0;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .2s cubic-bezier(.34,1.56,.64,1);font-family:inherit;letter-spacing:-.2px}
+.btn-accept:active{opacity:.8;transform:scale(.96)}
+.btn-decline{background:transparent;color:#6a6560;border:none;padding:15px 14px;font-size:14px;cursor:pointer;transition:opacity .15s;font-family:inherit;white-space:nowrap;font-weight:500}
+.btn-decline:active{opacity:.4}
+
+/* Card sfida inviata — stato passivo */
+.card-pending{background:#161512;border:1px solid #1e1c18;border-radius:14px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.card-pending-left{flex:1;min-width:0}
+.card-pending-eyebrow{font-size:10px;color:#3a3630;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:5px;text-transform:uppercase;letter-spacing:1.2px}
+.card-pending-dot{width:5px;height:5px;border-radius:50%;background:#5a5754;animation:pulse 2s ease-in-out infinite}
+.card-pending-name{font-size:17px;font-weight:700;color:#9a9690;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.2px}
+.btn-cancel{background:transparent;color:#6a6560;border:none;padding:8px 0 8px 12px;font-size:14px;cursor:pointer;flex-shrink:0;font-family:inherit;transition:opacity .15s;font-weight:500}
+.btn-cancel:active{opacity:.4}
+
+/* Gruppo "in attesa" collassato */
+.waiting-group{background:#161512;border:1px solid #252220;border-radius:10px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.waiting-group-label{font-size:12px;color:#5a5754;flex:1}
+.waiting-group-count{font-size:11px;color:#4a4642;background:#1d1a16;border-radius:6px;padding:2px 8px}
+
+#home-pending:not(:empty){margin-bottom:4px}#home-ongoing:not(:empty){margin-bottom:0}
+
+/* ── ELO strip ── */
+.elo-info-btn{width:13px;height:13px;border-radius:50%;border:1px solid #3a3630;color:#4a4642;font-size:8px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.elo-tooltip{position:absolute;top:calc(100% + 6px);left:0;width:230px;background:#1d1a16;border:1px solid #3a3630;border-radius:10px;padding:12px;z-index:30;box-shadow:0 4px 20px rgba(0,0,0,.6);display:none}
+.elo-tooltip.visible{display:block}
+.elo-tooltip-title{font-size:11px;font-weight:700;color:#e8e6e3;margin-bottom:6px}
+.elo-tooltip-text{font-size:10px;color:#5a5754;line-height:1.6}
+#home-history{margin-top:0}
+
+/* ── Home stats block ── */
+
+/* ── Alert (sfida ricevuta) ── */
+.alert{background:#1d1a16;border:1px solid #3a3630;border-radius:12px;padding:14px 16px;margin-bottom:8px}
+.alert-t{font-size:10px;color:#4a4642;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.alert-vs{font-size:15px;color:#e8e6e3;font-weight:600;margin-bottom:3px}
+.alert-r{font-size:12px;color:#5a5754;margin-bottom:12px}
+.alert-btns{display:flex;gap:8px}
+.btn-yes{background:#e8e6e3;color:#161512;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:600;transition:opacity .15s}
+.btn-yes:active{opacity:.8}
+.btn-no{background:transparent;color:#c33;border:1px solid #c33;border-radius:8px;padding:10px 16px;font-size:13px;transition:opacity .15s}
+.btn-no:active{opacity:.7}
+
+/* ── Ongoing card ── */
+.ongoing-card{background:#1d1a16;border:1px solid #3a3630;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.ongoing-left{flex:1}
+.ongoing-opp{font-size:15px;font-weight:600;color:#e8e6e3}
+.ongoing-meta{font-size:11px;color:#5a5754;margin-top:2px}
+.btn-sm{background:#2a2724;color:#e8e6e3;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;flex-shrink:0;transition:opacity .15s;border:1px solid #3a3630}
+.btn-sm:active{opacity:.7}
+.btn-play{background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:10px 18px;font-size:14px;font-weight:700;flex-shrink:0;cursor:pointer;font-family:inherit;transition:opacity .15s,transform .1s}
+.btn-play:active{opacity:.8;transform:scale(.97)}
+.btn-play.unavailable{background:transparent;color:#3a3630;border:1px solid #252220;cursor:default;font-weight:500;font-size:13px}
+
+/* ── Search / Prow ── */
+.prow{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:13px 14px;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:border-color .15s}
+.prow:active{border-color:#3a3630}
+.pname{font-size:15px;color:#e8e6e3;font-weight:600}
+.pelo{font-size:12px;color:#4a4642;margin-top:2px}
+
+/* ── Match result ── */
+.match-vs{font-size:16px;color:#e8e6e3;text-align:center;margin:32px 20px 28px;line-height:1.5}
+.rbtn{display:block;width:100%;padding:18px 20px;border-radius:12px;font-size:16px;font-weight:600;margin-bottom:10px;text-align:left;transition:opacity .15s}
+.rbtn:active{opacity:.8}
+.r-win{background:#e8e6e3;color:#161512}
+.r-draw{background:#2a2724;color:#e8e6e3;border:1px solid #3a3630}
+.r-loss{background:transparent;color:#4a4642;border:1px solid #252220}
+
+/* ── Leaderboard ── */
+.lbrow{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:13px 14px;margin-bottom:6px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .15s}
+.lbrow:active{border-color:#3a3630}
+.lbrow.me{border-color:#3a3630;background:#1e1c18}
+.lbrank{font-size:13px;color:#4a4642;width:22px;text-align:center;flex-shrink:0}
+.lbname{font-size:15px;color:#e8e6e3;font-weight:600}
+.lbname.me{color:#e8e6e3}
+.lbrecord{font-size:11px;color:#4a4642;margin-top:2px}
+.lbelo{font-size:16px;font-weight:700;color:#e8e6e3;margin-left:auto}
+#lb-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:12px 16px calc(80px + env(safe-area-inset-bottom,0px))}
+#lb-list::-webkit-scrollbar{display:none}
+
+/* ── Profile ── */
+.prof-sticky{flex-shrink:0;background:#161512;padding:0 16px}
+.prof-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px calc(80px + env(safe-area-inset-bottom,0px))}
+.prof-scroll::-webkit-scrollbar{display:none}
+.prof-header{background:#1d1a16;border:1px solid #252220;border-radius:14px;padding:20px 16px;margin-bottom:10px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100px}
+.prof-back-icon{position:absolute;top:12px;left:14px;background:none;border:none;color:#4a4642;font-size:18px;cursor:pointer;padding:4px;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center}
+.prof-back-icon:active{opacity:.6}
+.prof-edit-icon{position:absolute;top:12px;right:14px;background:none;border:none;color:#4a4642;font-size:16px;cursor:pointer;padding:4px;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center}
+.prof-edit-icon:active{opacity:.6}
+.prof-logout-icon{position:absolute;top:12px;right:14px;background:none;border:none;color:#4a4642;cursor:pointer;padding:4px;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center}
+.prof-logout-icon:active{color:#c33}
+.prof-nick{font-size:20px;font-weight:700;color:#e8e6e3;text-align:center;margin-bottom:4px}
+.prof-bio{font-size:12px;color:#4a4642;text-align:center;margin-bottom:3px}
+.prof-meta{font-size:11px;color:#4a4642;text-align:center;line-height:1.7}
+.prof-edit-form{background:#1d1a16;border:1px solid #252220;border-radius:14px;padding:16px;margin-bottom:14px}
+.prof-edit-form input,.prof-edit-form textarea{margin-bottom:8px}
+.stats-row{display:flex;gap:8px;margin-bottom:10px}
+.stat{flex:1;background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:12px 8px;text-align:center;position:relative}
+.stat-v{font-size:22px;font-weight:700;color:#e8e6e3}
+.stat-v.g{color:#629924}.stat-v.r{color:#c33}
+.stat-l{font-size:10px;color:#4a4642;text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+.chart-wrap{background:#1d1a16;border:1px solid #252220;border-radius:14px;padding:16px;margin-bottom:12px}
+.chart-title{font-size:10px;color:#4a4642;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+canvas{width:100%!important;display:block}
+.tab-bar{display:flex;border-bottom:1px solid #252220;flex-shrink:0;margin-bottom:4px}
+.tab{background:none!important;border:none!important;border-radius:0;color:#4a4642;font-size:13px;font-weight:500;padding:10px 16px;cursor:pointer;border-bottom:2px solid transparent!important;margin-bottom:-1px;outline:none;-webkit-appearance:none;transition:color .15s}
+.tab.on{color:#e8e6e3;border-bottom:2px solid #e8e6e3!important}
+.back-btn{background:none;border:none;color:#4a4642;font-size:13px;padding:0;margin-bottom:12px;display:flex;align-items:center;gap:6px;cursor:pointer}
+.back-btn:active{opacity:.7}
+
+/* ── Activity / History ── */
+.act-day{margin-bottom:16px}
+.act-day-label{font-size:12px;color:#4a4642;font-weight:600;margin-bottom:8px;padding-top:8px}
+.act-row{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:12px 14px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.act-desc{font-size:13px;color:#e8e6e3}
+.act-boxes{display:flex;gap:3px;align-items:center}
+.act-box{min-width:18px;height:17px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;padding:0 4px}
+.act-box.win{background:#4a7c1f}
+.act-box.draw{background:#4a4a4a}
+.act-box.loss{background:#8b1a1a}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot.win{background:#629924}.dot.loss{background:#c33}.dot.draw{background:#555}
+.mcard{background:#1d1a16;border:1px solid #252220;border-radius:12px;margin-bottom:8px;overflow:hidden}
+.mcard-top{padding:11px 14px;display:flex;align-items:center;justify-content:space-between}
+.mcard-opp{font-size:14px;color:#e8e6e3;font-weight:600}
+.mcard-meta{font-size:11px;color:#4a4642;margin-top:2px}
+.mcard-right{text-align:right}
+.mcard-result{font-size:13px;font-weight:600}
+.mcard-result.win{color:#629924}.mcard-result.loss{color:#c33}.mcard-result.draw{color:#555}
+.mcard-elo{font-size:11px;margin-top:2px}
+.hrow{background:#1d1a16;border:1px solid #252220;border-radius:10px;padding:11px 14px;margin-bottom:6px;display:flex;align-items:center;gap:12px}
+.hrow-accent{width:3px;border-radius:2px;align-self:stretch;flex-shrink:0}
+.hrow-accent.win{background:#629924}
+.hrow-accent.loss{background:#c33}
+.hrow-accent.draw{background:#3a3630}
+.hrow-accent.cancelled{background:#2a2826}
+.hrow-left{flex:1;min-width:0}
+.hrow-opp{font-size:14px;color:#e8e6e3;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
+.color-dot{width:8px;height:8px;min-width:8px;min-height:8px;border-radius:50%;flex-shrink:0;display:block}
+.color-dot-white{background:#e8e6e3;box-shadow:0 0 0 1.5px #6a6560}
+.color-dot-black{background:#252220;box-shadow:0 0 0 1.5px #6a6560}
+.hrow-meta{font-size:11px;color:#4a4642;margin-top:2px;display:flex;gap:6px;align-items:center}
+.hrow-right{text-align:right;flex-shrink:0}
+.hrow-result{font-size:13px;font-weight:700}
+.hrow-result.win{color:#629924}
+.hrow-result.loss{color:#c33}
+.hrow-result.draw{color:#6a6560}
+.hrow-result.cancelled{color:#3a3630}
+.hrow-elo{font-size:11px;margin-top:2px}
+.elo-up{color:#629924}
+.elo-down{color:#c33}
+.elo-draw{color:#6a6560}
+.d-pos{color:#629924;font-size:13px}
+.d-neg{color:#c33;font-size:13px}
+
+/* ── Long press ── */
+.lp-btn{position:relative;overflow:hidden;cursor:pointer;font-family:inherit;user-select:none}
+.lp-bar{position:absolute;left:0;top:0;height:100%;width:0%;background:rgba(195,51,51,0.15);transition:none;pointer-events:none;border-radius:inherit}
+.lp-btn.pressing .lp-bar{width:100%;transition:width 0.8s linear}
+
+/* ── Comments (legacy) ── */
+.comment-nick{font-size:12px;font-weight:600;color:#e8e6e3;cursor:pointer}
+.comment-nick:hover{text-decoration:underline}
 </style>
 </head>
 <body>
+<!-- Copre la zona status-bar + topbar — z:9999 garantisce che iOS campioni il colore giusto e non il background degli overlay -->
+<div id="sa-cover" style="position:fixed;top:0;left:0;right:0;height:calc(env(safe-area-inset-top,20px) + 50px);background:#161512;z-index:10003;pointer-events:none"></div>
+<div id="notif" class="notif"></div>
 
-<div id="cover"></div>
-
-<div id="content">
-  <div class="label">Calibra colore status bar</div>
-  <div class="info">
-    1. Tap "Apri sheet"<br>
-    2. Con lo sheet aperto, usa i bottoni per cambiare il colore del cover<br>
-    3. Trova il colore dove la status bar è indistinguibile dal resto<br>
-    4. Screenshotta e dimmi il valore
+<!-- AUTH -->
+<div id="auth">
+  <div class="auth-wordmark">
+    <span class="auth-name">turko</span>
+    <span class="auth-tagline">built for over-the-board chess</span>
   </div>
-  <button onclick="openSheet()">Apri sheet</button>
-  <div id="color-val">#161512</div>
-</div>
+  <div id="box-login" class="box">
+    <span class="box-label">Accedi</span>
+    <div class="frow"><input id="l-nick" class="auth-input" placeholder="nickname" autocomplete="username" autocorrect="off" autocapitalize="none" spellcheck="false"></div>
+    <div class="frow"><input id="l-pass" class="auth-input" type="password" placeholder="password" autocomplete="current-password"></div>
+    <div id="l-err" class="err"></div>
+    <button id="l-btn" class="btn-g">Entra</button>
+    <button id="l-toreg" class="btn-o">Crea account</button>
+  </div>
 
-<div id="test-overlay" onclick="closeSheet()">
-  <div id="test-sheet" onclick="event.stopPropagation()">
-    <div style="text-align:center;font-size:12px;color:#888;margin-bottom:12px">Cambia colore del cover e trova il match</div>
-    <div id="sheet-color-val" style="text-align:center;font-size:20px;font-weight:700;color:#e8e6e3;margin-bottom:12px;font-family:monospace">#161512</div>
-    
-    <button class="sm" onclick="setColor('#161512')">#161512 (base app)</button>
-    <button class="sm" onclick="setColor('#060504')">#060504 (calcolato)</button>
-    <button class="sm" onclick="setColor('#050403')">#050403</button>
-    <button class="sm" onclick="setColor('#040303')">#040303</button>
-    <button class="sm" onclick="setColor('#030202')">#030202</button>
-    <button class="sm" onclick="setColor('#020101')">#020101</button>
-    <button class="sm" onclick="setColor('#010101')">#010101</button>
-    <button class="sm" onclick="setColor('#000000')">#000000 (nero puro)</button>
-    <button class="sm" onclick="setColor('#070605')">#070605</button>
-    <button class="sm" onclick="setColor('#080706')">#080706</button>
-    <button class="sm" onclick="setColor('#0a0908')">#0a0908</button>
-    <button class="sm" onclick="setColor('#0c0b09')">#0c0b09</button>
-    <button class="sm" onclick="setColor('transparent')">transparent</button>
-
-    <div style="height:12px"></div>
-    <button onclick="closeSheet()">Chiudi</button>
+  <div id="box-reg" class="box hidden">
+    <span class="box-label">Nuovo account</span>
+    <div class="auth-hint">Non perdere la password, non la puoi recuperare.</div>
+    <div class="frow"><input id="r-nick" class="auth-input" placeholder="nickname (3-20 caratteri)" autocomplete="username" autocorrect="off" autocapitalize="none" spellcheck="false" maxlength="20"></div>
+    <div class="frow"><input id="r-pass" class="auth-input" type="password" placeholder="password" autocomplete="new-password"></div>
+    <div class="frow"><input id="r-conf" class="auth-input" type="password" placeholder="conferma password" autocomplete="new-password"></div>
+    <div id="r-err" class="err"></div>
+    <button id="r-btn" class="btn-g">Registrati</button>
+    <button id="r-tolog" class="btn-o">Accedi</button>
   </div>
 </div>
 
+<!-- MAIN -->
+<div id="main" class="hidden">
+  <div class="topbar">
+    <span class="logo">turko</span>
+    <button class="topbar-logout" onclick="doLogout()" title="Esci">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </button>
+  </div>
+  <div class="pages">
+    <!-- HOME -->
+    <div id="page-home" class="page active">
+      <!-- Header identità: nickname + ELO prominente + delta -->
+      <div class="home-hero" id="home-hero" onclick="openMyProfile()">
+        <div class="home-hero-nick" id="h-nick"></div>
+        <div class="home-hero-elo-row">
+          <span class="home-hero-elo" id="h-elo"></span>
+          <span class="home-hero-delta hidden" id="h-delta"></span>
+        </div>
+      </div>
+
+      <!-- Zona sticky: bottone + search sempre visibili -->
+      <div class="home-top">
+        <button class="btn-new-match" id="btn-newmatch">
+          <span class="btn-new-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </span>
+          <span>Nuova partita</span>
+        </button>
+        <div class="home-search" id="home-search">
+          <div class="home-search-inner">
+            <div class="home-search-bar">
+              <input id="home-search-input" placeholder="nickname" autocorrect="off" autocapitalize="none" spellcheck="false">
+              <button class="close-btn" onclick="closeHomeSearch()">✕</button>
+            </div>
+            <div id="home-search-results"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zona scrollabile: card attive + storico -->
+      <div id="home-scroll">
+        <div id="home-pending"></div>
+        <div id="home-ongoing"></div>
+        <div class="slabel" id="home-history-divider" style="display:none;margin-top:4px">Partite recenti</div>
+        <div id="home-history"></div>
+      </div>
+    </div>
+    <!-- SEARCH -->
+    <div id="page-search" class="page">
+      <div style="margin-bottom:14px"><input id="search-input" placeholder="nickname" autocorrect="off" autocapitalize="none" spellcheck="false"></div>
+      <div id="search-results"></div>
+    </div>
+    <!-- MATCH -->
+    <div id="page-match" class="page" style="padding:16px;overflow-y:auto">
+      <button onclick="showPage('home')" style="background:none;border:none;color:#4a4642;font-size:13px;cursor:pointer;padding:4px 0;margin-bottom:8px;display:flex;align-items:center;gap:6px">← Indietro</button>
+      <div id="match-vs" class="match-vs"></div>
+      <div id="match-btns" style="padding:0 4px"></div>
+    </div>
+    <!-- LEADERBOARD -->
+    <div id="page-lb" class="page">
+      <div id="lb-list" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
+    </div>
+    <!-- PROFILE -->
+    <div id="page-profile" class="page">
+      <div class="prof-sticky">
+        <button class="back-btn hidden" id="profile-back">← indietro</button>
+        <div id="prof-header-wrap"></div>
+        <div class="stats-row">
+          <div class="stat" style="position:relative">
+            <div id="prof-elo" class="stat-v">—</div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-top:2px">
+              <div class="stat-l">ELO</div>
+              <span class="elo-info-btn" onclick="toggleEloTooltip(event)" style="margin-top:0">?</span>
+            </div>
+            <div class="elo-tooltip" id="elo-tooltip-prof" style="top:calc(100% + 6px);left:0;right:auto;width:220px">
+              <div class="elo-tooltip-title">Come funziona l'ELO</div>
+              <div class="elo-tooltip-text">Il punteggio ELO misura la tua forza relativa agli altri giocatori. Vinci contro un avversario forte → guadagni più punti. Perdi contro uno debole → perdi di più.<br><br><strong style="color:#e8e6e3">K variabile:</strong> K=40 prime 30 partite, K=32 standard, K=20 se ELO ≥ 2000.<br><br><strong style="color:#e8e6e3">Anti-farming:</strong> dalla 4ª partita dello stesso giorno con lo stesso avversario i punti si dimezzano.</div>
+            </div>
+          </div>
+          <div class="stat"><div id="prof-wins" class="stat-v g">0</div><div class="stat-l">Vinte</div></div>
+          <div class="stat"><div id="prof-losses" class="stat-v r">0</div><div class="stat-l">Perse</div></div>
+          <div class="stat"><div id="prof-draws" class="stat-v">0</div><div class="stat-l">Patte</div></div>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-title">Andamento ELO</div>
+          <canvas id="elo-chart" height="120"></canvas>
+        </div>
+        <div class="tab-bar">
+          <button class="tab on" onclick="switchProfTab('activity', this)">Attività</button>
+          <button class="tab" onclick="switchProfTab('matches', this)">Partite</button>
+        </div>
+      </div>
+      <div class="prof-scroll">
+        <div id="prof-activity"></div>
+        <div id="prof-matches" class="hidden"></div>
+      </div>
+    </div>
+  </div>
+  <div class="navbar-frost"></div>
+  <div class="navbar">
+    <button class="nbtn on" data-page="home">
+      <svg class="nicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+      <span>Home</span><span id="badge" class="badge hidden"></span>
+    </button>
+    <button class="nbtn" data-page="leaderboard">
+      <svg class="nicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="7" width="4" height="14"/><rect x="17" y="3" width="4" height="18"/></svg>
+      <span>Classifica</span>
+    </button>
+    <button class="nbtn" data-page="profile-me">
+      <svg class="nicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span>Profilo</span>
+    </button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-function setColor(c) {
-  document.getElementById('cover').style.background = c;
-  document.getElementById('color-val').textContent = c;
-  document.getElementById('sheet-color-val').textContent = c;
+// ── PWA Manifest (injected as blob for single-file PWA) ──
+(function() {
+  const manifest = {
+    name: 'turko',
+    short_name: 'turko',
+    description: 'built for over-the-board chess',
+    start_url: '/',
+    display: 'standalone',
+    background_color: '#161512',
+    theme_color: '#161512',
+    orientation: 'portrait',
+    icons: [{
+      src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23161512'/><text y='78' x='12' font-size='75'>♟</text></svg>",
+      sizes: 'any',
+      type: 'image/svg+xml'
+    }]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('link');
+  link.rel = 'manifest';
+  link.href = url;
+  document.head.appendChild(link);
+})();
+
+const SUPA_URL = "https://prmptevzfofmohefyvrl.supabase.co";
+const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBybXB0ZXZ6Zm9mbW9oZWZ5dnJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwOTg2ODEsImV4cCI6MjA4NzY3NDY4MX0.o-CjHwIbfBnCmJfKTDKKtbUok6h6mFQz8Y8O6XiWMzI";
+
+const supabaseClient = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+let authToken = null;
+let me = null, players = [], matches = [], activeMatch = null, pollTimer = null, heartbeatTimer = null;
+
+
+function startPolling() {
+  stopPolling();
+  pollTimer = setInterval(fetchAll, 5000); // 5s — sfide in tempo reale
+}
+function stopPolling() {
+  clearInterval(pollTimer);
+  pollTimer = null;
 }
 
-function openSheet() {
-  const overlay = document.getElementById('test-overlay');
-  // cover a #060504 prima di mostrare overlay
-  setColor('#060504');
+function startHeartbeat() {
+  stopHeartbeat();
+  sendHeartbeat();
+  heartbeatTimer = setInterval(sendHeartbeat, 5000);
+}
+function stopHeartbeat() {
+  clearInterval(heartbeatTimer);
+  heartbeatTimer = null;
+}
+async function sendHeartbeat() {
+  if(!me || !authToken) return;
+  try {
+    await db.patch("players", `id=eq.${me.id}`, {last_seen_at: new Date().toISOString()});
+  } catch(e) { /* silenzioso */ }
+}
+
+let realtimeChannel = null;
+let realtimeOk = false;
+
+function startRealtime() {
+  if(realtimeChannel) realtimeChannel.unsubscribe();
+  realtimeOk = false;
+  realtimeChannel = supabaseClient
+    .channel('app-changes')
+    .on('postgres_changes', {event:'*', schema:'public', table:'matches'}, () => fetchAll())
+    .on('postgres_changes', {event:'UPDATE', schema:'public', table:'players'}, (payload) => {
+      if(payload.new && Array.isArray(players)) {
+        const idx = players.findIndex(p => p.id === payload.new.id);
+        if(idx !== -1) players[idx] = {...players[idx], ...payload.new};
+        else players.push(payload.new);
+        if(payload.new.id === me.id) me = {...me, ...payload.new};
+        if($("home-search-input") && $("home-search-input").value) renderHomeSearch();
+      }
+    })
+    .subscribe((status) => {
+      realtimeOk = (status === 'SUBSCRIBED');
+      if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        setTimeout(() => { if(me) startRealtime(); }, 3000);
+      }
+    });
+}
+
+function stopRealtime() {
+  if(realtimeChannel) { realtimeChannel.unsubscribe(); realtimeChannel = null; }
+}
+
+document.addEventListener('visibilitychange', () => {
+  if(!me) return;
+  if(document.visibilityState === 'visible') {
+    fetchAll();
+    startPolling();
+    startHeartbeat(); // riprende subito a mandare presenza
+  } else {
+    stopPolling();
+    stopHeartbeat(); // non sprecare batteria/rete in background
+  }
+});
+
+
+let profileStack = []; // [{id, from}]
+let eloChartInstance = null;
+
+function authHeaders() {
+  return {
+    "apikey": SUPA_KEY,
+    "Authorization": "Bearer " + (authToken || SUPA_KEY),
+    "Content-Type": "application/json",
+    "Prefer": "return=representation"
+  };
+}
+
+const db = {
+  async get(t, q="") {
+    try {
+      const r = await fetch(`${SUPA_URL}/rest/v1/${t}?${q}`, {headers: authHeaders()});
+      return r.json();
+    } catch(e) { toast("Errore di connessione", "err"); return null; }
+  },
+  async post(t, b) {
+    try {
+      const r = await fetch(`${SUPA_URL}/rest/v1/${t}`, {method:"POST", headers: authHeaders(), body: JSON.stringify(b)});
+      return r.json();
+    } catch(e) { toast("Errore di connessione", "err"); return null; }
+  },
+  async patch(t, q, b) {
+    try {
+      const r = await fetch(`${SUPA_URL}/rest/v1/${t}?${q}`, {method:"PATCH", headers: authHeaders(), body: JSON.stringify(b)});
+      return r.json();
+    } catch(e) { toast("Errore di connessione", "err"); return null; }
+  },
+  async rpc(fn, b) {
+    try {
+      const r = await fetch(`${SUPA_URL}/rest/v1/rpc/${fn}`, {method:"POST", headers: authHeaders(), body: JSON.stringify(b)});
+      if(r.status === 204 || r.headers.get('content-length') === '0') return {};
+      const text = await r.text();
+      return text ? JSON.parse(text) : {};
+    } catch(e) { toast("Errore di connessione", "err"); return null; }
+  },
+  async delete(t, q) {
+    try {
+      const r = await fetch(`${SUPA_URL}/rest/v1/${t}?${q}`, {method:"DELETE", headers: authHeaders()});
+      return r.status;
+    } catch(e) { toast("Errore di connessione", "err"); return null; }
+  },
+};
+
+const $ = id => document.getElementById(id);
+function toast(msg, type="ok") {
+  const el = $("notif");
+  el.textContent = msg;
+  el.className = "notif" + (type==="err" ? " err" : type==="result" ? " result" : "");
+  el.style.display = "block";
+  const isResult = type === "result";
+  const hideTransform = isResult ? "translateX(-50%) translateY(8px)" : "translateX(-50%) translateY(-4px)";
+  // forza reflow per attivare transizione
+  el.getBoundingClientRect();
+  el.style.opacity = "1";
+  el.style.transform = "translateX(-50%) translateY(0)";
+  clearTimeout(el._t);
+  el._t = setTimeout(() => {
+    el.style.opacity = "0";
+    el.style.transform = hideTransform;
+    setTimeout(() => { el.style.display = "none"; }, 200);
+  }, isResult ? 3000 : 2400);
+}
+function setErr(id, msg) {
+  const el = $(id);
+  if(!el) return;
+  el.textContent = msg;
+  el.classList.toggle('visible', msg.length > 0);
+}
+function clearErr(id) {
+  const el = $(id);
+  if(!el) return;
+  el.textContent = '';
+  el.classList.remove('visible');
+}
+function setLoading(btnId, on, label) {
+  const btn = $(btnId);
+  if(!btn) return;
+  btn.disabled = on;
+  btn.innerHTML = on ? `<span class="spinner"></span>${label}` : label;
+}
+function isRelativeDate(iso) {
+  const now = new Date();
+  const d = new Date(iso);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dateDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  return Math.round((today - dateDay) / 86400000) <= 7;
+}
+function memberSince(iso) {
+  return isRelativeDate(iso) ? `da ${fmtDate(iso, true)}` : `dal ${fmtDate(iso)}`;
+}
+
+function fmtDate(iso, relative=false) {
+  const now = new Date();
+  const d = new Date(iso);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dateDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const dayDiff = Math.round((today - dateDay) / 86400000);
+  if(relative) {
+    if(dayDiff === 0) return 'oggi';
+    if(dayDiff === 1) return 'ieri';
+    if(dayDiff < 7) return `${dayDiff} giorni`;
+    if(dayDiff === 7) return 'una settimana';
+  } else {
+    if(dayDiff === 0) return 'oggi';
+    if(dayDiff === 1) return 'ieri';
+    if(dayDiff < 7) return `${dayDiff} giorni fa`;
+    if(dayDiff === 7) return 'una settimana fa';
+  }
+  return d.toLocaleDateString('it-IT', {day:'numeric', month:'long', year:'numeric'});
+}
+
+// --- AUTH ---
+$("l-toreg").onclick = () => { $("box-login").classList.add("hidden"); $("box-reg").classList.remove("hidden"); clearErr("l-err"); };
+$("r-tolog").onclick = () => { $("box-reg").classList.add("hidden"); $("box-login").classList.remove("hidden"); clearErr("r-err"); };
+$("l-pass").addEventListener("keydown", e => { if(e.key==="Enter") doLogin(); });
+$("l-btn").onclick = doLogin;
+$("r-btn").onclick = doRegister;
+
+async function doLogin() {
+  clearErr("l-err");
+  const nick = $("l-nick").value.trim();
+  const pass = $("l-pass").value;
+  if(!nick || !pass) return setErr("l-err", "Compila tutti i campi.")
+  setLoading("l-btn", true, "Entro...");
+  const res = await fetch(`${SUPA_URL}/auth/v1/token?grant_type=password`, {
+    method: "POST",
+    headers: {"apikey": SUPA_KEY, "Content-Type": "application/json"},
+    body: JSON.stringify({email: nick.toLowerCase()+"@barscacchi.local", password: pass})
+  });
+  const data = await res.json();
+  setLoading("l-btn", false, "Entra");
+  if(data.error || !data.access_token) return setErr("l-err", "Nickname o password errati.")
+  authToken = data.access_token;
+  const profile = await db.get("players", `id=eq.${data.user.id}&select=*`);
+  if(!Array.isArray(profile) || !profile[0]) return setErr("l-err", "Profilo non trovato.")
+  enterApp(profile[0]);
+}
+
+async function doRegister() {
+  clearErr("r-err");
+  const nick = $("r-nick").value.trim();
+  const pass = $("r-pass").value;
+  const conf = $("r-conf").value;
+  if(!nick) return setErr("r-err", "Inserisci un nickname.")
+  if(nick.length < 3) return setErr("r-err", "Nickname minimo 3 caratteri.")
+  if(nick.length > 20) return setErr("r-err", "Nickname massimo 20 caratteri.")
+  if(!/^[a-zA-Z0-9_-]+$/.test(nick)) return setErr("r-err", "Solo lettere, numeri, _ e - sono permessi.")
+  if(pass.length < 6) return setErr("r-err", "Password minimo 6 caratteri.")
+  if(pass !== conf) return setErr("r-err", "Le password non coincidono.")
+  setLoading("r-btn", true, "Registro...");
+  const realEmail = "";
+  const res = await fetch(`${SUPA_URL}/auth/v1/signup`, {
+    method: "POST",
+    headers: {"apikey": SUPA_KEY, "Content-Type": "application/json"},
+    body: JSON.stringify({email: nick.toLowerCase()+"@barscacchi.local", password: pass})
+  });
+  const data = await res.json();
+  if(data.error || data.error_code) {
+    const isExisting = data.error_code === "user_already_exists" || (data.error?.message||"").includes("already");
+    if(!isExisting) {
+      setLoading("r-btn", false, "Registrati");
+      return setErr("r-err", "Errore: " + (data.error?.message || data.msg))
+    }
+    // utente esiste in auth ma forse non ha profilo — prova login
+    const loginRes = await fetch(`${SUPA_URL}/auth/v1/token?grant_type=password`, {
+      method: "POST",
+      headers: {"apikey": SUPA_KEY, "Content-Type": "application/json"},
+      body: JSON.stringify({email: nick.toLowerCase()+"@barscacchi.local", password: pass})
+    });
+    const loginData = await loginRes.json();
+    if(!loginData.access_token) {
+      setLoading("r-btn", false, "Registrati");
+      return setErr("r-err", "Nickname già in uso.")
+    }
+    authToken = loginData.access_token;
+    // controlla se ha già un profilo
+    const existing = await db.get("players", `id=eq.${loginData.user.id}&select=*`);
+    if(Array.isArray(existing) && existing[0]) {
+      setLoading("r-btn", false, "Registrati");
+      return setErr("r-err", "Nickname già in uso.")
+    }
+    // crea il profilo mancante
+    const profile2 = await db.post("players", {id: loginData.user.id, nickname: nick});
+    setLoading("r-btn", false, "Registrati");
+    if(!Array.isArray(profile2) || !profile2[0]) return setErr("r-err", "Errore nella creazione del profilo.")
+    enterApp(profile2[0]);
+    return;
+  }
+  if(!data.user) {
+    setLoading("r-btn", false, "Registrati");
+    return setErr("r-err", "Errore nella registrazione. Riprova.")
+  }
+  // Fai subito login per ottenere token valido
+  const loginRes2 = await fetch(`${SUPA_URL}/auth/v1/token?grant_type=password`, {
+    method: "POST",
+    headers: {"apikey": SUPA_KEY, "Content-Type": "application/json"},
+    body: JSON.stringify({email: nick.toLowerCase()+"@barscacchi.local", password: pass})
+  });
+  const loginData2 = await loginRes2.json();
+  if(!loginData2.access_token) {
+    setLoading("r-btn", false, "Registrati");
+    return setErr("r-err", "Errore nel login dopo registrazione. Riprova.")
+  }
+  authToken = loginData2.access_token;
+  const profile = await db.post("players", {id: data.user.id, nickname: nick});
+  setLoading("r-btn", false, "Registrati");
+  if(!Array.isArray(profile) || !profile[0]) {
+    return setErr("r-err", "Nickname già in uso o errore.")
+  }
+  enterApp(profile[0]);
+}
+
+async function enterApp(player) {
+  me = player;
+  players = []; matches = []; activeMatch = null; // reset stato precedente
+  // fade out auth, then show main
+  const authEl = $("auth");
+  authEl.style.transition = "opacity .3s ease";
+  authEl.style.opacity = "0";
+  await new Promise(r => setTimeout(r, 300));
+  authEl.classList.add("hidden");
+  authEl.style.opacity = "";
+  authEl.style.transition = "";
+  $("main").classList.remove("hidden");
+  $("main").style.opacity = "0";
+  $("main").style.transition = "opacity .25s ease";
+  requestAnimationFrame(() => { $("main").style.opacity = "1"; });
+  setTimeout(() => { $("main").style.transition = ""; $("main").style.opacity = ""; }, 300);
+  updateTopbar();
+  fetchAll();
+  startPolling();
+  startRealtime();
+  startHeartbeat();
+}
+
+async function doLogout() {
+  stopPolling();
+  stopRealtime();
+  stopHeartbeat();
+  await db.patch("players", `id=eq.${me.id}`, {last_seen_at: new Date(0).toISOString()});
+  await fetch(`${SUPA_URL}/auth/v1/logout`, {method:"POST", headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+authToken}});
+  authToken = null; me = null; players = []; matches = []; activeMatch = null;
+  $("main").classList.add("hidden");
+  $("auth").classList.remove("hidden");
+  $("l-nick").value = ""; $("l-pass").value = "";
+}
+
+// --- DATA ---
+let eloCache = {}; // match_id -> {elo_before, elo_after}
+
+async function fetchAll() {
+  if(!me) return;
+  const prevMatches = [...matches];
+  const [ps, ms, done, eloH] = await Promise.all([
+    db.get("players", "order=elo.desc"),
+    db.get("matches", `or=(p1.eq.${me.id},p2.eq.${me.id})&status=in.(active,pending_challenge)&select=*&order=created_at.desc&limit=50`),
+    db.get("matches", `or=(p1.eq.${me.id},p2.eq.${me.id})&status=eq.done&select=*&order=updated_at.desc&limit=30`),
+    db.get("elo_history", `player_id=eq.${me.id}&select=*&order=created_at.desc&limit=20`)
+  ]);
+  if(Array.isArray(ps)) {
+    players = ps;
+    const upd = ps.find(p => p.id===me.id);
+    if(upd) me = upd;
+    // aggiorna topbar elo
+    updateTopbar();
+    // aggiorna search se aperto
+    if($("home-search-input") && $("home-search-input").value) renderHomeSearch();
+  }
+  if(Array.isArray(ms) && Array.isArray(done)) matches = [...ms, ...done];
+  else if(Array.isArray(ms)) matches = ms;
+  if(Array.isArray(eloH)) eloH.forEach(e => eloCache[e.match_id] = e);
+
+  // se sono sulla pagina match ma la partita non è più active → torna alla home
+  const onMatchPage = document.querySelector('#page-match.active');
+  if(onMatchPage && currentMatchId) {
+    const currentM = Array.isArray(ms) ? ms.find(m => m.id === currentMatchId) : null;
+    if(!currentM || currentM.status !== 'active') {
+      currentMatchId = null;
+      showPage('home');
+      // continua con renderHome sotto
+    }
+  }
+
+  // nessun auto-open: la home mostra le card con bottone "Risultato"
+
+  updateTopbar();
+  await cleanupExpired();
+
+  // notifiche automatiche basate su cambi di stato
+  if(Array.isArray(done)) {
+    done.forEach(m => {
+      const wasActive = prevMatches.find(p => p.id === m.id && p.status === 'active');
+      if(wasActive) {
+        if(m.result === 'cancelled') {
+          // Transient: spiega perché è stata annullata
+          const wasDisputed = wasActive.disputed;
+          toast(wasDisputed
+            ? "Partita annullata — nessun accordo sul risultato"
+            : "Partita annullata — timeout", "err");
+        } else if(m.result) {
+          const isP1 = m.p1 === me.id;
+          const won = m.result === 'p1' ? isP1 : m.result === 'p2' ? !isP1 : null;
+          const elo = eloCache[m.id];
+          const delta = elo ? (elo.elo_after - elo.elo_before) : null;
+          const deltaStr = delta !== null
+            ? ` · ELO ${delta >= 0 ? '+' : ''}${delta}`
+            : '';
+          if(won === null) toast(`Patta${deltaStr}`, 'result');
+          else if(won) toast(`Vittoria${deltaStr}`, 'result');
+          else toast(`Sconfitta${deltaStr}`, 'result');
+        }
+      }
+    });
+  }
+  // notifica se una partita è diventata disputed (l'altro ha inserito diverso)
+  if(Array.isArray(ms)) {
+    ms.forEach(m => {
+      const prev = prevMatches.find(p => p.id === m.id);
+      if(prev && !prev.disputed && m.disputed) {
+        const opp = players.find(p => p.id === (m.p1===me.id ? m.p2 : m.p1));
+        toast(`Risultato diverso da ${opp?.nickname||"?"}`, "err");
+      }
+    });
+  }
+
+  renderHome();
+}
+
+// aggiorna countdown ogni secondo — solo gli span, non riscrive il DOM
+function updateCountdowns() {
+  if(!me) return;
+  let anyExpired = false;
+  matches.forEach(m => {
+    if(m.status !== 'pending_challenge') return;
+    const elapsed = Date.now() - new Date(m.created_at).getTime();
+    const remaining = CHALLENGE_EXPIRE_MS - elapsed;
+    const pct = Math.max(0, Math.min(100, (remaining / CHALLENGE_EXPIRE_MS) * 100));
+    const urgent = pct < 20;
+    // aggiorna barra progress
+    const bar = document.getElementById('prog-' + m.id);
+    if(bar) {
+      bar.style.width = pct + '%';
+      bar.className = 'card-challenge-progress' + (urgent ? ' urgent' : '');
+    }
+    if(remaining <= 0) anyExpired = true;
+  });
+  if(anyExpired) cleanupExpired();
+}
+setInterval(updateCountdowns, 1000);
+
+function getP(id) { return players.find(p => p.id===id); }
+
+// ── ELO Odometer ──
+let _lastElo = null;
+let _lastDelta = null;
+function animateElo(el, newVal) {
+  if(_lastElo === null) { el.textContent = newVal; _lastElo = newVal; return; }
+  if(_lastElo === newVal) return;
+  const goingUp = newVal > _lastElo;
+  _lastElo = newVal;
+  const str = String(newVal);
+  // costruisce span per ogni cifra
+  el.innerHTML = str.split('').map((d,i) => `<span class="odometer-digit" style="display:inline-block;overflow:hidden;line-height:1;vertical-align:top"><span class="odometer-inner" data-digit="${d}" style="display:block">${d}</span></span>`).join('');
+  // anima ogni cifra con delay progressivo
+  el.querySelectorAll('.odometer-inner').forEach((inner, i) => {
+    const digit = inner.dataset.digit;
+    const from = goingUp ? '80%' : '-80%';
+    inner.style.transform = `translateY(${from})`;
+    inner.style.opacity = '0';
+    inner.style.transition = `transform 1s cubic-bezier(.15,0,.1,1) ${i*80}ms, opacity .5s ease ${i*80}ms`;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      inner.style.transform = 'translateY(0)';
+      inner.style.opacity = '1';
+    }));
+  });
+}
+
+function updateTopbar() {
+  // hero header
+  const hNick = $("h-nick");
+  const hElo = $("h-elo");
+  const hDelta = $("h-delta");
+  if(hNick) hNick.textContent = me.nickname;
+  if(hElo) animateElo(hElo, me.elo);
+  // delta: ultima partita dall'eloCache
+  if(hDelta) {
+    const myMatches = matches.filter(m => m.status === "done" && (m.p1===me.id||m.p2===me.id));
+    const last = myMatches[0];
+    const elo = last ? eloCache[last.id] : null;
+    const delta = elo ? (elo.elo_after - elo.elo_before) : null;
+    if(delta !== null && delta !== 0) {
+      const text = (delta > 0 ? '+' : '') + delta;
+      const cls = 'home-hero-delta ' + (delta > 0 ? 'up' : 'down');
+      hDelta.classList.remove('hidden');
+      if(delta === _lastDelta) {
+        // stesso delta — aggiorna solo testo/classe senza animare
+        hDelta.textContent = text;
+        hDelta.className = cls;
+      } else {
+        _lastDelta = delta;
+        const from = delta > 0 ? '60%' : '-60%';
+        const delay = String(me.elo).length * 80 + 400;
+        hDelta.textContent = text;
+        hDelta.className = cls;
+        hDelta.style.opacity = '0';
+        hDelta.style.transform = `translateY(${from})`;
+        hDelta.style.transition = 'none';
+        setTimeout(() => {
+          hDelta.style.transition = `transform 1s cubic-bezier(.15,0,.1,1), opacity .5s ease`;
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            hDelta.style.transform = 'translateY(0)';
+            hDelta.style.opacity = '1';
+          }));
+        }, delay);
+      }
+    } else {
+      _lastDelta = null;
+      hDelta.classList.add('hidden');
+    }
+  }
+}
+
+
+
+// --- HOME ---
+
+// Formato partita: Bianco vs Nero, bianco sempre primo
+function matchLabel(m) {
+  if(!m.white_player_id) {
+    const p1 = getP(m.p1), p2 = getP(m.p2);
+    return `${p1?.nickname||"?"} — ${p2?.nickname||"?"}`;
+  }
+  const white = getP(m.white_player_id);
+  const blackId = m.p1 === m.white_player_id ? m.p2 : m.p1;
+  const black = getP(blackId);
+  return `${white?.nickname||"?"} — ${black?.nickname||"?"}`;
+}
+function matchLabelShort(m, myId) {
+  if(!m.white_player_id) {
+    const opp = getP(m.p1===myId ? m.p2 : m.p1);
+    return opp?.nickname||"?";
+  }
+  const white = getP(m.white_player_id);
+  const blackId = m.p1 === m.white_player_id ? m.p2 : m.p1;
+  const black = getP(blackId);
+  return `${white?.nickname||"?"} — ${black?.nickname||"?"}`;
+}
+// ── Factory functions per card ──
+function makeCardChallenge(m) {
+  const opp = getP(m.p1);
+  const totalMs = CHALLENGE_EXPIRE_MS;
+  const elapsed = Date.now() - new Date(m.created_at).getTime();
+  const pct = Math.max(0, Math.min(100, ((totalMs - elapsed) / totalMs) * 100));
+  const urgent = pct < 20;
+  const oppElo = opp?.elo || '—';
+  const amIWhite = m.white_player_id === me.id;
+  const colorLine = m.white_player_id
+    ? `ti sfida — giochi col ${amIWhite ? 'bianco' : 'nero'}`
+    : 'ti sfida';
+  const el = document.createElement('div');
+  el.className = 'card-challenge card-enter';
+  el.dataset.mid = m.id;
+  el.innerHTML = `
+    <div class="card-challenge-progress${urgent?' urgent':''}" id="prog-${m.id}" style="width:${pct}%"></div>
+    <div class="card-challenge-name">${opp?.nickname||"?"} <span class="card-challenge-opp-elo">(${oppElo})</span></div>
+    <div class="card-challenge-sub">${colorLine}</div>
+    <div class="card-challenge-btns">
+      <button class="btn-accept" onclick="acceptChallenge('${m.id}')">Accetta</button>
+      <button class="btn-decline" onclick="rejectChallenge('${m.id}')">Declina</button>
+    </div>`;
+  return el;
+}
+function makeCardSent(m) {
+  const vsLabel = matchLabel(m);
+  const el = document.createElement('div');
+  el.className = 'card-pending card-enter';
+  el.dataset.mid = m.id;
+  el.innerHTML = `
+    <div class="card-pending-left">
+      <div class="card-pending-eyebrow"><span class="card-pending-dot"></span>Sfida inviata</div>
+      <div class="card-pending-name">${vsLabel}</div>
+    </div>
+    <button class="btn-cancel" onclick="cancelChallenge('${m.id}')">Annulla</button>`;
+  return el;
+}
+function makeCardLive(m) {
+  const vsLabel = matchLabel(m);
+  const el = document.createElement('div');
+  el.className = 'card-live card-enter';
+  el.dataset.mid = m.id;
+  el.id = `card-live-${m.id}`;
+  el.innerHTML = `
+    <div class="card-live-label"><span class="live-dot"></span>In corso</div>
+    <div class="card-live-vs">${vsLabel}</div>
+    <div class="card-live-sub" id="card-live-sub-${m.id}">Inserisci il tuo risultato</div>
+    <div class="card-live-actions" id="card-live-actions-${m.id}">
+      <button class="btn-result no-arrow" onclick="openResultSheet('${m.id}')">Inserisci risultato</button>
+    </div>`;
+  return el;
+}
+function makeCardDisputed(m) {
+  const vsLabel = matchLabel(m);
+  const el = document.createElement('div');
+  el.className = 'card-live card-live-disputed card-enter';
+  el.dataset.mid = m.id;
+  el.id = `card-live-${m.id}`;
+  el.innerHTML = `
+    <div class="card-live-label" style="color:#c33"><span class="live-dot red"></span>Disaccordo</div>
+    <div class="card-live-vs">${vsLabel}</div>
+    <div class="card-live-sub" id="card-live-sub-${m.id}">Risultati diversi — reinserisci il tuo</div>
+    <div class="card-live-actions" id="card-live-actions-${m.id}">
+      <button class="btn-result no-arrow" onclick="openResultSheet('${m.id}')">Reinserisci</button>
+    </div>`;
+  return el;
+}
+function makeCardWaiting(m) {
+  const vsLabel = matchLabel(m);
+  const oppId = m.p1 === me.id ? m.p2 : m.p1;
+  const opp = getP(oppId);
+  const el = document.createElement('div');
+  el.className = 'card-pending card-enter';
+  el.dataset.mid = m.id;
+  el.innerHTML = `
+    <div class="card-pending-left">
+      <div class="card-pending-eyebrow"><span class="card-pending-dot"></span>Aspetto ${opp?.nickname || '…'}</div>
+      <div class="card-pending-name">${vsLabel}</div>
+    </div>
+    <span class="waiting-dots">…</span>`;
+  return el;
+}
+// Riconcilia container con lista items {id, makeEl}
+// Aggiunge card nuove, rimuove sparite, non tocca le esistenti → no flicker
+function reconcileCards(container, items) {
+  const newIds = new Set(items.map(i => i.id));
+  // rimuovi sparite
+  container.querySelectorAll('[data-mid]').forEach(el => {
+    if(!newIds.has(el.dataset.mid)) el.remove();
+  });
+  // aggiungi nuove nella posizione corretta
+  items.forEach((item, idx) => {
+    if(!container.querySelector(`[data-mid="${item.id}"]`)) {
+      const el = item.makeEl();
+      const siblings = [...container.querySelectorAll('[data-mid]')];
+      if(idx >= siblings.length) container.appendChild(el);
+      else container.insertBefore(el, siblings[idx]);
+    }
+  });
+}
+
+function renderHome() {
+  const incomingChallenges = matches.filter(m => m.status==="pending_challenge" && m.p2===me.id);
+  const sentChallenges     = matches.filter(m => m.status==="pending_challenge" && m.p1===me.id);
+  const allActive = matches.filter(m => m.status==="active" && !m.tournament_id);
+  const done = matches.filter(m => m.status==="done" && (m.p1===me.id||m.p2===me.id)).slice(0,15);
+
+  // badge sfide
+  const badge = $("badge");
+  if(incomingChallenges.length > 0) { badge.textContent = incomingChallenges.length; badge.classList.remove("hidden"); }
+  else badge.classList.add("hidden");
+
+  // ── SFIDE RICEVUTE + INVIATE ──
+  reconcileCards($("home-pending"), [
+    ...incomingChallenges.map(m => ({ id: m.id, makeEl: () => makeCardChallenge(m) })),
+    ...sentChallenges.map(m => ({ id: m.id, makeEl: () => makeCardSent(m) })),
+  ]);
+  updateCountdowns();
+
+  // ── CARD PARTITE ATTIVE ──
+  const activeCards = allActive.map(m => {
+    const isP1 = m.p1===me.id;
+    const myRes = isP1 ? m.result_p1 : m.result_p2;
+    if(m.disputed && !myRes) return { m, type: 'disputed' };
+    if(!myRes) return { m, type: 'live' };
+    return { m, type: 'waiting' };
+  });
+  const liveCards     = activeCards.filter(c => c.type === 'live');
+  const disputedCards = activeCards.filter(c => c.type === 'disputed');
+  const waitingCards  = activeCards.filter(c => c.type === 'waiting');
+
+  // riconcilia card attive — sostituisce solo se il tipo è cambiato, evita flicker
+  const ongoingContainer = $("home-ongoing");
+  const newIds = new Set(activeCards.map(c => c.m.id));
+  ongoingContainer.querySelectorAll('[data-mid]').forEach(el => {
+    if(!newIds.has(el.dataset.mid)) el.remove();
+  });
+  activeCards.forEach(({ m, type }, idx) => {
+    const existing = ongoingContainer.querySelector(`[data-mid="${m.id}"]`);
+    if(existing && existing.dataset.type === type) return; // stesso tipo, non toccare
+    if(existing) existing.remove(); // tipo cambiato, ricrea
+    const el = type === 'live' ? makeCardLive(m) : type === 'disputed' ? makeCardDisputed(m) : makeCardWaiting(m);
+    el.dataset.type = type;
+    const siblings = [...ongoingContainer.querySelectorAll('[data-mid]')];
+    if(idx >= siblings.length) ongoingContainer.appendChild(el);
+    else ongoingContainer.insertBefore(el, siblings[idx]);
+  });
+
+  // ── BOTTONE NUOVA PARTITA ──
+  const hasDisputed = disputedCards.length > 0;
+  const blockNew = liveCards.length > 0 || incomingChallenges.length > 0 || sentChallenges.length > 0;
+  const searchOpen = $("home-search").classList.contains("open");
+  const btnNew = $("btn-newmatch");
+  const btnLabel = btnNew.querySelector("span:last-child");
+  if(blockNew || searchOpen) {
+    btnNew.classList.add("collapsed");
+    btnNew.classList.remove("blocked");
+    if(blockNew && searchOpen) closeHomeSearch();
+  } else if(hasDisputed) {
+    btnNew.classList.remove("collapsed");
+    btnNew.classList.add("blocked");
+    btnNew.disabled = true;
+    if(btnLabel) btnLabel.textContent = "Risolvi il disaccordo prima";
+  } else {
+    btnNew.classList.remove("collapsed");
+    btnNew.classList.remove("blocked");
+    btnNew.disabled = false;
+    if(btnLabel) btnLabel.textContent = "Nuova partita";
+  }
+
+  // ── STORICO ──
+  const divider = $("home-history-divider");
+  // filtra annullate — rumore, non informazione
+  const meaningful = done.filter(m => m.result !== "cancelled");
+  if(meaningful.length === 0) {
+    if(divider) divider.style.display = 'none';
+    $("home-history").innerHTML = '';
+    return;
+  }
+  if(divider) divider.style.display = '';
+  $("home-history").innerHTML = meaningful.map(m => {
+    const opp = getP(m.p1===me.id ? m.p2 : m.p1);
+    const isP1 = m.p1===me.id;
+    const won = m.result==="p1" ? isP1 : m.result==="p2" ? !isP1 : null;
+    const resultLabel = won===null ? "Patta" : won ? "Vinta" : "Persa";
+    const resultClass = won===null ? "draw" : won ? "win" : "loss";
+    const elo = eloCache[m.id];
+    const eloDelta = elo ? (elo.elo_after - elo.elo_before) : null;
+    // delta significativo, no prefix "ELO", patta sempre grigio
+    const isDraw = won === null;
+    const eloClass = isDraw ? 'elo-draw' : eloDelta > 0 ? 'elo-up' : 'elo-down';
+    const eloStr = (eloDelta !== null && eloDelta !== 0)
+      ? `<span class="${eloClass}">${eloDelta>0?'+':''}${eloDelta}</span>`
+      : "";
+    // pallino SVG — più affidabile di span su Safari
+    const colorDot = m.white_player_id
+      ? (m.white_player_id===me.id
+          ? '<svg width="8" height="8" viewBox="0 0 8 8" style="flex-shrink:0;margin-top:1px"><circle cx="4" cy="4" r="3" fill="#e8e6e3" stroke="#6a6560" stroke-width="1"/></svg>'
+          : '<svg width="8" height="8" viewBox="0 0 8 8" style="flex-shrink:0;margin-top:1px"><circle cx="4" cy="4" r="3" fill="#252220" stroke="#6a6560" stroke-width="1"/></svg>')
+      : '';
+    return `<div class="hrow">
+      <div class="hrow-left">
+        <div class="hrow-opp">${colorDot}${opp?.nickname||"?"}</div>
+        <div class="hrow-meta">
+          <span>${timeAgo(m.created_at)}</span>
+          ${opp ? `<span style="color:#2e2b28">\u00b7</span><span>${opp.elo} ELO</span>` : ''}
+        </div>
+      </div>
+      <div class="hrow-right">
+        <div class="hrow-result ${resultClass}">${resultLabel}</div>
+        <div class="hrow-elo">${eloStr}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+$("btn-newmatch").onclick = () => {
+  const search = $("home-search");
+  const isOpen = search.classList.contains("open");
+  if(isOpen) {
+    closeHomeSearch();
+  } else {
+    openHomeSearch();
+  }
+};
+
+function openHomeSearch() {
+  $("home-search").classList.add("open");
+  $("btn-newmatch").classList.add("open");   // icona ruota 45°
+  $("btn-newmatch").classList.add("collapsed"); // bottone collassa
+  $("home-search-input").value = "";
+  renderHomeSearch();
+  setTimeout(() => $("home-search-input").focus(), 350);
+}
+
+function closeHomeSearch() {
+  $("home-search").classList.remove("open");
+  $("home-search-input").value = "";
+  $("home-search-results").innerHTML = "";
+  $("btn-newmatch").classList.remove("open");
+  // rimuovi collapsed subito — transizione parallela, nessun flash vuoto
+  $("btn-newmatch").classList.remove("collapsed");
+}
+
+$("home-search-input").addEventListener("input", renderHomeSearch);
+
+function renderHomeSearch() {
+  const q = $("home-search-input").value.toLowerCase();
+  const res = $("home-search-results");
+  if(!q) { res.innerHTML = ""; return; }
+  const filtered = players.filter(p => p.id!==me.id && p.nickname.toLowerCase().includes(q));
+  if(!filtered.length) { res.innerHTML = `<div class="empty" style="margin-top:12px;font-size:13px">Nessun giocatore trovato.</div>`; return; }
+  const now = Date.now();
+  res.innerHTML = filtered.map(p => {
+    const isOnline = p.last_seen_at && (now - new Date(p.last_seen_at).getTime()) < ONLINE_MS;
+    const isBusy = matches.some(m =>
+      m.status === 'active' && !m.tournament_id &&
+      (m.p1===p.id||m.p2===p.id) &&
+      ((m.p1===p.id && !m.result_p1) || (m.p2===p.id && !m.result_p2))
+    );
+    const onlineDot = `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${isOnline?'#4a7c1f':'#2f2b27'};flex-shrink:0"></span>`;
+    const statusLabel = isBusy ? ' · in partita' : !isOnline ? ' · offline' : '';
+    const canChallenge = isOnline && !isBusy;
+
+    const playBtn = canChallenge
+      ? `<button class="btn-play" onclick="event.stopPropagation();openColorSheet('${p.id}')">Gioca</button>`
+      : `<button class="btn-play unavailable" disabled>${isBusy ? 'In partita' : 'Offline'}</button>`;
+    return `<div class="prow" onclick="openProfile('${p.id}', 'home')">
+      <div style="flex:1;min-width:0">
+        <div class="pname" style="display:flex;align-items:center;gap:7px">${onlineDot}${p.nickname}</div>
+        <div class="pelo">${p.elo}${statusLabel ? ` · ${statusLabel.trim().replace('· ','')}` : ''}</div>
+      </div>
+      ${playBtn}
+    </div>`;
+  }).join("");
+}
+
+// ── Action sheet colore ──
+let sheetOppId = null;
+let sheetColorChoice = 'me'; // default: io bianco
+
+function openColorSheet(oppId) {
+  const opp = getP(oppId);
+  if(!opp) return;
+  sheetOppId = oppId;
+  sheetColorChoice = 'me';
+  $('asheet-label-white').textContent = me.nickname;
+  $('asheet-label-black').textContent = opp.nickname;
+  $('asheet-btn-white').classList.add('selected');
+  $('asheet-btn-black').classList.remove('selected');
+  // colore cover PRIMA di mostrare overlay
+  $('sa-cover').style.background = '#060504';
+  const overlay = $('color-sheet-overlay');
   overlay.style.display = 'flex';
   requestAnimationFrame(() => requestAnimationFrame(() => {
     overlay.classList.add('visible');
   }));
 }
 
-function closeSheet() {
-  const overlay = document.getElementById('test-overlay');
+function closeColorSheet() {
+  const overlay = $('color-sheet-overlay');
   overlay.classList.remove('visible');
   setTimeout(() => {
     overlay.style.display = 'none';
-    setColor('#161512');
+    // colore cover DOPO che overlay è sparito
+    $('sa-cover').style.background = '#161512';
+    sheetOppId = null;
   }, 400);
 }
+
+function selectSheetColor(choice) {
+  sheetColorChoice = choice;
+  const opp = getP(sheetOppId);
+  // scambia solo i nomi — l'opacità è fissa per colore
+  if(choice === 'me') {
+    $('asheet-label-white').textContent = me.nickname;
+    $('asheet-label-black').textContent = opp?.nickname || '?';
+  } else {
+    $('asheet-label-white').textContent = opp?.nickname || '?';
+    $('asheet-label-black').textContent = me.nickname;
+  }
+  // micro-bounce sul bottone selezionato
+  const chosen = choice === 'me' ? $('asheet-btn-white') : $('asheet-btn-black');
+  chosen.style.transform = 'scale(1.05)';
+  setTimeout(() => { chosen.style.transform = ''; }, 180);
+}
+
+async function confirmColorSheet() {
+  const oppId = sheetOppId;
+  const btn = $('asheet-confirm');
+  closeColorSheet();
+
+  const whiteId = sheetColorChoice === 'me' ? me.id : oppId;
+  const res = await db.rpc("create_challenge", {opponent_id: oppId, white_player_id: whiteId});
+  if(res?.error) return toast(res.error, "err");
+  if(Array.isArray(res) && res[0]?.error) return toast(res[0].error, "err");
+  closeHomeSearch();
+  await fetchAll();
+  // sfida inviata — la card "In attesa" in home è il feedback sufficiente
+}
+
+// vecchia challengeFromHome mantenuta per compatibilità search page
+async function challengeFromHome(oppId, btn) {
+  openColorSheet(oppId);
+}
+
+// --- SEARCH ---
+const ONLINE_MS = 12 * 1000; // 12s = 2 heartbeat mancati (heartbeat ogni 5s)
+$("search-input").addEventListener("input", renderSearch);
+
+function renderSearch() {
+  const q = $("search-input").value.toLowerCase();
+  const filtered = players.filter(p => p.id!==me.id && p.nickname.toLowerCase().includes(q));
+  if(!q) { $("search-results").innerHTML = ""; return; }
+  if(!filtered.length) { $("search-results").innerHTML = `<div class="empty">Nessun giocatore trovato.</div>`; return; }
+  const now = Date.now();
+  $("search-results").innerHTML = filtered.map(p => {
+    const isOnline = p.last_seen_at && (now - new Date(p.last_seen_at).getTime()) < ONLINE_MS;
+    const isBusy = matches.some(m =>
+      m.status === 'active' && !m.tournament_id &&
+      (m.p1===p.id||m.p2===p.id) &&
+      ((m.p1===p.id && !m.result_p1) || (m.p2===p.id && !m.result_p2))
+    );
+    const dot = isOnline
+      ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4a7c1f;margin-right:4px;vertical-align:middle"></span>`
+      : `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3d3a35;margin-right:4px;vertical-align:middle"></span>`;
+    const statusLabel = isBusy
+      ? `<span style="font-size:11px;color:#5a5754">in partita</span>`
+      : !isOnline ? `<span style="font-size:11px;color:#3d3a35">offline</span>` : '';
+    const canChallenge = isOnline && !isBusy;
+    return `<div class="prow" onclick="openProfile('${p.id}', 'search')" style="cursor:pointer">
+      <div style="flex:1;min-width:0">
+        <div class="pname" style="display:flex;align-items:center;gap:4px">${dot}${p.nickname} ${statusLabel}</div>
+        <div class="pelo">ELO ${p.elo} · ${p.wins}V ${p.losses}P ${p.draws}=</div>
+      </div>
+      ${canChallenge ? `<button class="btn-sm" onclick="event.stopPropagation();challenge('${p.id}', this)">Sfida</button>` : ''}
+    </div>`;
+  }).join("");
+}
+
+async function challenge(oppId, btn) {
+  if(btn) { btn.disabled = true; btn.textContent = "..."; }
+  const res = await db.rpc("create_challenge", {opponent_id: oppId, white_player_id: null});
+  if(btn) { btn.disabled = false; btn.textContent = "Registra"; }
+  if(res?.error) return toast(res.error, "err");
+  if(Array.isArray(res) && res[0]?.error) return toast(res[0].error, "err");
+  await fetchAll();
+  showPage("home");
+}
+
+async function acceptChallenge(matchId) {
+  const m = matches.find(x => x.id===matchId);
+  await db.patch("matches", `id=eq.${matchId}`, {status: "active"});
+  // se è una sfida normale (non rivincita) non toccare la sessione
+  await fetchAll();
+  // openMatchDirect verrà chiamato da fetchAll via auto-open
+}
+async function rejectChallenge(matchId) {
+  await db.delete("matches", `id=eq.${matchId}`);
+  await fetchAll();
+}
+async function cancelChallenge(matchId) {
+  await db.delete("matches", `id=eq.${matchId}`);
+  await fetchAll();
+}
+
+
+
+// --- pulizia partite scadute ---
+const CHALLENGE_EXPIRE_MS = 2 * 60 * 1000;      // 2 minuti (allineato al cron DB)
+const MATCH_EXPIRE_MS = 2 * 60 * 1000;          // TEST: 2 minuti (produzione: 24 ore)
+
+async function cleanupExpired() {
+  if(!me) return;
+  const now = Date.now();
+  const before = matches.length;
+
+  // identifica scadute prima di filtrare
+  const expiredChallenges = matches.filter(m => {
+    if(m.status !== 'pending_challenge') return false;
+    return (now - new Date(m.created_at).getTime()) > CHALLENGE_EXPIRE_MS;
+  });
+
+  matches = matches.filter(m => {
+    const age = now - new Date(m.created_at).getTime();
+    if(m.status === 'pending_challenge') return age <= CHALLENGE_EXPIRE_MS;
+    if(m.status === 'active') {
+      const ageFromUpdate = now - new Date(m.updated_at || m.created_at).getTime();
+      return ageFromUpdate <= MATCH_EXPIRE_MS;
+    }
+    return true;
+  });
+
+  // marca esplicitamente le sfide scadute nel DB — non aspettare il cron
+  for(const m of expiredChallenges) {
+    db.patch("matches", `id=eq.${m.id}`, {status: "done", result: "cancelled"}).catch(() => {});
+  }
+
+  if(matches.length !== before) renderHome();
+}
+
+function countdownStr(createdAt, expireMs) {
+  const remaining = expireMs - (Date.now() - new Date(createdAt).getTime());
+  if(remaining <= 0) return "scaduta";
+  const secs = Math.ceil(remaining / 1000);
+  const col = secs < 60 ? '#c33' : 'inherit';
+  return `<span style="color:${col};font-weight:${secs<60?'600':'400'}">${secs}s</span>`;
+}
+
+function setupLongPress(el, onComplete, ms=800) {
+  let timer = null;
+  const start = () => {
+    el.classList.add('pressing');
+    timer = setTimeout(() => { el.classList.remove('pressing'); onComplete(); }, ms);
+  };
+  const cancel = () => {
+    clearTimeout(timer);
+    el.classList.remove('pressing');
+  };
+  el.addEventListener('mousedown', start);
+  el.addEventListener('touchstart', e => { e.preventDefault(); start(); }, {passive:false});
+  el.addEventListener('mouseup', cancel);
+  el.addEventListener('mouseleave', cancel);
+  el.addEventListener('touchend', cancel);
+  el.addEventListener('touchcancel', cancel);
+}
+
+// --- MATCH ---
+function openMatch(matchId) {
+  const m = matches.find(x => x.id===matchId);
+  if(!m) return;
+  activeMatch = m;
+  openMatchDirect(m, getP(m.p1===me.id ? m.p2 : m.p1));
+}
+
+let resultSheetMatchId = null;
+
+function openResultSheet(matchId) {
+  const m = matches.find(x => x.id===matchId);
+  if(!m) return;
+  resultSheetMatchId = matchId;
+  const isDisputed = m.disputed;
+  const vsLabel = matchLabel(m);
+  $('rsheet-eyebrow').textContent = isDisputed ? 'Disaccordo' : 'Inserisci risultato';
+  const white = m.white_player_id ? getP(m.white_player_id) : getP(m.p1);
+  const black = m.white_player_id ? getP(m.white_player_id === m.p1 ? m.p2 : m.p1) : getP(m.p2);
+  if(white && black) {
+    const disputedSub = isDisputed ? `<div style="font-size:11px;color:#5a5754;margin-top:2px;margin-bottom:2px">Reinserisci il tuo risultato</div>` : '';
+    $('rsheet-context').innerHTML = `${disputedSub}<span style="font-size:14px;color:#e8e6e3;font-weight:600">${white.nickname} <span style="font-size:11px;color:#4a4642;font-weight:400">(${white.elo})</span>&nbsp;&nbsp;${black.nickname} <span style="font-size:11px;color:#4a4642;font-weight:400">(${black.elo})</span></span>`;
+  } else {
+    $('rsheet-context').textContent = vsLabel;
+  }
+  // colore cover PRIMA di mostrare overlay
+  $('sa-cover').style.background = '#060504';
+  const overlay = $('result-sheet-overlay');
+  overlay.style.display = 'flex';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    overlay.classList.add('visible');
+  }));
+}
+
+function closeResultSheet() {
+  const overlay = $('result-sheet-overlay');
+  overlay.classList.remove('visible');
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    // colore cover DOPO che overlay è sparito
+    $('sa-cover').style.background = '#161512';
+    resultSheetMatchId = null;
+  }, 400);
+}
+
+async function confirmResultSheet(choice) {
+  const matchId = resultSheetMatchId;
+  if(!matchId) return;
+  const m = matches.find(x => x.id===matchId);
+  if(!m) return;
+  closeResultSheet();
+  const isP1 = m.p1 === me.id;
+  const myResult = choice === 'win' ? (isP1 ? 'p1' : 'p2')
+                 : choice === 'loss' ? (isP1 ? 'p2' : 'p1')
+                 : 'draw';
+  // feedback visivo immediato
+  const cardEl = $('card-live-' + matchId);
+  if(cardEl) { cardEl.style.transition = 'opacity .3s'; cardEl.style.opacity = '0.4'; }
+  const field = isP1 ? 'result_p1' : 'result_p2';
+  await db.patch('matches', `id=eq.${matchId}`, {[field]: myResult});
+  activeMatch = null;
+  await fetchAll();
+}
+
+async function submitResultInline(matchId, myResult, btn) {
+  if(btn) { btn.disabled=true; btn.style.opacity='0.6'; }
+  const m = matches.find(x => x.id===matchId);
+  if(!m) return;
+  const isP1 = m.p1 === me.id;
+  const field = isP1 ? "result_p1" : "result_p2";
+  await db.patch("matches", `id=eq.${matchId}`, {[field]: myResult});
+  activeMatch = null;
+  // Transient feedback prima di fetchAll
+  const cardEl = $("card-live-" + matchId);
+  if(cardEl) {
+    cardEl.style.transition = "opacity .3s";
+    cardEl.style.opacity = "0.4";
+  }
+  await fetchAll();
+  // fetchAll → renderHome → toast automatico dal trigger
+}
+
+
+let currentMatchId = null;
+// colorChoice rimosso — ora gestito da action sheet
+
+
+
+function openMatchDirect(m, opp) {
+  currentMatchId = m.id;
+  const isP1 = m.p1===me.id;
+  const resWin  = isP1 ? "p1" : "p2";
+  const resLoss = isP1 ? "p2" : "p1";
+  const myResult = isP1 ? m.result_p1 : m.result_p2;
+  const oppResult = isP1 ? m.result_p2 : m.result_p1;
+
+  // Bianco vs Nero — bianco sempre primo, nessun simbolo
+  $("match-vs").innerHTML = `
+    <div style="font-size:22px;font-weight:800;color:#e8e6e3;letter-spacing:-.3px;margin-bottom:4px">${matchLabel(m)}</div>
+    <div style="font-size:12px;color:#5a5754">${m.white_player_id ? (m.white_player_id===me.id ? 'Tu — bianco' : `${opp?.nickname||"?"} — bianco`) : ''}</div>`;
+
+  $("match-btns").innerHTML = `
+    <button onclick="submitResult('${m.id}','${resWin}')" class="rbtn r-win">Ho vinto</button>
+    <button onclick="submitResult('${m.id}','draw')" class="rbtn r-draw">Patta</button>
+    <button onclick="submitResult('${m.id}','${resLoss}')" class="rbtn r-loss">Ho perso</button>`;
+
+  if(myResult && !oppResult) {
+    const myLabel = myResult===resWin ? "Hai vinto" : myResult==="draw" ? "Patta" : "Hai perso";
+    const myColorVal = myResult===resWin ? "#629924" : myResult==="draw" ? "#888" : "#c33";
+    $("match-btns").innerHTML = `
+      <div style="text-align:center;padding:20px 0">
+        <div style="font-size:12px;color:#5a5754;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Risultato inserito</div>
+        <div style="font-size:24px;font-weight:800;color:${myColorVal};margin-bottom:16px">${myLabel}</div>
+        <div style="font-size:12px;color:#5a5754">In attesa che ${opp?.nickname||"?"} inserisca il suo...</div>
+      </div>`;
+  }
+  showPage("match");
+}
+
+async function submitResult(matchId, myResult) {
+  const m = matches.find(x => x.id===matchId);
+  if(!m) return;
+  const isP1 = m.p1 === me.id;
+  const field = isP1 ? "result_p1" : "result_p2";
+  // Il trigger auto_confirm_match nel DB gestisce tutto:
+  // - se entrambi hanno inserito e coincidono → chiude e calcola ELO
+  // - se divergono → setta disputed=true, azzera i risultati
+  // - se secondo disaccordo → annulla la partita
+  await db.patch("matches", `id=eq.${matchId}`, {[field]: myResult});
+  activeMatch = null;
+  await fetchAll();
+  // fetchAll aggiornerà lo stato — renderHome mostrerà il feedback corretto
+  showPage("home");
+}
+
+function showDisagreement(matchId) {
+  const m = matches.find(x => x.id===matchId) || activeMatch;
+  if(!m) { showPage("home"); return; }
+  const opp = getP(m.p1===me.id ? m.p2 : m.p1);
+  // mostra schermata disaccordo
+  $("match-vs").innerHTML = `
+    <div style="font-size:13px;color:#c33;font-weight:600;margin-bottom:4px">⚠ Disaccordo sul risultato</div>
+    <div style="font-size:12px;color:#5a5754;margin-bottom:8px">Tu e ${opp?.nickname||"?"} avete inserito risultati diversi. Reinserite.</div>`;
+  const isP1 = m.p1===me.id;
+  const resWin  = isP1 ? "p1" : "p2";
+  const resLoss = isP1 ? "p2" : "p1";
+  $("match-btns").innerHTML = `
+    <button onclick="submitResult('${m.id}','${resWin}')" style="width:100%;background:#e8e6e3;color:#161512;border:none;border-radius:3px;padding:13px 16px;font-size:15px;font-weight:600;margin-bottom:8px;cursor:pointer;text-align:left">Ho vinto</button>
+    <button onclick="submitResult('${m.id}','draw')" style="width:100%;background:transparent;color:#e8e6e3;border:1px solid #3d3a35;border-radius:3px;padding:11px 16px;font-size:14px;margin-bottom:8px;cursor:pointer;text-align:left">Patta</button>
+    <button onclick="submitResult('${m.id}','${resLoss}')" style="width:100%;background:transparent;color:#5a5754;border:1px solid #2f2b27;border-radius:3px;padding:11px 16px;font-size:14px;cursor:pointer;text-align:left">Ho perso</button>`;
+  showPage("match");
+}
+
+
+
+
+
+
+// --- LEADERBOARD ---
+function renderLeaderboard() {
+  const sorted = [...players].sort((a,b) => b.elo - a.elo);
+  $("lb-list").innerHTML = sorted.map((p,i) => {
+    const rankStr = i===0 ? '♛' : i===1 ? '2' : i===2 ? '3' : String(i+1);
+    const rankColor = i===0 ? '#b8a04a' : i===1 ? '#888' : i===2 ? '#8a6a3a' : '#4a4642';
+    const isMe = p.id===me.id;
+    return `<div class="lbrow${isMe?" me":""}" onclick="openProfile('${p.id}', 'leaderboard')">
+      <div class="lbrank" style="color:${rankColor};font-size:${i===0?'16':'13'}px">${rankStr}</div>
+      <div style="flex:1">
+        <div class="lbname">${p.nickname}${isMe?' <span style="font-size:10px;color:#4a4642;font-weight:400">tu</span>':""}</div>
+        <div class="lbrecord">${p.wins}V · ${p.losses}P · ${p.draws}=</div>
+      </div>
+      <div class="lbelo">${p.elo}</div>
+    </div>`;
+  }).join("");
+}
+
+// --- PROFILE ---
+let currentProfileId = null;
+let currentProfileMatches = [];
+
+function openMyProfile() { openProfile(me.id, 'home'); }
+
+function switchProfTab(tab, btn) {
+  document.querySelectorAll('.tab-bar .tab').forEach(t => t.classList.remove('on'));
+  btn.classList.add('on');
+  if(tab==='activity') { $('prof-activity').classList.remove('hidden'); $('prof-matches').classList.add('hidden'); }
+  else { $('prof-activity').classList.add('hidden'); $('prof-matches').classList.remove('hidden'); }
+}
+
+async function openProfile(playerId, fromPage, noPush) {
+  if(!noPush) profileStack.push({id: playerId, from: fromPage});
+  currentProfileId = playerId;
+
+  // sempre fetch fresco dal DB
+  const playerRes = await db.get("players", `id=eq.${playerId}&select=*`);
+  const player = Array.isArray(playerRes) ? playerRes[0] : null;
+  if(!player) return;
+
+  // aggiorna anche in memoria
+  const idx = players.findIndex(p => p.id===playerId);
+  if(idx>=0) players[idx] = player;
+  if(playerId===me.id) me = player;
+
+
+
+  renderProfileHeader(player);
+  $("prof-elo").textContent = player.elo;
+  $("prof-wins").textContent = player.wins;
+  $("prof-losses").textContent = player.losses;
+  $("prof-draws").textContent = player.draws;
+  $("prof-activity").innerHTML = `<div class="empty">Carico...</div>`;
+  $("prof-matches").innerHTML = `<div class="empty">Carico...</div>`;
+
+  // reset tabs
+  document.querySelectorAll('.tab-bar .tab').forEach((t,i) => { t.classList.toggle('on', i===0); });
+  $('prof-activity').classList.remove('hidden');
+  $('prof-matches').classList.add('hidden');
+
+  showPage("profile");
+
+  const [eloH, matchH] = await Promise.all([
+    db.get("elo_history", `player_id=eq.${playerId}&order=created_at.asc&select=*`),
+    db.get("matches", `or=(p1.eq.${playerId},p2.eq.${playerId})&status=eq.done&order=created_at.desc&limit=30`)
+  ]);
+
+  currentProfileMatches = Array.isArray(matchH) ? matchH : [];
+  drawEloChart(eloH, player.elo);
+
+  const eloMap = {};
+  if(Array.isArray(eloH)) eloH.forEach(e => eloMap[e.match_id] = e);
+
+  renderActivityTab(currentProfileMatches, eloMap, playerId);
+  renderMatchesTab(currentProfileMatches, eloMap, playerId);
+}
+
+function renderProfileHeader(player) {
+  const isMe = player.id === me.id;
+  const initial = (player.nickname||"?")[0].toUpperCase();
+  const lastMatch = currentProfileMatches[0];
+  const lastSeenRaw = player.last_seen_at;
+  const isEpoch = lastSeenRaw && new Date(lastSeenRaw).getFullYear() < 2000;
+  const lastSeen = (lastSeenRaw && !isEpoch) ? timeAgo(lastSeenRaw) : null;
+
+  $("prof-header-wrap").innerHTML = `
+    <div class="prof-header">
+      <button class="prof-back-icon" onclick="document.getElementById('profile-back').click()">←</button>
+      ${isMe ? `
+        <div style="position:absolute;top:12px;right:12px;display:flex;gap:2px">
+          <button class="prof-edit-icon" style="position:static" onclick="showEditProfile()">✎</button>
+          <button class="prof-logout-icon" style="position:static" onclick="doLogout()" title="Esci">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </button>
+        </div>` : ''}
+      <div class="prof-nick">${player.nickname}</div>
+      ${player.bio ? `<div class="prof-bio">${player.bio}</div>` : ''}
+      <div class="prof-meta">
+        ${player.city ? `${player.city} · ` : ''}Membro ${memberSince(player.created_at)}${lastSeen ? `<br>Ultimo accesso ${lastSeen}` : ''}
+      </div>
+    </div>
+    <div id="prof-edit-wrap"></div>`;
+}
+
+function showEditProfile() {
+  const p = players.find(x => x.id===me.id) || me;
+  $("prof-edit-wrap").innerHTML = `
+    <div class="prof-edit-form">
+      <div class="box-label">Modifica profilo</div>
+
+      <textarea id="edit-bio" rows="2" placeholder="Bio (max 100 caratteri)" maxlength="100">${p.bio||''}</textarea>
+      <input id="edit-city" value="${p.city||''}" placeholder="Città" autocorrect="off">
+      <div id="edit-err" class="err"></div>
+      <button class="btn-g" onclick="saveProfile()">Salva</button>
+      <button class="btn-o" onclick="$('prof-edit-wrap').innerHTML=''">Annulla</button>
+    </div>`;
+}
+
+async function saveProfile() {
+  const p = players.find(x => x.id===me.id) || me;
+  const bio = $("edit-bio")?.value.trim() || '';
+  const city = $("edit-city")?.value.trim() || '';
+  const updates = {bio, city};
+
+  const res = await db.patch("players", `id=eq.${me.id}`, updates);
+  if(Array.isArray(res) && res[0]) {
+    me = {...me, ...res[0]};
+    const idx = players.findIndex(x => x.id===me.id);
+    if(idx>=0) players[idx] = me;
+    updateTopbar();
+    
+    await openProfile(me.id, 'home');
+    profileStack = [];
+  }
+}
+
+function renderActivityTab(matchH, eloMap, playerId) {
+  if(!matchH.length) { $("prof-activity").innerHTML = `<div class="empty">Nessuna attività ancora</div>`; return; }
+
+  const byDay = {};
+  matchH.forEach(m => {
+    const day = new Date(m.created_at).toLocaleDateString('it-IT', {day:'2-digit', month:'long', year:'numeric'});
+    if(!byDay[day]) byDay[day] = [];
+    byDay[day].push(m);
+  });
+
+  $("prof-activity").innerHTML = Object.entries(byDay).map(([day, ms]) => {
+    const wins = ms.filter(m => { const isP1=m.p1===playerId; return m.result==="p1"?isP1:m.result==="p2"?!isP1:false; }).length;
+    const losses = ms.filter(m => { const isP1=m.p1===playerId; return m.result==="p1"?!isP1:m.result==="p2"?isP1:false; }).length;
+    const draws = ms.filter(m => m.result==="draw").length;
+    const eloDeltas = ms.map(m => { const e=eloMap[m.id]; return e?(e.elo_after-e.elo_before):0; });
+    const totalDelta = eloDeltas.reduce((a,b)=>a+b,0);
+    // ELO inizio e fine giornata — ordina per data
+    const dayElos = ms.map(m => eloMap[m.id]).filter(Boolean).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+    const eloStart = dayElos.length ? dayElos[0].elo_before : null;
+    const eloEnd = dayElos.length ? dayElos[dayElos.length-1].elo_after : null;
+    const deltaClass = totalDelta>0?'elo-up':totalDelta<0?'elo-down':''; const deltaColor = totalDelta===0?'color:#5a5754':''; const deltaStr = `<span class="${deltaClass}" style="font-size:11px;${deltaColor}">${totalDelta>0?'+':''}${totalDelta}</span>`;
+    const eloStr = eloStart!==null ? `<span style="font-size:11px;color:#5a5754">${eloStart} → ${eloEnd}</span>` : '';
+    const boxes = [
+      wins > 0 ? `<div class="act-box win">${wins}</div>` : '',
+      losses > 0 ? `<div class="act-box loss">${losses}</div>` : '',
+      draws > 0 ? `<div class="act-box draw">${draws}</div>` : '',
+    ].join('');
+    return `<div class="act-day">
+      <div class="act-day-label">${day}</div>
+      <div class="act-row">
+        <div>
+          <div class="act-desc">Ha giocato ${ms.filter(m=>m.result!=='cancelled').length} ${ms.filter(m=>m.result!=='cancelled').length===1?'partita':'partite'}</div>
+          <div class="act-sub" style="display:flex;align-items:center;gap:6px;margin-top:2px">${eloStr}${deltaStr}</div>
+        </div>
+        <div class="act-boxes">${boxes}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function renderMatchesTab(matchH, eloMap, playerId) {
+  if(!matchH.length) { $("prof-matches").innerHTML = `<div class="empty">Nessuna partita ancora</div>`; return; }
+
+  $("prof-matches").innerHTML = matchH.map(m => {
+    const isP1 = m.p1===playerId;
+    const oppId = isP1?m.p2:m.p1;
+    const opp = getP(oppId);
+    const p1 = getP(m.p1);
+    const p2 = getP(m.p2);
+    const won = m.result==="p1"?isP1:m.result==="p2"?!isP1:null;
+    const isCancelled = m.result === "cancelled";
+    const resultLabel = isCancelled ? "—" : won===null?"Patta":won?"Vittoria":"Sconfitta";
+    const resultClass = isCancelled ? "draw" : won===null?"draw":won?"win":"loss";
+    const elo = eloMap[m.id];
+    const eloDelta = elo?(elo.elo_after-elo.elo_before):null;
+    const eloStr = eloDelta!==null?`<span class="${eloDelta>=0?'elo-up':'elo-down'}">${eloDelta>=0?'+':''}${eloDelta}</span>`:'';
+    const tournLabel = m.tournament_id ? ' · torneo' : '';
+    const oppElo = opp ? `<span style="font-size:11px;color:#5a5754;margin-left:5px;font-weight:400">${opp.elo}</span>` : '';
+    return `<div class="mcard" id="mcard-${m.id}">
+      <div class="mcard-top">
+        <div class="mcard-left">
+          <div class="mcard-opp" onclick="openProfile('${oppId}', 'profile')" style="cursor:pointer">${opp?.nickname||"?"}${oppElo}</div>
+          <div class="mcard-meta">${timeAgo(m.created_at)}${tournLabel ? ' · torneo' : ''}</div>
+        </div>
+        <div class="mcard-right" style="text-align:right">
+          <div class="hrow-result ${resultClass}" style="font-size:13px;font-weight:600">${resultLabel}</div>
+          <div class="mcard-elo" style="font-size:11px;margin-top:1px">${eloStr}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function timeAgo(iso) {
+  const now = new Date();
+  const date = new Date(iso);
+  const diff = Math.floor((now - date) / 1000);
+  if(diff < 60) return 'adesso';
+  if(diff < 3600) { const m=Math.floor(diff/60); return m===1?'1 min fa':`${m} min fa`; }
+  if(diff < 86400) { const h=Math.floor(diff/3600); return h===1?'1 ora fa':`${h} ore fa`; }
+  // confronto giorni solari
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dateDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const dayDiff = Math.round((today - dateDay) / 86400000);
+  if(dayDiff === 1) return 'ieri';
+  if(dayDiff < 7) return `${dayDiff} giorni fa`;
+  if(dayDiff < 14) return '1 settimana fa';
+  if(dayDiff < 21) return '2 settimane fa';
+  if(dayDiff < 28) return '3 settimane fa';
+  if(dayDiff < 60) return '1 mese fa';
+  if(dayDiff < 365) { const mo=Math.floor(dayDiff/30); return `${mo} mesi fa`; }
+  return fmtDate(iso);
+}
+
+function drawEloChart(eloH, currentElo) {
+  if(eloChartInstance) { eloChartInstance.destroy(); eloChartInstance = null; }
+  const canvas = $("elo-chart");
+  if(!Array.isArray(eloH) || eloH.length === 0) {
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    canvas.parentElement.querySelector('.chart-title').textContent = "Andamento ELO — nessuna partita ancora";
+    return;
+  }
+  canvas.parentElement.querySelector('.chart-title').textContent = "Andamento ELO";
+
+  const labels = eloH.map(e => {
+    const d = new Date(e.created_at);
+    return d.toLocaleDateString('it-IT', {day:'2-digit', month:'short'});
+  });
+  const data = eloH.map(e => e.elo_after);
+  labels.unshift('');
+  data.unshift(eloH[0].elo_before);
+
+  eloChartInstance = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        borderColor: '#e8e6e3',
+        backgroundColor: 'rgba(255,255,255,0.04)',
+        borderWidth: 2.5,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        pointHoverBackgroundColor: '#e8e6e3',
+        pointHoverBorderColor: '#161512',
+        pointHoverBorderWidth: 2,
+        fill: true,
+        tension: 0.4,
+      }]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: ctx => ctx[0].label || '',
+            label: ctx => `ELO ${ctx.parsed.y}`
+          },
+          backgroundColor: '#1d1a16',
+          borderColor: '#3d3a35',
+          borderWidth: 1,
+          titleColor: '#5a5754',
+          titleFont: { size: 11 },
+          bodyColor: '#e8e6e3',
+          bodyFont: { size: 14, weight: '700' },
+          padding: 10,
+          displayColors: false,
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#5a5754', font: {size:10}, maxTicksLimit: 6, maxRotation: 0 },
+          grid: { display: false },
+          border: { display: false }
+        },
+        y: {
+          ticks: { color: '#5a5754', font: {size:10}, maxTicksLimit: 4 },
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          border: { display: false }
+        }
+      }
+    }
+  });
+}
+
+$("profile-back").onclick = () => {
+  const current = profileStack.pop();
+  const from = current ? current.from : 'home';
+  if(from === 'profile') {
+    // torna al profilo precedente — è il top dello stack ora
+    const prev = profileStack[profileStack.length - 1];
+    if(prev) {
+      // naviga senza fare push
+      openProfile(prev.id, prev.from, true);
+      return;
+    }
+  }
+  currentProfileId = null;
+  profileStack = [];
+  showPage(from);
+};
+
+// --- NAV ---
+const pageMap = {home:"page-home", search:"page-search", match:"page-match", leaderboard:"page-lb", profile:"page-profile", "profile-me":"page-profile"};
+
+function showPage(name) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nbtn").forEach(b => b.classList.remove("on"));
+  const pageEl = $(pageMap[name]);
+  if(pageEl) pageEl.classList.add("active");
+  const navBtn = document.querySelector(`.nbtn[data-page="${name}"]`);
+  if(navBtn) navBtn.classList.add("on");
+  // FAB visibile solo in home
+  const btnNew = $("btn-newmatch");
+  if(btnNew) btnNew.style.display = (name === "home") ? "" : "none";
+  if(name==="search") { $("search-input").value = ""; renderSearch(); setTimeout(() => $("search-input").focus(), 50); }
+  if(name==="leaderboard") renderLeaderboard();
+  if(name==="profile-me") { openProfile(me.id, "home"); }
+}
+
+document.querySelectorAll(".nbtn").forEach(btn => {
+  btn.onclick = () => showPage(btn.dataset.page);
+});
 </script>
+
+<!-- ACTION SHEET RISULTATO -->
+<div class="asheet-overlay" id="result-sheet-overlay" onclick="closeResultSheet()">
+  <div class="asheet" onclick="event.stopPropagation()">
+    <div class="asheet-eyebrow" id="rsheet-eyebrow"></div>
+    <div class="rsheet-context" id="rsheet-context"></div>
+    <div class="rsheet-btns">
+      <button class="rsheet-btn win" id="rsheet-win" onclick="confirmResultSheet('win')">Ho vinto</button>
+      <button class="rsheet-btn draw" id="rsheet-draw" onclick="confirmResultSheet('draw')">Patta</button>
+      <button class="rsheet-btn loss" id="rsheet-loss" onclick="confirmResultSheet('loss')">Ho perso</button>
+    </div>
+    <button class="rsheet-cancel" onclick="closeResultSheet()">Annulla</button>
+  </div>
+</div>
+
+<!-- ACTION SHEET COLORE -->
+<div class="asheet-overlay" id="color-sheet-overlay" onclick="closeColorSheet()">
+  <div class="asheet" onclick="event.stopPropagation()">
+    <div class="asheet-eyebrow">Chi gioca col bianco?</div>
+    <div class="asheet-colors">
+      <button class="asheet-color-btn asheet-color-white selected" id="asheet-btn-white" onclick="selectSheetColor('me')">
+        <span class="asheet-color-name" id="asheet-label-white"></span>
+      </button>
+      <button class="asheet-color-btn asheet-color-black" id="asheet-btn-black" onclick="selectSheetColor('opp')">
+        <span class="asheet-color-name" id="asheet-label-black"></span>
+      </button>
+    </div>
+    <button class="asheet-cta" id="asheet-confirm" onclick="confirmColorSheet()">Conferma</button>
+  </div>
+</div>
 </body>
 </html>
