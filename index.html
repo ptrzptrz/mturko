@@ -1357,8 +1357,10 @@ function openColorSheet(oppId) {
   $('asheet-btn-black').classList.remove('selected');
   const overlay = $('color-sheet-overlay');
   overlay.style.display = 'flex';
-  $('sa-cover').style.background = '#060504';
-  requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('visible')));
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    $('sa-cover').style.background = '#060504';
+    overlay.classList.add('visible');
+  }));
 }
 
 function closeColorSheet() {
@@ -1555,8 +1557,10 @@ function openResultSheet(matchId) {
   }
   const overlay = $('result-sheet-overlay');
   overlay.style.display = 'flex';
-  $('sa-cover').style.background = '#060504';
-  requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('visible')));
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    $('sa-cover').style.background = '#060504';
+    overlay.classList.add('visible');
+  }));
 }
 
 function closeResultSheet() {
