@@ -327,7 +327,7 @@ canvas{width:100%!important;display:block}
 .mcard-result.win{color:#629924}.mcard-result.loss{color:#c33}.mcard-result.draw{color:#555}
 .mcard-elo{font-size:11px;margin-top:2px}
 .hrow-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:6px;background:#1d1a16}
-.hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:0;display:flex;align-items:center;justify-content:center;pointer-events:none;transition:width 0s}
+.hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:0;display:flex;align-items:center;justify-content:center;pointer-events:none;overflow:hidden}
 .hrow-reveal.state-ok{background:#e8e6e3}
 .hrow-reveal.state-err{background:#2a2724}
 .hrow-reveal-label{font-size:15px;font-weight:700;letter-spacing:-.2px;white-space:nowrap}
@@ -1445,22 +1445,6 @@ function _slideOff(el, revealEl, from, cardW, onDone) {
   requestAnimationFrame(tick);
 }
 
-// ── Micro-scale "click" visivo al trigger ──
-function _visualClick(el) {
-  el.style.transition = 'none';
-  el.style.transformOrigin = 'right center';
-  const base = el.style.transform || 'translateX(0)';
-  el.style.transform = base + ' scaleX(0.97) scaleY(0.98)';
-  requestAnimationFrame(() => {
-    el.style.transition = 'transform 150ms cubic-bezier(.25,1,.5,1)';
-    el.style.transform = base;
-    setTimeout(() => {
-      el.style.transition = 'none';
-      el.style.transformOrigin = '';
-    }, 160);
-  });
-}
-
 // ── Color intensity progressiva sul reveal ──
 function _updateRevealIntensity(reveal, offset, guard) {
   // da 0 a SNAP_THRESH: opacity cresce da 0.4 a 1.0
@@ -1499,8 +1483,7 @@ function onSwipeStart(e) {
     startY: t.clientY,
     locked: null,
     samples: [],
-    guard,
-    didCrossThreshold: false
+    guard
   };
 }
 
@@ -1528,14 +1511,6 @@ function onSwipeMove(e) {
 
   // intensità progressiva
   _updateRevealIntensity(_sw.reveal, offset, _sw.guard);
-
-  // micro-click visivo quando si supera la soglia
-  if(!_sw.didCrossThreshold && offset >= SNAP_THRESH) {
-    _sw.didCrossThreshold = true;
-    _visualClick(_sw.hrow);
-  } else if(_sw.didCrossThreshold && offset < SNAP_THRESH * 0.7) {
-    _sw.didCrossThreshold = false; // reset se torna indietro
-  }
 }
 
 function onSwipeEnd(e) {
