@@ -327,7 +327,7 @@ canvas{width:100%!important;display:block}
 .mcard-result.win{color:#629924}.mcard-result.loss{color:#c33}.mcard-result.draw{color:#555}
 .mcard-elo{font-size:11px;margin-top:2px}
 .hrow-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:6px}
-.hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:72px;display:flex;align-items:center;justify-content:center;background:#1d1a16;border-left:1px solid #3a3630;border-radius:0 10px 10px 0;pointer-events:none;opacity:0;transition:opacity .15s}
+.hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:72px;display:flex;align-items:center;justify-content:center;background:#1d1a16;border-left:1px solid #3a3630;border-radius:0 10px 10px 0;pointer-events:none}
 .hrow-reveal-label{font-size:12px;font-weight:600;color:#e8e6e3;letter-spacing:.2px}
 .hrow{background:#1d1a16;border:1px solid #252220;border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:12px;position:relative;will-change:transform;transition:transform .35s cubic-bezier(.25,1,.5,1)}
 .hrow-accent{width:3px;border-radius:2px;align-self:stretch;flex-shrink:0}
@@ -1336,10 +1336,9 @@ function onSwipeStart(e) {
 function onSwipeMove(e) {
   if(!_sw) return;
   const t = e.touches[0];
-  const dx = _sw.startX - t.clientX; // positivo = swipe sinistra
+  const dx = _sw.startX - t.clientX;
   const dy = Math.abs(t.clientY - _sw.startY);
 
-  // determina direzione al primo movimento significativo
   if(!_sw.locked) {
     if(Math.abs(dx) < 4 && dy < 4) return;
     _sw.locked = dy > Math.abs(dx) ? 'scroll' : 'swipe';
@@ -1348,79 +1347,69 @@ function onSwipeMove(e) {
 
   e.preventDefault();
 
-  // velocità istantanea (px/ms)
   const now = Date.now();
   const dt = now - _sw.lastT || 1;
   _sw.vx = (_sw.startX - t.clientX - (_sw.startX - _sw.lastX)) / dt;
   _sw.lastX = t.clientX;
   _sw.lastT = now;
 
-  // clamp: solo sinistra, max 72px
   const offset = Math.max(0, Math.min(72, dx));
   _sw.hrow.style.transition = 'none';
   _sw.hrow.style.transform = `translateX(-${offset}px)`;
-  _sw.reveal.style.opacity = Math.min(1, offset / 48);
 }
 
 function onSwipeEnd(e) {
   if(!_sw || _sw.locked !== 'swipe') { _sw = null; return; }
   const {wrap, hrow, reveal} = _sw;
   const oppId = wrap.dataset.opp;
+  const label = reveal.querySelector('.hrow-reveal-label');
 
   const dx = _sw.startX - _sw.lastX;
   const vx = _sw.vx;
   const triggered = dx > 52 || (vx > 0.4 && dx > 20);
 
-  // spring-back hrow sempre
+  // spring-back sempre
   hrow.style.transition = 'transform .35s cubic-bezier(.25,1,.5,1)';
   hrow.style.transform = 'translateX(0)';
-  // reveal: blocca transizione durante valutazione guard
-  reveal.style.transition = 'none';
 
   if(triggered) {
-    // ── Guard: io occupato ──
     const hs = window._homeState || {};
     const isBusy = (hs.allActive||[]).length > 0
                 || (hs.incomingChallenges||[]).length > 0
                 || (hs.sentChallenges||[]).length > 0;
-    // ── Guard: avversario ──
     const opp = getP(oppId);
     const oppOnline = opp?.last_seen_at && (Date.now() - new Date(opp.last_seen_at).getTime()) < ONLINE_MS;
     const oppBusy = opp?.is_playing;
 
-    const label = reveal.querySelector('.hrow-reveal-label');
-
     if(isBusy) {
-      _showRevealError(reveal, label, 'Non disponibile');
+      _showRevealFeedback(reveal, label, 'Non disponibile');
     } else if(!oppOnline) {
-      _showRevealError(reveal, label, 'Offline');
+      _showRevealFeedback(reveal, label, 'Offline');
     } else if(oppBusy) {
-      _showRevealError(reveal, label, 'In partita');
+      _showRevealFeedback(reveal, label, 'In partita');
     } else {
-      // tutto ok — nascondi reveal e apri sheet
-      reveal.style.opacity = '0';
-      setTimeout(() => openColorSheet(oppId), 120);
+      _showRevealFeedback(reveal, label, 'Sfida →', () => openColorSheet(oppId));
     }
-  } else {
-    reveal.style.opacity = '0';
   }
 
   _sw = null;
 }
 
-function _showRevealError(reveal, label, text) {
-  // nascondi istantaneamente, cambia testo, rimostra
-  reveal.style.transition = 'none';
-  reveal.style.opacity = '0';
+function _showRevealFeedback(reveal, label, text, onDone) {
   label.textContent = text;
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    reveal.style.transition = 'opacity .15s';
-    reveal.style.opacity = '1';
+  // breve flash del reveal con il testo finale
+  reveal.style.transition = 'none';
+  reveal.style.opacity = '1';
+  setTimeout(() => {
+    reveal.style.transition = 'opacity .3s';
+    reveal.style.opacity = '0';
+    if(onDone) onDone();
     setTimeout(() => {
-      reveal.style.opacity = '0';
-      setTimeout(() => { label.textContent = 'Sfida'; reveal.style.transition = ''; }, 200);
-    }, 700);
-  }));
+      label.textContent = 'Sfida';
+      reveal.style.transition = '';
+      reveal.style.opacity = '';
+    }, 320);
+  }, onDone ? 80 : 750);
 }
 
 $("btn-newmatch").onclick = () => {
