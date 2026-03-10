@@ -1173,6 +1173,8 @@ function renderHome() {
   const sentChallenges     = matches.filter(m => m.status==="pending_challenge" && m.p1===me.id);
   const allActive = matches.filter(m => m.status==="active" && !m.tournament_id);
   const done = matches.filter(m => m.status==="done" && (m.p1===me.id||m.p2===me.id)).slice(0,15);
+  // esposto globalmente per i guard dello swipe
+  window._homeState = { incomingChallenges, sentChallenges, allActive };
 
   // badge sfide
   const badge = $("badge");
@@ -1366,22 +1368,49 @@ function onSwipeEnd(e) {
   const oppId = wrap.dataset.opp;
 
   const dx = _sw.startX - _sw.lastX;
-  const vx = _sw.vx; // px/ms al momento del rilascio
-
-  // scatta se: spostamento > 52px OPPURE velocità > 0.4px/ms con dx > 20px
+  const vx = _sw.vx;
   const triggered = dx > 52 || (vx > 0.4 && dx > 20);
 
-  // spring-back con transizione
+  // spring-back sempre
   hrow.style.transition = 'transform .35s cubic-bezier(.25,1,.5,1)';
   hrow.style.transform = 'translateX(0)';
-  reveal.style.opacity = '0';
 
   if(triggered) {
-    // piccolo delay visivo prima di aprire lo sheet
-    setTimeout(() => openColorSheet(oppId), 120);
+    // ── Guard 1: ho una partita/sfida in corso ──
+    const hs = window._homeState || {};
+    const isBusy = (hs.allActive||[]).length > 0 || (hs.incomingChallenges||[]).length > 0 || (hs.sentChallenges||[]).length > 0;
+    // ── Guard 2: avversario offline o in partita ──
+    const opp = getP(oppId);
+    const oppOnline = opp && opp.last_seen_at && (Date.now() - new Date(opp.last_seen_at).getTime()) < ONLINE_MS;
+    const oppBusy = opp && opp.is_playing;
+
+    const label = reveal.querySelector('.hrow-reveal-label');
+    if(isBusy) {
+      _showRevealError(reveal, label, 'Non disponibile');
+    } else if(!oppOnline) {
+      _showRevealError(reveal, label, 'Offline');
+    } else if(oppBusy) {
+      _showRevealError(reveal, label, 'In partita');
+    } else {
+      reveal.style.opacity = '0';
+      setTimeout(() => openColorSheet(oppId), 120);
+    }
+  } else {
+    reveal.style.opacity = '0';
   }
 
   _sw = null;
+}
+
+function _showRevealError(reveal, label, text) {
+  // feedback inline: testo errore, colore neutro, poi sparisce
+  label.textContent = text;
+  reveal.style.opacity = '1';
+  reveal.style.transition = 'opacity .2s';
+  setTimeout(() => {
+    reveal.style.opacity = '0';
+    setTimeout(() => { label.textContent = 'Sfida'; }, 300);
+  }, 600);
 }
 
 $("btn-newmatch").onclick = () => {
