@@ -1173,8 +1173,6 @@ function renderHome() {
   const sentChallenges     = matches.filter(m => m.status==="pending_challenge" && m.p1===me.id);
   const allActive = matches.filter(m => m.status==="active" && !m.tournament_id);
   const done = matches.filter(m => m.status==="done" && (m.p1===me.id||m.p2===me.id)).slice(0,15);
-  // esposto globalmente per i guard dello swipe
-  window._homeState = { incomingChallenges, sentChallenges, allActive };
 
   // badge sfide
   const badge = $("badge");
@@ -1199,6 +1197,8 @@ function renderHome() {
   const liveCards     = activeCards.filter(c => c.type === 'live');
   const disputedCards = activeCards.filter(c => c.type === 'disputed');
   const waitingCards  = activeCards.filter(c => c.type === 'waiting');
+  // esposto globalmente per i guard dello swipe — dopo il calcolo di liveCards
+  window._homeState = { incomingChallenges, sentChallenges, liveCards, disputedCards };
 
   // riconcilia card attive — sostituisce solo se il tipo è cambiato, evita flicker
   const ongoingContainer = $("home-ongoing");
@@ -1378,7 +1378,9 @@ function onSwipeEnd(e) {
 
   // triggered — check guards
   const hs = window._homeState || {};
-  const isBusy = (hs.allActive||[]).length > 0
+  // allineato esattamente a blockNew: liveCards + disputed bloccano, waiting no
+  const isBusy = (hs.liveCards||[]).length > 0
+              || (hs.disputedCards||[]).length > 0
               || (hs.incomingChallenges||[]).length > 0
               || (hs.sentChallenges||[]).length > 0;
   const opp = getP(oppId);
