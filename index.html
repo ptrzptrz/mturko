@@ -326,7 +326,7 @@ canvas{width:100%!important;display:block}
 .mcard-result{font-size:13px;font-weight:600}
 .mcard-result.win{color:#629924}.mcard-result.loss{color:#c33}.mcard-result.draw{color:#555}
 .mcard-elo{font-size:11px;margin-top:2px}
-.hrow-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:6px}
+.hrow-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:6px;background:#1a2a0e}
 .hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:220px;display:flex;align-items:center;justify-content:center;background:#1a2a0e;pointer-events:none}
 .hrow-reveal-label{font-size:15px;font-weight:700;color:#e8e6e3;letter-spacing:-.2px;opacity:0;transition:opacity .15s}
 .hrow-reveal.snapped .hrow-reveal-label{opacity:1}
@@ -1310,7 +1310,7 @@ function renderHome() {
 
 // ── Swipe-to-challenge su hrow ──
 const SNAP_WIDTH = 220;   // px reveal quando snappato
-const SNAP_THRESH = 0.38; // snap oltre 38% larghezza card
+const SNAP_THRESH = 100;  // px offset per triggare snap
 
 function initHrowSwipe(container) {
   container.addEventListener('touchstart', onSwipeStart, {passive: true});
@@ -1341,9 +1341,13 @@ function onSwipeStart(e) {
 }
 
 function _swipeOffset(rawDx, cardW) {
-  // resistenza sqrt: morbido all'inizio, accelera naturalmente
+  // resistenza: morbido all'inizio, cap a SNAP_WIDTH
+  // a 80px di dito → ~80px card (lineare fino a soglia)
+  // oltre: sqrt per resistenza
   if(rawDx <= 0) return 0;
-  return Math.min(Math.sqrt(rawDx) * 7, SNAP_WIDTH);
+  const linear = Math.min(rawDx, 80);
+  const extra = rawDx > 80 ? Math.sqrt(rawDx - 80) * 10 : 0;
+  return Math.min(linear + extra, SNAP_WIDTH);
 }
 
 function onSwipeMove(e) {
@@ -1367,7 +1371,7 @@ function onSwipeMove(e) {
   _sw.lastT = now;
 
   const offset = _swipeOffset(rawDx, _sw.cardW);
-  const snapping = offset >= _sw.cardW * SNAP_THRESH;
+  const snapping = offset >= SNAP_THRESH;
 
   _sw.hrow.style.transition = 'none';
   _sw.hrow.style.transform = `translateX(-${offset}px)`;
@@ -1389,7 +1393,7 @@ function onSwipeEnd(e) {
   const offset = _swipeOffset(rawDx, cardW);
   const vx = _sw.vx;
 
-  const triggered = offset >= cardW * SNAP_THRESH || (vx > 0.5 && rawDx > 30);
+  const triggered = offset >= SNAP_THRESH || (vx > 0.5 && rawDx > 30);
 
   if(!triggered) {
     reveal.classList.remove('snapped');
