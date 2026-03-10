@@ -326,10 +326,13 @@ canvas{width:100%!important;display:block}
 .mcard-result{font-size:13px;font-weight:600}
 .mcard-result.win{color:#629924}.mcard-result.loss{color:#c33}.mcard-result.draw{color:#555}
 .mcard-elo{font-size:11px;margin-top:2px}
-.hrow-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:6px;background:#1a2a0e}
-.hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:220px;display:flex;align-items:center;justify-content:center;background:#1a2a0e;pointer-events:none}
-.hrow-reveal-label{font-size:15px;font-weight:700;color:#e8e6e3;letter-spacing:-.2px;opacity:0;transition:opacity .15s}
-.hrow-reveal.snapped .hrow-reveal-label{opacity:1}
+.hrow-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:6px;background:#1d1a16}
+.hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:0;display:flex;align-items:center;justify-content:center;pointer-events:none;transition:width 0s}
+.hrow-reveal.state-ok{background:#e8e6e3}
+.hrow-reveal.state-err{background:#2a2724}
+.hrow-reveal-label{font-size:15px;font-weight:700;letter-spacing:-.2px;white-space:nowrap}
+.hrow-reveal.state-ok .hrow-reveal-label{color:#161512}
+.hrow-reveal.state-err .hrow-reveal-label{color:#6a6560}
 .hrow{background:#1d1a16;border:1px solid #252220;border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:12px;position:relative;will-change:transform}
 .hrow-accent{width:3px;border-radius:2px;align-self:stretch;flex-shrink:0}
 .hrow-accent.win{background:#629924}
@@ -1309,8 +1312,7 @@ function renderHome() {
 }
 
 // ── Swipe-to-challenge su hrow ──
-const SNAP_WIDTH = 220;   // px reveal quando snappato
-const SNAP_THRESH = 100;  // px offset per triggare snap
+const SNAP_THRESH = 90; // px offset per triggare snap
 
 function initHrowSwipe(container) {
   container.addEventListener('touchstart', onSwipeStart, {passive: true});
@@ -1320,15 +1322,48 @@ function initHrowSwipe(container) {
 
 let _sw = null;
 
+function _swipeOffset(rawDx) {
+  if(rawDx <= 0) return 0;
+  // lineare 1:1 fino a 80px, poi sqrt per resistenza
+  const linear = Math.min(rawDx, 80);
+  const extra = rawDx > 80 ? Math.sqrt(rawDx - 80) * 10 : 0;
+  return linear + extra;
+}
+
+function _evalGuards(oppId) {
+  const hs = window._homeState || {};
+  const isBusy = (hs.liveCards||[]).length > 0
+              || (hs.disputedCards||[]).length > 0
+              || (hs.incomingChallenges||[]).length > 0
+              || (hs.sentChallenges||[]).length > 0;
+  const opp = getP(oppId);
+  const oppOnline = opp?.last_seen_at && (Date.now() - new Date(opp.last_seen_at).getTime()) < ONLINE_MS;
+  const oppBusy = matches.some(m => m.status === 'active' && (m.p1 === oppId || m.p2 === oppId));
+
+  if(!isBusy && oppOnline && !oppBusy) return { ok: true, label: 'Gioca' };
+  const msg = isBusy ? 'Non disponibile' : !oppOnline ? 'Non in linea' : 'In partita';
+  return { ok: false, label: msg };
+}
+
 function onSwipeStart(e) {
   const wrap = e.target.closest('.hrow-wrap');
   if(!wrap) return;
   const t = e.touches[0];
+  const oppId = wrap.dataset.opp;
+  const guard = _evalGuards(oppId);
+  const reveal = wrap.querySelector('.hrow-reveal');
+  const label = wrap.querySelector('.hrow-reveal-label');
+
+  // imposta stato visivo reveal subito — colore e testo già corretti
+  reveal.classList.remove('state-ok', 'state-err');
+  reveal.classList.add(guard.ok ? 'state-ok' : 'state-err');
+  label.textContent = guard.label;
+
   _sw = {
     wrap,
     hrow: wrap.querySelector('.hrow'),
-    reveal: wrap.querySelector('.hrow-reveal'),
-    label: wrap.querySelector('.hrow-reveal-label'),
+    reveal,
+    label,
     cardW: wrap.offsetWidth,
     startX: t.clientX,
     startY: t.clientY,
@@ -1336,18 +1371,8 @@ function onSwipeStart(e) {
     lastX: t.clientX,
     lastT: Date.now(),
     vx: 0,
-    snapped: false
+    guard
   };
-}
-
-function _swipeOffset(rawDx, cardW) {
-  // resistenza: morbido all'inizio, cap a SNAP_WIDTH
-  // a 80px di dito → ~80px card (lineare fino a soglia)
-  // oltre: sqrt per resistenza
-  if(rawDx <= 0) return 0;
-  const linear = Math.min(rawDx, 80);
-  const extra = rawDx > 80 ? Math.sqrt(rawDx - 80) * 10 : 0;
-  return Math.min(linear + extra, SNAP_WIDTH);
 }
 
 function onSwipeMove(e) {
@@ -1370,76 +1395,74 @@ function onSwipeMove(e) {
   _sw.lastX = t.clientX;
   _sw.lastT = now;
 
-  const offset = _swipeOffset(rawDx, _sw.cardW);
-  const snapping = offset >= SNAP_THRESH;
+  const offset = _swipeOffset(rawDx);
+  // snap width: lascia ~24px visibili a sinistra
+  const snapW = _sw.cardW - 24;
 
   _sw.hrow.style.transition = 'none';
-  _sw.hrow.style.transform = `translateX(-${offset}px)`;
+  _sw.hrow.style.transform = `translateX(-${Math.min(offset, snapW)}px)`;
 
-  if(snapping && !_sw.snapped) {
-    _sw.snapped = true;
-    _sw.reveal.classList.add('snapped');
-  } else if(!snapping && _sw.snapped) {
-    _sw.snapped = false;
-    _sw.reveal.classList.remove('snapped');
-  }
+  // reveal segue la card — larghezza = offset
+  _sw.reveal.style.width = Math.min(offset, snapW) + 'px';
 }
 
 function onSwipeEnd(e) {
-  if(!_sw || _sw.locked !== 'swipe') { _sw = null; return; }
-  const {wrap, hrow, reveal, label, cardW} = _sw;
+  if(!_sw || _sw.locked !== 'swipe') {
+    if(_sw) { _sw.reveal.style.width = '0'; _sw.reveal.classList.remove('state-ok','state-err'); }
+    _sw = null;
+    return;
+  }
+  const {wrap, hrow, reveal, label, cardW, guard} = _sw;
   const oppId = wrap.dataset.opp;
   const rawDx = _sw.startX - _sw.lastX;
-  const offset = _swipeOffset(rawDx, cardW);
+  const offset = _swipeOffset(rawDx);
   const vx = _sw.vx;
+  const snapW = cardW - 24;
 
   const triggered = offset >= SNAP_THRESH || (vx > 0.5 && rawDx > 30);
 
+  function springBack(delay) {
+    setTimeout(() => {
+      hrow.style.transition = 'transform .45s cubic-bezier(.34,1.3,.64,1)';
+      hrow.style.transform = 'translateX(0)';
+      reveal.style.transition = 'width .45s cubic-bezier(.34,1.3,.64,1)';
+      reveal.style.width = '0';
+      setTimeout(() => {
+        reveal.style.transition = '';
+        reveal.classList.remove('state-ok', 'state-err');
+      }, 460);
+    }, delay);
+  }
+
   if(!triggered) {
-    reveal.classList.remove('snapped');
-    hrow.style.transition = 'transform .45s cubic-bezier(.34,1.4,.64,1)';
-    hrow.style.transform = 'translateX(0)';
+    springBack(0);
     _sw = null;
     return;
   }
 
   // snap completo
   hrow.style.transition = 'transform .3s cubic-bezier(.2,.8,.3,1)';
-  hrow.style.transform = `translateX(-${SNAP_WIDTH}px)`;
-  reveal.classList.add('snapped');
+  hrow.style.transform = `translateX(-${snapW}px)`;
+  reveal.style.transition = 'width .3s cubic-bezier(.2,.8,.3,1)';
+  reveal.style.width = snapW + 'px';
 
-  // guard
-  const hs = window._homeState || {};
-  const isBusy = (hs.liveCards||[]).length > 0
-              || (hs.disputedCards||[]).length > 0
-              || (hs.incomingChallenges||[]).length > 0
-              || (hs.sentChallenges||[]).length > 0;
-  const opp = getP(oppId);
-  const oppOnline = opp?.last_seen_at && (Date.now() - new Date(opp.last_seen_at).getTime()) < ONLINE_MS;
-  const oppBusy = matches.some(m => m.status === 'active' && (m.p1 === oppId || m.p2 === oppId));
-  const ok = !isBusy && oppOnline && !oppBusy;
-
-  if(ok) {
-    setTimeout(() => {
-      hrow.style.transition = 'transform .4s cubic-bezier(.34,1.2,.64,1)';
-      hrow.style.transform = 'translateX(0)';
-      reveal.classList.remove('snapped');
-      openColorSheet(oppId);
-    }, 180);
-  } else {
-    const msg = isBusy ? 'Non disponibile' : !oppOnline ? 'Offline' : 'In partita';
-    label.textContent = msg;
-    label.style.color = '#c33';
-    reveal.offsetHeight;
-    setTimeout(() => {
-      hrow.style.transition = 'transform .45s cubic-bezier(.34,1.4,.64,1)';
-      hrow.style.transform = 'translateX(0)';
-      reveal.classList.remove('snapped');
+  if(guard.ok) {
+    // ri-valuta al momento del rilascio (stato potrebbe essere cambiato)
+    const fresh = _evalGuards(oppId);
+    if(fresh.ok) {
       setTimeout(() => {
-        label.textContent = 'Sfida';
-        label.style.color = '';
-      }, 400);
-    }, 800);
+        springBack(0);
+        openColorSheet(oppId);
+      }, 160);
+    } else {
+      // stato cambiato nel frattempo — mostra errore
+      label.textContent = fresh.label;
+      reveal.classList.remove('state-ok');
+      reveal.classList.add('state-err');
+      springBack(800);
+    }
+  } else {
+    springBack(800);
   }
 
   _sw = null;
