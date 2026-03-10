@@ -45,7 +45,7 @@ body.sheet-open #sa-cover{background:#000000}
 
 /* ── Navbar ── */
 .navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;display:flex;padding-bottom:max(env(safe-area-inset-bottom),8px);background:transparent;z-index:100}
-.navbar-frost{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:140px;background:linear-gradient(to top, #161512 50%, transparent 100%);pointer-events:none;z-index:99}
+.navbar-frost{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100px;background:linear-gradient(to top, #161512 50%, transparent 100%);pointer-events:none;z-index:99}
 .nbtn{flex:1;min-height:52px;padding:10px 0;background:none;border:none;color:#4a4642;font-size:10px;text-transform:uppercase;letter-spacing:.8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative;transition:color .2s ease}
 .nbtn.on{color:#e8e6e3}
 .nbtn:active{opacity:.6}
@@ -86,9 +86,9 @@ body.sheet-open #sa-cover{background:#000000}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── Home hero header ── */
-.home-hero{padding:12px 20px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s}
+.home-hero{padding:8px 20px 10px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s}
 .home-hero:active{opacity:.7}
-.home-hero-nick{font-size:11px;font-weight:600;color:#4a4642;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px}
+.home-hero-nick{font-size:11px;font-weight:600;color:#6a6560;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:4px}
 .home-hero-elo-row{display:flex;align-items:baseline;gap:10px}
 .home-hero-elo{font-size:48px;font-weight:800;color:#e8e6e3;letter-spacing:-2px;line-height:1}
 .home-hero-delta{font-size:16px;font-weight:600;letter-spacing:-.3px}
@@ -97,19 +97,16 @@ body.sheet-open #sa-cover{background:#000000}
 
 /* ── Home ── */
 /* home-top: sticky, mai scrolla */
-.home-top{padding:12px 16px 0;flex-shrink:0}
+.home-top{padding:6px 16px 0;flex-shrink:0}
 /* home-scroll: tutto il resto, scrolla */
 #home-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px calc(80px + env(safe-area-inset-bottom,0px))}
 #home-scroll::-webkit-scrollbar{display:none}
 
 /* Bottone nuova partita — primario, inline */
 .btn-new-match{width:100%;background:#e8e6e3;color:#161512;border:none;border-radius:14px!important;padding:15px 18px;font-size:15px;font-weight:700;display:flex;align-items:center;gap:10px;cursor:pointer;text-align:left;position:relative;overflow:hidden;max-height:80px;opacity:1;margin-bottom:12px;-webkit-appearance:none;transition:max-height .55s cubic-bezier(.4,0,.2,1),opacity .55s cubic-bezier(.4,0,.2,1),margin-bottom .55s cubic-bezier(.4,0,.2,1),padding .55s cubic-bezier(.4,0,.2,1)}
-.btn-new-match::after{content:'';position:absolute;top:0;left:-80%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent);animation:shimmer 2.5s linear infinite;pointer-events:none}
-@keyframes shimmer{0%{left:-60%}100%{left:130%}}
 .btn-new-match:active{opacity:.75;transform:scale(0.985)}
 .btn-new-match.collapsed{max-height:0!important;opacity:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important;pointer-events:none}
 .btn-new-match.blocked{background:#1d1a16;color:#4a4642;cursor:default;border:1px solid #2a2724}
-.btn-new-match.blocked::after{display:none}
 .btn-new-match.blocked .btn-new-icon{background:#2a2724;color:#4a4642}
 .btn-new-match .btn-new-icon{width:20px;height:20px;color:#161512;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .45s cubic-bezier(.34,1.56,.64,1)}
 .btn-new-match.open .btn-new-icon{transform:rotate(45deg)}
@@ -159,6 +156,7 @@ body.sheet-open #sa-cover{background:#000000}
 /* Card partita IN CORSO — la più importante */
 .card-live{background:#1d1a16;border:1px solid #3a3630;border-radius:14px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
 .card-live::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:#629924;opacity:.8}
+.card-live.card-live-waiting::before{background:#3a3630;opacity:1}
 .card-live.card-live-disputed::before{background:#c33}
 .card-live-label{font-size:10px;color:#629924;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:5px}
 .live-dot{width:6px;height:6px;border-radius:50%;background:#629924;animation:pulse 1.5s ease-in-out infinite}
@@ -1139,14 +1137,11 @@ function makeCardWaiting(m) {
   const oppId = m.p1 === me.id ? m.p2 : m.p1;
   const opp = getP(oppId);
   const el = document.createElement('div');
-  el.className = 'card-pending card-enter';
+  el.className = 'card-live card-live-waiting card-enter';
   el.dataset.mid = m.id;
   el.innerHTML = `
-    <div class="card-pending-left">
-      <div class="card-pending-eyebrow"><span class="card-pending-dot"></span>Aspetto ${opp?.nickname || '…'}</div>
-      <div class="card-pending-name">${vsLabel}</div>
-    </div>
-    <span class="waiting-dots">…</span>`;
+    <div class="card-live-label" style="color:#5a5754"><span class="live-dot" style="background:#5a5754;animation:none"></span>Aspetto ${opp?.nickname || '…'}</div>
+    <div class="card-live-vs">${vsLabel}</div>`;
   return el;
 }
 // Riconcilia container con lista items {id, makeEl}
@@ -1221,10 +1216,19 @@ function renderHome() {
   const searchOpen = $("home-search").classList.contains("open");
   const btnNew = $("btn-newmatch");
   const btnLabel = btnNew.querySelector("span:last-child");
-  if(blockNew || searchOpen) {
+  if(searchOpen) {
     btnNew.classList.add("collapsed");
     btnNew.classList.remove("blocked");
-    if(blockNew && searchOpen) closeHomeSearch();
+  } else if(blockNew) {
+    btnNew.classList.remove("collapsed");
+    btnNew.classList.add("blocked");
+    btnNew.disabled = true;
+    const reason = liveCards.length > 0
+      ? "Inserisci prima il risultato"
+      : incomingChallenges.length > 0
+        ? "Hai una sfida in attesa"
+        : "Hai una sfida inviata";
+    if(btnLabel) btnLabel.textContent = reason;
   } else if(hasDisputed) {
     btnNew.classList.remove("collapsed");
     btnNew.classList.add("blocked");
@@ -1243,7 +1247,14 @@ function renderHome() {
   const meaningful = done.filter(m => m.result !== "cancelled");
   if(meaningful.length === 0) {
     if(divider) divider.style.display = 'none';
-    $("home-history").innerHTML = '';
+    // empty state — solo se non ci sono nemmeno card attive
+    const hasActive = allActive.length > 0 || incomingChallenges.length > 0 || sentChallenges.length > 0;
+    $("home-history").innerHTML = hasActive ? '' : `
+      <div style="margin-top:32px;text-align:center;padding:0 24px">
+        <div style="font-size:32px;margin-bottom:12px;opacity:.3">♟</div>
+        <div style="font-size:15px;color:#4a4642;font-weight:600;margin-bottom:6px">Nessuna partita ancora</div>
+        <div style="font-size:13px;color:#3a3630;line-height:1.5">Cerca un avversario e sfidalo<br>per iniziare a giocare</div>
+      </div>`;
     return;
   }
   if(divider) divider.style.display = '';
@@ -1267,7 +1278,8 @@ function renderHome() {
           ? '<svg width="8" height="8" viewBox="0 0 8 8" style="flex-shrink:0;margin-top:1px"><circle cx="4" cy="4" r="3" fill="#e8e6e3" stroke="#6a6560" stroke-width="1"/></svg>'
           : '<svg width="8" height="8" viewBox="0 0 8 8" style="flex-shrink:0;margin-top:1px"><circle cx="4" cy="4" r="3" fill="#252220" stroke="#6a6560" stroke-width="1"/></svg>')
       : '';
-    return `<div class="hrow">
+    const oppId = m.p1===me.id ? m.p2 : m.p1;
+    return `<div class="hrow" onclick="openProfile('${oppId}', 'home')" style="cursor:pointer">
       <div class="hrow-left">
         <div class="hrow-opp">${colorDot}${opp?.nickname||"?"}</div>
         <div class="hrow-meta">
