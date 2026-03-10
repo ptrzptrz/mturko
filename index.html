@@ -327,7 +327,7 @@ canvas{width:100%!important;display:block}
 .mcard-result.win{color:#629924}.mcard-result.loss{color:#c33}.mcard-result.draw{color:#555}
 .mcard-elo{font-size:11px;margin-top:2px}
 .hrow-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:6px;background:#1d1a16}
-.hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:0;display:flex;align-items:center;justify-content:center;pointer-events:none;overflow:hidden}
+.hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:100px;display:flex;align-items:center;justify-content:center;pointer-events:none}
 .hrow-reveal.state-ok{background:#e8e6e3}
 .hrow-reveal.state-err{background:#2a2724}
 .hrow-reveal-label{font-size:15px;font-weight:700;letter-spacing:-.2px;white-space:nowrap}
@@ -1369,15 +1369,12 @@ function _springTo(el, revealEl, from, to, opts, onDone) {
     vel += (-tension * disp - friction * vel) * dt;
     pos += vel * dt;
 
-    const clamped = Math.max(0, pos);
-    el.style.transform = `translateX(-${clamped}px)`;
-    if(revealEl) revealEl.style.width = Math.min(clamped, REVEAL_W) + 'px';
+    el.style.transform = `translateX(-${Math.max(0, pos)}px)`;
 
     if(Math.abs(pos - to) < 0.4 && Math.abs(vel) < 0.008) {
       settledFrames++;
       if(settledFrames > 2) {
         el.style.transform = to === 0 ? 'translateX(0)' : `translateX(-${to}px)`;
-        if(revealEl) revealEl.style.width = to === 0 ? '0' : Math.min(to, REVEAL_W) + 'px';
         if(onDone) onDone();
         return;
       }
@@ -1397,8 +1394,8 @@ function _snapTo(el, revealEl, from, to, onDone) {
   let phase = 1;
   let phaseStart = performance.now();
 
-  function ease1(t) { return 1 - (1 - t) * (1 - t) * (1 - t); } // ease-out cubic
-  function ease2(t) { return t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; } // ease-in-out cubic
+  function ease1(t) { return 1 - (1 - t) * (1 - t) * (1 - t); }
+  function ease2(t) { return t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
 
   function tick(now) {
     let pos;
@@ -1412,13 +1409,11 @@ function _snapTo(el, revealEl, from, to, onDone) {
       pos = peak + (to - peak) * ease2(t);
       if(t >= 1) {
         el.style.transform = `translateX(-${to}px)`;
-        revealEl.style.width = Math.min(to, REVEAL_W) + 'px';
         if(onDone) onDone();
         return;
       }
     }
     el.style.transform = `translateX(-${pos}px)`;
-    revealEl.style.width = Math.min(pos, REVEAL_W) + 'px';
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
@@ -1429,13 +1424,12 @@ function _slideOff(el, revealEl, from, cardW, onDone) {
   const to = cardW + 20;
   const dur = 250;
   const start = performance.now();
-  function ease(t) { return t * t * t; } // ease-in cubic — accelera
+  function ease(t) { return t * t * t; }
 
   function tick(now) {
     let t = Math.min((now - start) / dur, 1);
     const pos = from + (to - from) * ease(t);
     el.style.transform = `translateX(-${pos}px)`;
-    revealEl.style.width = REVEAL_W + 'px';
     if(t >= 1) {
       if(onDone) onDone();
       return;
@@ -1507,7 +1501,6 @@ function onSwipeMove(e) {
   const offset = _swipeOffset(rawDx);
 
   _sw.hrow.style.transform = `translateX(-${offset}px)`;
-  _sw.reveal.style.width = Math.min(offset, REVEAL_W) + 'px';
 
   // intensità progressiva
   _updateRevealIntensity(_sw.reveal, offset, _sw.guard);
@@ -1516,7 +1509,6 @@ function onSwipeMove(e) {
 function onSwipeEnd(e) {
   if(!_sw || _sw.locked !== 'swipe') {
     if(_sw) {
-      _sw.reveal.style.width = '0';
       _sw.reveal.style.opacity = '';
       _sw.reveal.classList.remove('state-ok', 'state-err');
     }
@@ -1572,7 +1564,6 @@ function onSwipeEnd(e) {
             // reset posizione (renderHome ricostruirà le card)
             setTimeout(() => {
               hrow.style.transform = 'translateX(0)';
-              reveal.style.width = '0';
               reveal.style.opacity = '';
               reveal.classList.remove('state-ok', 'state-err');
             }, 100);
