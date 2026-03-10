@@ -1312,23 +1312,10 @@ function renderHome() {
 }
 
 // ── Swipe-to-challenge su hrow ──
-const SNAP_THRESH = 90; // px offset per triggare snap
-
-function initHrowSwipe(container) {
-  container.addEventListener('touchstart', onSwipeStart, {passive: true});
-  container.addEventListener('touchmove', onSwipeMove, {passive: false});
-  container.addEventListener('touchend', onSwipeEnd, {passive: true});
-}
-
-let _sw = null;
-
-function _swipeOffset(rawDx) {
-  if(rawDx <= 0) return 0;
-  // lineare 1:1 fino a 80px, poi sqrt per resistenza
-  const linear = Math.min(rawDx, 80);
-  const extra = rawDx > 80 ? Math.sqrt(rawDx - 80) * 10 : 0;
-  return linear + extra;
-}
+const SNAP_THRESH = 72;       // px per triggare snap
+const VSNAP_THRESH = 0.45;    // px/ms per triggare snap con velocità
+const FRICTION = 0.0035;      // decelerazione inerzia (px/ms²)
+const RUBBER_K = 0.15;        // coefficiente rubber-band oltre snap
 
 function _evalGuards(oppId) {
   const hs = window._homeState || {};
@@ -1345,6 +1332,103 @@ function _evalGuards(oppId) {
   return { ok: false, label: msg };
 }
 
+function initHrowSwipe(container) {
+  container.addEventListener('touchstart', onSwipeStart, {passive: true});
+  container.addEventListener('touchmove', onSwipeMove, {passive: false});
+  container.addEventListener('touchend', onSwipeEnd, {passive: true});
+}
+
+let _sw = null;
+
+// Rubber-band: lineare fino a 80px, poi decrescente
+function _swipeOffset(rawDx, maxSnap) {
+  if(rawDx <= 0) return 0;
+  const linear = Math.min(rawDx, 80);
+  const extra = rawDx > 80 ? Math.sqrt(rawDx - 80) * 8 : 0;
+  const total = linear + extra;
+  // oltre il snap, rubber-band rigido
+  if(total > maxSnap) {
+    return maxSnap + (total - maxSnap) * RUBBER_K;
+  }
+  return total;
+}
+
+// Simulazione spring frame-by-frame
+// Porta `current` a `target` con overshoot
+function _springAnimate(el, revealEl, current, target, onDone) {
+  const stiffness = 0.0012;    // rigidità molla
+  const damping = 0.065;       // smorzamento (< 1 = overshoot)
+  let pos = current;
+  let vel = 0;
+  let lastT = performance.now();
+  let settled = 0;
+
+  function tick(now) {
+    const dt = Math.min(now - lastT, 32); // cap a ~30fps min
+    lastT = now;
+
+    const displacement = pos - target;
+    const springForce = -stiffness * displacement;
+    const dampForce = -damping * vel;
+    vel += (springForce + dampForce) * dt;
+    pos += vel * dt;
+
+    el.style.transform = `translateX(-${Math.max(0, pos)}px)`;
+    if(revealEl) revealEl.style.width = Math.max(0, pos) + 'px';
+
+    // settling check: vicino al target e quasi fermo
+    if(Math.abs(pos - target) < 0.5 && Math.abs(vel) < 0.01) {
+      settled++;
+      if(settled > 3) {
+        el.style.transform = target === 0 ? 'translateX(0)' : `translateX(-${target}px)`;
+        if(revealEl) revealEl.style.width = target === 0 ? '0' : target + 'px';
+        if(onDone) onDone();
+        return;
+      }
+    } else {
+      settled = 0;
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+// Snap con micro-accelerazione: overshoot 8px poi settle
+function _snapAnimate(el, revealEl, current, snapW, onDone) {
+  const overshoot = 8;
+  const dur1 = 200; // ms per andare a snapW + overshoot
+  const dur2 = 180; // ms per tornare a snapW
+  const start = performance.now();
+  const from = current;
+  const mid = snapW + overshoot;
+  let phase = 1;
+  let phaseStart = start;
+
+  function tick(now) {
+    if(phase === 1) {
+      let t = Math.min((now - phaseStart) / dur1, 1);
+      // ease-out
+      t = 1 - (1 - t) * (1 - t);
+      const pos = from + (mid - from) * t;
+      el.style.transform = `translateX(-${pos}px)`;
+      revealEl.style.width = pos + 'px';
+      if(t >= 1) { phase = 2; phaseStart = now; }
+      else { requestAnimationFrame(tick); return; }
+    }
+    if(phase === 2) {
+      let t = Math.min((now - phaseStart) / dur2, 1);
+      // ease-in-out
+      t = t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t);
+      const pos = mid + (snapW - mid) * t;
+      el.style.transform = `translateX(-${pos}px)`;
+      revealEl.style.width = pos + 'px';
+      if(t >= 1) { if(onDone) onDone(); return; }
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
 function onSwipeStart(e) {
   const wrap = e.target.closest('.hrow-wrap');
   if(!wrap) return;
@@ -1354,23 +1438,27 @@ function onSwipeStart(e) {
   const reveal = wrap.querySelector('.hrow-reveal');
   const label = wrap.querySelector('.hrow-reveal-label');
 
-  // imposta stato visivo reveal subito — colore e testo già corretti
+  // imposta stato visivo reveal subito
   reveal.classList.remove('state-ok', 'state-err');
   reveal.classList.add(guard.ok ? 'state-ok' : 'state-err');
   label.textContent = guard.label;
 
+  // cancella transizioni CSS residue
+  const hrow = wrap.querySelector('.hrow');
+  hrow.style.transition = 'none';
+  reveal.style.transition = 'none';
+
   _sw = {
     wrap,
-    hrow: wrap.querySelector('.hrow'),
+    hrow,
     reveal,
     label,
     cardW: wrap.offsetWidth,
     startX: t.clientX,
     startY: t.clientY,
     locked: null,
-    lastX: t.clientX,
-    lastT: Date.now(),
-    vx: 0,
+    // tracking velocità: ultimi N campioni
+    samples: [],
     guard
   };
 }
@@ -1386,84 +1474,92 @@ function onSwipeMove(e) {
     _sw.locked = dy > Math.abs(rawDx) ? 'scroll' : 'swipe';
   }
   if(_sw.locked === 'scroll') return;
-
   e.preventDefault();
 
-  const now = Date.now();
-  const dt = now - _sw.lastT || 1;
-  _sw.vx = (rawDx - (_sw.startX - _sw.lastX)) / dt;
-  _sw.lastX = t.clientX;
-  _sw.lastT = now;
+  // campiona velocità (media ultimi 3 campioni per stabilità)
+  const now = performance.now();
+  _sw.samples.push({ x: t.clientX, t: now });
+  if(_sw.samples.length > 5) _sw.samples.shift();
 
-  const offset = _swipeOffset(rawDx);
-  // snap width: lascia ~24px visibili a sinistra
   const snapW = _sw.cardW - 24;
+  const offset = _swipeOffset(rawDx, snapW);
 
-  _sw.hrow.style.transition = 'none';
-  _sw.hrow.style.transform = `translateX(-${Math.min(offset, snapW)}px)`;
-
-  // reveal segue la card — larghezza = offset
-  _sw.reveal.style.width = Math.min(offset, snapW) + 'px';
+  _sw.hrow.style.transform = `translateX(-${offset}px)`;
+  _sw.reveal.style.width = offset + 'px';
 }
 
 function onSwipeEnd(e) {
   if(!_sw || _sw.locked !== 'swipe') {
-    if(_sw) { _sw.reveal.style.width = '0'; _sw.reveal.classList.remove('state-ok','state-err'); }
+    if(_sw) {
+      _sw.reveal.style.width = '0';
+      _sw.reveal.classList.remove('state-ok', 'state-err');
+    }
     _sw = null;
     return;
   }
-  const {wrap, hrow, reveal, label, cardW, guard} = _sw;
+  const {wrap, hrow, reveal, label, cardW, guard, samples} = _sw;
   const oppId = wrap.dataset.opp;
-  const rawDx = _sw.startX - _sw.lastX;
-  const offset = _swipeOffset(rawDx);
-  const vx = _sw.vx;
   const snapW = cardW - 24;
 
-  const triggered = offset >= SNAP_THRESH || (vx > 0.5 && rawDx > 30);
-
-  function springBack(delay) {
-    setTimeout(() => {
-      hrow.style.transition = 'transform .45s cubic-bezier(.34,1.3,.64,1)';
-      hrow.style.transform = 'translateX(0)';
-      reveal.style.transition = 'width .45s cubic-bezier(.34,1.3,.64,1)';
-      reveal.style.width = '0';
-      setTimeout(() => {
-        reveal.style.transition = '';
-        reveal.classList.remove('state-ok', 'state-err');
-      }, 460);
-    }, delay);
+  // calcola velocità dal tracking
+  let vx = 0;
+  if(samples.length >= 2) {
+    const last = samples[samples.length - 1];
+    // media pesata sugli ultimi campioni
+    const ref = samples[Math.max(0, samples.length - 3)];
+    const dt = last.t - ref.t;
+    if(dt > 0) vx = (ref.x - last.x) / dt; // px/ms, positivo = swipe left
   }
 
+  // inerzia: proietta posizione a fine decelerazione
+  const rawDx = _sw.startX - (samples.length ? samples[samples.length - 1].x : _sw.startX);
+  const currentOffset = _swipeOffset(rawDx, snapW);
+  const inertiaDistance = vx > 0 ? (vx * vx) / (2 * FRICTION) : 0;
+  const projectedOffset = currentOffset + inertiaDistance;
+
+  const triggered = projectedOffset >= SNAP_THRESH || (vx > VSNAP_THRESH && rawDx > 20);
+
   if(!triggered) {
-    springBack(0);
+    // spring-back con fisica reale
+    _springAnimate(hrow, reveal, currentOffset, 0, () => {
+      reveal.classList.remove('state-ok', 'state-err');
+    });
     _sw = null;
     return;
   }
 
-  // snap completo
-  hrow.style.transition = 'transform .3s cubic-bezier(.2,.8,.3,1)';
-  hrow.style.transform = `translateX(-${snapW}px)`;
-  reveal.style.transition = 'width .3s cubic-bezier(.2,.8,.3,1)';
-  reveal.style.width = snapW + 'px';
-
-  if(guard.ok) {
-    // ri-valuta al momento del rilascio (stato potrebbe essere cambiato)
-    const fresh = _evalGuards(oppId);
-    if(fresh.ok) {
-      setTimeout(() => {
-        springBack(0);
-        openColorSheet(oppId);
-      }, 160);
+  // snap: micro-accelerazione + overshoot + settle
+  _snapAnimate(hrow, reveal, currentOffset, snapW, () => {
+    if(guard.ok) {
+      const fresh = _evalGuards(oppId);
+      if(fresh.ok) {
+        // successo: spring-back + azione
+        setTimeout(() => {
+          _springAnimate(hrow, reveal, snapW, 0, () => {
+            reveal.classList.remove('state-ok', 'state-err');
+          });
+          openColorSheet(oppId);
+        }, 120);
+      } else {
+        // stato cambiato — mostra errore
+        label.textContent = fresh.label;
+        reveal.classList.remove('state-ok');
+        reveal.classList.add('state-err');
+        setTimeout(() => {
+          _springAnimate(hrow, reveal, snapW, 0, () => {
+            reveal.classList.remove('state-ok', 'state-err');
+          });
+        }, 700);
+      }
     } else {
-      // stato cambiato nel frattempo — mostra errore
-      label.textContent = fresh.label;
-      reveal.classList.remove('state-ok');
-      reveal.classList.add('state-err');
-      springBack(800);
+      // errore: pausa e spring-back
+      setTimeout(() => {
+        _springAnimate(hrow, reveal, snapW, 0, () => {
+          reveal.classList.remove('state-ok', 'state-err');
+        });
+      }, 700);
     }
-  } else {
-    springBack(800);
-  }
+  });
 
   _sw = null;
 }
