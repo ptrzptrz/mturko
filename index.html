@@ -1385,7 +1385,7 @@ function onSwipeEnd(e) {
               || (hs.sentChallenges||[]).length > 0;
   const opp = getP(oppId);
   const oppOnline = opp?.last_seen_at && (Date.now() - new Date(opp.last_seen_at).getTime()) < ONLINE_MS;
-  const oppBusy = opp?.is_playing;
+  const oppBusy = matches.some(m => m.status === 'active' && (m.p1 === oppId || m.p2 === oppId));
 
   if(!isBusy && oppOnline && !oppBusy) {
     // successo — spring-back e apri color sheet
