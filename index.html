@@ -327,9 +327,10 @@ canvas{width:100%!important;display:block}
 .mcard-result.win{color:#629924}.mcard-result.loss{color:#c33}.mcard-result.draw{color:#555}
 .mcard-elo{font-size:11px;margin-top:2px}
 .hrow-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:6px}
-.hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:72px;display:flex;align-items:center;justify-content:center;background:#1d1a16;border-left:1px solid #3a3630;border-radius:0 10px 10px 0;pointer-events:none}
-.hrow-reveal-label{font-size:12px;font-weight:600;color:#e8e6e3;letter-spacing:.2px}
-.hrow{background:#1d1a16;border:1px solid #252220;border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:12px;position:relative;will-change:transform;transition:transform .35s cubic-bezier(.25,1,.5,1)}
+.hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:220px;display:flex;align-items:center;justify-content:center;background:#1a2a0e;pointer-events:none}
+.hrow-reveal-label{font-size:15px;font-weight:700;color:#e8e6e3;letter-spacing:-.2px;opacity:0;transition:opacity .15s}
+.hrow-reveal.snapped .hrow-reveal-label{opacity:1}
+.hrow{background:#1d1a16;border:1px solid #252220;border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:12px;position:relative;will-change:transform}
 .hrow-accent{width:3px;border-radius:2px;align-self:stretch;flex-shrink:0}
 .hrow-accent.win{background:#629924}
 .hrow-accent.loss{background:#c33}
@@ -1308,13 +1309,16 @@ function renderHome() {
 }
 
 // ── Swipe-to-challenge su hrow ──
+const SNAP_WIDTH = 220;   // px reveal quando snappato
+const SNAP_THRESH = 0.38; // snap oltre 38% larghezza card
+
 function initHrowSwipe(container) {
   container.addEventListener('touchstart', onSwipeStart, {passive: true});
   container.addEventListener('touchmove', onSwipeMove, {passive: false});
   container.addEventListener('touchend', onSwipeEnd, {passive: true});
 }
 
-let _sw = null; // stato swipe attivo
+let _sw = null;
 
 function onSwipeStart(e) {
   const wrap = e.target.closest('.hrow-wrap');
@@ -1324,24 +1328,33 @@ function onSwipeStart(e) {
     wrap,
     hrow: wrap.querySelector('.hrow'),
     reveal: wrap.querySelector('.hrow-reveal'),
+    label: wrap.querySelector('.hrow-reveal-label'),
+    cardW: wrap.offsetWidth,
     startX: t.clientX,
     startY: t.clientY,
-    locked: null, // 'swipe' | 'scroll' | null
+    locked: null,
     lastX: t.clientX,
     lastT: Date.now(),
-    vx: 0
+    vx: 0,
+    snapped: false
   };
+}
+
+function _swipeOffset(rawDx, cardW) {
+  // resistenza sqrt: morbido all'inizio, accelera naturalmente
+  if(rawDx <= 0) return 0;
+  return Math.min(Math.sqrt(rawDx) * 7, SNAP_WIDTH);
 }
 
 function onSwipeMove(e) {
   if(!_sw) return;
   const t = e.touches[0];
-  const dx = _sw.startX - t.clientX;
+  const rawDx = _sw.startX - t.clientX;
   const dy = Math.abs(t.clientY - _sw.startY);
 
   if(!_sw.locked) {
-    if(Math.abs(dx) < 4 && dy < 4) return;
-    _sw.locked = dy > Math.abs(dx) ? 'scroll' : 'swipe';
+    if(Math.abs(rawDx) < 4 && dy < 4) return;
+    _sw.locked = dy > Math.abs(rawDx) ? 'scroll' : 'swipe';
   }
   if(_sw.locked === 'scroll') return;
 
@@ -1349,36 +1362,50 @@ function onSwipeMove(e) {
 
   const now = Date.now();
   const dt = now - _sw.lastT || 1;
-  _sw.vx = (_sw.startX - t.clientX - (_sw.startX - _sw.lastX)) / dt;
+  _sw.vx = (rawDx - (_sw.startX - _sw.lastX)) / dt;
   _sw.lastX = t.clientX;
   _sw.lastT = now;
 
-  const offset = Math.max(0, Math.min(72, dx));
+  const offset = _swipeOffset(rawDx, _sw.cardW);
+  const snapping = offset >= _sw.cardW * SNAP_THRESH;
+
   _sw.hrow.style.transition = 'none';
   _sw.hrow.style.transform = `translateX(-${offset}px)`;
+
+  if(snapping && !_sw.snapped) {
+    _sw.snapped = true;
+    _sw.reveal.classList.add('snapped');
+  } else if(!snapping && _sw.snapped) {
+    _sw.snapped = false;
+    _sw.reveal.classList.remove('snapped');
+  }
 }
 
 function onSwipeEnd(e) {
   if(!_sw || _sw.locked !== 'swipe') { _sw = null; return; }
-  const {wrap, hrow, reveal} = _sw;
+  const {wrap, hrow, reveal, label, cardW} = _sw;
   const oppId = wrap.dataset.opp;
-  const label = reveal.querySelector('.hrow-reveal-label');
-
-  const dx = _sw.startX - _sw.lastX;
+  const rawDx = _sw.startX - _sw.lastX;
+  const offset = _swipeOffset(rawDx, cardW);
   const vx = _sw.vx;
-  const triggered = dx > 52 || (vx > 0.4 && dx > 20);
+
+  const triggered = offset >= cardW * SNAP_THRESH || (vx > 0.5 && rawDx > 30);
 
   if(!triggered) {
-    // non triggered — spring-back subito
-    hrow.style.transition = 'transform .35s cubic-bezier(.25,1,.5,1)';
+    reveal.classList.remove('snapped');
+    hrow.style.transition = 'transform .45s cubic-bezier(.34,1.4,.64,1)';
     hrow.style.transform = 'translateX(0)';
     _sw = null;
     return;
   }
 
-  // triggered — check guards
+  // snap completo
+  hrow.style.transition = 'transform .3s cubic-bezier(.2,.8,.3,1)';
+  hrow.style.transform = `translateX(-${SNAP_WIDTH}px)`;
+  reveal.classList.add('snapped');
+
+  // guard
   const hs = window._homeState || {};
-  // allineato esattamente a blockNew: liveCards + disputed bloccano, waiting no
   const isBusy = (hs.liveCards||[]).length > 0
               || (hs.disputedCards||[]).length > 0
               || (hs.incomingChallenges||[]).length > 0
@@ -1386,57 +1413,34 @@ function onSwipeEnd(e) {
   const opp = getP(oppId);
   const oppOnline = opp?.last_seen_at && (Date.now() - new Date(opp.last_seen_at).getTime()) < ONLINE_MS;
   const oppBusy = matches.some(m => m.status === 'active' && (m.p1 === oppId || m.p2 === oppId));
+  const ok = !isBusy && oppOnline && !oppBusy;
 
-  if(!isBusy && oppOnline && !oppBusy) {
-    // successo — spring-back e apri color sheet
-    hrow.style.transition = 'transform .35s cubic-bezier(.25,1,.5,1)';
-    hrow.style.transform = 'translateX(0)';
-    openColorSheet(oppId);
-  } else {
-    // errore — tieni aperto, mostra feedback, poi chiudi
-    const msg = isBusy ? 'Non disponibile' : !oppOnline ? 'Offline' : 'In partita';
-    const msgColor = '#c33';
-    // snap aperto a 72px
-    hrow.style.transition = 'none';
-    hrow.style.transform = 'translateX(-72px)';
-    // mostra testo errore
-    label.textContent = msg;
-    label.style.color = msgColor;
-    // forza reflow — critico per Safari
-    reveal.offsetHeight;
-    // dopo pausa, spring-back
+  if(ok) {
     setTimeout(() => {
-      hrow.style.transition = 'transform .35s cubic-bezier(.25,1,.5,1)';
+      hrow.style.transition = 'transform .4s cubic-bezier(.34,1.2,.64,1)';
       hrow.style.transform = 'translateX(0)';
-      // reset label dopo che hrow copre il reveal
+      reveal.classList.remove('snapped');
+      openColorSheet(oppId);
+    }, 180);
+  } else {
+    const msg = isBusy ? 'Non disponibile' : !oppOnline ? 'Offline' : 'In partita';
+    label.textContent = msg;
+    label.style.color = '#c33';
+    reveal.offsetHeight;
+    setTimeout(() => {
+      hrow.style.transition = 'transform .45s cubic-bezier(.34,1.4,.64,1)';
+      hrow.style.transform = 'translateX(0)';
+      reveal.classList.remove('snapped');
       setTimeout(() => {
         label.textContent = 'Sfida';
         label.style.color = '';
-      }, 350);
-    }, 600);
+      }, 400);
+    }, 800);
   }
 
   _sw = null;
 }
 
-function _showRevealFeedback(reveal, label, text, onDone) {
-  // legacy — mantenuta per compatibilità ma non più usata dal swipe
-  label.textContent = text;
-  reveal.offsetHeight;
-  reveal.style.transition = 'none';
-  reveal.style.opacity = '1';
-  reveal.offsetHeight;
-  setTimeout(() => {
-    reveal.style.transition = 'opacity .3s';
-    reveal.style.opacity = '0';
-    if(onDone) onDone();
-    setTimeout(() => {
-      label.textContent = 'Sfida';
-      reveal.style.transition = '';
-      reveal.style.opacity = '';
-    }, 320);
-  }, onDone ? 80 : 750);
-}
 
 $("btn-newmatch").onclick = () => {
   const search = $("home-search");
