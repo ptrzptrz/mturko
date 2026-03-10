@@ -410,6 +410,7 @@ canvas{width:100%!important;display:block}
         <div class="home-hero-elo-row">
           <span class="home-hero-elo" id="h-elo"></span>
           <span class="home-hero-delta hidden" id="h-delta"></span>
+          <span style="font-size:20px;color:#2e2b28;margin-left:auto;line-height:1;align-self:center">›</span>
         </div>
       </div>
 
@@ -1081,7 +1082,8 @@ function makeCardChallenge(m) {
   el.dataset.mid = m.id;
   el.innerHTML = `
     <div class="card-challenge-progress${urgent?' urgent':''}" id="prog-${m.id}" style="width:${pct}%"></div>
-    <div class="card-challenge-name">${opp?.nickname||"?"} <span class="card-challenge-opp-elo">(${oppElo})</span></div>
+    <div class="card-challenge-name">${opp?.nickname||"?"}</div>
+    <div style="font-size:15px;font-weight:600;color:#9a9690;margin-bottom:6px;letter-spacing:-.2px">${oppElo} ELO</div>
     <div class="card-challenge-sub">${colorLine}</div>
     <div class="card-challenge-btns">
       <button class="btn-accept" onclick="acceptChallenge('${m.id}')">Accetta</button>
