@@ -328,7 +328,7 @@ canvas{width:100%!important;display:block}
 .mcard-elo{font-size:11px;margin-top:2px}
 .hrow-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:6px}
 .hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:72px;display:flex;align-items:center;justify-content:center;background:#1d1a16;border-left:1px solid #3a3630;border-radius:0 10px 10px 0;pointer-events:none;opacity:0;transition:opacity .15s}
-.hrow-reveal-label{font-size:12px;font-weight:600;color:#e8e6e3;letter-spacing:.2px;opacity:0}
+.hrow-reveal-label{font-size:12px;font-weight:600;color:#e8e6e3;letter-spacing:.2px}
 .hrow{background:#1d1a16;border:1px solid #252220;border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:12px;position:relative;will-change:transform;transition:transform .35s cubic-bezier(.25,1,.5,1)}
 .hrow-accent{width:3px;border-radius:2px;align-self:stretch;flex-shrink:0}
 .hrow-accent.win{background:#629924}
@@ -1409,18 +1409,18 @@ function onSwipeEnd(e) {
 }
 
 function _showRevealError(reveal, label, text) {
+  // nascondi istantaneamente, cambia testo, rimostra
+  reveal.style.transition = 'none';
+  reveal.style.opacity = '0';
   label.textContent = text;
-  label.style.opacity = '1';
-  reveal.style.opacity = '1';
-  setTimeout(() => {
-    reveal.style.transition = 'opacity .25s';
-    reveal.style.opacity = '0';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    reveal.style.transition = 'opacity .15s';
+    reveal.style.opacity = '1';
     setTimeout(() => {
-      label.style.opacity = '0';
-      label.textContent = 'Sfida';
-      reveal.style.transition = '';
-    }, 280);
-  }, 700);
+      reveal.style.opacity = '0';
+      setTimeout(() => { label.textContent = 'Sfida'; reveal.style.transition = ''; }, 200);
+    }, 700);
+  }));
 }
 
 $("btn-newmatch").onclick = () => {
