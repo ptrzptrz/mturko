@@ -1368,38 +1368,62 @@ function onSwipeEnd(e) {
   const vx = _sw.vx;
   const triggered = dx > 52 || (vx > 0.4 && dx > 20);
 
-  // spring-back sempre
-  hrow.style.transition = 'transform .35s cubic-bezier(.25,1,.5,1)';
-  hrow.style.transform = 'translateX(0)';
+  if(!triggered) {
+    // non triggered — spring-back subito
+    hrow.style.transition = 'transform .35s cubic-bezier(.25,1,.5,1)';
+    hrow.style.transform = 'translateX(0)';
+    _sw = null;
+    return;
+  }
 
-  if(triggered) {
-    const hs = window._homeState || {};
-    const isBusy = (hs.allActive||[]).length > 0
-                || (hs.incomingChallenges||[]).length > 0
-                || (hs.sentChallenges||[]).length > 0;
-    const opp = getP(oppId);
-    const oppOnline = opp?.last_seen_at && (Date.now() - new Date(opp.last_seen_at).getTime()) < ONLINE_MS;
-    const oppBusy = opp?.is_playing;
+  // triggered — check guards
+  const hs = window._homeState || {};
+  const isBusy = (hs.allActive||[]).length > 0
+              || (hs.incomingChallenges||[]).length > 0
+              || (hs.sentChallenges||[]).length > 0;
+  const opp = getP(oppId);
+  const oppOnline = opp?.last_seen_at && (Date.now() - new Date(opp.last_seen_at).getTime()) < ONLINE_MS;
+  const oppBusy = opp?.is_playing;
 
-    if(isBusy) {
-      _showRevealFeedback(reveal, label, 'Non disponibile');
-    } else if(!oppOnline) {
-      _showRevealFeedback(reveal, label, 'Offline');
-    } else if(oppBusy) {
-      _showRevealFeedback(reveal, label, 'In partita');
-    } else {
-      _showRevealFeedback(reveal, label, 'Sfida →', () => openColorSheet(oppId));
-    }
+  if(!isBusy && oppOnline && !oppBusy) {
+    // successo — spring-back e apri color sheet
+    hrow.style.transition = 'transform .35s cubic-bezier(.25,1,.5,1)';
+    hrow.style.transform = 'translateX(0)';
+    openColorSheet(oppId);
+  } else {
+    // errore — tieni aperto, mostra feedback, poi chiudi
+    const msg = isBusy ? 'Non disponibile' : !oppOnline ? 'Offline' : 'In partita';
+    const msgColor = '#c33';
+    // snap aperto a 72px
+    hrow.style.transition = 'none';
+    hrow.style.transform = 'translateX(-72px)';
+    // mostra testo errore
+    label.textContent = msg;
+    label.style.color = msgColor;
+    // forza reflow — critico per Safari
+    reveal.offsetHeight;
+    // dopo pausa, spring-back
+    setTimeout(() => {
+      hrow.style.transition = 'transform .35s cubic-bezier(.25,1,.5,1)';
+      hrow.style.transform = 'translateX(0)';
+      // reset label dopo che hrow copre il reveal
+      setTimeout(() => {
+        label.textContent = 'Sfida';
+        label.style.color = '';
+      }, 350);
+    }, 600);
   }
 
   _sw = null;
 }
 
 function _showRevealFeedback(reveal, label, text, onDone) {
+  // legacy — mantenuta per compatibilità ma non più usata dal swipe
   label.textContent = text;
-  // breve flash del reveal con il testo finale
+  reveal.offsetHeight;
   reveal.style.transition = 'none';
   reveal.style.opacity = '1';
+  reveal.offsetHeight;
   setTimeout(() => {
     reveal.style.transition = 'opacity .3s';
     reveal.style.opacity = '0';
