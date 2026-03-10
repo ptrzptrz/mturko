@@ -327,7 +327,7 @@ canvas{width:100%!important;display:block}
 .mcard-result.win{color:#629924}.mcard-result.loss{color:#c33}.mcard-result.draw{color:#555}
 .mcard-elo{font-size:11px;margin-top:2px}
 .hrow-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:6px;background:#1d1a16}
-.hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:100px;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:0;display:flex;align-items:center;justify-content:center;pointer-events:none;transition:width 0s}
 .hrow-reveal.state-ok{background:#e8e6e3}
 .hrow-reveal.state-err{background:#2a2724}
 .hrow-reveal-label{font-size:15px;font-weight:700;letter-spacing:-.2px;white-space:nowrap}
@@ -1312,11 +1312,10 @@ function renderHome() {
 }
 
 // ── Swipe-to-challenge su hrow ──
-const REVEAL_W = 100;          // larghezza reveal fissa (come iOS Mail)
-const SNAP_THRESH = 64;        // px per triggare snap
-const VSNAP_THRESH = 0.4;      // px/ms velocità per snap rapido
-const FRICTION = 0.003;        // decelerazione inerzia (px/ms²)
-const RUBBER_K = 0.08;         // resistenza oltre snap (più basso = più rigido)
+const SNAP_THRESH = 72;       // px per triggare snap
+const VSNAP_THRESH = 0.45;    // px/ms per triggare snap con velocità
+const FRICTION = 0.0035;      // decelerazione inerzia (px/ms²)
+const RUBBER_K = 0.15;        // coefficiente rubber-band oltre snap
 
 function _evalGuards(oppId) {
   const hs = window._homeState || {};
@@ -1341,113 +1340,94 @@ function initHrowSwipe(container) {
 
 let _sw = null;
 
-// ── Offset con rubber-band ──
-function _swipeOffset(rawDx) {
+// Rubber-band: lineare fino a 80px, poi decrescente
+function _swipeOffset(rawDx, maxSnap) {
   if(rawDx <= 0) return 0;
-  if(rawDx <= REVEAL_W) return rawDx;
-  // oltre REVEAL_W: rubber-band
-  const over = rawDx - REVEAL_W;
-  return REVEAL_W + over * RUBBER_K;
+  const linear = Math.min(rawDx, 80);
+  const extra = rawDx > 80 ? Math.sqrt(rawDx - 80) * 8 : 0;
+  const total = linear + extra;
+  // oltre il snap, rubber-band rigido
+  if(total > maxSnap) {
+    return maxSnap + (total - maxSnap) * RUBBER_K;
+  }
+  return total;
 }
 
-// ── Spring fisico parametrizzabile ──
-// tension/friction alti = veloce e secco, bassi = lento e morbido
-function _springTo(el, revealEl, from, to, opts, onDone) {
-  const tension = opts.tension || 0.0012;
-  const friction = opts.friction || 0.065;
-  const initVel = opts.initVel || 0;
-  let pos = from;
-  let vel = initVel;
+// Simulazione spring frame-by-frame
+// Porta `current` a `target` con overshoot
+function _springAnimate(el, revealEl, current, target, onDone) {
+  const stiffness = 0.0012;    // rigidità molla
+  const damping = 0.065;       // smorzamento (< 1 = overshoot)
+  let pos = current;
+  let vel = 0;
   let lastT = performance.now();
-  let settledFrames = 0;
+  let settled = 0;
 
   function tick(now) {
-    const dt = Math.min(now - lastT, 32);
+    const dt = Math.min(now - lastT, 32); // cap a ~30fps min
     lastT = now;
 
-    const disp = pos - to;
-    vel += (-tension * disp - friction * vel) * dt;
+    const displacement = pos - target;
+    const springForce = -stiffness * displacement;
+    const dampForce = -damping * vel;
+    vel += (springForce + dampForce) * dt;
     pos += vel * dt;
 
     el.style.transform = `translateX(-${Math.max(0, pos)}px)`;
+    if(revealEl) revealEl.style.width = Math.max(0, pos) + 'px';
 
-    if(Math.abs(pos - to) < 0.4 && Math.abs(vel) < 0.008) {
-      settledFrames++;
-      if(settledFrames > 2) {
-        el.style.transform = to === 0 ? 'translateX(0)' : `translateX(-${to}px)`;
+    // settling check: vicino al target e quasi fermo
+    if(Math.abs(pos - target) < 0.5 && Math.abs(vel) < 0.01) {
+      settled++;
+      if(settled > 3) {
+        el.style.transform = target === 0 ? 'translateX(0)' : `translateX(-${target}px)`;
+        if(revealEl) revealEl.style.width = target === 0 ? '0' : target + 'px';
         if(onDone) onDone();
         return;
       }
-    } else settledFrames = 0;
-
+    } else {
+      settled = 0;
+    }
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
 }
 
-// ── Snap: accelera → overshoot → settle ──
-function _snapTo(el, revealEl, from, to, onDone) {
-  const overshoot = 6;
-  const dur1 = 180;
-  const dur2 = 140;
-  const peak = to + overshoot;
+// Snap con micro-accelerazione: overshoot 8px poi settle
+function _snapAnimate(el, revealEl, current, snapW, onDone) {
+  const overshoot = 8;
+  const dur1 = 200; // ms per andare a snapW + overshoot
+  const dur2 = 180; // ms per tornare a snapW
+  const start = performance.now();
+  const from = current;
+  const mid = snapW + overshoot;
   let phase = 1;
-  let phaseStart = performance.now();
-
-  function ease1(t) { return 1 - (1 - t) * (1 - t) * (1 - t); }
-  function ease2(t) { return t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
+  let phaseStart = start;
 
   function tick(now) {
-    let pos;
     if(phase === 1) {
       let t = Math.min((now - phaseStart) / dur1, 1);
-      pos = from + (peak - from) * ease1(t);
+      // ease-out
+      t = 1 - (1 - t) * (1 - t);
+      const pos = from + (mid - from) * t;
+      el.style.transform = `translateX(-${pos}px)`;
+      revealEl.style.width = pos + 'px';
       if(t >= 1) { phase = 2; phaseStart = now; }
+      else { requestAnimationFrame(tick); return; }
     }
     if(phase === 2) {
       let t = Math.min((now - phaseStart) / dur2, 1);
-      pos = peak + (to - peak) * ease2(t);
-      if(t >= 1) {
-        el.style.transform = `translateX(-${to}px)`;
-        if(onDone) onDone();
-        return;
-      }
-    }
-    el.style.transform = `translateX(-${pos}px)`;
-    requestAnimationFrame(tick);
-  }
-  requestAnimationFrame(tick);
-}
-
-// ── Slide-off a sinistra per successo ──
-function _slideOff(el, revealEl, from, cardW, onDone) {
-  const to = cardW + 20;
-  const dur = 250;
-  const start = performance.now();
-  function ease(t) { return t * t * t; }
-
-  function tick(now) {
-    let t = Math.min((now - start) / dur, 1);
-    const pos = from + (to - from) * ease(t);
-    el.style.transform = `translateX(-${pos}px)`;
-    if(t >= 1) {
-      if(onDone) onDone();
-      return;
+      // ease-in-out
+      t = t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t);
+      const pos = mid + (snapW - mid) * t;
+      el.style.transform = `translateX(-${pos}px)`;
+      revealEl.style.width = pos + 'px';
+      if(t >= 1) { if(onDone) onDone(); return; }
     }
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
 }
-
-// ── Color intensity progressiva sul reveal ──
-function _updateRevealIntensity(reveal, offset, guard) {
-  // da 0 a SNAP_THRESH: opacity cresce da 0.4 a 1.0
-  const progress = Math.min(offset / SNAP_THRESH, 1);
-  const opacity = 0.4 + progress * 0.6;
-  reveal.style.opacity = opacity;
-}
-
-// ── Touch handlers ──
 
 function onSwipeStart(e) {
   const wrap = e.target.closest('.hrow-wrap');
@@ -1458,14 +1438,15 @@ function onSwipeStart(e) {
   const reveal = wrap.querySelector('.hrow-reveal');
   const label = wrap.querySelector('.hrow-reveal-label');
 
+  // imposta stato visivo reveal subito
   reveal.classList.remove('state-ok', 'state-err');
   reveal.classList.add(guard.ok ? 'state-ok' : 'state-err');
   label.textContent = guard.label;
 
+  // cancella transizioni CSS residue
   const hrow = wrap.querySelector('.hrow');
   hrow.style.transition = 'none';
   reveal.style.transition = 'none';
-  reveal.style.opacity = '0.4';
 
   _sw = {
     wrap,
@@ -1476,6 +1457,7 @@ function onSwipeStart(e) {
     startX: t.clientX,
     startY: t.clientY,
     locked: null,
+    // tracking velocità: ultimi N campioni
     samples: [],
     guard
   };
@@ -1494,22 +1476,22 @@ function onSwipeMove(e) {
   if(_sw.locked === 'scroll') return;
   e.preventDefault();
 
+  // campiona velocità (media ultimi 3 campioni per stabilità)
   const now = performance.now();
   _sw.samples.push({ x: t.clientX, t: now });
   if(_sw.samples.length > 5) _sw.samples.shift();
 
-  const offset = _swipeOffset(rawDx);
+  const snapW = _sw.cardW - 24;
+  const offset = _swipeOffset(rawDx, snapW);
 
   _sw.hrow.style.transform = `translateX(-${offset}px)`;
-
-  // intensità progressiva
-  _updateRevealIntensity(_sw.reveal, offset, _sw.guard);
+  _sw.reveal.style.width = offset + 'px';
 }
 
 function onSwipeEnd(e) {
   if(!_sw || _sw.locked !== 'swipe') {
     if(_sw) {
-      _sw.reveal.style.opacity = '';
+      _sw.reveal.style.width = '0';
       _sw.reveal.classList.remove('state-ok', 'state-err');
     }
     _sw = null;
@@ -1517,79 +1499,65 @@ function onSwipeEnd(e) {
   }
   const {wrap, hrow, reveal, label, cardW, guard, samples} = _sw;
   const oppId = wrap.dataset.opp;
+  const snapW = cardW - 24;
 
-  // velocità da campioni
+  // calcola velocità dal tracking
   let vx = 0;
   if(samples.length >= 2) {
     const last = samples[samples.length - 1];
+    // media pesata sugli ultimi campioni
     const ref = samples[Math.max(0, samples.length - 3)];
     const dt = last.t - ref.t;
-    if(dt > 0) vx = (ref.x - last.x) / dt;
+    if(dt > 0) vx = (ref.x - last.x) / dt; // px/ms, positivo = swipe left
   }
 
+  // inerzia: proietta posizione a fine decelerazione
   const rawDx = _sw.startX - (samples.length ? samples[samples.length - 1].x : _sw.startX);
-  const currentOffset = _swipeOffset(rawDx);
+  const currentOffset = _swipeOffset(rawDx, snapW);
   const inertiaDistance = vx > 0 ? (vx * vx) / (2 * FRICTION) : 0;
   const projectedOffset = currentOffset + inertiaDistance;
 
   const triggered = projectedOffset >= SNAP_THRESH || (vx > VSNAP_THRESH && rawDx > 20);
 
   if(!triggered) {
-    // spring-back: tensione proporzionale alla distanza
-    // poco swipe = secco e veloce, molto swipe = più lento
-    const ratio = Math.min(currentOffset / REVEAL_W, 1);
-    const tension = 0.002 - ratio * 0.0008; // 0.002 (vicino) → 0.0012 (lontano)
-    const fric = 0.055 + ratio * 0.02;      // 0.055 → 0.075
-    _springTo(hrow, reveal, currentOffset, 0, { tension, friction: fric }, () => {
-      reveal.style.opacity = '';
+    // spring-back con fisica reale
+    _springAnimate(hrow, reveal, currentOffset, 0, () => {
       reveal.classList.remove('state-ok', 'state-err');
     });
     _sw = null;
     return;
   }
 
-  // — triggered —
-  // forza reveal a piena opacità
-  reveal.style.opacity = '1';
-
-  // snap con overshoot
-  _snapTo(hrow, reveal, currentOffset, REVEAL_W, () => {
+  // snap: micro-accelerazione + overshoot + settle
+  _snapAnimate(hrow, reveal, currentOffset, snapW, () => {
     if(guard.ok) {
       const fresh = _evalGuards(oppId);
       if(fresh.ok) {
-        // successo: card scivola via a sinistra, poi azione
+        // successo: spring-back + azione
         setTimeout(() => {
-          _slideOff(hrow, reveal, REVEAL_W, cardW, () => {
-            openColorSheet(oppId);
-            // reset posizione (renderHome ricostruirà le card)
-            setTimeout(() => {
-              hrow.style.transform = 'translateX(0)';
-              reveal.style.opacity = '';
-              reveal.classList.remove('state-ok', 'state-err');
-            }, 100);
+          _springAnimate(hrow, reveal, snapW, 0, () => {
+            reveal.classList.remove('state-ok', 'state-err');
           });
-        }, 80);
+          openColorSheet(oppId);
+        }, 120);
       } else {
-        // guard cambiato — mostra errore
+        // stato cambiato — mostra errore
         label.textContent = fresh.label;
         reveal.classList.remove('state-ok');
         reveal.classList.add('state-err');
-        // ease-in pausa poi spring-back
         setTimeout(() => {
-          _springTo(hrow, reveal, REVEAL_W, 0, { tension: 0.001, friction: 0.06 }, () => {
-            reveal.style.opacity = '';
+          _springAnimate(hrow, reveal, snapW, 0, () => {
             reveal.classList.remove('state-ok', 'state-err');
           });
-        }, 650);
+        }, 700);
       }
     } else {
-      // errore: pausa, poi spring-back morbido
+      // errore: pausa e spring-back
       setTimeout(() => {
-        _springTo(hrow, reveal, REVEAL_W, 0, { tension: 0.001, friction: 0.06 }, () => {
-          reveal.style.opacity = '';
+        _springAnimate(hrow, reveal, snapW, 0, () => {
           reveal.classList.remove('state-ok', 'state-err');
         });
-      }, 650);
+      }, 700);
     }
   });
 
