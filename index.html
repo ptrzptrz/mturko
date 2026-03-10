@@ -326,7 +326,10 @@ canvas{width:100%!important;display:block}
 .mcard-result{font-size:13px;font-weight:600}
 .mcard-result.win{color:#629924}.mcard-result.loss{color:#c33}.mcard-result.draw{color:#555}
 .mcard-elo{font-size:11px;margin-top:2px}
-.hrow{background:#1d1a16;border:1px solid #252220;border-radius:10px;padding:11px 14px;margin-bottom:6px;display:flex;align-items:center;gap:12px}
+.hrow-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:6px}
+.hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:72px;display:flex;align-items:center;justify-content:center;background:#1d1a16;border-left:1px solid #3a3630;border-radius:0 10px 10px 0;pointer-events:none;opacity:0;transition:opacity .15s}
+.hrow-reveal-label{font-size:12px;font-weight:600;color:#e8e6e3;letter-spacing:.2px}
+.hrow{background:#1d1a16;border:1px solid #252220;border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:12px;position:relative;will-change:transform;transition:transform .35s cubic-bezier(.25,1,.5,1)}
 .hrow-accent{width:3px;border-radius:2px;align-self:stretch;flex-shrink:0}
 .hrow-accent.win{background:#629924}
 .hrow-accent.loss{background:#c33}
@@ -1281,7 +1284,9 @@ function renderHome() {
           : '<svg width="8" height="8" viewBox="0 0 8 8" style="flex-shrink:0;margin-top:1px"><circle cx="4" cy="4" r="3" fill="#252220" stroke="#6a6560" stroke-width="1"/></svg>')
       : '';
     const oppId = m.p1===me.id ? m.p2 : m.p1;
-    return `<div class="hrow" onclick="openProfile('${oppId}', 'home')" style="cursor:pointer">
+    return `<div class="hrow-wrap" data-opp="${oppId}">
+      <div class="hrow-reveal"><span class="hrow-reveal-label">Sfida</span></div>
+      <div class="hrow" onclick="openProfile('${oppId}', 'home')" style="cursor:pointer">
       <div class="hrow-left">
         <div class="hrow-opp">${colorDot}${opp?.nickname||"?"}</div>
         <div class="hrow-meta">
@@ -1293,8 +1298,90 @@ function renderHome() {
         <div class="hrow-result ${resultClass}">${resultLabel}</div>
         <div class="hrow-elo">${eloStr}</div>
       </div>
-    </div>`;
+    </div></div>`;
   }).join("");
+  // aggancia swipe una volta sola sul container
+  const hist = $("home-history");
+  if(!hist._swipeInit) { hist._swipeInit = true; initHrowSwipe(hist); }
+}
+
+// ── Swipe-to-challenge su hrow ──
+function initHrowSwipe(container) {
+  container.addEventListener('touchstart', onSwipeStart, {passive: true});
+  container.addEventListener('touchmove', onSwipeMove, {passive: false});
+  container.addEventListener('touchend', onSwipeEnd, {passive: true});
+}
+
+let _sw = null; // stato swipe attivo
+
+function onSwipeStart(e) {
+  const wrap = e.target.closest('.hrow-wrap');
+  if(!wrap) return;
+  const t = e.touches[0];
+  _sw = {
+    wrap,
+    hrow: wrap.querySelector('.hrow'),
+    reveal: wrap.querySelector('.hrow-reveal'),
+    startX: t.clientX,
+    startY: t.clientY,
+    locked: null, // 'swipe' | 'scroll' | null
+    lastX: t.clientX,
+    lastT: Date.now(),
+    vx: 0
+  };
+}
+
+function onSwipeMove(e) {
+  if(!_sw) return;
+  const t = e.touches[0];
+  const dx = _sw.startX - t.clientX; // positivo = swipe sinistra
+  const dy = Math.abs(t.clientY - _sw.startY);
+
+  // determina direzione al primo movimento significativo
+  if(!_sw.locked) {
+    if(Math.abs(dx) < 4 && dy < 4) return;
+    _sw.locked = dy > Math.abs(dx) ? 'scroll' : 'swipe';
+  }
+  if(_sw.locked === 'scroll') return;
+
+  e.preventDefault();
+
+  // velocità istantanea (px/ms)
+  const now = Date.now();
+  const dt = now - _sw.lastT || 1;
+  _sw.vx = (_sw.startX - t.clientX - (_sw.startX - _sw.lastX)) / dt;
+  _sw.lastX = t.clientX;
+  _sw.lastT = now;
+
+  // clamp: solo sinistra, max 72px
+  const offset = Math.max(0, Math.min(72, dx));
+  _sw.hrow.style.transition = 'none';
+  _sw.hrow.style.transform = `translateX(-${offset}px)`;
+  _sw.reveal.style.opacity = Math.min(1, offset / 48);
+}
+
+function onSwipeEnd(e) {
+  if(!_sw || _sw.locked !== 'swipe') { _sw = null; return; }
+  const {wrap, hrow, reveal} = _sw;
+  const oppId = wrap.dataset.opp;
+
+  const dx = _sw.startX - _sw.lastX;
+  const vx = _sw.vx; // px/ms al momento del rilascio
+
+  // scatta se: spostamento > 52px OPPURE velocità > 0.4px/ms con dx > 20px
+  const triggered = dx > 52 || (vx > 0.4 && dx > 20);
+
+  // spring-back con transizione
+  hrow.style.transition = 'transform .35s cubic-bezier(.25,1,.5,1)';
+  hrow.style.transform = 'translateX(0)';
+  reveal.style.opacity = '0';
+
+  if(triggered) {
+    // piccolo delay visivo prima di aprire lo sheet
+    setTimeout(() => openColorSheet(oppId), 120);
+  }
+
+  _sw = null;
 }
 
 $("btn-newmatch").onclick = () => {
