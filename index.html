@@ -1371,20 +1371,25 @@ function onSwipeEnd(e) {
   const vx = _sw.vx;
   const triggered = dx > 52 || (vx > 0.4 && dx > 20);
 
-  // spring-back sempre
+  // spring-back hrow sempre
   hrow.style.transition = 'transform .35s cubic-bezier(.25,1,.5,1)';
   hrow.style.transform = 'translateX(0)';
+  // reveal: blocca transizione durante valutazione guard
+  reveal.style.transition = 'none';
 
   if(triggered) {
-    // ── Guard 1: ho una partita/sfida in corso ──
+    // ── Guard: io occupato ──
     const hs = window._homeState || {};
-    const isBusy = (hs.allActive||[]).length > 0 || (hs.incomingChallenges||[]).length > 0 || (hs.sentChallenges||[]).length > 0;
-    // ── Guard 2: avversario offline o in partita ──
+    const isBusy = (hs.allActive||[]).length > 0
+                || (hs.incomingChallenges||[]).length > 0
+                || (hs.sentChallenges||[]).length > 0;
+    // ── Guard: avversario ──
     const opp = getP(oppId);
-    const oppOnline = opp && opp.last_seen_at && (Date.now() - new Date(opp.last_seen_at).getTime()) < ONLINE_MS;
-    const oppBusy = opp && opp.is_playing;
+    const oppOnline = opp?.last_seen_at && (Date.now() - new Date(opp.last_seen_at).getTime()) < ONLINE_MS;
+    const oppBusy = opp?.is_playing;
 
     const label = reveal.querySelector('.hrow-reveal-label');
+
     if(isBusy) {
       _showRevealError(reveal, label, 'Non disponibile');
     } else if(!oppOnline) {
@@ -1392,6 +1397,7 @@ function onSwipeEnd(e) {
     } else if(oppBusy) {
       _showRevealError(reveal, label, 'In partita');
     } else {
+      // tutto ok — nascondi reveal e apri sheet
       reveal.style.opacity = '0';
       setTimeout(() => openColorSheet(oppId), 120);
     }
@@ -1403,14 +1409,14 @@ function onSwipeEnd(e) {
 }
 
 function _showRevealError(reveal, label, text) {
-  // feedback inline: testo errore, colore neutro, poi sparisce
+  // testo già visibile dal move — aggiorna label e tieni visibile
   label.textContent = text;
   reveal.style.opacity = '1';
-  reveal.style.transition = 'opacity .2s';
   setTimeout(() => {
+    reveal.style.transition = 'opacity .25s';
     reveal.style.opacity = '0';
-    setTimeout(() => { label.textContent = 'Sfida'; }, 300);
-  }, 600);
+    setTimeout(() => { label.textContent = 'Sfida'; reveal.style.transition = ''; }, 280);
+  }, 700);
 }
 
 $("btn-newmatch").onclick = () => {
