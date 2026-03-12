@@ -165,7 +165,7 @@ body.sheet-open #sa-cover{background:#000000}
 .acard-cta{
   width:96px;min-width:96px;
   display:flex;align-items:center;justify-content:center;
-  padding:10px 14px 10px 8px;
+  padding:10px 16px 10px 8px;
   flex-shrink:0;
 }
 .acard-btn{
@@ -182,7 +182,7 @@ body.sheet-open #sa-cover{background:#000000}
 }
 .acard-btn:active{opacity:.75;transform:scale(.97)}
 .acard-btn.primary{background:#e8e6e3;color:#161512}
-.acard-btn.danger{background:#2a1010;color:#e87070}
+.acard-btn.danger{background:#2a1010;color:#e87070;border:1px solid #3a1515}
 .acard-btn.muted{
   background:transparent;color:#3a3630;
   font-weight:400;font-size:12px;
@@ -430,10 +430,10 @@ body.sheet-open #sa-cover{background:#000000}
 .rsheet-btns{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
 .rsheet-btn{width:100%;padding:16px 20px;border-radius:12px;font-size:16px;font-weight:700;text-align:left;cursor:pointer;transition:opacity .15s,transform .1s;border:none;font-family:inherit;letter-spacing:-.2px}
 .rsheet-btn:active{opacity:.8;transform:scale(.99)}
-.rsheet-btn.win{background:#2a2724;color:#e8e6e3;border:1px solid #333}
+.rsheet-btn.win{background:#2a2724;color:#e8e6e3;border:1px solid #3a3630}
 /* STEP 1: draw — colore neutro #6a6560, mai rosso */
-.rsheet-btn.draw{background:#2a2724;color:#6a6560;border:1px solid #333}
-.rsheet-btn.loss{background:#2a2724;color:#e8e6e3;border:1px solid #333}
+.rsheet-btn.draw{background:#2a2724;color:#6a6560;border:1px solid #3a3630}
+.rsheet-btn.loss{background:#2a2724;color:#e8e6e3;border:1px solid #3a3630}
 .rsheet-cancel{width:100%;background:transparent;border:none;color:#4a4642;font-size:15px;font-weight:500;padding:14px;cursor:pointer;font-family:inherit;transition:opacity .15s}
 .rsheet-cancel:active{opacity:.5}
 .btn-result{width:100%;background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:15px 18px;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .2s cubic-bezier(.34,1.56,.64,1);text-align:left;display:flex;align-items:center;justify-content:space-between}
@@ -1984,10 +1984,10 @@ function renderSearch() {
     const isBusy = isPlayerBusy(p.id); // funzione unificata
     const dot = isOnline
       ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3d6b1a;margin-right:4px;vertical-align:middle"></span>`
-      : `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3d3a35;margin-right:4px;vertical-align:middle"></span>`;
+      : `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#2a2724;margin-right:4px;vertical-align:middle"></span>`;
     const statusLabel = isBusy
       ? `<span style="font-size:11px;color:#6a6560">in partita</span>`
-      : !isOnline ? `<span style="font-size:11px;color:#3d3a35">offline</span>` : '';
+      : !isOnline ? `<span style="font-size:11px;color:#2a2724">offline</span>` : '';
     const canChallenge = isOnline && !isBusy;
     return `<div class="prow" onclick="openProfile('${p.id}', 'search')" style="cursor:pointer">
       <div style="flex:1;min-width:0">
@@ -2446,7 +2446,7 @@ function drawEloChart(eloH, currentElo) {
             label: ctx => `ELO ${ctx.parsed.y}`
           },
           backgroundColor: '#1d1a16',
-          borderColor: '#3d3a35',
+          borderColor: '#2a2724',
           borderWidth: 1,
           titleColor: '#6a6560',
           titleFont: { size: 11 },
