@@ -295,71 +295,65 @@ body.sheet-open #sa-cover{background:#000000}
 .card-live-vs{font-size:18px;font-weight:700;color:#e8e6e3;margin-bottom:10px;letter-spacing:-.2px}
 
 /* ── Context strip — stato corrente, fisso tra CAB e storico ── */
-.ctx-strip{
-  /* Nessun margin orizzontale — righe full-width con padding interno */
-  /* Nessun border/background esterno — le righe si gestiscono da sole */
-}
+.ctx-strip{ }
 .ctx-strip:empty{ display:none }
+
+/* Separatore sopra la strip quando non vuota */
+.ctx-strip:not(:empty){
+  border-top:1px solid #252220;
+  margin-bottom:4px;
+}
 
 .ctx-row{
   display:flex;align-items:center;
-  padding:9px 20px;
+  padding:10px 20px;
   gap:10px;
   position:relative;
   overflow:hidden;
-  /* Separatore minimalista solo tra righe, non sopra/sotto */
 }
 .ctx-row + .ctx-row{
-  border-top:1px solid #1a1714;
+  border-top:1px solid #1e1c18;
 }
 
-/* Progress bar countdown — 2px, visibile ma non invasiva */
+/* Progress bar countdown */
 .ctx-progress{
   position:absolute;bottom:0;left:0;
   height:2px;
-  background:#252220;
+  background:#2a2724;
   transition:width 1s linear;
   pointer-events:none;
 }
-.ctx-progress.urgent{background:rgba(195,51,51,.5)}
-.ctx-progress.active{background:rgba(98,153,36,.3)}
+.ctx-progress.urgent{background:rgba(195,51,51,.6)}
+.ctx-progress.active{background:rgba(98,153,36,.35)}
 
 /* Dot stato */
 .ctx-dot{
   width:6px;height:6px;border-radius:50%;flex-shrink:0;
 }
-.ctx-dot.live{background:#2a2724;animation:none}
-.ctx-dot.waiting{background:#252220;animation:none}
-.ctx-dot.submitted{background:#4a7c20;animation:none}
+.ctx-dot.live{background:#3a3630;animation:none}
+.ctx-dot.waiting{background:#3a3630;animation:none}
+.ctx-dot.submitted{background:#629924;animation:none}
 .ctx-dot.disputed{background:#c33;animation:pulse 1.5s ease-in-out infinite}
-.ctx-dot.sent{background:#252220;animation:none}
+.ctx-dot.sent{background:#3a3630;animation:none}
 
-/* Nome — protagonista */
+/* Nome */
 .ctx-name{
-  font-size:13px;font-weight:600;color:#5a5754;
+  font-size:13px;font-weight:600;color:#9a9690;
   flex:1;min-width:0;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   letter-spacing:-.1px;
 }
 
-/* Status — secondario, destra */
+/* Status */
 .ctx-status{
-  font-size:11px;font-weight:400;flex-shrink:0;
+  font-size:11px;font-weight:500;flex-shrink:0;
   white-space:nowrap;
-  letter-spacing:0;
 }
-.ctx-status.live{color:#2a2724}
-.ctx-status.submitted{color:#4a7c20}
-.ctx-status.disputed{color:rgba(195,51,51,.8)}
-.ctx-status.waiting{color:#252220}
-.ctx-status.sent{color:#252220}
-
-/* Separatore sopra il label Recenti — solo quando strip non vuota */
-#home-state-bar:not(:empty) + .home-top + #home-scroll .slabel:first-child,
-#home-ctx-strip:not(:empty){
-  border-bottom:1px solid #1a1714;
-}
-
+.ctx-status.live{color:#4a4642}
+.ctx-status.submitted{color:#629924}
+.ctx-status.disputed{color:#e87070}
+.ctx-status.waiting{color:#4a4642}
+.ctx-status.sent{color:#3a3630}
 
 /* ── Live Strip placeholder — scroll orizzontale, 1 riga ── */
 .live-strip-wrap{
@@ -1164,26 +1158,28 @@ function updateCountdowns() {
   if(!me) return;
   let anyExpired = false;
   matches.forEach(m => {
-    // Progress bar sfide ricevute (card-challenge inline — ormai solo nello sheet)
     if(m.status === 'pending_challenge') {
       const elapsed = Date.now() - new Date(m.created_at).getTime();
       const remaining = CHALLENGE_EXPIRE_MS - elapsed;
       const pct = Math.max(0, Math.min(100, (remaining / CHALLENGE_EXPIRE_MS) * 100));
       const urgent = pct < 20;
-      // challenge card inline (se ancora presente)
+      // progress bar inline card-challenge legacy
       const bar = document.getElementById('prog-' + m.id);
       if(bar) {
         bar.style.width = pct + '%';
         bar.className = 'card-challenge-progress' + (urgent ? ' urgent' : '');
       }
-      // card-sent progress bar
+      // progress bar ctx-strip sfida inviata
       const pendBar = document.getElementById('pend-prog-' + m.id);
-      if(pendBar) {
-        pendBar.style.width = pct + '%';
+      if(pendBar) pendBar.style.width = pct + '%';
+      // progress bar CAB incoming
+      const cabTimer = document.getElementById('cab-timer-bar');
+      if(cabTimer) {
+        cabTimer.style.width = pct + '%';
+        cabTimer.style.background = urgent ? 'rgba(195,51,51,.7)' : 'rgba(22,21,18,.35)';
       }
       if(remaining <= 0) anyExpired = true;
     }
-    // Progress bar ctx-strip (partite attive) — aggiornamento 1s
     if(m.status === 'active') {
       const ctxBar = document.getElementById('ctx-prog-' + m.id);
       if(ctxBar) {
@@ -1544,13 +1540,21 @@ function _swipeOffset(rawDx) {
 
 function _evalGuards(oppId) {
   const hs = window._homeState || {};
+
+  // Io sono occupato se ho partite live o in dispute o sfide pending
+  // Le partite "waiting" (ho già inserito) NON bloccano — posso sfidare altri
   const isBusy = (hs.liveCards||[]).length > 0
               || (hs.disputedCards||[]).length > 0
               || (hs.incomingChallenges||[]).length > 0
               || (hs.sentChallenges||[]).length > 0;
+
   const opp = getP(oppId);
   const oppOnline = opp?.last_seen_at && (Date.now() - new Date(opp.last_seen_at).getTime()) < ONLINE_MS;
-  const oppBusy = matches.some(m => m.status === 'active' && (m.p1 === oppId || m.p2 === oppId));
+
+  // L'avversario è occupato solo se non ha ancora inserito il risultato
+  // (usa funzione unificata — coerente con renderCABSearch)
+  const oppBusy = isPlayerBusy(oppId);
+
   if(!isBusy && oppOnline && !oppBusy) return { ok: true, label: 'Gioca' };
   const msg = isBusy ? 'Non ora' : !oppOnline ? 'Offline' : 'In partita';
   return { ok: false, label: msg };
@@ -1702,6 +1706,19 @@ function updateCAB() {
       label.textContent = incomingChal.length + ' sfide in arrivo →';
       bar.onclick = () => openChallengeSheet(incomingChal[0].id);
     }
+    // Progress bar timer sulla CAB — scorre sul fondo della barra
+    const elapsed = Date.now() - new Date(m.created_at).getTime();
+    const pct = Math.max(0, Math.min(100, ((CHALLENGE_EXPIRE_MS - elapsed) / CHALLENGE_EXPIRE_MS) * 100));
+    const urgent = pct < 20;
+    let cabTimer = document.getElementById('cab-timer-bar');
+    if(!cabTimer) {
+      cabTimer = document.createElement('div');
+      cabTimer.id = 'cab-timer-bar';
+      cabTimer.style.cssText = 'position:absolute;bottom:0;left:0;height:2px;border-radius:0 0 16px 16px;transition:width 1s linear;pointer-events:none;';
+      bar.appendChild(cabTimer);
+    }
+    cabTimer.style.width = pct + '%';
+    cabTimer.style.background = urgent ? 'rgba(195,51,51,.7)' : 'rgba(22,21,18,.35)';
 
   } else if(sentChal.length > 0) {
     // WAITING — pill sottile, spento, nessun pulse
@@ -1723,6 +1740,9 @@ function _setCABState(state, bar, label, labelSub, icon, arrow) {
   bar.className = 'cab-bar';
   labelSub.classList.add('hidden');
   labelSub.textContent = '';
+  // Rimuovi timer bar se presente (usata solo in stato incoming)
+  const existingTimer = document.getElementById('cab-timer-bar');
+  if(existingTimer && state !== 'incoming') existingTimer.remove();
 
   if(state === 'idle') {
     bar.classList.add('cab-idle');
@@ -1809,12 +1829,6 @@ function openChallengeSheet(matchId) {
   } else {
     $('csheet-color-wrap').style.display = 'none';
   }
-  // progress bar
-  const totalMs = CHALLENGE_EXPIRE_MS;
-  const elapsed = Date.now() - new Date(m.created_at).getTime();
-  const pct = Math.max(0, Math.min(100, ((totalMs - elapsed) / totalMs) * 100));
-  $('csheet-progress').style.width = pct + '%';
-  $('csheet-progress').style.background = pct < 20 ? '#c33' : '#629924';
 
   const overlay = $('challenge-sheet-overlay');
   overlay.style.display = 'flex';
@@ -1896,11 +1910,8 @@ function renderCABSearch() {
   const now = Date.now();
   results.innerHTML = filtered.map(p => {
     const isOnline = p.last_seen_at && (now - new Date(p.last_seen_at).getTime()) < ONLINE_MS;
-    const isBusy = matches.some(m =>
-      m.status === 'active' && !m.tournament_id &&
-      (m.p1===p.id||m.p2===p.id) &&
-      ((m.p1===p.id && !m.result_p1) || (m.p2===p.id && !m.result_p2))
-    );
+    // usa funzione unificata — coerente con _evalGuards e swipe
+    const isBusy = isPlayerBusy(p.id);
     const onlineDot = `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${isOnline?'#4a7c1f':'#2f2b27'};flex-shrink:0;margin-top:1px"></span>`;
     const statusLabel = isBusy ? 'in partita' : !isOnline ? 'offline' : '';
     const canChallenge = isOnline && !isBusy;
@@ -2002,11 +2013,7 @@ function renderSearch() {
   const now = Date.now();
   $("search-results").innerHTML = filtered.map(p => {
     const isOnline = p.last_seen_at && (now - new Date(p.last_seen_at).getTime()) < ONLINE_MS;
-    const isBusy = matches.some(m =>
-      m.status === 'active' && !m.tournament_id &&
-      (m.p1===p.id||m.p2===p.id) &&
-      ((m.p1===p.id && !m.result_p1) || (m.p2===p.id && !m.result_p2))
-    );
+    const isBusy = isPlayerBusy(p.id); // funzione unificata
     const dot = isOnline
       ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4a7c1f;margin-right:4px;vertical-align:middle"></span>`
       : `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3d3a35;margin-right:4px;vertical-align:middle"></span>`;
@@ -2051,14 +2058,39 @@ async function cancelChallenge(matchId) {
 const CHALLENGE_EXPIRE_MS = 2 * 60 * 1000;
 const MATCH_EXPIRE_MS = 2 * 60 * 1000;
 
+// ── Funzione unificata: un giocatore è "occupato" se ha una partita attiva
+// dove non ha ancora inserito il risultato.
+// Una partita dove entrambi hanno già inserito NON blocca nuove sfide.
+function isPlayerBusy(playerId) {
+  return matches.some(m => {
+    if(m.status !== 'active') return false;
+    if(m.tournament_id) return false;
+    const isP1 = m.p1 === playerId;
+    const isP2 = m.p2 === playerId;
+    if(!isP1 && !isP2) return false;
+    // Considera "occupato" solo se non ha ancora inserito il risultato
+    const myRes = isP1 ? m.result_p1 : m.result_p2;
+    return !myRes;
+  });
+}
+
 async function cleanupExpired() {
   if(!me) return;
   const now = Date.now();
   const before = matches.length;
+
   const expiredChallenges = matches.filter(m => {
     if(m.status !== 'pending_challenge') return false;
     return (now - new Date(m.created_at).getTime()) > CHALLENGE_EXPIRE_MS;
   });
+
+  // Partite active scadute — nessuno ha inserito entro il timeout
+  const expiredMatches = matches.filter(m => {
+    if(m.status !== 'active') return false;
+    const ageFromUpdate = now - new Date(m.updated_at || m.created_at).getTime();
+    return ageFromUpdate > MATCH_EXPIRE_MS;
+  });
+
   matches = matches.filter(m => {
     const age = now - new Date(m.created_at).getTime();
     if(m.status === 'pending_challenge') return age <= CHALLENGE_EXPIRE_MS;
@@ -2068,9 +2100,16 @@ async function cleanupExpired() {
     }
     return true;
   });
+
+  // Patcha DB per sfide scadute
   for(const m of expiredChallenges) {
     db.patch("matches", `id=eq.${m.id}`, {status: "done", result: "cancelled"}).catch(() => {});
   }
+  // Patcha DB per partite active scadute — libera entrambi i giocatori
+  for(const m of expiredMatches) {
+    db.patch("matches", `id=eq.${m.id}`, {status: "done", result: "cancelled"}).catch(() => {});
+  }
+
   if(matches.length !== before) renderHome();
 }
 
@@ -2593,25 +2632,18 @@ $('home-scroll').addEventListener('scroll', () => {
 
 <!-- ACTION SHEET SFIDA RICEVUTA -->
 <div class="asheet-overlay" id="challenge-sheet-overlay" onclick="closeChallengeSheet()">
-  <div class="asheet" onclick="event.stopPropagation()" style="padding:20px 20px 32px">
-
-    <!-- Timer — tutto in cima, prima di tutto il resto -->
-    <div style="margin-bottom:20px">
-      <div style="height:2px;background:#252220;border-radius:2px;overflow:hidden">
-        <div id="csheet-progress" style="height:100%;background:#629924;transition:width 1s linear;border-radius:2px"></div>
-      </div>
-    </div>
+  <div class="asheet" onclick="event.stopPropagation()" style="padding:24px 20px 36px">
 
     <!-- Chi sfida -->
     <div style="margin-bottom:24px">
-      <div style="font-size:11px;color:#3a3630;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px">Sfida ricevuta</div>
-      <div id="csheet-name" style="font-size:32px;font-weight:800;color:#e8e6e3;letter-spacing:-.8px;line-height:1;margin-bottom:4px"></div>
-      <div id="csheet-elo" style="font-size:13px;color:#3a3630;font-weight:500"></div>
+      <div style="font-size:11px;color:#3a3630;letter-spacing:.8px;text-transform:uppercase;margin-bottom:12px">Sfida ricevuta</div>
+      <div id="csheet-name" style="font-size:36px;font-weight:800;color:#e8e6e3;letter-spacing:-1px;line-height:1;margin-bottom:4px"></div>
+      <div id="csheet-elo" style="font-size:13px;color:#4a4642;font-weight:500"></div>
     </div>
 
     <!-- Colore assegnato — solo se disponibile -->
     <div id="csheet-color-wrap" style="display:none;align-items:center;gap:8px;margin-bottom:24px">
-      <div id="csheet-color-dot" style="width:12px;height:12px;border-radius:50%;flex-shrink:0"></div>
+      <div id="csheet-color-dot" style="width:10px;height:10px;border-radius:50%;flex-shrink:0"></div>
       <div id="csheet-color" style="font-size:13px;color:#5a5754;font-weight:500"></div>
     </div>
 
