@@ -99,56 +99,170 @@ body.sheet-open #sa-cover{background:#000000}
 .home-hero-delta.down{color:#c33}
 
 /* ── Home active section ── */
-#home-active{flex-shrink:0;padding:0 10px}
+#home-active{flex-shrink:0;padding:0 16px}
 #home-active:empty{display:none}
-.home-active-label{font-size:10px;font-weight:600;color:#4a4642;text-transform:uppercase;letter-spacing:1.4px;padding:8px 6px 4px}
-/* Active card — partita/sfida in corso che richiede attenzione */
+.home-active-label{font-size:10px;font-weight:600;color:#3a3630;text-transform:uppercase;letter-spacing:1.4px;padding:10px 0 6px}
+
+/* ── Sistema card attive — geometria rigida condivisa da tutti gli stati ──
+   Altezza minima fissa: 64px. Tutti gli stati usano questa struttura:
+   [accent 3px] [body flex] [cta-wrap 96px fisso]
+   L'unica variante è il contenuto, non la geometria.
+*/
 .acard{
   background:#1d1a16;
-  border:0.5px solid #2e2b27;
+  border:0.5px solid #2a2724;
   border-radius:14px;
-  padding:0;
+  min-height:64px;
   margin-bottom:6px;
   display:flex;align-items:stretch;
   overflow:hidden;
-  position:relative;
+  -webkit-tap-highlight-color:transparent;
 }
-.acard-accent{width:3px;flex-shrink:0}
-.acard-accent.live{background:#629924}
-.acard-accent.dispute{background:#c33}
-.acard-accent.waiting{background:#2e2b27}
-.acard-accent.incoming{background:#629924}
-.acard-accent.sent{background:#2e2b27}
-.acard-body{flex:1;min-width:0;padding:13px 12px 13px 10px;display:flex;align-items:center;gap:10px}
-.acard-left{flex:1;min-width:0}
-.acard-name{font-size:15px;font-weight:600;color:#e8e6e3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.acard-name .acard-elo{font-size:11px;font-weight:400;color:#3a3630;margin-left:5px}
-.acard-status{font-size:12px;color:#4a4642;margin-top:2px}
-.acard-status.dispute{color:#c33}
-.acard-status.waiting{color:#3a3630}
-.acard-status.sent{color:#3a3630}
-/* CTA button inline nella card — grande, facile da toccare */
-.acard-btn{
+.acard.acard-passive{
+  background:#191613;
+  border-color:#211e1a;
+}
+/* Accent bar — 3px, colore per stato */
+.acard-accent{width:3px;min-width:3px;flex-shrink:0;background:#252220}
+.acard-accent.green{background:#629924}
+.acard-accent.red{background:#c33}
+
+/* Body — flex, prende tutto lo spazio */
+.acard-body{
+  flex:1;min-width:0;
+  padding:0 0 0 12px;
+  display:flex;flex-direction:column;justify-content:center;
+  gap:3px;
+}
+.acard-name{
+  font-size:15px;font-weight:600;color:#e8e6e3;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  line-height:1.2;
+}
+.acard.acard-passive .acard-name{color:#3a3630;font-weight:500}
+.acard-elo{font-size:11px;font-weight:400;color:#2e2b27;margin-left:4px}
+.acard-status{font-size:12px;color:#4a4642;line-height:1.2}
+.acard-status.red{color:#c33}
+.acard.acard-passive .acard-status{color:#2a2724}
+
+/* Riga colore — solo card incoming */
+.acard-colors{
+  display:flex;align-items:center;gap:10px;
+  margin-top:1px;
+}
+.acard-color-player{
+  display:flex;align-items:center;gap:4px;
+  font-size:11px;font-weight:500;color:#4a4642;
+}
+.cdot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+}
+.cdot.w{background:#c8c4be;box-shadow:inset 0 0 0 1px #6a6560}
+.cdot.b{background:#252220;box-shadow:inset 0 0 0 1px #3a3630}
+
+/* CTA wrap — larghezza fissa 96px, allineamento centrato */
+.acard-cta{
+  width:96px;min-width:96px;
+  display:flex;align-items:center;justify-content:center;
+  padding:10px 12px 10px 6px;
   flex-shrink:0;
-  height:100%;
-  min-width:88px;
-  border:none;border-radius:0 14px 14px 0;
+}
+.acard-btn{
+  border:none;border-radius:10px;
   font-size:13px;font-weight:700;
-  cursor:pointer;transition:opacity .15s;
-  font-family:inherit;padding:0 16px;
+  cursor:pointer;
+  transition:opacity .12s,transform .1s;
+  font-family:inherit;
+  padding:8px 14px;
   letter-spacing:-.1px;
   white-space:nowrap;
+  width:100%;text-align:center;
+  -webkit-tap-highlight-color:transparent;
 }
-.acard-btn:active{opacity:.75}
+.acard-btn:active{opacity:.75;transform:scale(.97)}
 .acard-btn.primary{background:#e8e6e3;color:#161512}
-.acard-btn.dispute{background:#2a1010;color:#e87070}
-.acard-btn.passive{background:transparent;color:#3a3630;font-weight:500;font-size:12px;cursor:default}
-/* Sezione storico label */
-#home-history-label{font-size:10px;font-weight:600;color:#4a4642;text-transform:uppercase;letter-spacing:1.4px;padding:6px 16px 4px;flex-shrink:0}
+.acard-btn.danger{background:#2a1010;color:#e87070}
+.acard-btn.muted{
+  background:transparent;color:#2e2b27;
+  font-weight:500;font-size:11px;
+  cursor:default;
+}
+.acard-btn.muted:active{opacity:1;transform:none}
+
+/* Card incoming — due bottoni in fondo, stessa larghezza totale */
+.acard-incoming-btns{
+  display:flex;
+  border-top:0.5px solid #252220;
+  flex-shrink:0;
+}
+.acard-accept{
+  flex:1;padding:13px 0;
+  font-size:14px;font-weight:700;
+  background:#e8e6e3;color:#161512;
+  border:none;border-radius:0 0 0 14px;
+  cursor:pointer;font-family:inherit;
+  letter-spacing:-.2px;
+  transition:opacity .12s;
+  -webkit-tap-highlight-color:transparent;
+}
+.acard-accept:active{opacity:.75}
+.acard-decline{
+  padding:13px 18px;
+  font-size:12px;font-weight:500;
+  background:transparent;color:#3a3630;
+  border:none;border-left:0.5px solid #252220;
+  border-radius:0 0 14px 0;
+  cursor:pointer;font-family:inherit;
+  transition:opacity .12s;
+  -webkit-tap-highlight-color:transparent;
+}
+.acard-decline:active{color:#6a6560}
+
+/* Progress bar countdown nelle acard (incoming/sent) */
+.acard-progress-wrap{
+  height:2px;background:#252220;flex-shrink:0;
+  margin:0;width:100%;
+}
+.acard-progress{
+  height:100%;background:#629924;
+  transition:width 1s linear;
+  border-radius:0;
+}
+.acard-progress.urgent{background:#c33}
+
+/* Storico — label ripristinata */
+#home-history-label{
+  font-size:10px;font-weight:600;color:#3a3630;
+  text-transform:uppercase;letter-spacing:1.4px;
+  padding:8px 0 5px;flex-shrink:0;
+}
 #home-history-label:empty{display:none}
 
+/* Storico collassato — riga singola cliccabile */
+#home-history-collapsed{
+  display:none;
+  align-items:center;justify-content:space-between;
+  padding:12px 0;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+#home-history-collapsed.visible{display:flex}
+#home-history-collapsed span{font-size:13px;color:#3a3630;font-weight:500}
+#home-history-collapsed .hcoll-arrow{font-size:13px;color:#2e2b27}
+
+/* Storico espanso — animazione collasso */
+#home-history-list{
+  overflow:hidden;
+  transition:max-height .3s ease-out, opacity .3s ease-out;
+}
+#home-history-list.collapsed{
+  max-height:0!important;
+  opacity:0;
+  pointer-events:none;
+}
+
 /* STEP 2: CAB è inline — padding bottom solo per navbar */
-#home-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px calc(80px + env(safe-area-inset-bottom,0px))}
+#home-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:4px 16px calc(80px + env(safe-area-inset-bottom,0px))}
 #home-scroll::-webkit-scrollbar{display:none}
 
 /* ── STEP 2: Contextual Action Bar — inline sotto l'ELO ── */
@@ -179,15 +293,8 @@ body.sheet-open #sa-cover{background:#000000}
 
 /* Stato IDLE: bianco pieno — CTA primaria */
 .cab-idle{background:#e8e6e3;border:none;}
-.cab-idle .cab-label{color:#161512;font-size:16px;font-weight:700;letter-spacing:-.2px}
-.cab-idle .cab-icon{color:#161512;flex-shrink:0}
-/* Icona cerchio + nella CAB — solo in idle */
-.cab-icon{
-  width:22px;height:22px;border-radius:50%;
-  background:#161512;
-  display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;
-}
+.cab-idle .cab-label{color:#161512;font-size:16px;font-weight:700;letter-spacing:-.3px}
+.cab-icon{display:none!important}
 
 /* Stato WAITING/disabled: muted, non tappabile */
 .cab-waiting{
@@ -308,6 +415,11 @@ body.sheet-open #sa-cover{background:#000000}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 @keyframes cardEnter{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 .card-enter{animation:cardEnter .35s cubic-bezier(.2,0,.2,1) both}
+
+/* ── Storico — archivio, non UI primaria ── */
+.hrow-wrap{margin-bottom:4px}
+
+
 
 /* Action sheet risultato */
 .rsheet-context{font-size:13px;color:#5a5754;text-align:center;margin-bottom:16px;font-weight:500}
@@ -451,45 +563,34 @@ canvas{width:100%!important;display:block}
 .mcard-elo{font-size:11px;margin-top:2px}
 
 /* ── hrow — storico home ── */
-.hrow-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:6px;background:#1d1a16}
+.hrow-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:3px;background:#181512}
 .hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:0;display:flex;align-items:center;justify-content:center;pointer-events:none;transition:width 0s}
 .hrow-reveal.state-ok{background:#e8e6e3}
 .hrow-reveal.state-err{background:#2a2724}
 .hrow-reveal-label{font-size:15px;font-weight:700;letter-spacing:-.2px;white-space:nowrap}
 .hrow-reveal.state-ok .hrow-reveal-label{color:#161512}
 .hrow-reveal.state-err .hrow-reveal-label{color:#6a6560}
-.hrow{background:#1d1a16;border:1px solid #252220;border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:12px;position:relative;will-change:transform}
-.hrow-accent{width:3px;border-radius:2px;align-self:stretch;flex-shrink:0}
-.hrow-accent.win{background:#629924}
-.hrow-accent.loss{background:#c33}
-/* STEP 1: draw accent coerente con sistema — grigio neutro */
-.hrow-accent.draw{background:#3a3630}
-.hrow-accent.cancelled{background:#2a2826}
+.hrow{background:#181512;border:0.5px solid #1e1c18;border-radius:10px;padding:9px 12px 9px 14px;display:flex;align-items:center;gap:10px;position:relative;will-change:transform}
+/* nessuna accent bar nello storico — il colore è nel dot */
+.hrow-accent{display:none}
 .hrow-left{flex:1;min-width:0}
-.hrow-opp{font-size:14px;color:#e8e6e3;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
-.color-dot{width:8px;height:8px;min-width:8px;min-height:8px;border-radius:50%;flex-shrink:0;display:block}
-.color-dot-white{background:#e8e6e3;box-shadow:0 0 0 1.5px #6a6560}
-.color-dot-black{background:#252220;box-shadow:0 0 0 1.5px #6a6560}
-.hrow-meta{font-size:11px;color:#4a4642;margin-top:2px;display:flex;gap:6px;align-items:center}
-/* STEP 1: colonna destra storico — gerarchia invertita
-   delta ELO = protagonista (15px 700)
-   risultato testuale = secondario (11px 500 #5a5754) */
-.hrow-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
-.hrow-result{font-size:11px;font-weight:500;color:#5a5754}
-/* risultato testuale: rimane colorato ma dimensione ridotta — colore = informazione */
-.hrow-result.win{color:#629924}
-.hrow-result.loss{color:#c33}
-/* STEP 1: draw sempre grigio, mai rosso */
-.hrow-result.draw{color:#6a6560}
-.hrow-result.cancelled{color:#3a3630}
-/* STEP 1: delta ELO protagonista — dimensione aumentata, peso 700 */
-.hrow-elo{font-size:15px;font-weight:700;line-height:1}
-.elo-up{color:#629924}
-.elo-down{color:#c33}
-/* STEP 1: draw delta — sempre grigio neutro, mai colorato come win/loss */
-.elo-draw{color:#6a6560}
-.d-pos{color:#629924;font-size:13px}
-.d-neg{color:#c33;font-size:13px}
+.hrow-opp{font-size:13px;color:#6a6560;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:5px}
+.color-dot{width:7px;height:7px;min-width:7px;min-height:7px;border-radius:50%;flex-shrink:0;display:block}
+.color-dot-white{background:#4a4642;box-shadow:0 0 0 1px #3a3630}
+.color-dot-black{background:#252220;box-shadow:0 0 0 1px #2a2724}
+.hrow-meta{font-size:10px;color:#2e2b27;margin-top:2px;display:flex;gap:5px;align-items:center}
+.hrow-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.hrow-result{font-size:10px;font-weight:500;color:#2e2b27}
+.hrow-result.win{color:#3a5518}
+.hrow-result.loss{color:#5a1a1a}
+.hrow-result.draw{color:#2e2b27}
+.hrow-result.cancelled{color:#252220}
+.hrow-elo{font-size:13px;font-weight:600;line-height:1;color:#4a4642}
+.elo-up{color:#3a5518}
+.elo-down{color:#5a1a1a}
+.elo-draw{color:#2e2b27}
+.d-pos{color:#3a5518;font-size:12px}
+.d-neg{color:#5a1a1a;font-size:12px}
 
 /* ── Long press ── */
 .lp-btn{position:relative;overflow:hidden;cursor:pointer;font-family:inherit;user-select:none}
@@ -577,8 +678,14 @@ canvas{width:100%!important;display:block}
       <div id="home-active"></div>
 
       <div id="home-scroll">
-        <div id="home-history-label"></div>
-        <div id="home-history"></div>
+        <div id="home-history-label">Partite recenti</div>
+        <div id="home-history-collapsed" onclick="toggleHistoryExpand()">
+          <span id="home-history-collapsed-text"></span>
+          <span class="hcoll-arrow">›</span>
+        </div>
+        <div id="home-history-list">
+          <div id="home-history"></div>
+        </div>
       </div>
     </div>
 
@@ -1072,6 +1179,17 @@ async function fetchAll() {
 
 function updateCountdowns() {
   if(!me) return;
+  const now = Date.now();
+  // Aggiorna barre progress sulle acard (incoming/sent)
+  document.querySelectorAll('.acard[data-expire]').forEach(card => {
+    const expire = parseInt(card.dataset.expire);
+    const pct = Math.max(0, Math.min(100, ((expire - now) / CHALLENGE_EXPIRE_MS) * 100));
+    const bar = card.querySelector('.acard-progress');
+    if(bar) {
+      bar.style.width = pct + '%';
+      pct < 20 ? bar.classList.add('urgent') : bar.classList.remove('urgent');
+    }
+  });
   let anyExpired = false;
   matches.forEach(m => {
     if(m.status === 'pending_challenge') {
@@ -1248,88 +1366,114 @@ function makeCardSent(m) {
 function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
   const container = $('home-active');
   const cards = [];
-
-  // Label sezione — solo se ci sono elementi
-  const total = activeCards.length + sentChallenges.length + incomingChallenges.length;
+  const total = incomingChallenges.length + activeCards.length + sentChallenges.length;
   if(total === 0) { container.innerHTML = ''; return; }
 
   cards.push('<div class="home-active-label">In corso</div>');
 
-  // 1. Sfide incoming — massima priorità, richiedono risposta
+  // Helper — struttura HTML condivisa da tutti gli stati
+  // [accent 3px] [body] [cta 96px]
+  function mkCard(accentClass, name, eloStr, statusHtml, ctaHtml, extra='', passive=false) {
+    const passiveCls = passive ? ' acard-passive' : '';
+    return `<div class="acard${passiveCls} card-enter">
+      <div class="acard-accent ${accentClass}"></div>
+      <div class="acard-body">
+        <div class="acard-name">${name}${eloStr ? `<span class="acard-elo">${eloStr}</span>` : ''}</div>
+        <div class="acard-status ${statusHtml.cls||''}">${statusHtml.text}</div>
+        ${extra}
+      </div>
+      <div class="acard-cta">${ctaHtml}</div>
+    </div>`;
+  }
+
+  // 1. Incoming — seconda riga dot colore + btns accetta/declina in fondo
   incomingChallenges.forEach(m => {
     const opp = getP(m.p1);
     const oppName = opp?.nickname || '?';
-    const eloStr = opp?.elo ? ` <span class="acard-elo">${opp.elo}</span>` : '';
-    cards.push(`<div class="acard card-enter">
-      <div class="acard-accent incoming"></div>
-      <div class="acard-body">
-        <div class="acard-left">
-          <div class="acard-name">${oppName}${eloStr}</div>
-          <div class="acard-status">Ti sfida — accetta o declina</div>
+    const eloStr = opp?.elo ? String(opp.elo) : '';
+    // Riga colore: ○ bianco  ● nero — primo = bianco
+    let colorsRow = '';
+    if(m.white_player_id) {
+      const amIWhite = m.white_player_id === me.id;
+      const p1Name = amIWhite ? (me?.nickname||'tu') : oppName;
+      const p2Name = amIWhite ? oppName : (me?.nickname||'tu');
+      colorsRow = `<div class="acard-colors">
+        <span class="acard-color-player"><span class="cdot w"></span>${p1Name}</span>
+        <span class="acard-color-player"><span class="cdot b"></span>${p2Name}</span>
+      </div>`;
+    }
+    // Calcola countdown
+    const incomingExpire = new Date(m.created_at).getTime() + CHALLENGE_EXPIRE_MS;
+    const incomingPct = Math.max(0, Math.min(100, ((incomingExpire - Date.now()) / CHALLENGE_EXPIRE_MS) * 100));
+    const incomingUrgent = incomingPct < 20;
+    // Card con bottoni accetta/declina in fondo
+    cards.push(`<div class="acard card-enter" style="flex-direction:column" data-expire="${incomingExpire}" data-type="incoming">
+      <div style="display:flex;align-items:stretch;min-height:64px">
+        <div class="acard-accent green"></div>
+        <div class="acard-body">
+          <div class="acard-name">${oppName}${eloStr ? `<span class="acard-elo">${eloStr}</span>` : ''}</div>
+          <div class="acard-status">Ti sfida</div>
+          ${colorsRow}
         </div>
-        <button class="acard-btn primary" onclick="openChallengeSheet('${m.id}')">Rispondi</button>
+        <div class="acard-cta" style="width:0;min-width:0;padding:0"></div>
+      </div>
+      <div class="acard-progress-wrap">
+        <div class="acard-progress${incomingUrgent?' urgent':''}" id="aprog-${m.id}" style="width:${incomingPct}%"></div>
+      </div>
+      <div class="acard-incoming-btns">
+        <button class="acard-accept" onclick="acceptChallenge('${m.id}')">Accetta</button>
+        <button class="acard-decline" onclick="rejectChallenge('${m.id}')">Declina</button>
       </div>
     </div>`);
   });
 
-  // 2. Partite attive
-  activeCards.forEach(({ m, type }) => {
-    const isP1 = m.p1 === me.id;
-    const oppId = isP1 ? m.p2 : m.p1;
+  // 2. Dispute
+  activeCards.filter(c => c.type === 'disputed').forEach(({ m }) => {
+    const oppId = m.p1 === me.id ? m.p2 : m.p1;
     const opp = getP(oppId);
-    const oppName = opp?.nickname || '?';
-    const eloStr = opp?.elo ? ` <span class="acard-elo">${opp.elo}</span>` : '';
-
-    if(type === 'disputed') {
-      cards.push(`<div class="acard card-enter">
-        <div class="acard-accent dispute"></div>
-        <div class="acard-body">
-          <div class="acard-left">
-            <div class="acard-name">${oppName}${eloStr}</div>
-            <div class="acard-status dispute">${oppName} non concorda — reinserisci</div>
-          </div>
-          <button class="acard-btn dispute" onclick="openResultSheet('${m.id}')">Reinserisci</button>
-        </div>
-      </div>`);
-    } else if(type === 'live') {
-      cards.push(`<div class="acard card-enter">
-        <div class="acard-accent live"></div>
-        <div class="acard-body">
-          <div class="acard-left">
-            <div class="acard-name">${oppName}${eloStr}</div>
-            <div class="acard-status">Inserisci il risultato</div>
-          </div>
-          <button class="acard-btn primary" onclick="openResultSheet('${m.id}')">Inserisci</button>
-        </div>
-      </div>`);
-    } else {
-      // waiting — ho già inserito, aspetto l'altro
-      cards.push(`<div class="acard">
-        <div class="acard-accent waiting"></div>
-        <div class="acard-body">
-          <div class="acard-left">
-            <div class="acard-name">${oppName}${eloStr}</div>
-            <div class="acard-status waiting">Hai inserito · aspetta ${oppName}</div>
-          </div>
-          <div class="acard-btn passive">In attesa</div>
-        </div>
-      </div>`);
-    }
+    cards.push(mkCard('red', opp?.nickname||'?', opp?.elo||'',
+      {text:'Non concorda — reinserisci', cls:'red'},
+      `<button class="acard-btn danger" onclick="openResultSheet('${m.id}')">Reinserisci</button>`
+    ));
   });
 
-  // 3. Sfide inviate — passive, in fondo
+  // 3. Live
+  activeCards.filter(c => c.type === 'live').forEach(({ m }) => {
+    const oppId = m.p1 === me.id ? m.p2 : m.p1;
+    const opp = getP(oppId);
+    cards.push(mkCard('green', opp?.nickname||'?', opp?.elo||'',
+      {text:'Inserisci il risultato'},
+      `<button class="acard-btn primary" onclick="openResultSheet('${m.id}')">Inserisci</button>`
+    ));
+  });
+
+  // 4. Waiting — passivo
+  activeCards.filter(c => c.type === 'waiting').forEach(({ m }) => {
+    const oppId = m.p1 === me.id ? m.p2 : m.p1;
+    const opp = getP(oppId);
+    cards.push(mkCard('', opp?.nickname||'?', '',
+      {text:'Aspetta conferma'},
+      `<span class="acard-btn muted">In attesa</span>`,
+      '', true
+    ));
+  });
+
+  // 5. Sent — passivo con countdown
   sentChallenges.forEach(m => {
     const opp = getP(m.p2);
-    const oppName = opp?.nickname || '?';
-    cards.push(`<div class="acard">
-      <div class="acard-accent sent"></div>
+    const sentExpire = new Date(m.created_at).getTime() + CHALLENGE_EXPIRE_MS;
+    const sentPct = Math.max(0, Math.min(100, ((sentExpire - Date.now()) / CHALLENGE_EXPIRE_MS) * 100));
+    const sentUrgent = sentPct < 20;
+    cards.push(`<div class="acard acard-passive card-enter" data-expire="${sentExpire}" data-type="sent">
+      <div class="acard-accent"></div>
       <div class="acard-body">
-        <div class="acard-left">
-          <div class="acard-name">${oppName}</div>
-          <div class="acard-status sent">Sfida inviata · sta decidendo</div>
+        <div class="acard-name">${opp?.nickname||'?'}</div>
+        <div class="acard-status">Sfida inviata</div>
+        <div class="acard-progress-wrap" style="margin-top:4px">
+          <div class="acard-progress${sentUrgent?' urgent':''}" id="aprog-${m.id}" style="width:${sentPct}%"></div>
         </div>
-        <div class="acard-btn passive">Inviata</div>
       </div>
+      <div class="acard-cta"><span class="acard-btn muted">Inviata</span></div>
     </div>`);
   });
 
@@ -1382,12 +1526,14 @@ function renderHome() {
   updateCAB();
 
   // ── Storico ──
-  const hlabel = $("home-history-label");
+  const hasAnythingActive = allActive.length > 0 || incomingChallenges.length > 0 || sentChallenges.length > 0;
   const meaningful = done.filter(m => m.result !== "cancelled");
+
   if(meaningful.length === 0) {
-    if(hlabel) hlabel.textContent = '';
-    const hasActive = allActive.length > 0 || incomingChallenges.length > 0 || sentChallenges.length > 0;
-    $("home-history").innerHTML = hasActive ? '' : `
+    $('home-history-label').style.display = 'none';
+    $('home-history-collapsed').classList.remove('visible');
+    $('home-history-list').classList.remove('collapsed');
+    $("home-history").innerHTML = hasAnythingActive ? '' : `
       <div style="margin-top:32px;text-align:center;padding:0 24px">
         <div style="font-size:32px;margin-bottom:12px;opacity:.3">♟</div>
         <div style="font-size:15px;color:#4a4642;font-weight:600;margin-bottom:6px">Nessuna partita ancora</div>
@@ -1395,7 +1541,28 @@ function renderHome() {
       </div>`;
     return;
   }
-  if(hlabel) hlabel.textContent = 'Storico';
+
+  // Collassa storico se c'è un flusso attivo
+  if(hasAnythingActive) {
+    $('home-history-label').style.display = 'none';
+    const collEl = $('home-history-collapsed');
+    collEl.classList.add('visible');
+    $('home-history-collapsed-text').textContent =
+      meaningful.length === 1 ? '1 partita recente' : `${meaningful.length} partite recenti`;
+    // Collassa lista se non già espansa manualmente
+    const listEl = $('home-history-list');
+    if(!listEl.dataset.manualExpand) {
+      listEl.style.maxHeight = '0';
+      listEl.classList.add('collapsed');
+    }
+  } else {
+    $('home-history-label').style.display = '';
+    $('home-history-collapsed').classList.remove('visible');
+    const listEl = $('home-history-list');
+    listEl.classList.remove('collapsed');
+    listEl.style.maxHeight = '';
+    delete listEl.dataset.manualExpand;
+  }
 
   $("home-history").innerHTML = meaningful.map(m => {
     const opp = getP(m.p1===me.id ? m.p2 : m.p1);
@@ -1586,29 +1753,31 @@ function updateCAB() {
   const icon     = $('cab-icon');
   const arrow    = $('cab-arrow');
 
-  // CAB semplificata: idle (puoi sfidare) | disabled (hai cose da fare prima)
-  // Le active cards gestiscono tutto il dettaglio — la CAB fa una cosa sola.
-
+  // CAB: visibile solo quando puoi effettivamente sfidare qualcuno.
+  // Se hai sent/waiting ma nessuna azione richiesta → CAB nascosta, le card sono la UI.
   const isBusy = isPlayerBusy(me.id);
+  const hasPassiveOnly = !isBusy && (sentChal.length > 0 || (hs.liveCards||[]).length === 0 && (hs.disputedCards||[]).length === 0 && incomingChal.length === 0 && sentChal.length > 0);
 
   if(isBusy) {
     // Disabilitata — hai partite/sfide che richiedono la tua azione
     _setCABState('waiting', bar, label, labelSub, icon, arrow);
-    const pendingCount = liveCards.length + disputedCards.length + incomingChal.length;
-    if(pendingCount === 1) {
-      const allPending = [...liveCards, ...disputedCards];
-      if(incomingChal.length > 0) {
-        label.textContent = 'Rispondi alla sfida prima';
-      } else {
-        const opp = getP(allPending[0].m.p1 === me.id ? allPending[0].m.p2 : allPending[0].m.p1);
-        label.textContent = 'Registra il risultato con ' + (opp?.nickname || '?');
-      }
+    $('cab').style.display = '';
+    if(incomingChal.length > 0) {
+      label.textContent = 'Rispondi alla sfida prima';
+    } else if(liveCards.length + disputedCards.length === 1) {
+      const card = [...liveCards, ...disputedCards][0];
+      const opp = getP(card.m.p1 === me.id ? card.m.p2 : card.m.p1);
+      label.textContent = 'Prima registra con ' + (opp?.nickname || '?');
     } else {
-      label.textContent = 'Registra i risultati prima';
+      label.textContent = 'Prima registra i risultati';
     }
     bar.onclick = null;
+  } else if(sentChal.length > 0 && liveCards.length === 0 && disputedCards.length === 0 && incomingChal.length === 0) {
+    // Solo sfide inviate in attesa di risposta — CAB nascosta, la card è sufficiente
+    $('cab').style.display = 'none';
   } else {
     // IDLE — piatto, tap → search
+    $('cab').style.display = '';
     _setCABState('idle', bar, label, labelSub, icon, arrow);
     label.textContent = 'Sfida qualcuno';
     bar.onclick = onCABTap;
@@ -1626,9 +1795,7 @@ function _setCABState(state, bar, label, labelSub, icon, arrow) {
 
   if(state === 'idle') {
     bar.classList.add('cab-idle');
-    icon.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
-    icon.classList.remove('hidden');
-    arrow.classList.add('hidden');
+    arrow.classList.remove('hidden');
   } else if(state === 'waiting') {
     bar.classList.add('cab-waiting', 'cab-inactive');
     icon.classList.add('hidden');
@@ -1662,6 +1829,23 @@ function closeCABSearch() {
   $('cab-results').classList.remove('open');
   $('page-home').classList.remove('search-open');
   updateCAB();
+}
+
+function toggleHistoryExpand() {
+  const listEl = $('home-history-list');
+  const isCollapsed = listEl.classList.contains('collapsed');
+  if(isCollapsed) {
+    listEl.dataset.manualExpand = '1';
+    listEl.style.maxHeight = listEl.scrollHeight + 'px';
+    listEl.classList.remove('collapsed');
+  } else {
+    delete listEl.dataset.manualExpand;
+    listEl.style.maxHeight = listEl.scrollHeight + 'px';
+    requestAnimationFrame(() => {
+      listEl.style.maxHeight = '0';
+      listEl.classList.add('collapsed');
+    });
+  }
 }
 
 // ── Challenge sheet — sfida ricevuta, accetta/declina ──
