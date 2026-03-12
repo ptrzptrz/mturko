@@ -12,8 +12,8 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"></noscript>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"></noscript>
 <style>
 /* ── Reset & Base ── */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -33,10 +33,10 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 .page{display:none;flex:1;overflow:hidden}
 .page.active{display:flex;flex-direction:column}
 #page-home.active{height:100%}
-#page-profile.active,#page-lb.active,#page-search.active,#page-match.active,#page-tourn.active{overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+#page-profile.active,#page-lb.active,#page-search.active,#page-tourn.active{overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 
 /* ── Topbar ── */
-.topbar{background:#161512;padding:env(safe-area-inset-top,20px) 20px 0;min-height:calc(50px + env(safe-area-inset-top,20px));display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:10000}
+.topbar{background:#161512;padding:env(safe-area-inset-top,20px) 16px 0;min-height:calc(50px + env(safe-area-inset-top,20px));display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:10000}
 body.sheet-open .topbar{background:#000000}
 body.sheet-open #sa-cover{background:#000000}
 .topbar-logout{background:none;border:none;color:#3a3630;font-size:12px;cursor:pointer;padding:4px;transition:color .15s ease}
@@ -95,6 +95,7 @@ body.sheet-open #sa-cover{background:#000000}
 .home-hero-elo{font-size:48px;font-weight:800;color:#e8e6e3;letter-spacing:-2px;line-height:1}
 .home-hero-delta{font-size:15px;font-weight:600;letter-spacing:-.3px}
 .home-hero-delta.up{color:#629924}
+.home-hero-sub{font-size:11px;color:#3a3630;margin-top:1px;min-height:14px}
 /* STEP 1: delta down era #c33 — ora coerente con sistema: rosso solo per perdite, non per draw */
 .home-hero-delta.down{color:#c33}
 
@@ -164,7 +165,7 @@ body.sheet-open #sa-cover{background:#000000}
 .acard-cta{
   width:96px;min-width:96px;
   display:flex;align-items:center;justify-content:center;
-  padding:10px 14px 10px 6px;
+  padding:10px 12px;
   flex-shrink:0;
 }
 .acard-btn{
@@ -248,7 +249,7 @@ body.sheet-open #sa-cover{background:#000000}
 }
 #home-history-collapsed.visible{display:flex}
 #home-history-collapsed span{font-size:12px;color:#3a3630;font-weight:500}
-#home-history-collapsed .hcoll-arrow{font-size:13px;color:#2a2724}
+#home-history-collapsed .hcoll-arrow{font-size:12px;color:#2a2724}
 
 /* Storico espanso — animazione collasso */
 #home-history-list{
@@ -294,20 +295,20 @@ body.sheet-open #sa-cover{background:#000000}
 /* Stato IDLE: surface con bordo — tappabile ma non compete con ELO */
 .cab-idle{
   background:#1d1a16;
-  box-shadow:inset 0 0 0 1.5px #3a3630;
+  box-shadow:inset 0 0 0 2px #4a4642;
 }
-.cab-idle .cab-label{color:#e8e6e3;font-size:16px;font-weight:700;letter-spacing:-.3px}
-.cab-idle .cab-arrow{opacity:.35}
+.cab-idle .cab-label{color:#e8e6e3;font-size:16px;font-weight:800;letter-spacing:-.3px}
+.cab-idle .cab-arrow{opacity:.4}
 .cab-idle:active{opacity:.75;transform:scale(.99)}
 .cab-icon{display:none!important}
 
 /* Stato WAITING/disabled: quasi invisibile — le card comunicano già tutto */
 .cab-waiting{
-  background:#161512;
-  box-shadow:inset 0 0 0 0.5px #252220;
+  background:#1d1a16;
+  box-shadow:inset 0 0 0 0.5px #2a2724;
   cursor:default;animation:none;
 }
-.cab-waiting .cab-label{color:#4a4642;font-size:13px;font-weight:400;letter-spacing:0}
+.cab-waiting .cab-label{color:#6a6560;font-size:13px;font-weight:500;letter-spacing:0}
 .cab-inactive{pointer-events:none}
 
 /* Label container: permette cross-fade tra stati */
@@ -375,9 +376,7 @@ body.sheet-open #sa-cover{background:#000000}
 
 /* Bottone nuova partita legacy — nascosto, tenuto per compatibilità showPage */
 
-
 /* Search inline legacy — non più usata in home-top, tenuta per compatibilità */
-
 
 /* Search aperta — solo lo storico sfuma, state-bar resta visibile */
 #page-home.search-open #home-scroll{
@@ -420,11 +419,11 @@ body.sheet-open #sa-cover{background:#000000}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 @keyframes cardEnter{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 .card-enter{animation:cardEnter .35s cubic-bezier(.2,0,.2,1) both}
+@keyframes swipeHint{0%{transform:translateX(0)}40%{transform:translateX(-9px)}60%{transform:translateX(-9px)}100%{transform:translateX(0)}}
+.hrow-swipe-hint{animation:swipeHint .7s cubic-bezier(.25,0,.25,1) 1.4s both}
 
 /* ── Storico — archivio, non UI primaria ── */
 .hrow-wrap{margin-bottom:4px}
-
-
 
 /* Action sheet risultato */
 .rsheet-context{font-size:13px;color:#6a6560;text-align:center;margin-bottom:16px;font-weight:500}
@@ -446,19 +445,10 @@ body.sheet-open #sa-cover{background:#000000}
 
 /* Card sfida ricevuta */
 
-
-
-
-
-
-
-
 .btn-accept{flex:1;background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:15px 0;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .2s cubic-bezier(.34,1.56,.64,1);font-family:inherit;letter-spacing:-.2px}
 .btn-accept:active{opacity:.8;transform:scale(.96)}
 .btn-decline{background:transparent;color:#6a6560;border:none;padding:15px 14px;font-size:14px;cursor:pointer;transition:opacity .15s;font-family:inherit;white-space:nowrap;font-weight:500}
 .btn-decline:active{opacity:.4}
-
-
 
 /* ── ELO strip ── */
 .elo-info-btn{width:13px;height:13px;border-radius:50%;border:1px solid #3a3630;color:#4a4642;font-size:8px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
@@ -481,9 +471,6 @@ body.sheet-open #sa-cover{background:#000000}
 
 /* ── Ongoing card ── */
 
-
-
-
 .btn-sm{background:#2a2724;color:#e8e6e3;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;flex-shrink:0;transition:opacity .15s;border:1px solid #3a3630}
 .btn-sm:active{opacity:.7}
 .btn-play{background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:10px 18px;font-size:14px;font-weight:700;flex-shrink:0;cursor:pointer;font-family:inherit;transition:opacity .15s,transform .1s}
@@ -497,12 +484,6 @@ body.sheet-open #sa-cover{background:#000000}
 .pelo{font-size:12px;color:#4a4642;margin-top:2px}
 
 /* ── Match result ── */
-.match-vs{font-size:16px;color:#e8e6e3;text-align:center;margin:32px 20px 28px;line-height:1.5}
-.rbtn{display:block;width:100%;padding:18px 20px;border-radius:12px;font-size:16px;font-weight:600;margin-bottom:10px;text-align:left;transition:opacity .15s}
-.rbtn:active{opacity:.8}
-.r-win{background:#e8e6e3;color:#161512}
-.r-draw{background:#2a2724;color:#e8e6e3;border:1px solid #3a3630}
-.r-loss{background:transparent;color:#4a4642;border:1px solid #252220}
 
 /* ── Leaderboard ── */
 .lbrow{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:13px 14px;margin-bottom:6px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .15s}
@@ -576,7 +557,7 @@ canvas{width:100%!important;display:block}
 .hrow-reveal.state-ok .hrow-reveal-label{color:#161512}
 .hrow-reveal.state-err .hrow-reveal-label{color:#6a6560}
 .hrow{background:#1d1a16;border:0.5px solid #252220;border-radius:10px;padding:9px 12px 9px 14px;display:flex;align-items:center;gap:10px;position:relative;will-change:transform;-webkit-tap-highlight-color:transparent}
-.hrow:active{background:#1d1a16}
+.hrow:active{background:#252220}
 /* nessuna accent bar nello storico — il colore è nel dot */
 .hrow-accent{display:none}
 .hrow-left{flex:1;min-width:0}
@@ -657,7 +638,7 @@ canvas{width:100%!important;display:block}
           <span class="home-hero-delta hidden" id="h-delta"></span>
 
         </div>
-        <div id="h-sub" style="font-size:11px;color:#3a3630;margin-top:1px;min-height:14px"></div>
+        <div id="h-sub" class="home-hero-sub"></div>
       </div>
 
       <!-- STEP 2: Contextual Action Bar — inline sotto l'ELO -->
@@ -699,13 +680,6 @@ canvas{width:100%!important;display:block}
     <div id="page-search" class="page">
       <div style="margin-bottom:14px"><input id="search-input" placeholder="cerca per nickname" autocorrect="off" autocapitalize="none" spellcheck="false"></div>
       <div id="search-results"></div>
-    </div>
-
-    <!-- MATCH -->
-    <div id="page-match" class="page" style="padding:16px;overflow-y:auto">
-      <button onclick="showPage('home')" style="background:none;border:none;color:#4a4642;font-size:13px;cursor:pointer;padding:4px 0;margin-bottom:8px;display:flex;align-items:center;gap:6px">← Indietro</button>
-      <div id="match-vs" class="match-vs"></div>
-      <div id="match-btns" style="padding:0 4px"></div>
     </div>
 
     <!-- LEADERBOARD -->
@@ -804,7 +778,7 @@ let me = null, players = [], matches = [], activeMatch = null, pollTimer = null,
 
 function startPolling() {
   stopPolling();
-  pollTimer = setInterval(() => { if(!realtimeOk) fetchAll(); }, 5000);
+  pollTimer = setInterval(fetchAll, 10000);
 }
 function stopPolling() {
   clearInterval(pollTimer);
@@ -1136,15 +1110,6 @@ async function fetchAll() {
   else if(Array.isArray(ms)) matches = ms;
   if(Array.isArray(eloH)) eloH.forEach(e => eloCache[e.match_id] = e);
 
-  const onMatchPage = document.querySelector('#page-match.active');
-  if(onMatchPage && currentMatchId) {
-    const currentM = Array.isArray(ms) ? ms.find(m => m.id === currentMatchId) : null;
-    if(!currentM || currentM.status !== 'active') {
-      currentMatchId = null;
-      showPage('home');
-    }
-  }
-
   updateTopbar();
   await cleanupExpired();
 
@@ -1319,55 +1284,7 @@ function matchLabelShort(m, myId) {
 }
 
 // ── Factory functions card ──
-function makeCardChallenge(m) {
-  const opp = getP(m.p1);
-  const totalMs = CHALLENGE_EXPIRE_MS;
-  const elapsed = Date.now() - new Date(m.created_at).getTime();
-  const pct = Math.max(0, Math.min(100, ((totalMs - elapsed) / totalMs) * 100));
-  const urgent = pct < 20;
-  const oppElo = opp?.elo || '—';
-  const amIWhite = m.white_player_id === me.id;
-  // STEP 1: lessico più umano sulla sfida
-  const colorLine = m.white_player_id
-    ? `ti sfida — giochi col ${amIWhite ? 'bianco' : 'nero'}`
-    : 'ti sfida';
-  const el = document.createElement('div');
-  el.className = 'card-challenge card-enter';
-  el.dataset.mid = m.id;
-  el.innerHTML = `
-    <div class="card-challenge-progress${urgent?' urgent':''}" id="prog-${m.id}" style="width:${pct}%"></div>
-    <div class="card-challenge-name">${opp?.nickname||"?"}</div>
-    <div style="font-size:15px;font-weight:600;color:#9a9690;margin-bottom:6px;letter-spacing:-.2px">${oppElo} ELO</div>
-    <div class="card-challenge-sub">${colorLine}</div>
-    <div class="card-challenge-btns">
-      <button class="btn-accept" onclick="acceptChallenge('${m.id}')">Accetta</button>
-      <button class="btn-decline" onclick="rejectChallenge('${m.id}')">Declina</button>
-    </div>`;
-  return el;
-}
-
-function makeCardSent(m) {
-  const opp = getP(m.p2);
-  const oppName = opp?.nickname || '?';
-  const totalMs = CHALLENGE_EXPIRE_MS;
-  const elapsed = Date.now() - new Date(m.created_at).getTime();
-  const pct = Math.max(0, Math.min(100, ((totalMs - elapsed) / totalMs) * 100));
-  const el = document.createElement('div');
-  el.className = 'card-pending card-enter';
-  el.dataset.mid = m.id;
-  el.innerHTML = `
-    <div class="card-pending-progress" id="pend-prog-${m.id}" style="width:${pct}%"></div>
-    <div class="card-pending-left">
-      <div class="card-pending-eyebrow"><span class="card-pending-dot"></span>Aspetti risposta</div>
-      <div class="card-pending-name">vs ${oppName}</div>
-    </div>
-    <button class="btn-cancel" onclick="cancelChallenge('${m.id}')">Annulla</button>`;
-  return el;
-}
-
-// ── STEP B: Context strip — display passivo per partite attive ──
-// Sostituisce makeCardActive/makeCardLive/makeCardDisputed/makeCardWaiting
-// Non è una card interattiva — è una riga informativa
+// ── renderActiveCards: unico entry point per card attive ──
 
 function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
   const container = $('home-active');
@@ -1486,22 +1403,6 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
   container.innerHTML = cards.join('');
 }
 
-
-function reconcileCards(container, items) {
-  const newIds = new Set(items.map(i => i.id));
-  container.querySelectorAll('[data-mid]').forEach(el => {
-    if(!newIds.has(el.dataset.mid)) el.remove();
-  });
-  items.forEach((item, idx) => {
-    if(!container.querySelector(`[data-mid="${item.id}"]`)) {
-      const el = item.makeEl();
-      const siblings = [...container.querySelectorAll('[data-mid]')];
-      if(idx >= siblings.length) container.appendChild(el);
-      else container.insertBefore(el, siblings[idx]);
-    }
-  });
-}
-
 function renderHome() {
   const incomingChallenges = matches.filter(m => m.status==="pending_challenge" && m.p2===me.id);
   const sentChallenges     = matches.filter(m => m.status==="pending_challenge" && m.p1===me.id);
@@ -1543,7 +1444,7 @@ function renderHome() {
       <div style="margin-top:32px;text-align:center;padding:0 24px">
         <div style="font-size:32px;margin-bottom:12px;opacity:.3">♟</div>
         <div style="font-size:15px;color:#4a4642;font-weight:600;margin-bottom:6px">Nessuna partita ancora</div>
-        <div style="font-size:13px;color:#3a3630;line-height:1.5">Cerca un avversario e sfidalo<br>per iniziare a giocare</div>
+        <div style="font-size:13px;color:#3a3630;line-height:1.5;cursor:pointer" onclick="onCABTap()">Cerca un avversario e sfidalo<br>per iniziare a giocare</div>
       </div>`;
     return;
   }
@@ -1600,7 +1501,7 @@ function renderHome() {
           <div class="hrow-opp">${colorDot}${opp?.nickname||"?"}</div>
           <div class="hrow-meta">
             <span>${timeAgo(m.created_at)}</span>
-            ${opp ? `<span style="color:#2e2b28">·</span><span>${opp.elo}</span>` : ''}
+            ${opp ? `<span style="color:#2a2724">·</span><span>${opp.elo}</span>` : ''}
           </div>
         </div>
         <div class="hrow-right">
@@ -1613,6 +1514,9 @@ function renderHome() {
 
   const hist = $("home-history");
   if(!hist._swipeInit) { hist._swipeInit = true; initHrowSwipe(hist); }
+
+  // Hint swipe — solo quando storico espanso (nessun flusso attivo)
+  if(!hasAnythingActive) setTimeout(maybeShowSwipeHint, 50);
 }
 
 // ── Swipe-to-challenge su hrow ──
@@ -1835,6 +1739,18 @@ function closeCABSearch() {
   $('cab-results').classList.remove('open');
   $('page-home').classList.remove('search-open');
   updateCAB();
+}
+
+function maybeShowSwipeHint() {
+  // Mostra solo una volta — dopo che l'utente ha almeno 1 partita nello storico
+  if(localStorage.getItem('turko_swipe_seen')) return;
+  const firstHrow = document.querySelector('#home-history .hrow-wrap .hrow');
+  if(!firstHrow) return;
+  firstHrow.classList.add('hrow-swipe-hint');
+  firstHrow.addEventListener('animationend', () => {
+    firstHrow.classList.remove('hrow-swipe-hint');
+  }, { once: true });
+  localStorage.setItem('turko_swipe_seen', '1');
 }
 
 function toggleHistoryExpand() {
@@ -2108,7 +2024,7 @@ async function cancelChallenge(matchId) {
 
 // --- pulizia partite scadute ---
 const CHALLENGE_EXPIRE_MS = 2 * 60 * 1000;
-const MATCH_EXPIRE_MS = 2 * 60 * 1000;
+const MATCH_EXPIRE_MS = 15 * 60 * 1000;
 
 // ── Funzione unificata: un giocatore è "occupato" se ha una partita attiva
 // dove non ha ancora inserito il risultato.
@@ -2194,13 +2110,7 @@ function setupLongPress(el, onComplete, ms=800) {
   el.addEventListener('touchcancel', cancel);
 }
 
-// --- MATCH ---
-function openMatch(matchId) {
-  const m = matches.find(x => x.id===matchId);
-  if(!m) return;
-  activeMatch = m;
-  openMatchDirect(m, getP(m.p1===me.id ? m.p2 : m.p1));
-}
+// --- RISULTATO: via openResultSheet ---
 
 let resultSheetMatchId = null;
 
@@ -2226,7 +2136,7 @@ function openResultSheet(matchId) {
       : oppRes === (isP1 ? 'p2' : 'p1') ? 'Vinta'
       : oppRes ? 'Persa' : '';
     $('rsheet-context').innerHTML = `
-      <div style="font-size:13px;color:#9a9690;margin-bottom:2px">${oppName} dice: <strong>${oppSaid}</strong></div>
+      <div style="font-size:13px;color:#6a6560;margin-bottom:2px">${oppName} dice: <strong>${oppSaid}</strong></div>
       <div style="font-size:12px;color:#6a6560">${white.nickname} ○  ${black.nickname} ●</div>`;
     $('rsheet-dispute-warn').classList.remove('hidden');
   } else if(white && black) {
@@ -2281,63 +2191,6 @@ async function submitResultInline(matchId, myResult, btn) {
   const cardEl = $("card-live-" + matchId);
   if(cardEl) { cardEl.style.transition = "opacity .3s"; cardEl.style.opacity = "0.4"; }
   await fetchAll();
-}
-
-let currentMatchId = null;
-
-function openMatchDirect(m, opp) {
-  currentMatchId = m.id;
-  const isP1 = m.p1===me.id;
-  const resWin  = isP1 ? "p1" : "p2";
-  const resLoss = isP1 ? "p2" : "p1";
-  const myResult = isP1 ? m.result_p1 : m.result_p2;
-  const oppResult = isP1 ? m.result_p2 : m.result_p1;
-  $("match-vs").innerHTML = `
-    <div style="font-size:22px;font-weight:800;color:#e8e6e3;letter-spacing:-.3px;margin-bottom:4px">${matchLabel(m)}</div>
-    <div style="font-size:12px;color:#6a6560">${m.white_player_id ? (m.white_player_id===me.id ? 'Tu — bianco' : `${opp?.nickname||"?"} — bianco`) : ''}</div>`;
-  $("match-btns").innerHTML = `
-    <button onclick="submitResult('${m.id}','${resWin}')" class="rbtn r-win">Ho vinto</button>
-    <button onclick="submitResult('${m.id}','draw')" class="rbtn r-draw">Patta</button>
-    <button onclick="submitResult('${m.id}','${resLoss}')" class="rbtn r-loss">Ho perso</button>`;
-  if(myResult && !oppResult) {
-    const myLabel = myResult===resWin ? "Hai vinto" : myResult==="draw" ? "Patta" : "Hai perso";
-    const myColorVal = myResult===resWin ? "#629924" : myResult==="draw" ? "#6a6560" : "#c33";
-    $("match-btns").innerHTML = `
-      <div style="text-align:center;padding:20px 0">
-        <div style="font-size:12px;color:#6a6560;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Risultato inviato</div>
-        <div style="font-size:24px;font-weight:800;color:${myColorVal};margin-bottom:16px">${myLabel}</div>
-        <div style="font-size:12px;color:#6a6560">Aspetti che ${opp?.nickname||"?"} inserisca il suo...</div>
-      </div>`;
-  }
-  showPage("match");
-}
-
-async function submitResult(matchId, myResult) {
-  const m = matches.find(x => x.id===matchId);
-  if(!m) return;
-  const isP1 = m.p1 === me.id;
-  const field = isP1 ? "result_p1" : "result_p2";
-  await db.patch("matches", `id=eq.${matchId}`, {[field]: myResult});
-  activeMatch = null;
-  await fetchAll();
-  showPage("home");
-}
-
-function showDisagreement(matchId) {
-  const m = matches.find(x => x.id===matchId) || activeMatch;
-  if(!m) { showPage("home"); return; }
-  const opp = getP(m.p1===me.id ? m.p2 : m.p1);
-  $("match-vs").innerHTML = `
-    <div style="font-size:13px;color:#c33;font-weight:600;margin-bottom:4px">${opp?.nickname||"?"} non è d'accordo</div>
-    <div style="font-size:12px;color:#6a6560;margin-bottom:8px">Risultati diversi — reinserite.</div>`;
-  const isP1 = m.p1===me.id;
-  const resWin  = isP1 ? "p1" : "p2";
-  const resLoss = isP1 ? "p2" : "p1";
-  $("match-btns").innerHTML = `
-    <button onclick="submitResult('${m.id}','${resWin}')" class="rbtn r-win">Ho vinto</button>
-    <button onclick="submitResult('${m.id}','draw')" class="rbtn r-draw">Patta</button>
-    <button onclick="submitResult('${m.id}','${resLoss}')" class="rbtn r-loss">Ho perso</button>`;
-  showPage("match");
 }
 
 // --- LEADERBOARD ---
@@ -2632,7 +2485,7 @@ $("profile-back").onclick = () => {
 };
 
 // --- NAV ---
-const pageMap = {home:"page-home", search:"page-search", match:"page-match", leaderboard:"page-lb", profile:"page-profile", "profile-me":"page-profile"};
+const pageMap = {home:"page-home", search:"page-search", leaderboard:"page-lb", profile:"page-profile", "profile-me":"page-profile"};
 
 function showPage(name) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
