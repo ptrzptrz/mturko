@@ -98,11 +98,54 @@ body.sheet-open #sa-cover{background:#000000}
 /* STEP 1: delta down era #c33 — ora coerente con sistema: rosso solo per perdite, non per draw */
 .home-hero-delta.down{color:#c33}
 
-/* ── Home ── */
-.home-top{padding:4px 16px 0;flex-shrink:0}
-
-/* State bar — fisso tra CAB e storico, non scorre mai */
-#home-state-bar{flex-shrink:0;overflow:hidden}
+/* ── Home active section ── */
+#home-active{flex-shrink:0;padding:0 10px}
+#home-active:empty{display:none}
+.home-active-label{font-size:10px;font-weight:600;color:#4a4642;text-transform:uppercase;letter-spacing:1.4px;padding:8px 6px 4px}
+/* Active card — partita/sfida in corso che richiede attenzione */
+.acard{
+  background:#1d1a16;
+  border:0.5px solid #2e2b27;
+  border-radius:14px;
+  padding:0;
+  margin-bottom:6px;
+  display:flex;align-items:stretch;
+  overflow:hidden;
+  position:relative;
+}
+.acard-accent{width:3px;flex-shrink:0}
+.acard-accent.live{background:#629924}
+.acard-accent.dispute{background:#c33}
+.acard-accent.waiting{background:#2e2b27}
+.acard-accent.incoming{background:#629924}
+.acard-accent.sent{background:#2e2b27}
+.acard-body{flex:1;min-width:0;padding:13px 12px 13px 10px;display:flex;align-items:center;gap:10px}
+.acard-left{flex:1;min-width:0}
+.acard-name{font-size:15px;font-weight:600;color:#e8e6e3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acard-name .acard-elo{font-size:11px;font-weight:400;color:#3a3630;margin-left:5px}
+.acard-status{font-size:12px;color:#4a4642;margin-top:2px}
+.acard-status.dispute{color:#c33}
+.acard-status.waiting{color:#3a3630}
+.acard-status.sent{color:#3a3630}
+/* CTA button inline nella card — grande, facile da toccare */
+.acard-btn{
+  flex-shrink:0;
+  height:100%;
+  min-width:88px;
+  border:none;border-radius:0 14px 14px 0;
+  font-size:13px;font-weight:700;
+  cursor:pointer;transition:opacity .15s;
+  font-family:inherit;padding:0 16px;
+  letter-spacing:-.1px;
+  white-space:nowrap;
+}
+.acard-btn:active{opacity:.75}
+.acard-btn.primary{background:#e8e6e3;color:#161512}
+.acard-btn.dispute{background:#2a1010;color:#e87070}
+.acard-btn.passive{background:transparent;color:#3a3630;font-weight:500;font-size:12px;cursor:default}
+/* Sezione storico label */
+#home-history-label{font-size:10px;font-weight:600;color:#4a4642;text-transform:uppercase;letter-spacing:1.4px;padding:6px 16px 4px;flex-shrink:0}
+#home-history-label:empty{display:none}
 
 /* STEP 2: CAB è inline — padding bottom solo per navbar */
 #home-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px calc(80px + env(safe-area-inset-bottom,0px))}
@@ -146,31 +189,11 @@ body.sheet-open #sa-cover{background:#000000}
   flex-shrink:0;
 }
 
-/* ── CAB animazioni stato ── */
-@keyframes cabPulse{
-  0%,100%{box-shadow:0 0 0 0 rgba(232,230,227,0)}
-  50%{box-shadow:0 0 0 8px rgba(232,230,227,.1)}
-}
-@keyframes cabPulseRed{
-  0%,100%{box-shadow:0 0 0 0 rgba(195,51,51,0)}
-  50%{box-shadow:0 0 0 8px rgba(195,51,51,.2)}
-}
-/* Stato ACTION: pulse bianco — richiede azione */
-.cab-action{background:#e8e6e3;border:none;animation:cabPulse 1.8s ease-in-out infinite}
-.cab-action .cab-label{color:#161512;font-size:16px;font-weight:700;letter-spacing:-.2px}
-/* Stato INCOMING: pulse bianco più lento */
-.cab-incoming{background:#e8e6e3;border:none;animation:cabPulse 2.2s ease-in-out infinite}
-.cab-incoming .cab-label{color:#161512;font-size:16px;font-weight:700;letter-spacing:-.2px}
-/* Stato DISPUTE: rosso scuro + pulse rosso */
-.cab-disputed{background:#2a1010;box-shadow:inset 0 0 0 1px rgba(195,51,51,.55);animation:cabPulseRed 1.8s ease-in-out infinite}
-.cab-disputed .cab-label{color:#e87070;font-size:16px;font-weight:700;letter-spacing:-.2px}
-/* Stato WAITING: pill sottile — stato passivo, meno massa visiva */
+/* Stato WAITING/disabled: muted, non tappabile */
 .cab-waiting{
   background:#1a1714;
-  box-shadow:inset 0 0 0 1px #252220; /* no border — evita aliasing su Safari */
+  box-shadow:inset 0 0 0 0.5px #252220;
   cursor:default;animation:none;
-  height:40px!important; /* pill più sottile */
-  border-radius:20px!important;
 }
 .cab-waiting .cab-label{color:#3a3630;font-size:13px;font-weight:500;letter-spacing:0}
 .cab-inactive{pointer-events:none}
@@ -281,99 +304,10 @@ body.sheet-open #sa-cover{background:#000000}
 .asheet-cta:active{opacity:.85;transform:scale(.99)}
 .asheet-cta:disabled{background:#252220;color:#3a3630;cursor:not-allowed}
 
-/* Card partita IN CORSO — ora solo context strip, css legacy tenuto per card-enter */
-.card-live{background:#1d1a16;border:1px solid #3a3630;border-radius:14px;padding:14px 16px;margin-bottom:8px;position:relative;overflow:hidden}
-.card-live::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:#629924;opacity:.8}
-.card-live.card-live-waiting::before{background:#3a3630;opacity:1}
-.card-live.card-live-disputed::before{background:#c33}
-.card-live-label{font-size:10px;color:#629924;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:5px}
-.live-dot{width:6px;height:6px;border-radius:50%;background:#629924;animation:pulse 1.5s ease-in-out infinite}
-.live-dot.red{background:#c33}
+/* Animazioni */
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-@keyframes cardEnter{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
-.card-enter{animation:cardEnter .4s cubic-bezier(.2,0,.2,1) both}
-.card-live-vs{font-size:18px;font-weight:700;color:#e8e6e3;margin-bottom:10px;letter-spacing:-.2px}
-
-/* ── Context strip — stato corrente, fisso tra CAB e storico ── */
-.ctx-strip{ }
-.ctx-strip:empty{ display:none }
-
-/* Separatore sopra la strip quando non vuota */
-.ctx-strip:not(:empty){
-  border-top:1px solid #252220;
-  margin-bottom:4px;
-}
-
-.ctx-row{
-  display:flex;align-items:center;
-  padding:10px 20px;
-  gap:10px;
-  position:relative;
-  overflow:hidden;
-}
-.ctx-row + .ctx-row{
-  border-top:1px solid #1e1c18;
-}
-
-/* Progress bar countdown */
-.ctx-progress{
-  position:absolute;bottom:0;left:0;
-  height:2px;
-  background:#2a2724;
-  transition:width 1s linear;
-  pointer-events:none;
-}
-.ctx-progress.urgent{background:rgba(195,51,51,.6)}
-.ctx-progress.active{background:rgba(98,153,36,.35)}
-
-/* Dot stato */
-.ctx-dot{
-  width:6px;height:6px;border-radius:50%;flex-shrink:0;
-}
-.ctx-dot.live{background:#3a3630;animation:none}
-.ctx-dot.waiting{background:#3a3630;animation:none}
-.ctx-dot.submitted{background:#629924;animation:none}
-.ctx-dot.disputed{background:#c33;animation:pulse 1.5s ease-in-out infinite}
-.ctx-dot.sent{background:#3a3630;animation:none}
-
-/* Nome */
-.ctx-name{
-  font-size:13px;font-weight:600;color:#9a9690;
-  flex:1;min-width:0;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  letter-spacing:-.1px;
-}
-
-/* Status */
-.ctx-status{
-  font-size:11px;font-weight:500;flex-shrink:0;
-  white-space:nowrap;
-}
-.ctx-status.live{color:#4a4642}
-.ctx-status.submitted{color:#629924}
-.ctx-status.disputed{color:#e87070}
-.ctx-status.waiting{color:#4a4642}
-.ctx-status.sent{color:#3a3630}
-
-/* ── Live Strip placeholder — scroll orizzontale, 1 riga ── */
-.live-strip-wrap{
-  padding:0 16px;
-  margin-bottom:2px;
-  overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
-  display:flex;gap:8px;
-}
-.live-strip-wrap::-webkit-scrollbar{display:none}
-.live-strip-wrap:empty{display:none}
-.live-pill{
-  flex-shrink:0;
-  background:#1a1714;border:1px solid #252220;
-  border-radius:20px;padding:6px 12px;
-  font-size:12px;font-weight:500;color:#4a4642;
-  white-space:nowrap;
-}
-.live-pill .pill-name{color:#6a6560;font-weight:600}
+@keyframes cardEnter{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.card-enter{animation:cardEnter .35s cubic-bezier(.2,0,.2,1) both}
 
 /* Action sheet risultato */
 .rsheet-context{font-size:13px;color:#5a5754;text-align:center;margin-bottom:16px;font-weight:500}
@@ -407,15 +341,7 @@ body.sheet-open #sa-cover{background:#000000}
 .btn-decline{background:transparent;color:#6a6560;border:none;padding:15px 14px;font-size:14px;cursor:pointer;transition:opacity .15s;font-family:inherit;white-space:nowrap;font-weight:500}
 .btn-decline:active{opacity:.4}
 
-/* Card sfida inviata — rimossa, ora integrata in ctx-strip come ctx-row tipo 'sent' */
 
-/* Gruppo "in attesa" collassato — legacy */
-.waiting-group{background:#161512;border:1px solid #252220;border-radius:10px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer}
-.waiting-group-label{font-size:12px;color:#5a5754;flex:1}
-.waiting-group-count{font-size:11px;color:#4a4642;background:#1d1a16;border-radius:6px;padding:2px 8px}
-
-/* Margine sotto la state bar quando non vuota */
-#home-ctx-strip:not(:empty){ padding-bottom:4px }
 
 /* ── ELO strip ── */
 .elo-info-btn{width:13px;height:13px;border-radius:50%;border:1px solid #3a3630;color:#4a4642;font-size:8px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
@@ -624,6 +550,7 @@ canvas{width:100%!important;display:block}
           <span class="home-hero-delta hidden" id="h-delta"></span>
           <span style="font-size:20px;color:#2e2b28;margin-left:auto;line-height:1;align-self:center">›</span>
         </div>
+        <div id="h-sub" style="font-size:11px;color:#3a3630;margin-top:1px;min-height:14px"></div>
       </div>
 
       <!-- STEP 2: Contextual Action Bar — inline sotto l'ELO -->
@@ -646,22 +573,11 @@ canvas{width:100%!important;display:block}
         <div class="cab-results" id="cab-results"></div>
       </div>
 
-      <!-- Stato corrente — fisso, non scorre. Partite attive + sfide -->
-      <div id="home-state-bar">
-        <div id="home-ctx-strip" class="ctx-strip"></div>
-      </div>
-
-      <div class="home-top">
-        <button class="btn-new-match" id="btn-newmatch"><span class="btn-new-icon"></span><span>Gioca</span></button>
-        <div class="home-search" id="home-search"><div class="home-search-inner"><div class="home-search-bar"><input id="home-search-input" placeholder="" autocorrect="off" autocapitalize="none" spellcheck="false"><button class="close-btn" onclick="closeHomeSearch()">✕</button></div><div id="home-search-results"></div></div></div>
-      </div>
+      <!-- Active cards — partite/sfide che richiedono attenzione -->
+      <div id="home-active"></div>
 
       <div id="home-scroll">
-        <!-- home-pending rimosso — sfide inviate ora in ctx-strip -->
-        <div id="home-pending" style="display:none"></div>
-        <!-- Live strip placeholder -->
-        <div id="home-live-strip" class="live-strip-wrap"></div>
-        <div class="slabel" id="home-history-divider" style="display:none;margin-top:4px">Recenti</div>
+        <div id="home-history-label"></div>
         <div id="home-history"></div>
       </div>
     </div>
@@ -1163,33 +1079,12 @@ function updateCountdowns() {
       const remaining = CHALLENGE_EXPIRE_MS - elapsed;
       const pct = Math.max(0, Math.min(100, (remaining / CHALLENGE_EXPIRE_MS) * 100));
       const urgent = pct < 20;
-      // progress bar inline card-challenge legacy
       const bar = document.getElementById('prog-' + m.id);
       if(bar) {
         bar.style.width = pct + '%';
         bar.className = 'card-challenge-progress' + (urgent ? ' urgent' : '');
       }
-      // progress bar ctx-strip sfida inviata
-      const pendBar = document.getElementById('pend-prog-' + m.id);
-      if(pendBar) pendBar.style.width = pct + '%';
-      // progress bar CAB incoming
-      const cabTimer = document.getElementById('cab-timer-bar');
-      if(cabTimer) {
-        cabTimer.style.width = pct + '%';
-        cabTimer.style.background = urgent ? 'rgba(195,51,51,.7)' : 'rgba(22,21,18,.35)';
-      }
       if(remaining <= 0) anyExpired = true;
-    }
-    if(m.status === 'active') {
-      const ctxBar = document.getElementById('ctx-prog-' + m.id);
-      if(ctxBar) {
-        const ref = m.updated_at || m.created_at;
-        const elapsed = Date.now() - new Date(ref).getTime();
-        const pct = Math.max(0, Math.min(100, ((MATCH_EXPIRE_MS - elapsed) / MATCH_EXPIRE_MS) * 100));
-        const urgent = pct < 15;
-        ctxBar.style.width = pct + '%';
-        ctxBar.className = urgent ? 'ctx-progress urgent' : 'ctx-progress';
-      }
     }
   });
   if(anyExpired) cleanupExpired();
@@ -1261,6 +1156,16 @@ function updateTopbar() {
     } else {
       _lastDelta = null;
       hDelta.classList.add('hidden');
+    }
+  }
+  // Sub-label hero: partite giocate (non calcola percentile — lo lasciamo semplice)
+  const hSub = $('h-sub');
+  if(hSub) {
+    const played = matches.filter(m => m.status === 'done' && (m.p1===me.id||m.p2===me.id) && m.result !== 'cancelled').length;
+    if(played > 0) {
+      hSub.textContent = played + (played === 1 ? ' partita' : ' partite');
+    } else {
+      hSub.textContent = '';
     }
   }
 }
@@ -1340,77 +1245,95 @@ function makeCardSent(m) {
 // Sostituisce makeCardActive/makeCardLive/makeCardDisputed/makeCardWaiting
 // Non è una card interattiva — è una riga informativa
 
-function renderCtxStrip(activeCards, sentChallenges) {
-  const container = $('home-ctx-strip');
-  const rows = [];
+function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
+  const container = $('home-active');
+  const cards = [];
 
-  // Righe partite attive
+  // Label sezione — solo se ci sono elementi
+  const total = activeCards.length + sentChallenges.length + incomingChallenges.length;
+  if(total === 0) { container.innerHTML = ''; return; }
+
+  cards.push('<div class="home-active-label">In corso</div>');
+
+  // 1. Sfide incoming — massima priorità, richiedono risposta
+  incomingChallenges.forEach(m => {
+    const opp = getP(m.p1);
+    const oppName = opp?.nickname || '?';
+    const eloStr = opp?.elo ? ` <span class="acard-elo">${opp.elo}</span>` : '';
+    cards.push(`<div class="acard card-enter">
+      <div class="acard-accent incoming"></div>
+      <div class="acard-body">
+        <div class="acard-left">
+          <div class="acard-name">${oppName}${eloStr}</div>
+          <div class="acard-status">Ti sfida — accetta o declina</div>
+        </div>
+        <button class="acard-btn primary" onclick="openChallengeSheet('${m.id}')">Rispondi</button>
+      </div>
+    </div>`);
+  });
+
+  // 2. Partite attive
   activeCards.forEach(({ m, type }) => {
     const isP1 = m.p1 === me.id;
     const oppId = isP1 ? m.p2 : m.p1;
     const opp = getP(oppId);
     const oppName = opp?.nickname || '?';
-    const myRes  = isP1 ? m.result_p1 : m.result_p2;
-    const oppRes = isP1 ? m.result_p2 : m.result_p1;
-
-    // Mapping risultato → label leggibile, relativo all'avversario
-    const oppResLabel = (res) => {
-      if(!res) return null;
-      if(res === 'draw') return 'Patta';
-      const oppWins = (res === 'p1') !== isP1; // vero se l'avversario ha vinto
-      return oppWins ? 'Vinta' : 'Persa'; // dal punto di vista dell'avversario
-    };
-
-    const totalMs = MATCH_EXPIRE_MS;
-    const elapsed = Date.now() - new Date(m.updated_at || m.created_at).getTime();
-    const pct = Math.max(0, Math.min(100, ((totalMs - elapsed) / totalMs) * 100));
-    const urgent = pct < 15;
-
-    let dotClass, statusText, statusClass, progressClass;
+    const eloStr = opp?.elo ? ` <span class="acard-elo">${opp.elo}</span>` : '';
 
     if(type === 'disputed') {
-      dotClass = 'ctx-dot disputed';
-      const oppLabel = oppResLabel(oppRes);
-      statusText = oppLabel ? `dice ${oppLabel}` : 'disaccordo';
-      statusClass = 'ctx-status disputed';
-      progressClass = 'ctx-progress urgent';
-    } else if(type === 'waiting') {
-      dotClass = oppRes ? 'ctx-dot submitted' : 'ctx-dot waiting';
-      statusText = oppRes ? 'ha inserito' : 'non ha inserito';
-      statusClass = oppRes ? 'ctx-status submitted' : 'ctx-status waiting';
-      progressClass = urgent ? 'ctx-progress urgent' : 'ctx-progress active';
+      cards.push(`<div class="acard card-enter">
+        <div class="acard-accent dispute"></div>
+        <div class="acard-body">
+          <div class="acard-left">
+            <div class="acard-name">${oppName}${eloStr}</div>
+            <div class="acard-status dispute">${oppName} non concorda — reinserisci</div>
+          </div>
+          <button class="acard-btn dispute" onclick="openResultSheet('${m.id}')">Reinserisci</button>
+        </div>
+      </div>`);
+    } else if(type === 'live') {
+      cards.push(`<div class="acard card-enter">
+        <div class="acard-accent live"></div>
+        <div class="acard-body">
+          <div class="acard-left">
+            <div class="acard-name">${oppName}${eloStr}</div>
+            <div class="acard-status">Inserisci il risultato</div>
+          </div>
+          <button class="acard-btn primary" onclick="openResultSheet('${m.id}')">Inserisci</button>
+        </div>
+      </div>`);
     } else {
-      dotClass = oppRes ? 'ctx-dot submitted' : 'ctx-dot live';
-      statusText = oppRes ? 'ha inserito' : 'non ha inserito';
-      statusClass = oppRes ? 'ctx-status submitted' : 'ctx-status live';
-      progressClass = urgent ? 'ctx-progress urgent' : 'ctx-progress';
+      // waiting — ho già inserito, aspetto l'altro
+      cards.push(`<div class="acard">
+        <div class="acard-accent waiting"></div>
+        <div class="acard-body">
+          <div class="acard-left">
+            <div class="acard-name">${oppName}${eloStr}</div>
+            <div class="acard-status waiting">Hai inserito · aspetta ${oppName}</div>
+          </div>
+          <div class="acard-btn passive">In attesa</div>
+        </div>
+      </div>`);
     }
-
-    rows.push(`<div class="ctx-row">
-      <span class="${dotClass}"></span>
-      <span class="ctx-name">${oppName}</span>
-      <span class="${statusClass}">${statusText}</span>
-      <div class="${progressClass}" id="ctx-prog-${m.id}" style="width:${pct}%"></div>
-    </div>`);
   });
 
-  // Righe sfide inviate — passive, integrate nella stessa strip
-  (sentChallenges || []).forEach(m => {
+  // 3. Sfide inviate — passive, in fondo
+  sentChallenges.forEach(m => {
     const opp = getP(m.p2);
     const oppName = opp?.nickname || '?';
-    const totalMs = CHALLENGE_EXPIRE_MS;
-    const elapsed = Date.now() - new Date(m.created_at).getTime();
-    const pct = Math.max(0, Math.min(100, ((totalMs - elapsed) / totalMs) * 100));
-
-    rows.push(`<div class="ctx-row">
-      <span class="ctx-dot sent"></span>
-      <span class="ctx-name" style="color:#3a3630">${oppName}</span>
-      <span class="ctx-status sent">sta decidendo</span>
-      <div class="ctx-progress" id="pend-prog-${m.id}" style="width:${pct}%"></div>
+    cards.push(`<div class="acard">
+      <div class="acard-accent sent"></div>
+      <div class="acard-body">
+        <div class="acard-left">
+          <div class="acard-name">${oppName}</div>
+          <div class="acard-status sent">Sfida inviata · sta decidendo</div>
+        </div>
+        <div class="acard-btn passive">Inviata</div>
+      </div>
     </div>`);
   });
 
-  container.innerHTML = rows.join('');
+  container.innerHTML = cards.join('');
 }
 
 
@@ -1439,7 +1362,6 @@ function renderHome() {
   if(incomingChallenges.length > 0) { badge.textContent = incomingChallenges.length; badge.classList.remove("hidden"); }
   else badge.classList.add("hidden");
 
-  // home-pending non più usato — sfide inviate integrate in ctx-strip
   updateCountdowns();
 
   const activeCards = allActive.map(m => {
@@ -1453,17 +1375,17 @@ function renderHome() {
   const disputedCards = activeCards.filter(c => c.type === 'disputed');
   window._homeState = { incomingChallenges, sentChallenges, liveCards, disputedCards };
 
-  // Context strip: partite attive + sfide inviate, tutto insieme, fisso
-  renderCtxStrip(activeCards, sentChallenges);
+  // Active cards — zona fissa tra CAB e storico
+  renderActiveCards(activeCards, sentChallenges, incomingChallenges);
 
   // Contextual Action Bar
   updateCAB();
 
   // ── Storico ──
-  const divider = $("home-history-divider");
+  const hlabel = $("home-history-label");
   const meaningful = done.filter(m => m.result !== "cancelled");
   if(meaningful.length === 0) {
-    if(divider) divider.style.display = 'none';
+    if(hlabel) hlabel.textContent = '';
     const hasActive = allActive.length > 0 || incomingChallenges.length > 0 || sentChallenges.length > 0;
     $("home-history").innerHTML = hasActive ? '' : `
       <div style="margin-top:32px;text-align:center;padding:0 24px">
@@ -1473,7 +1395,7 @@ function renderHome() {
       </div>`;
     return;
   }
-  if(divider) divider.style.display = '';
+  if(hlabel) hlabel.textContent = 'Storico';
 
   $("home-history").innerHTML = meaningful.map(m => {
     const opp = getP(m.p1===me.id ? m.p2 : m.p1);
@@ -1539,24 +1461,18 @@ function _swipeOffset(rawDx) {
 }
 
 function _evalGuards(oppId) {
-  const hs = window._homeState || {};
-
-  // Io sono occupato se ho partite live o in dispute o sfide pending
-  // Le partite "waiting" (ho già inserito) NON bloccano — posso sfidare altri
-  const isBusy = (hs.liveCards||[]).length > 0
-              || (hs.disputedCards||[]).length > 0
-              || (hs.incomingChallenges||[]).length > 0
-              || (hs.sentChallenges||[]).length > 0;
+  // Sono bloccato solo se ho partite dove NON ho ancora inserito il mio risultato,
+  // oppure ho sfide incoming senza risposta.
+  // "waiting" (ho già inserito) e "disputed" (ho già reinserito) NON bloccano.
+  // Sent challenges NON bloccano — ho già fatto la mia parte.
+  const isBusy = isPlayerBusy(me.id);
 
   const opp = getP(oppId);
   const oppOnline = opp?.last_seen_at && (Date.now() - new Date(opp.last_seen_at).getTime()) < ONLINE_MS;
-
-  // L'avversario è occupato solo se non ha ancora inserito il risultato
-  // (usa funzione unificata — coerente con renderCABSearch)
   const oppBusy = isPlayerBusy(oppId);
 
   if(!isBusy && oppOnline && !oppBusy) return { ok: true, label: 'Gioca' };
-  const msg = isBusy ? 'Non ora' : !oppOnline ? 'Offline' : 'In partita';
+  const msg = isBusy ? 'Prima registra il risultato' : !oppOnline ? 'Offline' : 'In partita';
   return { ok: false, label: msg };
 }
 
@@ -1670,67 +1586,31 @@ function updateCAB() {
   const icon     = $('cab-icon');
   const arrow    = $('cab-arrow');
 
-  // Priorità: disputed > live/action > incoming > waiting > idle
+  // CAB semplificata: idle (puoi sfidare) | disabled (hai cose da fare prima)
+  // Le active cards gestiscono tutto il dettaglio — la CAB fa una cosa sola.
 
-  if(disputedCards.length > 0) {
-    // DISPUTE — rosso, pulse, azione urgente + nome esplicito
-    const m = disputedCards[0].m;
-    const oppDisp = getP(m.p1 === me.id ? m.p2 : m.p1);
-    _setCABState('disputed', bar, label, labelSub, icon, arrow);
-    const dispName = oppDisp?.nickname || '?';
-    label.textContent = disputedCards.length > 1
-      ? 'Disaccordo con ' + dispName + ' →'
-      : 'Disaccordo con ' + dispName + ' →';
-    bar.onclick = () => openResultSheet(m.id);
+  const isBusy = isPlayerBusy(me.id);
 
-  } else if(liveCards.length > 0) {
-    // ACTION — pulse bianco, devi inserire
-    _setCABState('action', bar, label, labelSub, icon, arrow);
-    if(liveCards.length === 1) {
-      label.textContent = 'Com\'è andata? →';
-      bar.onclick = () => openResultSheet(liveCards[0].m.id);
-    } else {
-      label.textContent = liveCards.length + ' partite da registrare →';
-      bar.onclick = () => openMultiResultSheet(liveCards);
-    }
-
-  } else if(incomingChal.length > 0) {
-    // INCOMING — pulse bianco lento, tap → challenge sheet diretto
-    const m = incomingChal[0];
-    const opp = getP(m.p1);
-    _setCABState('incoming', bar, label, labelSub, icon, arrow);
-    if(incomingChal.length === 1) {
-      label.textContent = (opp?.nickname || '?') + ' ti sfida →';
-      bar.onclick = () => openChallengeSheet(m.id);
-    } else {
-      label.textContent = incomingChal.length + ' sfide in arrivo →';
-      bar.onclick = () => openChallengeSheet(incomingChal[0].id);
-    }
-    // Progress bar timer sulla CAB — scorre sul fondo della barra
-    const elapsed = Date.now() - new Date(m.created_at).getTime();
-    const pct = Math.max(0, Math.min(100, ((CHALLENGE_EXPIRE_MS - elapsed) / CHALLENGE_EXPIRE_MS) * 100));
-    const urgent = pct < 20;
-    let cabTimer = document.getElementById('cab-timer-bar');
-    if(!cabTimer) {
-      cabTimer = document.createElement('div');
-      cabTimer.id = 'cab-timer-bar';
-      cabTimer.style.cssText = 'position:absolute;bottom:0;left:0;height:2px;border-radius:0 0 16px 16px;transition:width 1s linear;pointer-events:none;';
-      bar.appendChild(cabTimer);
-    }
-    cabTimer.style.width = pct + '%';
-    cabTimer.style.background = urgent ? 'rgba(195,51,51,.7)' : 'rgba(22,21,18,.35)';
-
-  } else if(sentChal.length > 0) {
-    // WAITING — pill sottile, spento, nessun pulse
+  if(isBusy) {
+    // Disabilitata — hai partite/sfide che richiedono la tua azione
     _setCABState('waiting', bar, label, labelSub, icon, arrow);
-    const opp = getP(sentChal[0].p2);
-    label.textContent = (opp?.nickname || '…') + ' sta decidendo…';
+    const pendingCount = liveCards.length + disputedCards.length + incomingChal.length;
+    if(pendingCount === 1) {
+      const allPending = [...liveCards, ...disputedCards];
+      if(incomingChal.length > 0) {
+        label.textContent = 'Rispondi alla sfida prima';
+      } else {
+        const opp = getP(allPending[0].m.p1 === me.id ? allPending[0].m.p2 : allPending[0].m.p1);
+        label.textContent = 'Registra il risultato con ' + (opp?.nickname || '?');
+      }
+    } else {
+      label.textContent = 'Registra i risultati prima';
+    }
     bar.onclick = null;
-
   } else {
     // IDLE — piatto, tap → search
     _setCABState('idle', bar, label, labelSub, icon, arrow);
-    label.textContent = 'Gioca';
+    label.textContent = 'Sfida qualcuno';
     bar.onclick = onCABTap;
   }
 }
@@ -1749,24 +1629,6 @@ function _setCABState(state, bar, label, labelSub, icon, arrow) {
     icon.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
     icon.classList.remove('hidden');
     arrow.classList.add('hidden');
-
-  } else if(state === 'action') {
-    bar.classList.add('cab-action');
-    icon.classList.add('hidden');
-    arrow.classList.add('hidden');
-
-  } else if(state === 'incoming') {
-    bar.classList.add('cab-incoming');
-    icon.classList.add('hidden');
-    arrow.classList.add('hidden');
-
-  } else if(state === 'disputed') {
-    bar.classList.add('cab-disputed', 'cab-inactive');
-    // rimuovi cab-inactive — è tappabile
-    bar.classList.remove('cab-inactive');
-    icon.classList.add('hidden');
-    arrow.classList.add('hidden');
-
   } else if(state === 'waiting') {
     bar.classList.add('cab-waiting', 'cab-inactive');
     icon.classList.add('hidden');
@@ -2062,16 +1924,22 @@ const MATCH_EXPIRE_MS = 2 * 60 * 1000;
 // dove non ha ancora inserito il risultato.
 // Una partita dove entrambi hanno già inserito NON blocca nuove sfide.
 function isPlayerBusy(playerId) {
-  return matches.some(m => {
+  // Occupato se ha partite attive dove non ha ancora inserito il risultato
+  const hasUnsubmitted = matches.some(m => {
     if(m.status !== 'active') return false;
     if(m.tournament_id) return false;
     const isP1 = m.p1 === playerId;
     const isP2 = m.p2 === playerId;
     if(!isP1 && !isP2) return false;
-    // Considera "occupato" solo se non ha ancora inserito il risultato
     const myRes = isP1 ? m.result_p1 : m.result_p2;
     return !myRes;
   });
+  if(hasUnsubmitted) return true;
+  // Per se stesso: sfide incoming non gestite bloccano (devi rispondere prima)
+  if(playerId === me?.id) {
+    return matches.some(m => m.status === 'pending_challenge' && m.p2 === playerId);
+  }
+  return false;
 }
 
 async function cleanupExpired() {
