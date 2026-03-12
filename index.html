@@ -142,14 +142,14 @@ body.sheet-open #sa-cover{background:#000000}
   flex-shrink:0;
 }
 
-/* ── STEP A: CAB animazioni stato ── */
+/* ── CAB animazioni stato ── */
 @keyframes cabPulse{
   0%,100%{box-shadow:0 0 0 0 rgba(232,230,227,0)}
-  50%{box-shadow:0 0 0 6px rgba(232,230,227,.12)}
+  50%{box-shadow:0 0 0 8px rgba(232,230,227,.1)}
 }
 @keyframes cabPulseRed{
   0%,100%{box-shadow:0 0 0 0 rgba(195,51,51,0)}
-  50%{box-shadow:0 0 0 6px rgba(195,51,51,.18)}
+  50%{box-shadow:0 0 0 8px rgba(195,51,51,.2)}
 }
 /* Stato ACTION: pulse bianco — richiede azione */
 .cab-action{background:#e8e6e3;border:none;animation:cabPulse 1.8s ease-in-out infinite}
@@ -158,11 +158,17 @@ body.sheet-open #sa-cover{background:#000000}
 .cab-incoming{background:#e8e6e3;border:none;animation:cabPulse 2.2s ease-in-out infinite}
 .cab-incoming .cab-label{color:#161512;font-size:16px;font-weight:700;letter-spacing:-.2px}
 /* Stato DISPUTE: rosso scuro + pulse rosso */
-.cab-disputed{background:#2a1010;border:1px solid rgba(195,51,51,.4);animation:cabPulseRed 1.8s ease-in-out infinite}
+.cab-disputed{background:#2a1010;box-shadow:inset 0 0 0 1px rgba(195,51,51,.55);animation:cabPulseRed 1.8s ease-in-out infinite}
 .cab-disputed .cab-label{color:#e87070;font-size:16px;font-weight:700;letter-spacing:-.2px}
-/* Stato WAITING: completamente spento — zero animazione */
-.cab-waiting{background:#1d1a16;border:1px solid #252220;cursor:default;animation:none}
-.cab-waiting .cab-label{color:#4a4642;font-size:15px;font-weight:500;letter-spacing:-.1px}
+/* Stato WAITING: pill sottile — stato passivo, meno massa visiva */
+.cab-waiting{
+  background:#1a1714;
+  box-shadow:inset 0 0 0 1px #252220; /* no border — evita aliasing su Safari */
+  cursor:default;animation:none;
+  height:40px!important; /* pill più sottile */
+  border-radius:20px!important;
+}
+.cab-waiting .cab-label{color:#3a3630;font-size:13px;font-weight:500;letter-spacing:0}
 .cab-inactive{pointer-events:none}
 
 /* Label container: permette cross-fade tra stati */
@@ -234,6 +240,22 @@ body.sheet-open #sa-cover{background:#000000}
 /* Search inline legacy — non più usata in home-top, tenuta per compatibilità */
 .home-search{display:none!important}
 
+/* Search aperta — contesto sottostante sfuma */
+#page-home.search-open #home-scroll,
+#page-home.search-open #home-pending,
+#page-home.search-open #home-ctx-strip{
+  opacity:.08;
+  pointer-events:none;
+  transition:opacity .2s ease;
+}
+#page-home:not(.search-open) #home-scroll,
+#page-home:not(.search-open) #home-pending,
+#page-home:not(.search-open) #home-ctx-strip{
+  opacity:1;
+  pointer-events:auto;
+  transition:opacity .2s ease;
+}
+
 /* Lista giocatori nella search */
 .prow{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:13px 14px;margin-bottom:7px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .15s}
 .prow:active{border-color:#3a3630}
@@ -272,7 +294,7 @@ body.sheet-open #sa-cover{background:#000000}
 .card-enter{animation:cardEnter .4s cubic-bezier(.2,0,.2,1) both}
 .card-live-vs{font-size:18px;font-weight:700;color:#e8e6e3;margin-bottom:10px;letter-spacing:-.2px}
 
-/* ── STEP B: Context strip — partite attive, display puro ── */
+/* ── Context strip — partite attive, display puro ── */
 .ctx-strip{
   margin:0 16px;
   border-radius:12px;
@@ -281,31 +303,48 @@ body.sheet-open #sa-cover{background:#000000}
 }
 .ctx-row{
   display:flex;align-items:center;
-  padding:11px 14px;
-  gap:12px;
+  padding:10px 14px;
+  gap:10px;
   background:#161512;
   border-bottom:1px solid #1e1c18;
-  /* non interattiva — nessun cursor, nessun active */
+  position:relative; /* per progress bar */
+  overflow:hidden;
 }
 .ctx-row:last-child{border-bottom:none}
-.ctx-dot{
-  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+/* Progress bar countdown — sottilissima sul fondo della riga */
+.ctx-progress{
+  position:absolute;bottom:0;left:0;
+  height:1.5px;
+  background:#3a3630;
+  transition:width 1s linear;
+  pointer-events:none;
 }
-.ctx-dot.live{background:#629924;animation:pulse 1.5s ease-in-out infinite}
-.ctx-dot.waiting{background:#3a3630;animation:none}
+.ctx-progress.urgent{background:#c33}
+.ctx-progress.submitted{background:#5a7a35}
+.ctx-dot{
+  width:7px;height:7px;border-radius:50%;flex-shrink:0;
+}
+/* live — grigio neutro, no colore che distrae */
+.ctx-dot.live{background:#3a3630;animation:none}
+/* waiting — spento */
+.ctx-dot.waiting{background:#2a2724;animation:none}
+/* submitted — verde, conferma positiva */
+.ctx-dot.submitted{background:#5a7a35;animation:none}
+/* disputed — rosso pulsante */
 .ctx-dot.disputed{background:#c33;animation:pulse 1.5s ease-in-out infinite}
 .ctx-vs{
-  font-size:14px;font-weight:600;color:#9a9690;
+  font-size:13px;font-weight:600;color:#6a6560;
   flex:1;min-width:0;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .ctx-status{
-  font-size:12px;font-weight:500;flex-shrink:0;
+  font-size:11px;font-weight:500;flex-shrink:0;
+  white-space:nowrap;
 }
-.ctx-status.live{color:#4a4642}
+.ctx-status.live{color:#3a3630}
 .ctx-status.submitted{color:#5a7a35}
 .ctx-status.disputed{color:#c33}
-.ctx-status.waiting{color:#3a3630}
+.ctx-status.waiting{color:#2a2724}
 
 /* ── Live Strip placeholder — scroll orizzontale, 1 riga ── */
 .live-strip-wrap{
@@ -360,11 +399,12 @@ body.sheet-open #sa-cover{background:#000000}
 .btn-decline:active{opacity:.4}
 
 /* Card sfida inviata */
-.card-pending{background:#161512;border:1px solid #1e1c18;border-radius:14px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.card-pending{background:#161512;border:1px solid #1e1c18;border-radius:14px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden}
+.card-pending-progress{position:absolute;bottom:0;left:0;height:1.5px;background:#2a2724;transition:width 1s linear}
 .card-pending-left{flex:1;min-width:0}
-.card-pending-eyebrow{font-size:10px;color:#3a3630;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:5px;text-transform:uppercase;letter-spacing:1.2px}
-.card-pending-dot{width:5px;height:5px;border-radius:50%;background:#5a5754;animation:pulse 2s ease-in-out infinite}
-.card-pending-name{font-size:17px;font-weight:700;color:#9a9690;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.2px}
+.card-pending-eyebrow{font-size:10px;color:#2a2724;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:5px;text-transform:uppercase;letter-spacing:1.2px}
+.card-pending-dot{width:5px;height:5px;border-radius:50%;background:#2a2724;animation:none} /* grigio spento — no pulse verde */
+.card-pending-name{font-size:15px;font-weight:600;color:#5a5754;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.2px}
 .btn-cancel{background:transparent;color:#6a6560;border:none;padding:8px 0 8px 12px;font-size:14px;cursor:pointer;flex-shrink:0;font-family:inherit;transition:opacity .15s;font-weight:500}
 .btn-cancel:active{opacity:.4}
 
@@ -1112,17 +1152,37 @@ function updateCountdowns() {
   if(!me) return;
   let anyExpired = false;
   matches.forEach(m => {
-    if(m.status !== 'pending_challenge') return;
-    const elapsed = Date.now() - new Date(m.created_at).getTime();
-    const remaining = CHALLENGE_EXPIRE_MS - elapsed;
-    const pct = Math.max(0, Math.min(100, (remaining / CHALLENGE_EXPIRE_MS) * 100));
-    const urgent = pct < 20;
-    const bar = document.getElementById('prog-' + m.id);
-    if(bar) {
-      bar.style.width = pct + '%';
-      bar.className = 'card-challenge-progress' + (urgent ? ' urgent' : '');
+    // Progress bar sfide ricevute (card-challenge inline — ormai solo nello sheet)
+    if(m.status === 'pending_challenge') {
+      const elapsed = Date.now() - new Date(m.created_at).getTime();
+      const remaining = CHALLENGE_EXPIRE_MS - elapsed;
+      const pct = Math.max(0, Math.min(100, (remaining / CHALLENGE_EXPIRE_MS) * 100));
+      const urgent = pct < 20;
+      // challenge card inline (se ancora presente)
+      const bar = document.getElementById('prog-' + m.id);
+      if(bar) {
+        bar.style.width = pct + '%';
+        bar.className = 'card-challenge-progress' + (urgent ? ' urgent' : '');
+      }
+      // card-sent progress bar
+      const pendBar = document.getElementById('pend-prog-' + m.id);
+      if(pendBar) {
+        pendBar.style.width = pct + '%';
+      }
+      if(remaining <= 0) anyExpired = true;
     }
-    if(remaining <= 0) anyExpired = true;
+    // Progress bar ctx-strip (partite attive) — aggiornamento 1s
+    if(m.status === 'active') {
+      const ctxBar = document.getElementById('ctx-prog-' + m.id);
+      if(ctxBar) {
+        const ref = m.updated_at || m.created_at;
+        const elapsed = Date.now() - new Date(ref).getTime();
+        const pct = Math.max(0, Math.min(100, ((MATCH_EXPIRE_MS - elapsed) / MATCH_EXPIRE_MS) * 100));
+        const urgent = pct < 15;
+        ctxBar.style.width = pct + '%';
+        ctxBar.className = urgent ? 'ctx-progress urgent' : 'ctx-progress';
+      }
+    }
   });
   if(anyExpired) cleanupExpired();
 }
@@ -1250,14 +1310,19 @@ function makeCardChallenge(m) {
 }
 
 function makeCardSent(m) {
-  const vsLabel = matchLabel(m);
+  const opp = getP(m.p2);
+  const oppName = opp?.nickname || '?';
+  const totalMs = CHALLENGE_EXPIRE_MS;
+  const elapsed = Date.now() - new Date(m.created_at).getTime();
+  const pct = Math.max(0, Math.min(100, ((totalMs - elapsed) / totalMs) * 100));
   const el = document.createElement('div');
   el.className = 'card-pending card-enter';
   el.dataset.mid = m.id;
   el.innerHTML = `
+    <div class="card-pending-progress" id="pend-prog-${m.id}" style="width:${pct}%"></div>
     <div class="card-pending-left">
       <div class="card-pending-eyebrow"><span class="card-pending-dot"></span>Aspetti risposta</div>
-      <div class="card-pending-name">${vsLabel}</div>
+      <div class="card-pending-name">vs ${oppName}</div>
     </div>
     <button class="btn-cancel" onclick="cancelChallenge('${m.id}')">Annulla</button>`;
   return el;
@@ -1279,29 +1344,44 @@ function renderCtxStrip(activeCards) {
     const myRes  = isP1 ? m.result_p1 : m.result_p2;
     const oppRes = isP1 ? m.result_p2 : m.result_p1;
 
-    let dotClass = 'ctx-dot live';
-    let statusText = '';
-    let statusClass = 'ctx-status live';
+    // Progress bar countdown 24h — sottilissima sul fondo della riga
+    const totalMs = MATCH_EXPIRE_MS;
+    const elapsed = Date.now() - new Date(m.updated_at || m.created_at).getTime();
+    const pct = Math.max(0, Math.min(100, ((totalMs - elapsed) / totalMs) * 100));
+    const urgent = pct < 15;
+
+    let dotClass, statusText, statusClass, progressClass;
 
     if(type === 'disputed') {
       dotClass = 'ctx-dot disputed';
-      statusText = 'disaccordo';
+      // Mostra cosa ha detto l'avversario, non solo "disaccordo"
+      const resLabels = { p1: isP1 ? 'Vinta' : 'Persa', p2: isP1 ? 'Persa' : 'Vinta', draw: 'Patta' };
+      const myLabel  = myRes  ? resLabels[myRes]  : null;
+      const oppLabel = oppRes ? resLabels[oppRes] : null;
+      statusText = (myLabel && oppLabel)
+        ? `tu: ${myLabel} · ${oppName}: ${oppLabel}`
+        : `${oppName} dice ${oppLabel || '?'}`;
       statusClass = 'ctx-status disputed';
+      progressClass = 'ctx-progress urgent';
     } else if(type === 'waiting') {
       // ho inserito io, aspetto lui
-      dotClass = 'ctx-dot waiting';
-      statusText = oppRes ? 'lui ha inserito' : 'lui non ha inserito';
+      dotClass = oppRes ? 'ctx-dot submitted' : 'ctx-dot waiting';
+      statusText = oppRes ? `${oppName} ha inserito` : `${oppName} non ha inserito`;
       statusClass = oppRes ? 'ctx-status submitted' : 'ctx-status waiting';
+      progressClass = urgent ? 'ctx-progress urgent' : 'ctx-progress submitted';
     } else {
-      // live — nessuno o solo lui ha inserito
-      statusText = oppRes ? 'lui ha inserito' : 'in corso';
+      // live — nessuno ha ancora inserito, o solo l'avversario
+      dotClass = oppRes ? 'ctx-dot submitted' : 'ctx-dot live';
+      statusText = oppRes ? `${oppName} ha inserito` : `${oppName} non ha inserito`;
       statusClass = oppRes ? 'ctx-status submitted' : 'ctx-status live';
+      progressClass = urgent ? 'ctx-progress urgent' : 'ctx-progress';
     }
 
     return `<div class="ctx-row">
       <span class="${dotClass}"></span>
       <span class="ctx-vs">vs ${oppName}</span>
       <span class="${statusClass}">${statusText}</span>
+      <div class="${progressClass}" id="ctx-prog-${m.id}" style="width:${pct}%"></div>
     </div>`;
   }).join('');
 }
@@ -1332,7 +1412,8 @@ function renderHome() {
   else badge.classList.add("hidden");
 
   reconcileCards($("home-pending"), [
-    ...incomingChallenges.map(m => ({ id: m.id, makeEl: () => makeCardChallenge(m) })),
+    // card challenge inline soppressa — gestita da CAB + challenge sheet
+    // incomingChallenges vengono mostrate SOLO via CAB state 'incoming' → openChallengeSheet
     ...sentChallenges.map(m => ({ id: m.id, makeEl: () => makeCardSent(m) })),
   ]);
   updateCountdowns();
@@ -1560,10 +1641,14 @@ function updateCAB() {
   // Priorità: disputed > live/action > incoming > waiting > idle
 
   if(disputedCards.length > 0) {
-    // DISPUTE — rosso, pulse, azione urgente
+    // DISPUTE — rosso, pulse, azione urgente + nome esplicito
     const m = disputedCards[0].m;
+    const oppDisp = getP(m.p1 === me.id ? m.p2 : m.p1);
     _setCABState('disputed', bar, label, labelSub, icon, arrow);
-    label.textContent = 'Disaccordo →';
+    const dispName = oppDisp?.nickname || '?';
+    label.textContent = disputedCards.length > 1
+      ? 'Disaccordo con ' + dispName + ' →'
+      : 'Disaccordo con ' + dispName + ' →';
     bar.onclick = () => openResultSheet(m.id);
 
   } else if(liveCards.length > 0) {
@@ -1591,7 +1676,7 @@ function updateCAB() {
     }
 
   } else if(sentChal.length > 0) {
-    // WAITING — completamente spento, nessun pulse
+    // WAITING — pill sottile, spento, nessun pulse
     _setCABState('waiting', bar, label, labelSub, icon, arrow);
     const opp = getP(sentChal[0].p2);
     label.textContent = (opp?.nickname || '…') + ' sta decidendo…';
@@ -1654,6 +1739,7 @@ function openCABSearch() {
   $('cab-search-input').value = '';
   $('cab-results').innerHTML = '';
   $('cab-results').classList.remove('open');
+  $('page-home').classList.add('search-open');
   setTimeout(() => $('cab-search-input').focus(), 80);
 }
 
@@ -1664,6 +1750,7 @@ function closeCABSearch() {
   $('cab-search-input').value = '';
   $('cab-results').innerHTML = '';
   $('cab-results').classList.remove('open');
+  $('page-home').classList.remove('search-open');
   updateCAB();
 }
 
@@ -1678,9 +1765,22 @@ function openChallengeSheet(matchId) {
   $('csheet-name').textContent = opp?.nickname || '?';
   $('csheet-elo').textContent = opp?.elo ? opp.elo + ' ELO' : '';
   const amIWhite = m.white_player_id === me.id;
-  $('csheet-color').textContent = m.white_player_id
-    ? 'giochi col ' + (amIWhite ? 'bianco ○' : 'nero ●')
-    : '';
+  if(m.white_player_id) {
+    const dot = $('csheet-color-dot');
+    const colorText = $('csheet-color');
+    if(amIWhite) {
+      dot.style.background = '#e8e6e3';
+      dot.style.boxShadow = 'inset 0 0 0 1px #6a6560';
+      colorText.textContent = 'giochi col bianco';
+    } else {
+      dot.style.background = '#161512';
+      dot.style.boxShadow = 'inset 0 0 0 1px #3a3630';
+      colorText.textContent = 'giochi col nero';
+    }
+    $('csheet-color-wrap').style.display = 'flex';
+  } else {
+    $('csheet-color-wrap').style.display = 'none';
+  }
   // progress bar
   const totalMs = CHALLENGE_EXPIRE_MS;
   const elapsed = Date.now() - new Date(m.created_at).getTime();
@@ -2468,9 +2568,13 @@ $('home-scroll').addEventListener('scroll', () => {
   <div class="asheet" onclick="event.stopPropagation()">
     <div class="asheet-eyebrow">Sfida ricevuta</div>
     <div id="csheet-content" style="text-align:center;padding:8px 0 20px">
-      <div id="csheet-name" style="font-size:28px;font-weight:800;color:#e8e6e3;letter-spacing:-.6px;line-height:1;margin-bottom:6px"></div>
-      <div id="csheet-elo" style="font-size:14px;color:#4a4642;font-weight:500;margin-bottom:4px"></div>
-      <div id="csheet-color" style="font-size:13px;color:#5a5754;font-weight:500"></div>
+      <div id="csheet-name" style="font-size:28px;font-weight:800;color:#e8e6e3;letter-spacing:-.6px;line-height:1;margin-bottom:8px"></div>
+      <div id="csheet-elo" style="font-size:14px;color:#4a4642;font-weight:500;margin-bottom:12px"></div>
+      <!-- Colore assegnato: indicatore visivo grande, non testo piccolo -->
+      <div id="csheet-color-wrap" style="display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 16px;background:#1d1a16;border-radius:12px;margin-bottom:4px">
+        <div id="csheet-color-dot" style="width:20px;height:20px;border-radius:50%;flex-shrink:0"></div>
+        <div id="csheet-color" style="font-size:14px;color:#9a9690;font-weight:600"></div>
+      </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px">
       <button class="asheet-cta" id="csheet-accept" onclick="confirmChallengeSheet('accept')">Accetta</button>
