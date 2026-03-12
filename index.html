@@ -100,6 +100,10 @@ body.sheet-open #sa-cover{background:#000000}
 
 /* ── Home ── */
 .home-top{padding:4px 16px 0;flex-shrink:0}
+
+/* State bar — fisso tra CAB e storico, non scorre mai */
+#home-state-bar{flex-shrink:0;overflow:hidden}
+
 /* STEP 2: CAB è inline — padding bottom solo per navbar */
 #home-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px calc(80px + env(safe-area-inset-bottom,0px))}
 #home-scroll::-webkit-scrollbar{display:none}
@@ -240,20 +244,16 @@ body.sheet-open #sa-cover{background:#000000}
 /* Search inline legacy — non più usata in home-top, tenuta per compatibilità */
 .home-search{display:none!important}
 
-/* Search aperta — contesto sottostante sfuma */
-#page-home.search-open #home-scroll,
-#page-home.search-open #home-pending,
-#page-home.search-open #home-ctx-strip{
-  opacity:.08;
+/* Search aperta — solo lo storico sfuma, state-bar resta visibile */
+#page-home.search-open #home-scroll{
+  opacity:.06;
   pointer-events:none;
-  transition:opacity .2s ease;
+  transition:opacity .18s ease;
 }
-#page-home:not(.search-open) #home-scroll,
-#page-home:not(.search-open) #home-pending,
-#page-home:not(.search-open) #home-ctx-strip{
+#page-home:not(.search-open) #home-scroll{
   opacity:1;
   pointer-events:auto;
-  transition:opacity .2s ease;
+  transition:opacity .18s ease;
 }
 
 /* Lista giocatori nella search */
@@ -294,57 +294,72 @@ body.sheet-open #sa-cover{background:#000000}
 .card-enter{animation:cardEnter .4s cubic-bezier(.2,0,.2,1) both}
 .card-live-vs{font-size:18px;font-weight:700;color:#e8e6e3;margin-bottom:10px;letter-spacing:-.2px}
 
-/* ── Context strip — partite attive, display puro ── */
+/* ── Context strip — stato corrente, fisso tra CAB e storico ── */
 .ctx-strip{
-  margin:0 16px;
-  border-radius:12px;
-  overflow:hidden;
-  margin-bottom:6px;
+  /* Nessun margin orizzontale — righe full-width con padding interno */
+  /* Nessun border/background esterno — le righe si gestiscono da sole */
 }
+.ctx-strip:empty{ display:none }
+
 .ctx-row{
   display:flex;align-items:center;
-  padding:10px 14px;
+  padding:9px 20px;
   gap:10px;
-  background:#161512;
-  border-bottom:1px solid #1e1c18;
-  position:relative; /* per progress bar */
+  position:relative;
   overflow:hidden;
+  /* Separatore minimalista solo tra righe, non sopra/sotto */
 }
-.ctx-row:last-child{border-bottom:none}
-/* Progress bar countdown — sottilissima sul fondo della riga */
+.ctx-row + .ctx-row{
+  border-top:1px solid #1a1714;
+}
+
+/* Progress bar countdown — 2px, visibile ma non invasiva */
 .ctx-progress{
   position:absolute;bottom:0;left:0;
-  height:1.5px;
-  background:#3a3630;
+  height:2px;
+  background:#252220;
   transition:width 1s linear;
   pointer-events:none;
 }
-.ctx-progress.urgent{background:#c33}
-.ctx-progress.submitted{background:#5a7a35}
+.ctx-progress.urgent{background:rgba(195,51,51,.5)}
+.ctx-progress.active{background:rgba(98,153,36,.3)}
+
+/* Dot stato */
 .ctx-dot{
-  width:7px;height:7px;border-radius:50%;flex-shrink:0;
+  width:6px;height:6px;border-radius:50%;flex-shrink:0;
 }
-/* live — grigio neutro, no colore che distrae */
-.ctx-dot.live{background:#3a3630;animation:none}
-/* waiting — spento */
-.ctx-dot.waiting{background:#2a2724;animation:none}
-/* submitted — verde, conferma positiva */
-.ctx-dot.submitted{background:#5a7a35;animation:none}
-/* disputed — rosso pulsante */
+.ctx-dot.live{background:#2a2724;animation:none}
+.ctx-dot.waiting{background:#252220;animation:none}
+.ctx-dot.submitted{background:#4a7c20;animation:none}
 .ctx-dot.disputed{background:#c33;animation:pulse 1.5s ease-in-out infinite}
-.ctx-vs{
-  font-size:13px;font-weight:600;color:#6a6560;
+.ctx-dot.sent{background:#252220;animation:none}
+
+/* Nome — protagonista */
+.ctx-name{
+  font-size:13px;font-weight:600;color:#5a5754;
   flex:1;min-width:0;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  letter-spacing:-.1px;
 }
+
+/* Status — secondario, destra */
 .ctx-status{
-  font-size:11px;font-weight:500;flex-shrink:0;
+  font-size:11px;font-weight:400;flex-shrink:0;
   white-space:nowrap;
+  letter-spacing:0;
 }
-.ctx-status.live{color:#3a3630}
-.ctx-status.submitted{color:#5a7a35}
-.ctx-status.disputed{color:#c33}
-.ctx-status.waiting{color:#2a2724}
+.ctx-status.live{color:#2a2724}
+.ctx-status.submitted{color:#4a7c20}
+.ctx-status.disputed{color:rgba(195,51,51,.8)}
+.ctx-status.waiting{color:#252220}
+.ctx-status.sent{color:#252220}
+
+/* Separatore sopra il label Recenti — solo quando strip non vuota */
+#home-state-bar:not(:empty) + .home-top + #home-scroll .slabel:first-child,
+#home-ctx-strip:not(:empty){
+  border-bottom:1px solid #1a1714;
+}
+
 
 /* ── Live Strip placeholder — scroll orizzontale, 1 riga ── */
 .live-strip-wrap{
@@ -398,22 +413,15 @@ body.sheet-open #sa-cover{background:#000000}
 .btn-decline{background:transparent;color:#6a6560;border:none;padding:15px 14px;font-size:14px;cursor:pointer;transition:opacity .15s;font-family:inherit;white-space:nowrap;font-weight:500}
 .btn-decline:active{opacity:.4}
 
-/* Card sfida inviata */
-.card-pending{background:#161512;border:1px solid #1e1c18;border-radius:14px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden}
-.card-pending-progress{position:absolute;bottom:0;left:0;height:1.5px;background:#2a2724;transition:width 1s linear}
-.card-pending-left{flex:1;min-width:0}
-.card-pending-eyebrow{font-size:10px;color:#2a2724;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:5px;text-transform:uppercase;letter-spacing:1.2px}
-.card-pending-dot{width:5px;height:5px;border-radius:50%;background:#2a2724;animation:none} /* grigio spento — no pulse verde */
-.card-pending-name{font-size:15px;font-weight:600;color:#5a5754;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.2px}
-.btn-cancel{background:transparent;color:#6a6560;border:none;padding:8px 0 8px 12px;font-size:14px;cursor:pointer;flex-shrink:0;font-family:inherit;transition:opacity .15s;font-weight:500}
-.btn-cancel:active{opacity:.4}
+/* Card sfida inviata — rimossa, ora integrata in ctx-strip come ctx-row tipo 'sent' */
 
-/* Gruppo "in attesa" collassato */
+/* Gruppo "in attesa" collassato — legacy */
 .waiting-group{background:#161512;border:1px solid #252220;border-radius:10px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer}
 .waiting-group-label{font-size:12px;color:#5a5754;flex:1}
 .waiting-group-count{font-size:11px;color:#4a4642;background:#1d1a16;border-radius:6px;padding:2px 8px}
 
-#home-pending:not(:empty){margin-bottom:4px}#home-ctx-strip:not(:empty){margin-bottom:2px}
+/* Margine sotto la state bar quando non vuota */
+#home-ctx-strip:not(:empty){ padding-bottom:4px }
 
 /* ── ELO strip ── */
 .elo-info-btn{width:13px;height:13px;border-radius:50%;border:1px solid #3a3630;color:#4a4642;font-size:8px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
@@ -635,7 +643,7 @@ canvas{width:100%!important;display:block}
             <span class="cab-label-sub hidden" id="cab-label-sub"></span>
           </div>
           <span class="cab-arrow hidden" id="cab-arrow">›</span>
-          <div class="cab-feedback" id="cab-feedback">Risultato inviato</div>
+          <div class="cab-feedback" id="cab-feedback">Inviato</div>
         </div>
         <div class="cab-search-bar" id="cab-search-bar">
           <input id="cab-search-input" class="cab-search-input" placeholder="cerca avversario" autocorrect="off" autocapitalize="none" spellcheck="false">
@@ -644,16 +652,20 @@ canvas{width:100%!important;display:block}
         <div class="cab-results" id="cab-results"></div>
       </div>
 
+      <!-- Stato corrente — fisso, non scorre. Partite attive + sfide -->
+      <div id="home-state-bar">
+        <div id="home-ctx-strip" class="ctx-strip"></div>
+      </div>
+
       <div class="home-top">
         <button class="btn-new-match" id="btn-newmatch"><span class="btn-new-icon"></span><span>Gioca</span></button>
         <div class="home-search" id="home-search"><div class="home-search-inner"><div class="home-search-bar"><input id="home-search-input" placeholder="" autocorrect="off" autocapitalize="none" spellcheck="false"><button class="close-btn" onclick="closeHomeSearch()">✕</button></div><div id="home-search-results"></div></div></div>
       </div>
 
       <div id="home-scroll">
-        <div id="home-pending"></div>
-        <!-- STEP B: context strip partite attive — display passivo -->
-        <div id="home-ctx-strip" class="ctx-strip"></div>
-        <!-- Live strip placeholder — attivato quando RLS elo_history disponibile -->
+        <!-- home-pending rimosso — sfide inviate ora in ctx-strip -->
+        <div id="home-pending" style="display:none"></div>
+        <!-- Live strip placeholder -->
         <div id="home-live-strip" class="live-strip-wrap"></div>
         <div class="slabel" id="home-history-divider" style="display:none;margin-top:4px">Recenti</div>
         <div id="home-history"></div>
@@ -1332,11 +1344,12 @@ function makeCardSent(m) {
 // Sostituisce makeCardActive/makeCardLive/makeCardDisputed/makeCardWaiting
 // Non è una card interattiva — è una riga informativa
 
-function renderCtxStrip(activeCards) {
+function renderCtxStrip(activeCards, sentChallenges) {
   const container = $('home-ctx-strip');
-  if(!activeCards.length) { container.innerHTML = ''; return; }
+  const rows = [];
 
-  container.innerHTML = activeCards.map(({ m, type }) => {
+  // Righe partite attive
+  activeCards.forEach(({ m, type }) => {
     const isP1 = m.p1 === me.id;
     const oppId = isP1 ? m.p2 : m.p1;
     const opp = getP(oppId);
@@ -1344,7 +1357,14 @@ function renderCtxStrip(activeCards) {
     const myRes  = isP1 ? m.result_p1 : m.result_p2;
     const oppRes = isP1 ? m.result_p2 : m.result_p1;
 
-    // Progress bar countdown 24h — sottilissima sul fondo della riga
+    // Mapping risultato → label leggibile, relativo all'avversario
+    const oppResLabel = (res) => {
+      if(!res) return null;
+      if(res === 'draw') return 'Patta';
+      const oppWins = (res === 'p1') !== isP1; // vero se l'avversario ha vinto
+      return oppWins ? 'Vinta' : 'Persa'; // dal punto di vista dell'avversario
+    };
+
     const totalMs = MATCH_EXPIRE_MS;
     const elapsed = Date.now() - new Date(m.updated_at || m.created_at).getTime();
     const pct = Math.max(0, Math.min(100, ((totalMs - elapsed) / totalMs) * 100));
@@ -1354,37 +1374,49 @@ function renderCtxStrip(activeCards) {
 
     if(type === 'disputed') {
       dotClass = 'ctx-dot disputed';
-      // Mostra cosa ha detto l'avversario, non solo "disaccordo"
-      const resLabels = { p1: isP1 ? 'Vinta' : 'Persa', p2: isP1 ? 'Persa' : 'Vinta', draw: 'Patta' };
-      const myLabel  = myRes  ? resLabels[myRes]  : null;
-      const oppLabel = oppRes ? resLabels[oppRes] : null;
-      statusText = (myLabel && oppLabel)
-        ? `tu: ${myLabel} · ${oppName}: ${oppLabel}`
-        : `${oppName} dice ${oppLabel || '?'}`;
+      const oppLabel = oppResLabel(oppRes);
+      statusText = oppLabel ? `dice ${oppLabel}` : 'disaccordo';
       statusClass = 'ctx-status disputed';
       progressClass = 'ctx-progress urgent';
     } else if(type === 'waiting') {
-      // ho inserito io, aspetto lui
       dotClass = oppRes ? 'ctx-dot submitted' : 'ctx-dot waiting';
-      statusText = oppRes ? `${oppName} ha inserito` : `${oppName} non ha inserito`;
+      statusText = oppRes ? 'ha inserito' : 'non ha inserito';
       statusClass = oppRes ? 'ctx-status submitted' : 'ctx-status waiting';
-      progressClass = urgent ? 'ctx-progress urgent' : 'ctx-progress submitted';
+      progressClass = urgent ? 'ctx-progress urgent' : 'ctx-progress active';
     } else {
-      // live — nessuno ha ancora inserito, o solo l'avversario
       dotClass = oppRes ? 'ctx-dot submitted' : 'ctx-dot live';
-      statusText = oppRes ? `${oppName} ha inserito` : `${oppName} non ha inserito`;
+      statusText = oppRes ? 'ha inserito' : 'non ha inserito';
       statusClass = oppRes ? 'ctx-status submitted' : 'ctx-status live';
       progressClass = urgent ? 'ctx-progress urgent' : 'ctx-progress';
     }
 
-    return `<div class="ctx-row">
+    rows.push(`<div class="ctx-row">
       <span class="${dotClass}"></span>
-      <span class="ctx-vs">vs ${oppName}</span>
+      <span class="ctx-name">${oppName}</span>
       <span class="${statusClass}">${statusText}</span>
       <div class="${progressClass}" id="ctx-prog-${m.id}" style="width:${pct}%"></div>
-    </div>`;
-  }).join('');
+    </div>`);
+  });
+
+  // Righe sfide inviate — passive, integrate nella stessa strip
+  (sentChallenges || []).forEach(m => {
+    const opp = getP(m.p2);
+    const oppName = opp?.nickname || '?';
+    const totalMs = CHALLENGE_EXPIRE_MS;
+    const elapsed = Date.now() - new Date(m.created_at).getTime();
+    const pct = Math.max(0, Math.min(100, ((totalMs - elapsed) / totalMs) * 100));
+
+    rows.push(`<div class="ctx-row">
+      <span class="ctx-dot sent"></span>
+      <span class="ctx-name" style="color:#3a3630">${oppName}</span>
+      <span class="ctx-status sent">sta decidendo</span>
+      <div class="ctx-progress" id="pend-prog-${m.id}" style="width:${pct}%"></div>
+    </div>`);
+  });
+
+  container.innerHTML = rows.join('');
 }
+
 
 function reconcileCards(container, items) {
   const newIds = new Set(items.map(i => i.id));
@@ -1411,11 +1443,7 @@ function renderHome() {
   if(incomingChallenges.length > 0) { badge.textContent = incomingChallenges.length; badge.classList.remove("hidden"); }
   else badge.classList.add("hidden");
 
-  reconcileCards($("home-pending"), [
-    // card challenge inline soppressa — gestita da CAB + challenge sheet
-    // incomingChallenges vengono mostrate SOLO via CAB state 'incoming' → openChallengeSheet
-    ...sentChallenges.map(m => ({ id: m.id, makeEl: () => makeCardSent(m) })),
-  ]);
+  // home-pending non più usato — sfide inviate integrate in ctx-strip
   updateCountdowns();
 
   const activeCards = allActive.map(m => {
@@ -1429,10 +1457,10 @@ function renderHome() {
   const disputedCards = activeCards.filter(c => c.type === 'disputed');
   window._homeState = { incomingChallenges, sentChallenges, liveCards, disputedCards };
 
-  // STEP B: context strip — display passivo, nessuna card interattiva
-  renderCtxStrip(activeCards);
+  // Context strip: partite attive + sfide inviate, tutto insieme, fisso
+  renderCtxStrip(activeCards, sentChallenges);
 
-  // STEP 2: aggiorna la Contextual Action Bar
+  // Contextual Action Bar
   updateCAB();
 
   // ── Storico ──
@@ -2565,24 +2593,34 @@ $('home-scroll').addEventListener('scroll', () => {
 
 <!-- ACTION SHEET SFIDA RICEVUTA -->
 <div class="asheet-overlay" id="challenge-sheet-overlay" onclick="closeChallengeSheet()">
-  <div class="asheet" onclick="event.stopPropagation()">
-    <div class="asheet-eyebrow">Sfida ricevuta</div>
-    <div id="csheet-content" style="text-align:center;padding:8px 0 20px">
-      <div id="csheet-name" style="font-size:28px;font-weight:800;color:#e8e6e3;letter-spacing:-.6px;line-height:1;margin-bottom:8px"></div>
-      <div id="csheet-elo" style="font-size:14px;color:#4a4642;font-weight:500;margin-bottom:12px"></div>
-      <!-- Colore assegnato: indicatore visivo grande, non testo piccolo -->
-      <div id="csheet-color-wrap" style="display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 16px;background:#1d1a16;border-radius:12px;margin-bottom:4px">
-        <div id="csheet-color-dot" style="width:20px;height:20px;border-radius:50%;flex-shrink:0"></div>
-        <div id="csheet-color" style="font-size:14px;color:#9a9690;font-weight:600"></div>
+  <div class="asheet" onclick="event.stopPropagation()" style="padding:20px 20px 32px">
+
+    <!-- Timer — tutto in cima, prima di tutto il resto -->
+    <div style="margin-bottom:20px">
+      <div style="height:2px;background:#252220;border-radius:2px;overflow:hidden">
+        <div id="csheet-progress" style="height:100%;background:#629924;transition:width 1s linear;border-radius:2px"></div>
       </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px">
+
+    <!-- Chi sfida -->
+    <div style="margin-bottom:24px">
+      <div style="font-size:11px;color:#3a3630;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px">Sfida ricevuta</div>
+      <div id="csheet-name" style="font-size:32px;font-weight:800;color:#e8e6e3;letter-spacing:-.8px;line-height:1;margin-bottom:4px"></div>
+      <div id="csheet-elo" style="font-size:13px;color:#3a3630;font-weight:500"></div>
+    </div>
+
+    <!-- Colore assegnato — solo se disponibile -->
+    <div id="csheet-color-wrap" style="display:none;align-items:center;gap:8px;margin-bottom:24px">
+      <div id="csheet-color-dot" style="width:12px;height:12px;border-radius:50%;flex-shrink:0"></div>
+      <div id="csheet-color" style="font-size:13px;color:#5a5754;font-weight:500"></div>
+    </div>
+
+    <!-- CTA -->
+    <div style="display:flex;flex-direction:column;gap:6px">
       <button class="asheet-cta" id="csheet-accept" onclick="confirmChallengeSheet('accept')">Accetta</button>
-      <button class="rsheet-cancel" style="margin:0" onclick="confirmChallengeSheet('decline')">Declina</button>
+      <button class="rsheet-cancel" style="margin:0;padding:12px" onclick="confirmChallengeSheet('decline')">Declina</button>
     </div>
-    <div id="csheet-progress-wrap" style="height:3px;background:#252220;border-radius:2px;overflow:hidden;margin-top:4px">
-      <div id="csheet-progress" style="height:100%;background:#629924;transition:width 1s linear"></div>
-    </div>
+
   </div>
 </div>
 
