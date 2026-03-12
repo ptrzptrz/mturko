@@ -20,7 +20,7 @@
 html{background:#161512}
 body{background:#161512;font-family:'Inter',system-ui,sans-serif;color:#e8e6e3;max-width:480px;margin:0 auto;height:100dvh;overflow:hidden}
 input,select,textarea{background:#2a2724;border:1px solid #3a3630;border-radius:10px;color:#e8e6e3;padding:13px 14px;font-size:16px;font-family:inherit;width:100%;outline:none;display:block}
-input:focus,select:focus,textarea:focus{border-color:#5a5754}
+input:focus,select:focus,textarea:focus{border-color:#6a6560}
 input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0px 1000px #161512 inset;-webkit-text-fill-color:#e8e6e3}
 input::placeholder,textarea::placeholder{color:#4a4642}
 button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-color:transparent;outline:none}
@@ -81,16 +81,16 @@ body.sheet-open #sa-cover{background:#000000}
 
 /* ── Notif ── */
 .notif{position:fixed;top:calc(env(safe-area-inset-top,20px) + 58px);left:50%;transform:translateX(-50%) translateY(-4px);background:#e8e6e3;color:#161512;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;max-width:90vw;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5);opacity:0;transition:opacity .2s,transform .2s}
-.notif.err{background:#2a0f0f;color:#e87070;border:1px solid rgba(200,50,50,.2)}
+.notif.err{background:#2a1010;color:#e87070;border:1px solid rgba(200,50,50,.2)}
 .notif.result{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 80px);transform:translateX(-50%) translateY(8px);font-size:15px;font-weight:700;padding:13px 24px;border-radius:16px}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.2);border-top-color:#161512;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── Home hero header ── */
 /* STEP 1: padding compatto — meno spazio sprecato sopra il fold */
-.home-hero{padding:6px 20px 8px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s}
+.home-hero{padding:6px 16px 8px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s}
 .home-hero:active{opacity:.7}
-.home-hero-nick{font-size:11px;font-weight:600;color:#6a6560;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:2px}
+.home-hero-nick{font-size:11px;font-weight:600;color:#6a6560;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .home-hero-elo-row{display:flex;align-items:baseline;gap:10px}
 .home-hero-elo{font-size:48px;font-weight:800;color:#e8e6e3;letter-spacing:-2px;line-height:1}
 .home-hero-delta{font-size:15px;font-weight:600;letter-spacing:-.3px}
@@ -119,8 +119,8 @@ body.sheet-open #sa-cover{background:#000000}
   -webkit-tap-highlight-color:transparent;
 }
 .acard.acard-passive{
-  background:#191613;
-  border-color:#211e1a;
+  background:#1d1a16;
+  border-color:#1d1a16;
 }
 /* Accent bar — 3px, colore per stato */
 .acard-accent{width:3px;min-width:3px;flex-shrink:0;background:#252220}
@@ -130,7 +130,7 @@ body.sheet-open #sa-cover{background:#000000}
 /* Body — flex, prende tutto lo spazio */
 .acard-body{
   flex:1;min-width:0;
-  padding:0 0 0 12px;
+  padding:0 0 0 14px;
   display:flex;flex-direction:column;justify-content:center;
   gap:3px;
 }
@@ -140,10 +140,10 @@ body.sheet-open #sa-cover{background:#000000}
   line-height:1.2;
 }
 .acard.acard-passive .acard-name{color:#3a3630;font-weight:500}
-.acard-elo{font-size:11px;font-weight:400;color:#2e2b27;margin-left:4px}
-.acard-status{font-size:12px;color:#4a4642;line-height:1.2}
+.acard-elo{font-size:11px;font-weight:400;color:#3a3630;margin-left:5px}
+.acard-status{font-size:13px;color:#4a4642;line-height:1.2;font-weight:400}
 .acard-status.red{color:#c33}
-.acard.acard-passive .acard-status{color:#2a2724}
+.acard.acard-passive .acard-status{color:#3a3630}
 
 /* Riga colore — solo card incoming */
 .acard-colors{
@@ -152,7 +152,7 @@ body.sheet-open #sa-cover{background:#000000}
 }
 .acard-color-player{
   display:flex;align-items:center;gap:4px;
-  font-size:11px;font-weight:500;color:#4a4642;
+  font-size:11px;font-weight:400;color:#3a3630;
 }
 .cdot{
   width:8px;height:8px;border-radius:50%;flex-shrink:0;
@@ -164,7 +164,7 @@ body.sheet-open #sa-cover{background:#000000}
 .acard-cta{
   width:96px;min-width:96px;
   display:flex;align-items:center;justify-content:center;
-  padding:10px 12px 10px 6px;
+  padding:10px 14px 10px 6px;
   flex-shrink:0;
 }
 .acard-btn{
@@ -183,8 +183,8 @@ body.sheet-open #sa-cover{background:#000000}
 .acard-btn.primary{background:#e8e6e3;color:#161512}
 .acard-btn.danger{background:#2a1010;color:#e87070}
 .acard-btn.muted{
-  background:transparent;color:#2e2b27;
-  font-weight:500;font-size:11px;
+  background:transparent;color:#3a3630;
+  font-weight:400;font-size:12px;
   cursor:default;
 }
 .acard-btn.muted:active{opacity:1;transform:none}
@@ -247,8 +247,8 @@ body.sheet-open #sa-cover{background:#000000}
   -webkit-tap-highlight-color:transparent;
 }
 #home-history-collapsed.visible{display:flex}
-#home-history-collapsed span{font-size:13px;color:#3a3630;font-weight:500}
-#home-history-collapsed .hcoll-arrow{font-size:13px;color:#2e2b27}
+#home-history-collapsed span{font-size:12px;color:#3a3630;font-weight:500}
+#home-history-collapsed .hcoll-arrow{font-size:13px;color:#2a2724}
 
 /* Storico espanso — animazione collasso */
 #home-history-list{
@@ -282,7 +282,7 @@ body.sheet-open #sa-cover{background:#000000}
   cursor:pointer;
   position:relative;
   overflow:hidden;
-  transition:background .25s ease, border-color .25s ease;
+  transition:background .2s ease, box-shadow .2s ease, opacity .15s;
   -webkit-tap-highlight-color:transparent;
   user-select:none;
   flex-shrink:0;
@@ -291,18 +291,23 @@ body.sheet-open #sa-cover{background:#000000}
 /* reset active per stati non-tappabili */
 .cab-bar.cab-inactive:active{opacity:1;transform:none}
 
-/* Stato IDLE: bianco pieno — CTA primaria */
-.cab-idle{background:#e8e6e3;border:none;}
-.cab-idle .cab-label{color:#161512;font-size:16px;font-weight:700;letter-spacing:-.3px}
+/* Stato IDLE: surface con bordo — tappabile ma non compete con ELO */
+.cab-idle{
+  background:#1d1a16;
+  box-shadow:inset 0 0 0 1.5px #3a3630;
+}
+.cab-idle .cab-label{color:#e8e6e3;font-size:16px;font-weight:700;letter-spacing:-.3px}
+.cab-idle .cab-arrow{opacity:.35}
+.cab-idle:active{opacity:.75;transform:scale(.99)}
 .cab-icon{display:none!important}
 
-/* Stato WAITING/disabled: muted, non tappabile */
+/* Stato WAITING/disabled: quasi invisibile — le card comunicano già tutto */
 .cab-waiting{
-  background:#1a1714;
+  background:#161512;
   box-shadow:inset 0 0 0 0.5px #252220;
   cursor:default;animation:none;
 }
-.cab-waiting .cab-label{color:#3a3630;font-size:13px;font-weight:500;letter-spacing:0}
+.cab-waiting .cab-label{color:#4a4642;font-size:13px;font-weight:400;letter-spacing:0}
 .cab-inactive{pointer-events:none}
 
 /* Label container: permette cross-fade tra stati */
@@ -329,7 +334,7 @@ body.sheet-open #sa-cover{background:#000000}
   outline:none;height:100%;
 }
 .cab-search-input::placeholder{color:#4a4642;font-weight:400;font-size:15px}
-.cab-close-btn{background:none;border:none;color:#5a5754;font-size:20px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0;transition:color .15s}
+.cab-close-btn{background:none;border:none;color:#6a6560;font-size:20px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0;transition:color .15s}
 .cab-close-btn:active{color:#e8e6e3}
 
 /* Risultati search — appaiono sotto la barra */
@@ -337,7 +342,7 @@ body.sheet-open #sa-cover{background:#000000}
   position:absolute;
   top:calc(100% + 4px);
   left:16px;right:16px;
-  background:#1a1714;
+  background:#161512;
   border:1px solid #2a2724;
   border-radius:16px;
   overflow:hidden;
@@ -369,10 +374,10 @@ body.sheet-open #sa-cover{background:#000000}
 .cab-feedback.hide{animation:cabFadeOut .3s ease forwards}
 
 /* Bottone nuova partita legacy — nascosto, tenuto per compatibilità showPage */
-.btn-new-match{display:none!important}
+
 
 /* Search inline legacy — non più usata in home-top, tenuta per compatibilità */
-.home-search{display:none!important}
+
 
 /* Search aperta — solo lo storico sfuma, state-bar resta visibile */
 #page-home.search-open #home-scroll{
@@ -395,15 +400,15 @@ body.sheet-open #sa-cover{background:#000000}
 /* ── Action sheet colore ── */
 .asheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:10001;display:flex;align-items:flex-end;pointer-events:none}
 .asheet-overlay.visible{background:rgba(0,0,0,.75);pointer-events:all}
-.asheet{background:#1a1714;border-radius:24px 24px 0 0;padding:24px 16px 40px;width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,0,.24,1)}
+.asheet{background:#161512;border-radius:24px 24px 0 0;padding:24px 16px 40px;width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,0,.24,1)}
 .asheet-overlay.visible .asheet{transform:translateY(0)}
-.asheet-eyebrow{font-size:11px;color:#5a5754;text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
+.asheet-eyebrow{font-size:11px;color:#6a6560;text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
 .asheet-colors{display:flex;gap:8px;margin-bottom:12px}
 .asheet-color-btn{flex:1;border:none;border-radius:16px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:transform .2s cubic-bezier(.34,1.56,.64,1),opacity .2s;position:relative;height:88px}
 .asheet-color-btn:active{transform:scale(.94)}
 .asheet-color-white{background:#e8e6e3}
 .asheet-color-white .asheet-color-name{font-size:14px;font-weight:700;color:#161512;letter-spacing:-.2px}
-.asheet-color-black{background:#1a1815;box-shadow:inset 0 0 0 1px #2a2724}
+.asheet-color-black{background:#161512;box-shadow:inset 0 0 0 1px #2a2724}
 .asheet-color-black .asheet-color-name{font-size:14px;font-weight:700;color:#e8e6e3;letter-spacing:-.2px}
 .asheet-color-white{opacity:1}
 .asheet-color-black{opacity:.38}
@@ -422,7 +427,7 @@ body.sheet-open #sa-cover{background:#000000}
 
 
 /* Action sheet risultato */
-.rsheet-context{font-size:13px;color:#5a5754;text-align:center;margin-bottom:16px;font-weight:500}
+.rsheet-context{font-size:13px;color:#6a6560;text-align:center;margin-bottom:16px;font-weight:500}
 .rsheet-btns{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
 .rsheet-btn{width:100%;padding:16px 20px;border-radius:12px;font-size:16px;font-weight:700;text-align:left;cursor:pointer;transition:opacity .15s,transform .1s;border:none;font-family:inherit;letter-spacing:-.2px}
 .rsheet-btn:active{opacity:.8;transform:scale(.99)}
@@ -435,19 +440,19 @@ body.sheet-open #sa-cover{background:#000000}
 .btn-result{width:100%;background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:15px 18px;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .2s cubic-bezier(.34,1.56,.64,1);text-align:left;display:flex;align-items:center;justify-content:space-between}
 .btn-result:not(.no-arrow)::after{content:'→';font-size:16px;opacity:.5}
 .btn-result:active{opacity:.8;transform:scale(.97)}
-.btn-result.waiting{background:#1d1a16;color:#5a5754;border:1px solid #2f2b27;cursor:default}
+.btn-result.waiting{background:#1d1a16;color:#6a6560;border:1px solid #2a2724;cursor:default}
 .btn-result.waiting::after{display:none}
 .waiting-dots{font-size:11px;color:#3a3630;flex-shrink:0}
 
 /* Card sfida ricevuta */
-.card-challenge{background:#1d1a16;border:1px solid #2a2724;border-radius:16px;padding:16px 16px 16px;margin-bottom:10px;position:relative;overflow:hidden}
-.card-challenge-progress{position:absolute;bottom:0;left:0;height:3px;background:#629924;transition:width 1s linear}
-.card-challenge-progress.urgent{background:#c33}
-.card-challenge-eyebrow{font-size:11px;color:#5a5754;font-weight:500;margin-bottom:5px;letter-spacing:.2px}
-.card-challenge-name{font-size:26px;font-weight:800;color:#e8e6e3;letter-spacing:-.6px;line-height:1;margin-bottom:10px}
-.card-challenge-opp-elo{font-size:14px;font-weight:500;color:#4a4642}
-.card-challenge-sub{font-size:13px;color:#5a5754;font-weight:500;margin-bottom:16px;margin-top:4px}
-.card-challenge-btns{display:flex;gap:8px;align-items:center}
+
+
+
+
+
+
+
+
 .btn-accept{flex:1;background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:15px 0;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .2s cubic-bezier(.34,1.56,.64,1);font-family:inherit;letter-spacing:-.2px}
 .btn-accept:active{opacity:.8;transform:scale(.96)}
 .btn-decline{background:transparent;color:#6a6560;border:none;padding:15px 14px;font-size:14px;cursor:pointer;transition:opacity .15s;font-family:inherit;white-space:nowrap;font-weight:500}
@@ -460,14 +465,14 @@ body.sheet-open #sa-cover{background:#000000}
 .elo-tooltip{position:absolute;top:calc(100% + 6px);left:0;width:230px;background:#1d1a16;border:1px solid #3a3630;border-radius:10px;padding:12px;z-index:30;box-shadow:0 4px 20px rgba(0,0,0,.6);display:none}
 .elo-tooltip.visible{display:block}
 .elo-tooltip-title{font-size:11px;font-weight:700;color:#e8e6e3;margin-bottom:6px}
-.elo-tooltip-text{font-size:10px;color:#5a5754;line-height:1.6}
+.elo-tooltip-text{font-size:10px;color:#6a6560;line-height:1.6}
 #home-history{margin-top:0}
 
 /* ── Alert ── */
 .alert{background:#1d1a16;border:1px solid #3a3630;border-radius:12px;padding:14px 16px;margin-bottom:8px}
 .alert-t{font-size:10px;color:#4a4642;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
 .alert-vs{font-size:15px;color:#e8e6e3;font-weight:600;margin-bottom:3px}
-.alert-r{font-size:12px;color:#5a5754;margin-bottom:12px}
+.alert-r{font-size:12px;color:#6a6560;margin-bottom:12px}
 .alert-btns{display:flex;gap:8px}
 .btn-yes{background:#e8e6e3;color:#161512;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:600;transition:opacity .15s}
 .btn-yes:active{opacity:.8}
@@ -475,10 +480,10 @@ body.sheet-open #sa-cover{background:#000000}
 .btn-no:active{opacity:.7}
 
 /* ── Ongoing card ── */
-.ongoing-card{background:#1d1a16;border:1px solid #3a3630;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
-.ongoing-left{flex:1}
-.ongoing-opp{font-size:15px;font-weight:600;color:#e8e6e3}
-.ongoing-meta{font-size:11px;color:#5a5754;margin-top:2px}
+
+
+
+
 .btn-sm{background:#2a2724;color:#e8e6e3;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;flex-shrink:0;transition:opacity .15s;border:1px solid #3a3630}
 .btn-sm:active{opacity:.7}
 .btn-play{background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:10px 18px;font-size:14px;font-weight:700;flex-shrink:0;cursor:pointer;font-family:inherit;transition:opacity .15s,transform .1s}
@@ -502,7 +507,7 @@ body.sheet-open #sa-cover{background:#000000}
 /* ── Leaderboard ── */
 .lbrow{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:13px 14px;margin-bottom:6px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .15s}
 .lbrow:active{border-color:#3a3630}
-.lbrow.me{border-color:#3a3630;background:#1e1c18}
+.lbrow.me{border-color:#3a3630;background:#252220}
 .lbrank{font-size:13px;color:#4a4642;width:22px;text-align:center;flex-shrink:0}
 .lbname{font-size:15px;color:#e8e6e3;font-weight:600}
 .lbname.me{color:#e8e6e3}
@@ -548,9 +553,9 @@ canvas{width:100%!important;display:block}
 .act-desc{font-size:13px;color:#e8e6e3}
 .act-boxes{display:flex;gap:3px;align-items:center}
 .act-box{min-width:18px;height:17px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;padding:0 4px}
-.act-box.win{background:#4a7c1f}
-.act-box.draw{background:#4a4a4a}
-.act-box.loss{background:#8b1a1a}
+.act-box.win{background:#3d6b1a}
+.act-box.draw{background:#4a4642}
+.act-box.loss{background:#7a2020}
 .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .dot.win{background:#629924}.dot.loss{background:#c33}.dot.draw{background:#555}
 .mcard{background:#1d1a16;border:1px solid #252220;border-radius:12px;margin-bottom:8px;overflow:hidden}
@@ -563,14 +568,15 @@ canvas{width:100%!important;display:block}
 .mcard-elo{font-size:11px;margin-top:2px}
 
 /* ── hrow — storico home ── */
-.hrow-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:3px;background:#181512}
+.hrow-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:3px;background:#1d1a16}
 .hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:0;display:flex;align-items:center;justify-content:center;pointer-events:none;transition:width 0s}
 .hrow-reveal.state-ok{background:#e8e6e3}
 .hrow-reveal.state-err{background:#2a2724}
 .hrow-reveal-label{font-size:15px;font-weight:700;letter-spacing:-.2px;white-space:nowrap}
 .hrow-reveal.state-ok .hrow-reveal-label{color:#161512}
 .hrow-reveal.state-err .hrow-reveal-label{color:#6a6560}
-.hrow{background:#181512;border:0.5px solid #1e1c18;border-radius:10px;padding:9px 12px 9px 14px;display:flex;align-items:center;gap:10px;position:relative;will-change:transform}
+.hrow{background:#1d1a16;border:0.5px solid #252220;border-radius:10px;padding:9px 12px 9px 14px;display:flex;align-items:center;gap:10px;position:relative;will-change:transform;-webkit-tap-highlight-color:transparent}
+.hrow:active{background:#1d1a16}
 /* nessuna accent bar nello storico — il colore è nel dot */
 .hrow-accent{display:none}
 .hrow-left{flex:1;min-width:0}
@@ -578,19 +584,19 @@ canvas{width:100%!important;display:block}
 .color-dot{width:7px;height:7px;min-width:7px;min-height:7px;border-radius:50%;flex-shrink:0;display:block}
 .color-dot-white{background:#4a4642;box-shadow:0 0 0 1px #3a3630}
 .color-dot-black{background:#252220;box-shadow:0 0 0 1px #2a2724}
-.hrow-meta{font-size:10px;color:#2e2b27;margin-top:2px;display:flex;gap:5px;align-items:center}
+.hrow-meta{font-size:11px;color:#2a2724;margin-top:2px;display:flex;gap:5px;align-items:center}
 .hrow-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:1px}
-.hrow-result{font-size:10px;font-weight:500;color:#2e2b27}
-.hrow-result.win{color:#3a5518}
-.hrow-result.loss{color:#5a1a1a}
-.hrow-result.draw{color:#2e2b27}
+.hrow-result{font-size:11px;font-weight:400;color:#2a2724}
+.hrow-result.win{color:#3d6b1a}
+.hrow-result.loss{color:#7a2020}
+.hrow-result.draw{color:#2a2724}
 .hrow-result.cancelled{color:#252220}
 .hrow-elo{font-size:13px;font-weight:600;line-height:1;color:#4a4642}
-.elo-up{color:#3a5518}
-.elo-down{color:#5a1a1a}
-.elo-draw{color:#2e2b27}
-.d-pos{color:#3a5518;font-size:12px}
-.d-neg{color:#5a1a1a;font-size:12px}
+.elo-up{color:#3d6b1a}
+.elo-down{color:#7a2020}
+.elo-draw{color:#2a2724}
+.d-pos{color:#3d6b1a;font-size:12px}
+.d-neg{color:#7a2020;font-size:12px}
 
 /* ── Long press ── */
 .lp-btn{position:relative;overflow:hidden;cursor:pointer;font-family:inherit;user-select:none}
@@ -649,7 +655,7 @@ canvas{width:100%!important;display:block}
         <div class="home-hero-elo-row">
           <span class="home-hero-elo" id="h-elo"></span>
           <span class="home-hero-delta hidden" id="h-delta"></span>
-          <span style="font-size:20px;color:#2e2b28;margin-left:auto;line-height:1;align-self:center">›</span>
+
         </div>
         <div id="h-sub" style="font-size:11px;color:#3a3630;margin-top:1px;min-height:14px"></div>
       </div>
@@ -798,7 +804,7 @@ let me = null, players = [], matches = [], activeMatch = null, pollTimer = null,
 
 function startPolling() {
   stopPolling();
-  pollTimer = setInterval(fetchAll, 5000);
+  pollTimer = setInterval(() => { if(!realtimeOk) fetchAll(); }, 5000);
 }
 function stopPolling() {
   clearInterval(pollTimer);
@@ -1582,8 +1588,8 @@ function renderHome() {
       : `<span class="hrow-elo" style="color:#3a3630">—</span>`;
     const colorDot = m.white_player_id
       ? (m.white_player_id===me.id
-          ? '<svg width="8" height="8" viewBox="0 0 8 8" style="flex-shrink:0;margin-top:1px"><circle cx="4" cy="4" r="3" fill="#e8e6e3" stroke="#6a6560" stroke-width="1"/></svg>'
-          : '<svg width="8" height="8" viewBox="0 0 8 8" style="flex-shrink:0;margin-top:1px"><circle cx="4" cy="4" r="3" fill="#252220" stroke="#6a6560" stroke-width="1"/></svg>')
+          ? '<span class="cdot w" style="margin-top:1px"></span>'
+          : '<span class="cdot b" style="margin-top:1px"></span>')
       : '';
     const oppId = m.p1===me.id ? m.p2 : m.p1;
     return `<div class="hrow-wrap" data-opp="${oppId}">
@@ -1958,7 +1964,7 @@ function renderCABSearch() {
     const isOnline = p.last_seen_at && (now - new Date(p.last_seen_at).getTime()) < ONLINE_MS;
     // usa funzione unificata — coerente con _evalGuards e swipe
     const isBusy = isPlayerBusy(p.id);
-    const onlineDot = `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${isOnline?'#4a7c1f':'#2f2b27'};flex-shrink:0;margin-top:1px"></span>`;
+    const onlineDot = `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${isOnline?'#3d6b1a':'#2a2724'};flex-shrink:0;margin-top:1px"></span>`;
     const statusLabel = isBusy ? 'in partita' : !isOnline ? 'offline' : '';
     const canChallenge = isOnline && !isBusy;
     const playBtn = canChallenge
@@ -2048,7 +2054,7 @@ async function challengeFromHome(oppId, btn) {
 }
 
 // --- SEARCH ---
-const ONLINE_MS = 12 * 1000;
+const ONLINE_MS = 30 * 1000;
 $("search-input").addEventListener("input", renderSearch);
 
 function renderSearch() {
@@ -2061,10 +2067,10 @@ function renderSearch() {
     const isOnline = p.last_seen_at && (now - new Date(p.last_seen_at).getTime()) < ONLINE_MS;
     const isBusy = isPlayerBusy(p.id); // funzione unificata
     const dot = isOnline
-      ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4a7c1f;margin-right:4px;vertical-align:middle"></span>`
+      ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3d6b1a;margin-right:4px;vertical-align:middle"></span>`
       : `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3d3a35;margin-right:4px;vertical-align:middle"></span>`;
     const statusLabel = isBusy
-      ? `<span style="font-size:11px;color:#5a5754">in partita</span>`
+      ? `<span style="font-size:11px;color:#6a6560">in partita</span>`
       : !isOnline ? `<span style="font-size:11px;color:#3d3a35">offline</span>` : '';
     const canChallenge = isOnline && !isBusy;
     return `<div class="prow" onclick="openProfile('${p.id}', 'search')" style="cursor:pointer">
@@ -2221,10 +2227,10 @@ function openResultSheet(matchId) {
       : oppRes ? 'Persa' : '';
     $('rsheet-context').innerHTML = `
       <div style="font-size:13px;color:#9a9690;margin-bottom:2px">${oppName} dice: <strong>${oppSaid}</strong></div>
-      <div style="font-size:12px;color:#5a5754">${white.nickname} ○  ${black.nickname} ●</div>`;
+      <div style="font-size:12px;color:#6a6560">${white.nickname} ○  ${black.nickname} ●</div>`;
     $('rsheet-dispute-warn').classList.remove('hidden');
   } else if(white && black) {
-    $('rsheet-context').innerHTML = `<div style="font-size:13px;color:#5a5754">${white.nickname} ○&nbsp;&nbsp;${black.nickname} ●</div>`;
+    $('rsheet-context').innerHTML = `<div style="font-size:13px;color:#6a6560">${white.nickname} ○&nbsp;&nbsp;${black.nickname} ●</div>`;
     $('rsheet-dispute-warn').classList.add('hidden');
   } else {
     $('rsheet-context').textContent = 'vs ' + oppName;
@@ -2288,7 +2294,7 @@ function openMatchDirect(m, opp) {
   const oppResult = isP1 ? m.result_p2 : m.result_p1;
   $("match-vs").innerHTML = `
     <div style="font-size:22px;font-weight:800;color:#e8e6e3;letter-spacing:-.3px;margin-bottom:4px">${matchLabel(m)}</div>
-    <div style="font-size:12px;color:#5a5754">${m.white_player_id ? (m.white_player_id===me.id ? 'Tu — bianco' : `${opp?.nickname||"?"} — bianco`) : ''}</div>`;
+    <div style="font-size:12px;color:#6a6560">${m.white_player_id ? (m.white_player_id===me.id ? 'Tu — bianco' : `${opp?.nickname||"?"} — bianco`) : ''}</div>`;
   $("match-btns").innerHTML = `
     <button onclick="submitResult('${m.id}','${resWin}')" class="rbtn r-win">Ho vinto</button>
     <button onclick="submitResult('${m.id}','draw')" class="rbtn r-draw">Patta</button>
@@ -2298,9 +2304,9 @@ function openMatchDirect(m, opp) {
     const myColorVal = myResult===resWin ? "#629924" : myResult==="draw" ? "#6a6560" : "#c33";
     $("match-btns").innerHTML = `
       <div style="text-align:center;padding:20px 0">
-        <div style="font-size:12px;color:#5a5754;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Risultato inviato</div>
+        <div style="font-size:12px;color:#6a6560;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Risultato inviato</div>
         <div style="font-size:24px;font-weight:800;color:${myColorVal};margin-bottom:16px">${myLabel}</div>
-        <div style="font-size:12px;color:#5a5754">Aspetti che ${opp?.nickname||"?"} inserisca il suo...</div>
+        <div style="font-size:12px;color:#6a6560">Aspetti che ${opp?.nickname||"?"} inserisca il suo...</div>
       </div>`;
   }
   showPage("match");
@@ -2323,7 +2329,7 @@ function showDisagreement(matchId) {
   const opp = getP(m.p1===me.id ? m.p2 : m.p1);
   $("match-vs").innerHTML = `
     <div style="font-size:13px;color:#c33;font-weight:600;margin-bottom:4px">${opp?.nickname||"?"} non è d'accordo</div>
-    <div style="font-size:12px;color:#5a5754;margin-bottom:8px">Risultati diversi — reinserite.</div>`;
+    <div style="font-size:12px;color:#6a6560;margin-bottom:8px">Risultati diversi — reinserite.</div>`;
   const isP1 = m.p1===me.id;
   const resWin  = isP1 ? "p1" : "p2";
   const resLoss = isP1 ? "p2" : "p1";
@@ -2468,7 +2474,7 @@ function renderActivityTab(matchH, eloMap, playerId) {
     // STEP 1: draw delta sempre grigio
     const deltaClass = totalDelta>0?'elo-up':totalDelta<0?'elo-down':'elo-draw';
     const deltaStr = `<span class="${deltaClass}" style="font-size:11px">${totalDelta>0?'+':''}${totalDelta}</span>`;
-    const eloStr = eloStart!==null ? `<span style="font-size:11px;color:#5a5754">${eloStart} → ${eloEnd}</span>` : '';
+    const eloStr = eloStart!==null ? `<span style="font-size:11px;color:#6a6560">${eloStart} → ${eloEnd}</span>` : '';
     const boxes = [
       wins > 0 ? `<div class="act-box win">${wins}</div>` : '',
       losses > 0 ? `<div class="act-box loss">${losses}</div>` : '',
@@ -2501,7 +2507,7 @@ async function renderMatchesTab(matchH, eloMap, playerId) {
     const elo = eloMap[m.id];
     const eloDelta = elo?(elo.elo_after-elo.elo_before):null;
     const eloStr = eloDelta!==null?`<span class="${eloDelta>=0?'elo-up':'elo-down'}">${eloDelta>=0?'+':''}${eloDelta}</span>`:'';
-    const oppElo = opp ? `<span style="font-size:11px;color:#5a5754;margin-left:5px;font-weight:400">${opp.elo}</span>` : '';
+    const oppElo = opp ? `<span style="font-size:11px;color:#6a6560;margin-left:5px;font-weight:400">${opp.elo}</span>` : '';
     return `<div class="mcard" id="mcard-${m.id}">
       <div class="mcard-top">
         <div class="mcard-left">
@@ -2589,7 +2595,7 @@ function drawEloChart(eloH, currentElo) {
           backgroundColor: '#1d1a16',
           borderColor: '#3d3a35',
           borderWidth: 1,
-          titleColor: '#5a5754',
+          titleColor: '#6a6560',
           titleFont: { size: 11 },
           bodyColor: '#e8e6e3',
           bodyFont: { size: 14, weight: '700' },
@@ -2599,12 +2605,12 @@ function drawEloChart(eloH, currentElo) {
       },
       scales: {
         x: {
-          ticks: { color: '#5a5754', font: {size:10}, maxTicksLimit: 6, maxRotation: 0 },
+          ticks: { color: '#6a6560', font: {size:10}, maxTicksLimit: 6, maxRotation: 0 },
           grid: { display: false },
           border: { display: false }
         },
         y: {
-          ticks: { color: '#5a5754', font: {size:10}, maxTicksLimit: 4 },
+          ticks: { color: '#6a6560', font: {size:10}, maxTicksLimit: 4 },
           grid: { color: 'rgba(255,255,255,0.04)' },
           border: { display: false }
         }
@@ -2677,7 +2683,7 @@ $('home-scroll').addEventListener('scroll', () => {
       <button class="rsheet-btn draw" id="rsheet-draw" onclick="confirmResultSheet('draw')">Patta</button>
       <button class="rsheet-btn loss" id="rsheet-loss" onclick="confirmResultSheet('loss')">Ho perso</button>
     </div>
-    <div id="rsheet-dispute-warn" class="hidden" style="font-size:11px;color:#5a5754;text-align:center;padding:0 8px 4px;line-height:1.5">Se non concordate di nuovo, la partita verrà annullata.</div>
+    <div id="rsheet-dispute-warn" class="hidden" style="font-size:11px;color:#6a6560;text-align:center;padding:0 8px 4px;line-height:1.5">Se non concordate di nuovo, la partita verrà annullata.</div>
     <button class="rsheet-cancel" onclick="closeResultSheet()">Annulla</button>
   </div>
 </div>
@@ -2696,7 +2702,7 @@ $('home-scroll').addEventListener('scroll', () => {
     <!-- Colore assegnato — solo se disponibile -->
     <div id="csheet-color-wrap" style="display:none;align-items:center;gap:8px;margin-bottom:24px">
       <div id="csheet-color-dot" style="width:10px;height:10px;border-radius:50%;flex-shrink:0"></div>
-      <div id="csheet-color" style="font-size:13px;color:#5a5754;font-weight:500"></div>
+      <div id="csheet-color" style="font-size:13px;color:#6a6560;font-weight:500"></div>
     </div>
 
     <!-- CTA -->
