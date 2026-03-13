@@ -898,9 +898,9 @@ const db = {
 const $ = id => document.getElementById(id);
 
 // ── Copy variantivo risultati ──
-const _WIN_COPY  = ['bella lì', 'niente male', 'senza pietà', 'facile facile', 'boom'];
-const _LOSS_COPY = ['capita', 'fa niente', 'ahi', 'la prossima', 'pazienza'];
-const _DRAW_COPY = ['ni', 'meh', 'quasi', 'vabbè'];
+const _WIN_COPY  = ['Boom!', 'GG', 'Semplice', 'Clean', 'Bravo', 'Mica male', 'Ez', 'Next.', 'Chirurgico', 'OK!'];
+const _LOSS_COPY = ['Capita', 'Skill issue?', 'Cooked', 'Bruh', 'Ahi', 'La prossima', 'No.', 'L', 'Outplayed', 'Rough'];
+const _DRAW_COPY = ['Meh', 'Pari', '50/50', 'Mah', 'Ok, I guess', 'Respect', 'Nulla di fatto', 'Pari e patta', 'Mid', 'X'];
 
 function resultCopy(type, delta) {
   const d = delta !== null ? `${delta >= 0 ? '+' : ''}${delta} · ` : '';
