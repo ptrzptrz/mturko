@@ -82,7 +82,8 @@ body.sheet-open #sa-cover{background:#000000}
 /* ── Notif ── */
 .notif{position:fixed;top:calc(env(safe-area-inset-top,20px) + 58px);left:50%;transform:translateX(-50%) translateY(-4px);background:#e8e6e3;color:#161512;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;max-width:90vw;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5);opacity:0;transition:opacity .2s,transform .2s}
 .notif.err{background:#2a1010;color:#e87070;border:1px solid rgba(200,50,50,.2)}
-.notif.result{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 80px);transform:translateX(-50%) translateY(8px);font-size:15px;font-weight:700;padding:13px 24px;border-radius:16px}
+.notif.result{top:calc(env(safe-area-inset-top,20px) + 125px);bottom:auto;transform:translateX(-50%) translateY(-8px);font-size:15px;font-weight:700;padding:13px 24px;border-radius:16px}
+.notif.result.win{background:#1a2a10;color:#8cbf4a;border:1px solid rgba(98,153,36,.2)}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.2);border-top-color:#161512;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -893,22 +894,50 @@ const db = {
 
 const $ = id => document.getElementById(id);
 
+// ── Copy variantivo risultati ──
+const _WIN_COPY  = ['bella lì', 'niente male', 'senza pietà', 'facile facile', 'boom'];
+const _LOSS_COPY = ['capita', 'fa niente', 'ahi', 'la prossima', 'pazienza'];
+const _DRAW_COPY = ['ni', 'meh', 'quasi', 'vabbè'];
+
+function resultCopy(type, delta) {
+  const d = delta !== null ? `${delta >= 0 ? '+' : ''}${delta} · ` : '';
+  const pool = type === 'win' ? _WIN_COPY : type === 'loss' ? _LOSS_COPY : _DRAW_COPY;
+  return d + pool[Math.floor(Math.random() * pool.length)];
+}
+
+// ── Toast con coda ──
+let _toastQueue = [];
+let _toastBusy = false;
+
 function toast(msg, type="ok") {
+  _toastQueue.push({msg, type});
+  if(!_toastBusy) _toastFlush();
+}
+
+function _toastFlush() {
+  if(!_toastQueue.length) { _toastBusy = false; return; }
+  _toastBusy = true;
+  const {msg, type} = _toastQueue.shift();
   const el = $("notif");
+  const isResult = type === "result" || type === "result-win";
+  const isWin = type === "result-win";
   el.textContent = msg;
-  el.className = "notif" + (type==="err" ? " err" : type==="result" ? " result" : "");
+  el.className = "notif" + (type==="err" ? " err" : isResult ? " result" + (isWin ? " win" : "") : "");
   el.style.display = "block";
-  const isResult = type === "result";
-  const hideTransform = isResult ? "translateX(-50%) translateY(8px)" : "translateX(-50%) translateY(-4px)";
+  const hideTransform = isResult ? "translateX(-50%) translateY(-8px)" : "translateX(-50%) translateY(-4px)";
   el.getBoundingClientRect();
   el.style.opacity = "1";
   el.style.transform = "translateX(-50%) translateY(0)";
+  const duration = isResult ? 3500 : 2400;
   clearTimeout(el._t);
   el._t = setTimeout(() => {
     el.style.opacity = "0";
     el.style.transform = hideTransform;
-    setTimeout(() => { el.style.display = "none"; }, 200);
-  }, isResult ? 3000 : 2400);
+    setTimeout(() => {
+      el.style.display = "none";
+      _toastFlush();
+    }, 300);
+  }, duration);
 }
 
 function setErr(id, msg) {
@@ -1091,6 +1120,7 @@ async function doLogout() {
 
 // --- DATA ---
 let eloCache = {};
+const _toastedMatchIds = new Set();
 
 async function fetchAll() {
   if(!me) return;
@@ -1117,19 +1147,28 @@ async function fetchAll() {
   if(Array.isArray(done)) {
     done.forEach(m => {
       const wasActive = prevMatches.find(p => p.id === m.id && p.status === 'active');
-      if(wasActive) {
+      if(wasActive && !_toastedMatchIds.has(m.id)) {
+        _toastedMatchIds.add(m.id);
+        // Cancella cab feedback se ancora visibile
+        if(_cabState === 'feedback') {
+          clearTimeout(_cabFeedbackTimer);
+          const feedback = $('cab-feedback');
+          feedback.classList.remove('show');
+          feedback.classList.add('hide');
+          setTimeout(() => { feedback.classList.remove('hide'); }, 300);
+          _cabState = 'idle';
+        }
         if(m.result === 'cancelled') {
           const wasDisputed = wasActive.disputed;
-          toast(wasDisputed ? "Nessun accordo — partita annullata" : "Partita annullata", "err");
+          toast(wasDisputed ? "Partita annullata — nessun accordo" : "Partita annullata", "err");
         } else if(m.result) {
           const isP1 = m.p1 === me.id;
           const won = m.result === 'p1' ? isP1 : m.result === 'p2' ? !isP1 : null;
           const elo = eloCache[m.id];
           const delta = elo ? (elo.elo_after - elo.elo_before) : null;
-          const deltaStr = delta !== null ? ` · ${delta >= 0 ? '+' : ''}${delta}` : '';
-          if(won === null) toast(`Patta${deltaStr}`, 'result');
-          else if(won) toast(`Vittoria${deltaStr}`, 'result');
-          else toast(`Sconfitta${deltaStr}`, 'result');
+          if(won === null) toast(resultCopy('draw', delta), 'result');
+          else if(won) toast(resultCopy('win', delta), 'result-win');
+          else toast(resultCopy('loss', delta), 'result');
         }
       }
     });
