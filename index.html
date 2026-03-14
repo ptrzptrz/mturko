@@ -428,7 +428,7 @@ body.sheet-open #sa-cover{background:#000000}
 .hrow-swipe-hint{animation:swipeHint .7s cubic-bezier(.25,0,.25,1) 1.4s both}
 
 /* ── Storico — archivio, non UI primaria ── */
-.hrow-wrap{margin-bottom:4px}
+.hrow-wrap{margin-bottom:0}
 
 /* Action sheet risultato */
 .rsheet-context{font-size:13px;color:#6a6560;text-align:center;margin-bottom:16px;font-weight:500}
@@ -484,49 +484,46 @@ body.sheet-open #sa-cover{background:#000000}
 .pname{font-size:15px;color:#e8e6e3;font-weight:600}
 .pelo{font-size:12px;color:#4a4642;margin-top:2px}
 
-/* ── Leaderboard ── */
-#lb-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:8px 16px calc(80px + env(safe-area-inset-bottom,0px))}
-#lb-scroll::-webkit-scrollbar{display:none}
-.lb-section-label{font-size:10px;font-weight:600;color:#3a3630;text-transform:uppercase;letter-spacing:1.4px;padding:10px 0 8px}
-.lb-feed-row{padding:10px 0;border-bottom:0.5px solid #252220;font-size:12px;color:#6a6560;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.lb-feed-row:last-child{border-bottom:none}
-.lb-feed-row:active{opacity:.6}
-.lb-feed-delta{font-weight:600}
-.lb-feed-delta.pos{color:#3d6b1a}
-.lb-feed-delta.neg{color:#7a2020}
-.lb-feed-time{color:#3a3630;margin-left:4px}
-#lb-feed-section.hidden{display:none}
+/* ── Leaderboard / Attività ── */
+#page-lb.active{display:flex;flex-direction:column;overflow:hidden}
+.lb-chips{display:flex;gap:8px;padding:12px 16px 8px;flex-shrink:0;background:#161512;position:sticky;top:0;z-index:5}
+.lb-chip{padding:8px 18px;border-radius:20px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:background .15s,color .15s;-webkit-tap-highlight-color:transparent;white-space:nowrap;border:none;outline:none;background:#252220;color:#6a6560}
+.lb-chip:active{opacity:.75}
+.lb-chip.active{background:#e8e6e3;color:#161512}
+.lb-view{display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:8px 16px calc(80px + env(safe-area-inset-bottom,0px))}
+.lb-view::-webkit-scrollbar{display:none}
+.lb-view.active{display:block}
 .lb-leader{background:#1d1a16;border:1px solid #3a3630;border-radius:14px;padding:20px 18px;margin-bottom:10px;display:flex;align-items:center;gap:16px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .lb-leader:active{background:#252220}
 .lb-leader.me{background:#252220}
 .lb-leader-rank{font-size:22px;font-weight:800;color:#e8e6e3;width:30px;text-align:center;flex-shrink:0}
 .lb-leader-name{font-size:17px;font-weight:700;color:#e8e6e3}
-.lb-leader-record{font-size:11px;color:#4a4642;margin-top:2px}
 .lb-leader-elo{font-size:24px;font-weight:800;color:#e8e6e3;margin-left:auto;letter-spacing:-1px}
-.lb-row-trend{font-size:9px;margin-left:2px}
-.lb-row-trend.up{color:#3d6b1a}
-.lb-row-trend.down{color:#7a2020}
 .lb-group{background:#1d1a16;border:0.5px solid #2a2724;border-radius:14px;overflow:hidden}
 .lb-row{display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:0.5px solid #252220;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .1s}
 .lb-row:last-child{border-bottom:none}
 .lb-row:active{background:#252220}
 .lb-row.me{background:#252220}
 .lb-row-rank{font-size:13px;font-weight:600;color:#4a4642;width:24px;text-align:center;flex-shrink:0}
-.lb-row.first .lb-row-rank{font-size:16px;font-weight:700;color:#e8e6e3}
 .lb-row-info{flex:1;min-width:0}
 .lb-row-name{font-size:15px;font-weight:600;color:#e8e6e3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
 .lb-row-me-tag{font-size:10px;font-weight:400;color:#4a4642}
-.lb-row-record{font-size:11px;color:#4a4642;margin-top:2px}
+.lb-row-sub{font-size:11px;color:#4a4642;margin-top:2px}
 .lb-row-elo-wrap{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:1px}
 .lb-row-elo{font-size:16px;font-weight:700;color:#e8e6e3}
-.lb-row.first .lb-row-elo{font-size:20px}
 .lb-row-daily{font-size:11px;font-weight:500}
 .lb-row-daily.pos{color:#3d6b1a}
 .lb-row-daily.neg{color:#7a2020}
-.lb-row-daily.zero{display:none}
+.lb-row-trend{font-size:9px;margin-left:2px}
+.lb-row-trend.up{color:#3d6b1a}
+.lb-row-trend.down{color:#7a2020}
 .lb-me-sticky{position:fixed;bottom:calc(52px + max(env(safe-area-inset-bottom),8px));left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:0 16px;z-index:50}
 .lb-me-sticky-inner{background:#1d1a16;border:1px solid #3a3630;border-radius:12px;display:flex;align-items:center;gap:12px;padding:12px 14px;box-shadow:0 -4px 20px rgba(0,0,0,.5);cursor:pointer;-webkit-tap-highlight-color:transparent}
 .lb-me-sticky-inner:active{background:#252220}
+.lb-feed-row{padding:12px 0;border-bottom:0.5px solid #252220;font-size:13px;color:#6a6560;line-height:1.5;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.lb-feed-row:last-child{border-bottom:none}
+.lb-feed-row:active{opacity:.6}
+.lb-feed-time{color:#3a3630}
 
 /* ── Profile ── */
 .prof-sticky{flex-shrink:0;background:#161512;padding:0 16px}
@@ -580,30 +577,31 @@ canvas{width:100%!important;display:block}
 .mcard-elo{font-size:11px;margin-top:2px}
 
 /* ── hrow — storico home ── */
-.hrow-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:3px;background:#1d1a16}
+.hrow-wrap{position:relative;overflow:hidden;margin-bottom:0;background:transparent}
 .hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:0;display:flex;align-items:center;justify-content:center;pointer-events:none;transition:width 0s}
 .hrow-reveal.state-ok{background:#e8e6e3}
 .hrow-reveal.state-err{background:#2a2724}
 .hrow-reveal-label{font-size:15px;font-weight:700;letter-spacing:-.2px;white-space:nowrap}
 .hrow-reveal.state-ok .hrow-reveal-label{color:#161512}
 .hrow-reveal.state-err .hrow-reveal-label{color:#6a6560}
-.hrow{background:#1d1a16;border:0.5px solid #252220;border-radius:10px;padding:9px 12px 9px 14px;display:flex;align-items:center;gap:10px;position:relative;will-change:transform;-webkit-tap-highlight-color:transparent}
+.hrow{background:transparent;border:none;border-bottom:0.5px solid #252220;border-radius:0;padding:11px 14px;display:flex;align-items:center;gap:10px;position:relative;will-change:transform;-webkit-tap-highlight-color:transparent}
 .hrow:active{background:#252220}
+.hrow-wrap:last-child .hrow{border-bottom:none}
 /* nessuna accent bar nello storico — il colore è nel dot */
 .hrow-accent{display:none}
 .hrow-left{flex:1;min-width:0}
-.hrow-opp{font-size:13px;color:#6a6560;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:5px}
+.hrow-opp{font-size:14px;color:#e8e6e3;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:5px}
 .color-dot{width:7px;height:7px;min-width:7px;min-height:7px;border-radius:50%;flex-shrink:0;display:block}
 .color-dot-white{background:#4a4642;box-shadow:0 0 0 1px #3a3630}
 .color-dot-black{background:#252220;box-shadow:0 0 0 1px #2a2724}
-.hrow-meta{font-size:11px;color:#2a2724;margin-top:2px;display:flex;gap:5px;align-items:center}
+.hrow-meta{font-size:11px;color:#4a4642;margin-top:2px;display:flex;gap:5px;align-items:center}
 .hrow-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:1px}
-.hrow-result{font-size:11px;font-weight:400;color:#2a2724}
+.hrow-result{font-size:11px;font-weight:500;color:#2a2724}
 .hrow-result.win{color:#3d6b1a}
 .hrow-result.loss{color:#7a2020}
 .hrow-result.draw{color:#2a2724}
 .hrow-result.cancelled{color:#252220}
-.hrow-elo{font-size:13px;font-weight:600;line-height:1;color:#4a4642}
+.hrow-elo{font-size:14px;font-weight:700;line-height:1;color:#4a4642}
 .elo-up{color:#3d6b1a}
 .elo-down{color:#7a2020}
 .elo-draw{color:#2a2724}
@@ -714,20 +712,23 @@ canvas{width:100%!important;display:block}
     </div>
 
     <!-- LEADERBOARD -->
+    <!-- LEADERBOARD / ATTIVITA -->
     <div id="page-lb" class="page">
-      <div id="lb-scroll">
-        <div id="lb-feed-section">
-          <div id="lb-feed-header" class="lb-section-label" onclick="toggleLbFeed()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">
-            <span id="lb-feed-label">Ultime</span>
-            <span id="lb-feed-chevron" style="color:#3a3630;font-size:11px">›</span>
-          </div>
-          <div id="lb-feed" class="hidden"></div>
-        </div>
-        <div id="lb-rank-section">
-          <div class="lb-section-label">Classifica</div>
-          <div id="lb-rank-list"></div>
-        </div>
+      <!-- Chip bar -->
+      <div class="lb-chips">
+        <button class="lb-chip active" data-view="classifica" onclick="switchLbView('classifica', this)">Classifica</button>
+        <button class="lb-chip" data-view="ultime" onclick="switchLbView('ultime', this)">Ultime</button>
       </div>
+      <!-- Vista: Classifica -->
+      <div id="lb-view-classifica" class="lb-view active">
+        <div id="lb-rank-list"></div>
+      </div>
+      <!-- Vista: Ultime (feed) -->
+      <div id="lb-view-ultime" class="lb-view">
+        <div id="lb-feed"></div>
+        <div id="lb-feed-empty" class="hidden" style="color:#3a3630;text-align:center;margin-top:48px;font-size:14px">Nessuna partita recente</div>
+      </div>
+      <!-- Sticky posizione utente -->
       <div id="lb-me-sticky" class="lb-me-sticky hidden"></div>
     </div>
 
@@ -775,7 +776,7 @@ canvas{width:100%!important;display:block}
     </button>
     <button class="nbtn" data-page="leaderboard">
       <svg class="nicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="7" width="4" height="14"/><rect x="17" y="3" width="4" height="18"/></svg>
-      <span>Classifica</span>
+      <span>Attività</span>
     </button>
     <button class="nbtn" data-page="profile-me">
       <svg class="nicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
@@ -1200,7 +1201,7 @@ async function fetchAll() {
     db.get("matches", `or=(p1.eq.${me.id},p2.eq.${me.id})&status=in.(active,pending_challenge)&select=*&order=created_at.desc&limit=50`),
     db.get("matches", `or=(p1.eq.${me.id},p2.eq.${me.id})&status=eq.done&select=*&order=updated_at.desc&limit=30`),
     db.get("elo_history", `player_id=eq.${me.id}&select=*&order=created_at.desc&limit=20`),
-    db.get("matches", "status=eq.done&result=not.is.null&result=not.eq.cancelled&order=updated_at.desc&limit=5&select=*")
+    db.get("matches", "status=eq.done&result=not.is.null&result=not.eq.cancelled&order=updated_at.desc&limit=20&select=*")
   ]);
   if(Array.isArray(ps)) {
     players = ps;
@@ -1664,7 +1665,7 @@ function renderHome() {
           <div class="hrow-opp">${colorDot}${opp?.nickname||"?"}</div>
           <div class="hrow-meta">
             <span>${timeAgo(m.created_at)}</span>
-            ${opp ? `<span style="color:#2a2724">·</span><span>${opp.elo}</span>` : ''}
+            ${opp ? `<span style="color:#4a4642">·</span><span>${opp.elo}</span>` : ''}
           </div>
         </div>
         <div class="hrow-right">
@@ -1675,7 +1676,9 @@ function renderHome() {
     </div>`;
   }).join("");
 
+  // Wrappa in lb-group per grouped list pattern
   const hist = $("home-history");
+  if(hist.innerHTML) hist.innerHTML = `<div class="lb-group">${hist.innerHTML}</div>`;
   if(!hist._swipeInit) { hist._swipeInit = true; initHrowSwipe(hist); }
 
   // Hint swipe — solo quando storico espanso (nessun flusso attivo)
@@ -2373,36 +2376,114 @@ function getRankChange(playerId, currentRank) {
   return parseInt(stored) - currentRank; // positivo = salito
 }
 
-let _lbFeedExpanded = false;
-function toggleLbFeed() {
-  const feed = $('lb-feed');
-  const chevron = $('lb-feed-chevron');
-  feed.classList.toggle('hidden');
-  if(chevron) chevron.textContent = feed.classList.contains('hidden') ? '›' : 'ˇ';
-  _lbFeedExpanded = !feed.classList.contains('hidden');
+let _lbCurrentView = 'classifica';
+
+function switchLbView(view, btn) {
+  _lbCurrentView = view;
+  document.querySelectorAll('.lb-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.lb-view').forEach(v => v.classList.remove('active'));
+  const target = $('lb-view-' + view);
+  if(target) target.classList.add('active');
+  const sticky = $('lb-me-sticky');
+  if(view !== 'classifica') sticky.classList.add('hidden');
+  else renderLeaderboard();
 }
 
 function renderLeaderboard() {
   const sorted = [...players].sort((a, b) => b.elo - a.elo);
   const myRank = sorted.findIndex(p => p.id === me.id);
 
-  // ── Feed live ──
-  const feedSection = $('lb-feed-section');
+  // ══════════════════════════════════════
+  // VISTA: Classifica
+  // ══════════════════════════════════════
+  const rankList = $('lb-rank-list');
+  if(sorted.length === 0) {
+    rankList.innerHTML = '<div style="color:#3a3630;text-align:center;margin-top:48px;font-size:14px">Nessun giocatore</div>';
+  } else {
+    const leader = sorted[0];
+    const leaderIsMe = leader.id === me.id;
+    const leaderDelta = getDailyDelta(leader.id, leader.elo);
+    const leaderDeltaHtml = leaderDelta !== 0
+      ? `<div class="lb-row-daily ${leaderDelta>0?'pos':'neg'}">${leaderDelta>0?'+':''}${leaderDelta}</div>`
+      : '';
+
+    const leaderHtml = `<div class="lb-leader${leaderIsMe?' me':''}" onclick="openProfile('${leader.id}','leaderboard')">
+      <div class="lb-leader-rank">1</div>
+      <div class="lb-row-info">
+        <div class="lb-leader-name">${leader.nickname}</div>
+      </div>
+      <div class="lb-row-elo-wrap">
+        <div class="lb-leader-elo">${leader.elo}</div>
+        ${leaderDeltaHtml}
+      </div>
+    </div>`;
+
+    const restHtml = sorted.slice(1).map((p, i) => {
+      const rank = i + 2;
+      const isMe = p.id === me.id;
+      const delta = getDailyDelta(p.id, p.elo);
+      const rankChange = getRankChange(p.id, rank);
+      const trendHtml = rankChange > 0
+        ? '<span class="lb-row-trend up">▲</span>'
+        : rankChange < 0 ? '<span class="lb-row-trend down">▼</span>' : '';
+      const deltaHtml = delta !== 0
+        ? `<div class="lb-row-daily ${delta>0?'pos':'neg'}">${delta>0?'+':''}${delta}</div>`
+        : '';
+      const totalGames = p.wins + p.losses + p.draws;
+      const subLabel = totalGames === 0 ? '<div class="lb-row-sub">Nuovo</div>' : '';
+
+      return `<div class="lb-row${isMe?' me':''}" onclick="openProfile('${p.id}','leaderboard')">
+        <div class="lb-row-rank">${rank}${trendHtml}</div>
+        <div class="lb-row-info">
+          <div class="lb-row-name">${p.nickname}${isMe?'<span class="lb-row-me-tag">tu</span>':''}</div>
+          ${subLabel}
+        </div>
+        <div class="lb-row-elo-wrap">
+          <div class="lb-row-elo">${p.elo}</div>
+          ${deltaHtml}
+        </div>
+      </div>`;
+    }).join('');
+
+    rankList.innerHTML = leaderHtml + (restHtml ? `<div class="lb-group">${restHtml}</div>` : '');
+  }
+
+  // Sticky
+  const sticky = $('lb-me-sticky');
+  if(_lbCurrentView === 'classifica' && sorted.length > 12 && myRank >= 12) {
+    sticky.classList.remove('hidden');
+    sticky.innerHTML = `<div class="lb-me-sticky-inner" onclick="openProfile('${me.id}','leaderboard')">
+      <div class="lb-row-rank" style="color:#e8e6e3;font-weight:600">${myRank + 1}</div>
+      <div class="lb-row-info">
+        <div class="lb-row-name">${me.nickname} <span class="lb-row-me-tag">tu</span></div>
+      </div>
+      <div class="lb-row-elo-wrap">
+        <div class="lb-row-elo" style="font-size:16px">${me.elo}</div>
+      </div>
+    </div>`;
+  } else {
+    sticky.classList.add('hidden');
+    sticky.innerHTML = '';
+  }
+
+  // ══════════════════════════════════════
+  // VISTA: Ultime (feed)
+  // ══════════════════════════════════════
   const feedContainer = $('lb-feed');
+  const feedEmpty = $('lb-feed-empty');
   const now = Date.now();
   const cutoff = now - 48 * 60 * 60 * 1000;
 
   const recentGlobal = (globalMatches || [])
     .filter(m => m.status === 'done' && m.result && m.result !== 'cancelled' && new Date(m.updated_at).getTime() > cutoff)
-    .slice(0, 5);
+    .slice(0, 20);
 
   if(recentGlobal.length === 0) {
-    feedSection.classList.add('hidden');
+    feedContainer.innerHTML = '';
+    feedEmpty.classList.remove('hidden');
   } else {
-    feedSection.classList.remove('hidden');
-    // Aggiorna label con conteggio
-    const labelEl = $('lb-feed-label');
-    if(labelEl) labelEl.textContent = `Ultime ${recentGlobal.length} partite`;
+    feedEmpty.classList.add('hidden');
     feedContainer.innerHTML = recentGlobal.map(m => {
       const p1 = getP(m.p1);
       const p2 = getP(m.p2);
@@ -2413,7 +2494,7 @@ function renderLeaderboard() {
       const timeStr = timeAgo(m.updated_at);
       if(isDraw) {
         return `<div class="lb-feed-row" onclick="openProfile('${m.p1}','leaderboard')">
-          <strong style="color:#e8e6e3">${p1?.nickname || '?'}</strong> patta con ${getP(m.p2)?.nickname || '?'} <span class="lb-feed-time">· ${timeStr}</span>
+          <strong style="color:#e8e6e3">${p1?.nickname || '?'}</strong> patta con ${p2?.nickname || '?'} <span class="lb-feed-time">· ${timeStr}</span>
         </div>`;
       } else {
         return `<div class="lb-feed-row" onclick="openProfile('${winnerId}','leaderboard')">
@@ -2422,78 +2503,8 @@ function renderLeaderboard() {
       }
     }).join('');
   }
-
-  // ── Helper sessionStorage ──
-  // getDailyDelta e getRankChange usano sessionStorage per il delta da inizio sessione
-
-  // ── Classifica ──
-  const rankList = $('lb-rank-list');
-  if(sorted.length === 0) { rankList.innerHTML = ''; return; }
-
-  const leader = sorted[0];
-  const leaderIsMe = leader.id === me.id;
-  const leaderDelta = getDailyDelta(leader.id, leader.elo);
-  const leaderDeltaHtml = leaderDelta !== 0
-    ? `<div style="font-size:11px;font-weight:500;margin-top:2px;color:${leaderDelta>0?'#3d6b1a':'#7a2020'}">${leaderDelta>0?'+':''}${leaderDelta}</div>`
-    : '';
-
-  const leaderHtml = `<div class="lb-leader${leaderIsMe?' me':''}" onclick="openProfile('${leader.id}','leaderboard')">
-    <div class="lb-leader-rank">1</div>
-    <div class="lb-row-info">
-      <div class="lb-leader-name">${leader.nickname}</div>
-      <div class="lb-leader-record">${leader.wins + leader.losses + leader.draws === 0 ? 'Nuovo' : (leader.wins + leader.losses + leader.draws) + ' partite'}</div>
-    </div>
-    <div class="lb-row-elo-wrap">
-      <div class="lb-leader-elo">${leader.elo}</div>
-      ${leaderDeltaHtml}
-    </div>
-  </div>`;
-
-  const restHtml = sorted.slice(1).map((p, i) => {
-    const rank = i + 2;
-    const isMe = p.id === me.id;
-    const delta = getDailyDelta(p.id, p.elo);
-    const rankChange = getRankChange(p.id, rank);
-    const trendHtml = rankChange > 0
-      ? '<span class="lb-row-trend up">▲</span>'
-      : rankChange < 0 ? '<span class="lb-row-trend down">▼</span>' : '';
-    const deltaHtml = delta !== 0
-      ? `<div class="lb-row-daily ${delta>0?'pos':'neg'}">${delta>0?'+':''}${delta}</div>`
-      : '';
-    return `<div class="lb-row${isMe?' me':''}" onclick="openProfile('${p.id}','leaderboard')">
-      <div class="lb-row-rank">${rank}${trendHtml}</div>
-      <div class="lb-row-info">
-        <div class="lb-row-name">${p.nickname}${isMe?'<span class="lb-row-me-tag">tu</span>':''}</div>
-        <div class="lb-row-record">${p.wins + p.losses + p.draws === 0 ? 'Nuovo' : (p.wins + p.losses + p.draws) + ' partite'}</div>
-      </div>
-      <div class="lb-row-elo-wrap">
-        <div class="lb-row-elo">${p.elo}</div>
-        ${deltaHtml}
-      </div>
-    </div>`;
-  }).join('');
-
-  rankList.innerHTML = leaderHtml + (restHtml ? `<div class="lb-group">${restHtml}</div>` : '');
-
-  // ── Sticky "la tua posizione" ──
-  const sticky = $('lb-me-sticky');
-  if(sorted.length > 12 && myRank >= 12) {
-    sticky.classList.remove('hidden');
-    sticky.innerHTML = `<div class="lb-me-sticky-inner" onclick="openProfile('${me.id}','leaderboard')">
-      <div class="lb-row-rank" style="color:#e8e6e3;font-weight:600">${myRank + 1}</div>
-      <div class="lb-row-info">
-        <div class="lb-row-name">${me.nickname} <span class="lb-row-me-tag">tu</span></div>
-        <div class="lb-row-record">${me.wins + me.losses + me.draws} partite</div>
-      </div>
-      <div class="lb-row-elo-wrap">
-        <div class="lb-row-elo" style="font-size:16px">${me.elo}</div>
-      </div>
-    </div>`;
-  } else {
-    sticky.classList.add('hidden');
-    sticky.innerHTML = '';
-  }
 }
+
 
 // --- PROFILE ---
 let currentProfileId = null;
@@ -2652,7 +2663,7 @@ async function renderMatchesTab(matchH, eloMap, playerId) {
           <div class="mcard-meta">${timeAgo(m.created_at)}</div>
         </div>
         <div class="mcard-right" style="text-align:right">
-          <div class="hrow-result ${resultClass}" style="font-size:13px;font-weight:600">${resultLabel}</div>
+          <div class="hrow-result ${resultClass}">${resultLabel}</div>
           <div class="mcard-elo" style="font-size:11px;margin-top:1px">${eloStr}</div>
         </div>
       </div>
