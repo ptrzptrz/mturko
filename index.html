@@ -1203,6 +1203,101 @@ async function enterApp(player) {
   setCabVisibility('home');
 }
 
+async function generateMatchEvents(m) {
+  if(!m.result || m.result === 'cancelled' || m.result === 'draw') return;
+
+  const winnerId = m.result === 'p1' ? m.p1 : m.p2;
+  const loserId = m.result === 'p1' ? m.p2 : m.p1;
+  const winner = getP(winnerId);
+  const loser = getP(loserId);
+  if(!winner || !loser) return;
+
+  const winEh = eloCache[m.id] || globalEloCache[m.id + '_' + winnerId];
+  const loseEh = globalEloCache[m.id + '_' + loserId];
+  if(!winEh) return;
+
+  const winOldElo = winEh.elo_before;
+  const winNewElo = winEh.elo_after;
+  const loseOldElo = loseEh ? loseEh.elo_before : null;
+  const loseNewElo = loseEh ? loseEh.elo_after : null;
+
+  const eventsToInsert = [];
+
+  // Sorpasso diretto
+  if(loseOldElo !== null && loseNewElo !== null) {
+    if(winOldElo < loseOldElo && winNewElo > loseNewElo) {
+      eventsToInsert.push({
+        type: 'overtake', player_id: winnerId, target_id: loserId, match_id: m.id,
+        data: { winner_name: winner.nickname, overtaken_name: loser.nickname, new_elo: winNewElo, overtaken_elo: loseNewElo }
+      });
+    }
+  }
+
+  // Sorpassi indiretti (vincitore scavalca terzi)
+  players.forEach(p => {
+    if(p.id === winnerId || p.id === loserId) return;
+    if(p.elo >= winOldElo && p.elo < winNewElo) {
+      eventsToInsert.push({
+        type: 'overtake', player_id: winnerId, target_id: p.id, match_id: m.id,
+        data: { winner_name: winner.nickname, overtaken_name: p.nickname, new_elo: winNewElo, overtaken_elo: p.elo }
+      });
+    }
+  });
+
+  // Sorpassi inversi (terzi superano il perdente)
+  if(loseOldElo !== null && loseNewElo !== null) {
+    players.forEach(p => {
+      if(p.id === winnerId || p.id === loserId) return;
+      if(p.elo <= loseOldElo && p.elo > loseNewElo) {
+        eventsToInsert.push({
+          type: 'overtake', player_id: p.id, target_id: loserId, match_id: m.id,
+          data: { winner_name: p.nickname, overtaken_name: loser.nickname, new_elo: p.elo, overtaken_elo: loseNewElo }
+        });
+      }
+    });
+  }
+
+  // Upset
+  if(loseOldElo !== null && loseOldElo - winOldElo >= 50) {
+    eventsToInsert.push({
+      type: 'upset', player_id: winnerId, target_id: loserId, match_id: m.id,
+      data: { winner_name: winner.nickname, loser_name: loser.nickname, diff: loseOldElo - winOldElo, delta: winNewElo - winOldElo }
+    });
+  }
+
+  // Milestone ELO
+  if(Math.floor(winNewElo / 100) > Math.floor(winOldElo / 100) && winNewElo >= 1500) {
+    eventsToInsert.push({
+      type: 'milestone', player_id: winnerId, match_id: m.id,
+      data: { nickname: winner.nickname, milestone: Math.floor(winNewElo / 100) * 100, elo: winNewElo }
+    });
+  }
+
+  // Streak (3, 5, 10)
+  const streak = winner.win_streak || 0;
+  if(streak === 3 || streak === 5 || streak === 10) {
+    eventsToInsert.push({
+      type: 'streak', player_id: winnerId, match_id: m.id,
+      data: { nickname: winner.nickname, streak: streak }
+    });
+  }
+
+  // Peak (non milestone)
+  if(winNewElo > winOldElo && winNewElo > 1500 && Math.floor(winNewElo / 100) === Math.floor(winOldElo / 100)) {
+    if(winNewElo >= (winner.elo_peak || 1500)) {
+      eventsToInsert.push({
+        type: 'peak', player_id: winnerId, match_id: m.id,
+        data: { nickname: winner.nickname, elo: winNewElo }
+      });
+    }
+  }
+
+  // Inserisci (fire and forget)
+  for(const ev of eventsToInsert) {
+    try { await db.post('events', ev); } catch(e) { console.log('Event insert failed:', e); }
+  }
+}
+
 async function doLogout() {
   stopPolling();
   stopRealtime();
@@ -1264,6 +1359,9 @@ async function fetchAll() {
           if(won === null) toast(resultCopy('draw', delta), 'result-draw');
           else if(won) toast(resultCopy('win', delta), 'result-win');
           else toast(resultCopy('loss', delta), 'result-loss');
+
+          // Genera eventi per questa partita (fire and forget)
+          generateMatchEvents(m);
         }
       }
     });
