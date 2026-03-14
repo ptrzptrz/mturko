@@ -726,6 +726,7 @@ canvas{width:100%!important;display:block}
       <!-- Vista: Ultime (feed) -->
       <div id="lb-view-ultime" class="lb-view">
         <div id="lb-feed"></div>
+        <div id="lb-feed-loader" class="hidden" style="text-align:center;padding:16px;color:#3a3630;font-size:12px">Caricamento...</div>
         <div id="lb-feed-empty" class="hidden" style="color:#3a3630;text-align:center;margin-top:48px;font-size:14px">Nessuna partita recente</div>
       </div>
       <!-- Sticky posizione utente -->
@@ -1201,7 +1202,7 @@ async function fetchAll() {
     db.get("matches", `or=(p1.eq.${me.id},p2.eq.${me.id})&status=in.(active,pending_challenge)&select=*&order=created_at.desc&limit=50`),
     db.get("matches", `or=(p1.eq.${me.id},p2.eq.${me.id})&status=eq.done&select=*&order=updated_at.desc&limit=30`),
     db.get("elo_history", `player_id=eq.${me.id}&select=*&order=created_at.desc&limit=20`),
-    db.get("matches", "status=eq.done&result=not.is.null&result=not.eq.cancelled&order=updated_at.desc&limit=20&select=*")
+    db.get("matches", "status=eq.done&result=not.is.null&result=not.eq.cancelled&order=updated_at.desc&limit=30&select=*")
   ]);
   if(Array.isArray(ps)) {
     players = ps;
@@ -2377,9 +2378,16 @@ function getRankChange(playerId, currentRank) {
 }
 
 let _lbCurrentView = 'classifica';
+let _lbFeedOffset = 30;
+let _lbFeedLoading = false;
+let _lbFeedAllLoaded = false;
 
 function switchLbView(view, btn) {
   _lbCurrentView = view;
+  if(view === 'ultime') {
+    _lbFeedOffset = 30;
+    _lbFeedAllLoaded = false;
+  }
   document.querySelectorAll('.lb-chip').forEach(c => c.classList.remove('active'));
   btn.classList.add('active');
   document.querySelectorAll('.lb-view').forEach(v => v.classList.remove('active'));
@@ -2472,12 +2480,10 @@ function renderLeaderboard() {
   // ══════════════════════════════════════
   const feedContainer = $('lb-feed');
   const feedEmpty = $('lb-feed-empty');
-  const now = Date.now();
-  const cutoff = now - 48 * 60 * 60 * 1000;
 
   const recentGlobal = (globalMatches || [])
-    .filter(m => m.status === 'done' && m.result && m.result !== 'cancelled' && new Date(m.updated_at).getTime() > cutoff)
-    .slice(0, 20);
+    .filter(m => m.status === 'done' && m.result && m.result !== 'cancelled')
+    .slice(0, 30);
 
   if(recentGlobal.length === 0) {
     feedContainer.innerHTML = '';
@@ -2503,6 +2509,62 @@ function renderLeaderboard() {
       }
     }).join('');
   }
+  initLbFeedScroll();
+}
+
+function initLbFeedScroll() {
+  const view = $('lb-view-ultime');
+  if(!view || view._scrollInit) return;
+  view._scrollInit = true;
+  view.addEventListener('scroll', () => {
+    if(_lbCurrentView !== 'ultime') return;
+    if(_lbFeedLoading || _lbFeedAllLoaded) return;
+    if(view.scrollTop + view.clientHeight >= view.scrollHeight - 100) {
+      loadMoreFeed();
+    }
+  }, {passive: true});
+}
+
+async function loadMoreFeed() {
+  _lbFeedLoading = true;
+  const loader = $('lb-feed-loader');
+  if(loader) loader.classList.remove('hidden');
+
+  const more = await db.get("matches", `status=eq.done&result=not.is.null&result=not.eq.cancelled&order=updated_at.desc&limit=30&offset=${_lbFeedOffset}&select=*`);
+
+  if(loader) loader.classList.add('hidden');
+  _lbFeedLoading = false;
+
+  if(!Array.isArray(more) || more.length === 0) {
+    _lbFeedAllLoaded = true;
+    return;
+  }
+
+  _lbFeedOffset += more.length;
+  if(more.length < 30) _lbFeedAllLoaded = true;
+
+  const feedContainer = $('lb-feed');
+  const html = more
+    .filter(m => m.result !== 'cancelled')
+    .map(m => {
+      const p1 = getP(m.p1);
+      const p2 = getP(m.p2);
+      const isDraw = m.result === 'draw';
+      const winnerId = m.result === 'p1' ? m.p1 : m.result === 'p2' ? m.p2 : m.p1;
+      const winner = getP(winnerId);
+      const loser = getP(isDraw ? m.p2 : (m.result === 'p1' ? m.p2 : m.p1));
+      const timeStr = timeAgo(m.updated_at);
+      if(isDraw) {
+        return `<div class="lb-feed-row" onclick="openProfile('${m.p1}','leaderboard')">
+          <strong style="color:#e8e6e3">${p1?.nickname || '?'}</strong> patta con ${p2?.nickname || '?'} <span class="lb-feed-time">· ${timeStr}</span>
+        </div>`;
+      } else {
+        return `<div class="lb-feed-row" onclick="openProfile('${winnerId}','leaderboard')">
+          <strong style="color:#e8e6e3">${winner?.nickname || '?'}</strong> ha battuto ${loser?.nickname || '?'} <span class="lb-feed-time">· ${timeStr}</span>
+        </div>`;
+      }
+    }).join('');
+  feedContainer.insertAdjacentHTML('beforeend', html);
 }
 
 
