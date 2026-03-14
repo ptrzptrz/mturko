@@ -519,11 +519,35 @@ body.sheet-open #sa-cover{background:#000000}
 .lb-me-sticky{position:fixed;bottom:calc(52px + max(env(safe-area-inset-bottom),8px));left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:0 16px;z-index:50}
 .lb-me-sticky-inner{background:#1d1a16;border:1px solid #3a3630;border-radius:12px;display:flex;align-items:center;gap:12px;padding:12px 14px;box-shadow:0 -4px 20px rgba(0,0,0,.5);cursor:pointer;-webkit-tap-highlight-color:transparent}
 .lb-me-sticky-inner:active{background:#252220}
-.lb-feed-row{padding:12px 0;border-bottom:0.5px solid #252220;font-size:13px;color:#6a6560;line-height:1.5;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.lb-feed-row{padding:11px 0;border-bottom:0.5px solid #252220;display:flex;align-items:center;gap:10px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .lb-feed-row:last-child{border-bottom:none}
 .lb-feed-row:active{opacity:.6}
+.lb-feed-left{flex:1;min-width:0}
+.lb-feed-name{font-size:14px;font-weight:600;color:#e8e6e3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-feed-meta{font-size:11px;color:#4a4642;margin-top:2px}
+.lb-feed-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.lb-feed-delta{font-size:14px;font-weight:700}
+.lb-feed-delta.pos{color:#3d6b1a}
+.lb-feed-delta.neg{color:#7a2020}
+.lb-feed-delta.draw{color:#4a4642}
+.lb-feed-result{font-size:11px;font-weight:500}
+.lb-feed-result.win{color:#3d6b1a}
+.lb-feed-result.loss{color:#7a2020}
+.lb-feed-result.draw{color:#4a4642}
 .lb-feed-time{color:#3a3630}
 
+.feed-counter{font-size:12px;color:#4a4642;text-align:center;padding:8px 0 12px;font-weight:500}
+.feed-card{background:#1d1a16;border:0.5px solid #2a2724;border-radius:14px;padding:14px 16px;margin:6px 0;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .1s}
+.feed-card:active{background:#252220}
+.feed-card-header{display:flex;align-items:center;gap:8px;font-size:13px;color:#6a6560}
+.feed-card-icon{font-size:14px;flex-shrink:0;width:18px;text-align:center}
+.feed-card-label{flex:1;min-width:0;font-size:14px;color:#e8e6e3;font-weight:500}
+.feed-card-label strong{font-weight:700}
+.feed-card-time{margin-left:auto;font-size:11px;color:#3a3630;flex-shrink:0}
+.feed-card-sub{font-size:12px;color:#4a4642;margin-top:4px;padding-left:28px}
+.feed-row-delta{font-weight:600;font-size:12px;margin-left:2px}
+.feed-row-delta.pos{color:#3d6b1a}
+.feed-row-delta.neg{color:#7a2020}
 /* ── Profile ── */
 .prof-sticky{flex-shrink:0;background:#161512;padding:0 16px}
 .prof-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px calc(80px + env(safe-area-inset-bottom,0px))}
@@ -716,14 +740,14 @@ canvas{width:100%!important;display:block}
       <!-- Chip bar -->
       <div class="lb-chips">
         <button class="lb-chip active" data-view="classifica" onclick="switchLbView('classifica', this)">Classifica</button>
-        <button class="lb-chip" data-view="ultime" onclick="switchLbView('ultime', this)">Ultime</button>
+        <button class="lb-chip" data-view="live" onclick="switchLbView('live', this)">Live</button>
       </div>
       <!-- Vista: Classifica -->
       <div id="lb-view-classifica" class="lb-view active">
         <div id="lb-rank-list"></div>
       </div>
       <!-- Vista: Ultime (feed) -->
-      <div id="lb-view-ultime" class="lb-view">
+      <div id="lb-view-live" class="lb-view">
         <div id="lb-feed"></div>
         <div id="lb-feed-loader" class="hidden" style="text-align:center;padding:16px;color:#3a3630;font-size:12px">Caricamento...</div>
         <div id="lb-feed-empty" class="hidden" style="color:#3a3630;text-align:center;margin-top:48px;font-size:14px">Nessuna partita recente</div>
@@ -821,6 +845,8 @@ const supabaseClient = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 let authToken = null;
 let me = null, players = [], matches = [], activeMatch = null, pollTimer = null, heartbeatTimer = null;
 let globalMatches = [];
+let globalEloCache = {};
+let globalEvents = [];
 
 function startPolling() {
   stopPolling();
@@ -1196,12 +1222,14 @@ const _toastedMatchIds = new Set();
 async function fetchAll() {
   if(!me) return;
   const prevMatches = [...matches];
-  const [ps, ms, done, eloH, globalDone] = await Promise.all([
+  const [ps, ms, done, eloH, globalDone, globalEloH, dbEvents] = await Promise.all([
     db.get("players", "order=elo.desc"),
     db.get("matches", `or=(p1.eq.${me.id},p2.eq.${me.id})&status=in.(active,pending_challenge)&select=*&order=created_at.desc&limit=50`),
     db.get("matches", `or=(p1.eq.${me.id},p2.eq.${me.id})&status=eq.done&select=*&order=updated_at.desc&limit=30`),
     db.get("elo_history", `player_id=eq.${me.id}&select=*&order=created_at.desc&limit=20`),
-    db.get("matches", "status=eq.done&result=not.is.null&result=not.eq.cancelled&order=updated_at.desc&limit=30&select=*")
+    db.get("matches", "status=eq.done&result=not.is.null&result=not.eq.cancelled&order=updated_at.desc&limit=30&select=*"),
+    db.get("elo_history", "order=created_at.desc&limit=120&select=*"),
+    db.get("events", "order=created_at.desc&limit=50&select=*")
   ]);
   if(Array.isArray(ps)) {
     players = ps;
@@ -1213,6 +1241,8 @@ async function fetchAll() {
   else if(Array.isArray(ms)) matches = ms;
   if(Array.isArray(eloH)) eloH.forEach(e => eloCache[e.match_id] = e);
   if(Array.isArray(globalDone)) globalMatches = globalDone;
+  if(Array.isArray(globalEloH)) globalEloH.forEach(e => globalEloCache[e.match_id + '_' + e.player_id] = e);
+  if(Array.isArray(dbEvents)) globalEvents = dbEvents;
 
   updateTopbar();
   await cleanupExpired();
@@ -2383,7 +2413,7 @@ let _lbFeedAllLoaded = false;
 
 function switchLbView(view, btn) {
   _lbCurrentView = view;
-  if(view === 'ultime') {
+  if(view === 'live') {
     _lbFeedOffset = 30;
     _lbFeedAllLoaded = false;
   }
@@ -2395,6 +2425,166 @@ function switchLbView(view, btn) {
   const sticky = $('lb-me-sticky');
   if(view !== 'classifica') sticky.classList.add('hidden');
   else renderLeaderboard();
+}
+
+function generateFeedEvents() {
+  const events = [];
+  const now = Date.now();
+
+  // ── EVENTI DAL DB — card prominenti ──
+  (globalEvents || []).forEach(ev => {
+    const time = new Date(ev.created_at).getTime();
+    const data = ev.data || {};
+    const player = getP(ev.player_id);
+    const target = getP(ev.target_id);
+    const timeStr = timeAgo(ev.created_at);
+    const playerName = player?.nickname || '?';
+    const targetName = target?.nickname || '?';
+    const involvesMe = ev.player_id === me.id || ev.target_id === me.id;
+    let html = '';
+
+    switch(ev.type) {
+      case 'overtake':
+        if(ev.target_id === me.id) {
+          html = `<div class="feed-card" onclick="openProfile('${ev.player_id}','leaderboard')">
+            <div class="feed-card-header">
+              <span class="feed-card-icon" style="color:#7a2020">↑</span>
+              <span class="feed-card-label"><strong>${playerName}</strong> ti ha superato</span>
+              <span class="feed-card-time">${timeStr}</span>
+            </div>
+            <div class="feed-card-sub">ELO ${data.new_elo || ''} vs ${data.overtaken_elo || ''}</div>
+          </div>`;
+        } else if(ev.player_id === me.id) {
+          html = `<div class="feed-card" onclick="openProfile('${ev.target_id}','leaderboard')">
+            <div class="feed-card-header">
+              <span class="feed-card-icon" style="color:#3d6b1a">↑</span>
+              <span class="feed-card-label">Hai superato <strong>${targetName}</strong></span>
+              <span class="feed-card-time">${timeStr}</span>
+            </div>
+          </div>`;
+        } else {
+          html = `<div class="feed-card" onclick="openProfile('${ev.player_id}','leaderboard')">
+            <div class="feed-card-header">
+              <span class="feed-card-icon" style="color:#6a6560">↑</span>
+              <span class="feed-card-label"><strong>${playerName}</strong> ha superato ${targetName}</span>
+              <span class="feed-card-time">${timeStr}</span>
+            </div>
+          </div>`;
+        }
+        break;
+
+      case 'milestone':
+        html = `<div class="feed-card" onclick="openProfile('${ev.player_id}','leaderboard')">
+          <div class="feed-card-header">
+            <span class="feed-card-icon" style="color:#b8a04a">★</span>
+            <span class="feed-card-label"><strong>${playerName}</strong> ha raggiunto ${data.milestone || data.elo} ELO</span>
+            <span class="feed-card-time">${timeStr}</span>
+          </div>
+        </div>`;
+        break;
+
+      case 'streak':
+        html = `<div class="feed-card" onclick="openProfile('${ev.player_id}','leaderboard')">
+          <div class="feed-card-header">
+            <span class="feed-card-icon">🔥</span>
+            <span class="feed-card-label"><strong>${playerName}</strong> — ${data.streak} vittorie di fila</span>
+            <span class="feed-card-time">${timeStr}</span>
+          </div>
+        </div>`;
+        break;
+
+      case 'upset':
+        html = `<div class="feed-card" onclick="openProfile('${ev.player_id}','leaderboard')">
+          <div class="feed-card-header">
+            <span class="feed-card-icon" style="color:#b8a04a">!</span>
+            <span class="feed-card-label"><strong>${playerName}</strong> ha battuto ${targetName} <span style="color:#b8a04a;font-size:11px">upset</span></span>
+            <span class="feed-card-time">${timeStr}</span>
+          </div>
+          <div class="feed-card-sub">${data.diff || ''} punti di differenza · +${data.delta || ''}</div>
+        </div>`;
+        break;
+
+      case 'new_player':
+        html = `<div class="feed-card" onclick="openProfile('${ev.player_id}','leaderboard')">
+          <div class="feed-card-header">
+            <span class="feed-card-icon" style="color:#4a4642">+</span>
+            <span class="feed-card-label"><strong>${data.nickname || playerName}</strong> si è unito a turko</span>
+            <span class="feed-card-time">${timeStr}</span>
+          </div>
+        </div>`;
+        break;
+
+      case 'peak':
+        html = `<div class="feed-card" onclick="openProfile('${ev.player_id}','leaderboard')">
+          <div class="feed-card-header">
+            <span class="feed-card-icon" style="color:#629924">▲</span>
+            <span class="feed-card-label"><strong>${playerName}</strong> — nuovo record: ${data.elo} ELO</span>
+            <span class="feed-card-time">${timeStr}</span>
+          </div>
+        </div>`;
+        break;
+    }
+
+    if(html) {
+      events.push({
+        type: ev.type,
+        priority: involvesMe ? 1 : 3,
+        time: time,
+        html: html
+      });
+    }
+  });
+
+  // ── PARTITE — righe cronologiche ──
+  const allMatches = (globalMatches || []).filter(m =>
+    m.status === 'done' && m.result && m.result !== 'cancelled'
+  ).slice(0, 30);
+
+  allMatches.forEach(m => {
+    const isDraw = m.result === 'draw';
+    const isMyMatch = m.p1 === me.id || m.p2 === me.id;
+    const winnerId = m.result === 'p1' ? m.p1 : m.result === 'p2' ? m.p2 : m.p1;
+    const loserId = isDraw ? m.p2 : (m.result === 'p1' ? m.p2 : m.p1);
+    const winner = getP(winnerId);
+    const loser = getP(loserId);
+    const timeStr = timeAgo(m.updated_at);
+    const winElo = globalEloCache[m.id + '_' + winnerId];
+    const winDelta = winElo ? (winElo.elo_after - winElo.elo_before) : null;
+    const deltaClass = isDraw ? 'draw' : (winDelta !== null && winDelta >= 0 ? 'pos' : 'neg');
+    const deltaStr = winDelta !== null
+      ? `<div class="lb-feed-delta ${deltaClass}">${winDelta >= 0 ? '+' : ''}${winDelta}</div>`
+      : '';
+    const nameText = isDraw
+      ? `${getP(m.p1)?.nickname || '?'} — ${getP(m.p2)?.nickname || '?'}`
+      : `<strong>${winner?.nickname || '?'}</strong> — ${loser?.nickname || '?'}`;
+    const resultLabel = isMyMatch
+      ? (isDraw ? 'Patta' : winnerId === me.id ? 'Vinta' : 'Persa')
+      : '';
+    const resultClass = isDraw ? 'draw' : winnerId === me.id ? 'win' : loserId === me.id ? 'loss' : '';
+    const resultHtml = resultLabel
+      ? `<div class="lb-feed-result ${resultClass}">${resultLabel}</div>`
+      : '';
+    events.push({
+      type: 'match',
+      priority: 7,
+      time: new Date(m.updated_at).getTime(),
+      html: `<div class="lb-feed-row" onclick="openProfile('${isDraw ? m.p1 : winnerId}','leaderboard')">
+        <div class="lb-feed-left">
+          <div class="lb-feed-name">${nameText}</div>
+          <div class="lb-feed-meta">${timeStr}${winner?.elo ? ` · ${winner.elo}` : ''}</div>
+        </div>
+        <div class="lb-feed-right">
+          ${deltaStr}
+          ${resultHtml}
+        </div>
+      </div>`
+    });
+  });
+
+  // Ordina tutto per tempo — cronologico
+  events.sort((a, b) => b.time - a.time);
+
+  return events;
 }
 
 function renderLeaderboard() {
@@ -2438,7 +2628,11 @@ function renderLeaderboard() {
         ? `<div class="lb-row-daily ${delta>0?'pos':'neg'}">${delta>0?'+':''}${delta}</div>`
         : '';
       const totalGames = p.wins + p.losses + p.draws;
-      const subLabel = totalGames === 0 ? '<div class="lb-row-sub">Nuovo</div>' : '';
+      let subLabel = totalGames === 0 ? '<div class="lb-row-sub">Nuovo</div>' : '';
+      if(isMe && rank > 1) {
+        const playerAbove = sorted[rank - 2];
+        subLabel = `<div class="lb-row-sub">${playerAbove.elo - p.elo} punti da ${playerAbove.nickname}</div>`;
+      }
 
       return `<div class="lb-row${isMe?' me':''}" onclick="openProfile('${p.id}','leaderboard')">
         <div class="lb-row-rank">${rank}${trendHtml}</div>
@@ -2460,6 +2654,10 @@ function renderLeaderboard() {
   const sticky = $('lb-me-sticky');
   if(_lbCurrentView === 'classifica' && sorted.length > 12 && myRank >= 12) {
     sticky.classList.remove('hidden');
+    const above = myRank > 0 ? sorted[myRank - 1] : null;
+    const distanceHtml = above
+      ? `<div style="font-size:11px;color:#4a4642;margin-top:4px;padding-left:36px">${above.elo - me.elo} punti da <strong style="color:#6a6560">${above.nickname}</strong></div>`
+      : '';
     sticky.innerHTML = `<div class="lb-me-sticky-inner" onclick="openProfile('${me.id}','leaderboard')">
       <div class="lb-row-rank" style="color:#e8e6e3;font-weight:600">${myRank + 1}</div>
       <div class="lb-row-info">
@@ -2468,55 +2666,47 @@ function renderLeaderboard() {
       <div class="lb-row-elo-wrap">
         <div class="lb-row-elo" style="font-size:16px">${me.elo}</div>
       </div>
-    </div>`;
+    </div>${distanceHtml}`;
   } else {
     sticky.classList.add('hidden');
     sticky.innerHTML = '';
   }
 
   // ══════════════════════════════════════
-  // VISTA: Ultime (feed)
+  // VISTA: Live (feed)
   // ══════════════════════════════════════
   const feedContainer = $('lb-feed');
   const feedEmpty = $('lb-feed-empty');
 
-  const recentGlobal = (globalMatches || [])
-    .filter(m => m.status === 'done' && m.result && m.result !== 'cancelled')
-    .slice(0, 30);
+  // Contatore partite oggi
+  const todayStart = new Date();
+  todayStart.setHours(0,0,0,0);
+  const todayMatches = (globalMatches || []).filter(m =>
+    m.status === 'done' && m.result && m.result !== 'cancelled' &&
+    new Date(m.updated_at).getTime() > todayStart.getTime()
+  ).length;
+  const counterHtml = todayMatches > 0
+    ? `<div class="feed-counter">${todayMatches} ${todayMatches === 1 ? 'partita' : 'partite'} oggi</div>`
+    : '';
 
-  if(recentGlobal.length === 0) {
-    feedContainer.innerHTML = '';
+  const feedEvents = generateFeedEvents();
+
+  if(feedEvents.length === 0) {
+    feedContainer.innerHTML = counterHtml;
     feedEmpty.classList.remove('hidden');
   } else {
     feedEmpty.classList.add('hidden');
-    feedContainer.innerHTML = recentGlobal.map(m => {
-      const p1 = getP(m.p1);
-      const p2 = getP(m.p2);
-      const isDraw = m.result === 'draw';
-      const winnerId = m.result === 'p1' ? m.p1 : m.result === 'p2' ? m.p2 : m.p1;
-      const winner = getP(winnerId);
-      const loser = getP(isDraw ? m.p2 : (m.result === 'p1' ? m.p2 : m.p1));
-      const timeStr = timeAgo(m.updated_at);
-      if(isDraw) {
-        return `<div class="lb-feed-row" onclick="openProfile('${m.p1}','leaderboard')">
-          <strong style="color:#e8e6e3">${p1?.nickname || '?'}</strong> patta con ${p2?.nickname || '?'} <span class="lb-feed-time">· ${timeStr}</span>
-        </div>`;
-      } else {
-        return `<div class="lb-feed-row" onclick="openProfile('${winnerId}','leaderboard')">
-          <strong style="color:#e8e6e3">${winner?.nickname || '?'}</strong> ha battuto ${loser?.nickname || '?'} <span class="lb-feed-time">· ${timeStr}</span>
-        </div>`;
-      }
-    }).join('');
+    feedContainer.innerHTML = counterHtml + feedEvents.map(e => e.html).join('');
   }
   initLbFeedScroll();
 }
 
 function initLbFeedScroll() {
-  const view = $('lb-view-ultime');
+  const view = $('lb-view-live');
   if(!view || view._scrollInit) return;
   view._scrollInit = true;
   view.addEventListener('scroll', () => {
-    if(_lbCurrentView !== 'ultime') return;
+    if(_lbCurrentView !== 'live') return;
     if(_lbFeedLoading || _lbFeedAllLoaded) return;
     if(view.scrollTop + view.clientHeight >= view.scrollHeight - 100) {
       loadMoreFeed();
@@ -2546,22 +2736,39 @@ async function loadMoreFeed() {
   const html = more
     .filter(m => m.result !== 'cancelled')
     .map(m => {
-      const p1 = getP(m.p1);
-      const p2 = getP(m.p2);
       const isDraw = m.result === 'draw';
+      const isMyMatch = m.p1 === me.id || m.p2 === me.id;
       const winnerId = m.result === 'p1' ? m.p1 : m.result === 'p2' ? m.p2 : m.p1;
+      const loserId = isDraw ? m.p2 : (m.result === 'p1' ? m.p2 : m.p1);
       const winner = getP(winnerId);
-      const loser = getP(isDraw ? m.p2 : (m.result === 'p1' ? m.p2 : m.p1));
+      const loser = getP(loserId);
       const timeStr = timeAgo(m.updated_at);
-      if(isDraw) {
-        return `<div class="lb-feed-row" onclick="openProfile('${m.p1}','leaderboard')">
-          <strong style="color:#e8e6e3">${p1?.nickname || '?'}</strong> patta con ${p2?.nickname || '?'} <span class="lb-feed-time">· ${timeStr}</span>
-        </div>`;
-      } else {
-        return `<div class="lb-feed-row" onclick="openProfile('${winnerId}','leaderboard')">
-          <strong style="color:#e8e6e3">${winner?.nickname || '?'}</strong> ha battuto ${loser?.nickname || '?'} <span class="lb-feed-time">· ${timeStr}</span>
-        </div>`;
-      }
+      const winElo = globalEloCache[m.id + '_' + winnerId];
+      const winDelta = winElo ? (winElo.elo_after - winElo.elo_before) : null;
+      const deltaClass = isDraw ? 'draw' : (winDelta !== null && winDelta >= 0 ? 'pos' : 'neg');
+      const deltaStr = winDelta !== null
+        ? `<div class="lb-feed-delta ${deltaClass}">${winDelta >= 0 ? '+' : ''}${winDelta}</div>`
+        : '';
+      const nameText = isDraw
+        ? `${getP(m.p1)?.nickname || '?'} — ${getP(m.p2)?.nickname || '?'}`
+        : `<strong>${winner?.nickname || '?'}</strong> — ${loser?.nickname || '?'}`;
+      const resultLabel = isMyMatch
+        ? (isDraw ? 'Patta' : winnerId === me.id ? 'Vinta' : 'Persa')
+        : '';
+      const resultClass = isDraw ? 'draw' : winnerId === me.id ? 'win' : 'loss';
+      const resultHtml = resultLabel
+        ? `<div class="lb-feed-result ${resultClass}">${resultLabel}</div>`
+        : '';
+      return `<div class="lb-feed-row" onclick="openProfile('${isDraw ? m.p1 : winnerId}','leaderboard')">
+        <div class="lb-feed-left">
+          <div class="lb-feed-name">${nameText}</div>
+          <div class="lb-feed-meta">${timeStr}${winner?.elo ? ` · ${winner.elo}` : ''}</div>
+        </div>
+        <div class="lb-feed-right">
+          ${deltaStr}
+          ${resultHtml}
+        </div>
+      </div>`;
     }).join('');
   feedContainer.insertAdjacentHTML('beforeend', html);
 }
