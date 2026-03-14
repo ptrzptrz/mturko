@@ -381,9 +381,7 @@ body.sheet-open #sa-cover{background:#000000}
 .cab-feedback.show{animation:cabFadeIn .3s ease forwards}
 .cab-feedback.hide{animation:cabFadeOut .3s ease forwards}
 
-/* Bottone nuova partita legacy — nascosto, tenuto per compatibilità showPage */
 
-/* Search inline legacy — non più usata in home-top, tenuta per compatibilità */
 
 /* Search aperta — solo lo storico sfuma, state-bar resta visibile */
 #page-home.search-open #home-scroll{
@@ -929,9 +927,9 @@ function _toastFlush() {
   el.className = cls;
 
   el.style.display = "block";
-  const initTransform = isResult ? "translate(-50%, -50%) scale(.94)" : "translateX(-50%) translateY(-4px)";
-  const showTransform = isResult ? "translate(-50%, -50%) scale(1)"   : "translateX(-50%) translateY(0)";
-  const hideTransform = isResult ? "translate(-50%, -50%) scale(.97)" : "translateX(-50%) translateY(-4px)";
+  const initTransform = isResult ? "translateX(-50%) scale(.94)" : "translateX(-50%) translateY(-4px)";
+  const showTransform = isResult ? "translateX(-50%) scale(1)"   : "translateX(-50%) translateY(0)";
+  const hideTransform = isResult ? "translateX(-50%) scale(.97)" : "translateX(-50%) translateY(-4px)";
 
   el.style.opacity = "0";
   el.style.transform = initTransform;
@@ -1783,27 +1781,18 @@ function updateCAB() {
   // CAB: visibile solo quando puoi effettivamente sfidare qualcuno.
   // Se hai sent/waiting ma nessuna azione richiesta → CAB nascosta, le card sono la UI.
   const isBusy = isPlayerBusy(me.id);
-  const hasPassiveOnly = !isBusy && (sentChal.length > 0 || (hs.liveCards||[]).length === 0 && (hs.disputedCards||[]).length === 0 && incomingChal.length === 0 && sentChal.length > 0);
 
   if(isBusy) {
-    // Disabilitata — hai partite/sfide che richiedono la tua azione
-    _setCABState('waiting', bar, label, labelSub, icon, arrow);
-    $('cab').style.display = '';
-    if(incomingChal.length > 0) {
-      label.textContent = 'Rispondi alla sfida prima';
-    } else if(liveCards.length + disputedCards.length === 1) {
-      const card = [...liveCards, ...disputedCards][0];
-      const opp = getP(card.m.p1 === me.id ? card.m.p2 : card.m.p1);
-      label.textContent = 'Prima registra con ' + (opp?.nickname || '?');
-    } else {
-      label.textContent = 'Prima registra i risultati';
-    }
-    bar.onclick = null;
-  } else if(sentChal.length > 0 && liveCards.length === 0 && disputedCards.length === 0 && incomingChal.length === 0) {
-    // Solo sfide inviate in attesa di risposta — CAB nascosta, la card è sufficiente
+    // Card attive comunicano già tutto — nascondi il CAB
     $('cab').style.display = 'none';
+  } else if(sentChal.length > 0 && liveCards.length === 0 && disputedCards.length === 0 && incomingChal.length === 0) {
+    // Solo sfide inviate — CAB idle, l'utente può sfidare altri
+    $('cab').style.display = '';
+    _setCABState('idle', bar, label, labelSub, icon, arrow);
+    label.textContent = 'Sfida qualcuno';
+    bar.onclick = onCABTap;
   } else {
-    // IDLE — piatto, tap → search
+    // IDLE — nessuna card attiva
     $('cab').style.display = '';
     _setCABState('idle', bar, label, labelSub, icon, arrow);
     label.textContent = 'Sfida qualcuno';
