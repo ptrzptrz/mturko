@@ -39,7 +39,7 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 .topbar{background:#161512;padding:env(safe-area-inset-top,20px) 16px 0;min-height:calc(50px + env(safe-area-inset-top,20px));display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:10000}
 body.sheet-open .topbar{background:#000000}
 body.sheet-open #sa-cover{background:#000000}
-.topbar-logout{background:none;border:none;color:#3a3630;font-size:12px;cursor:pointer;padding:4px;transition:color .15s ease}
+.topbar-logout{background:none;border:none;color:#3a3630;font-size:12px;cursor:pointer;padding:14px;transition:color .15s ease}
 .topbar-logout:active{color:#e8e6e3}
 .logo{color:#e8e6e3;font-size:15px;font-weight:700;letter-spacing:-.2px}
 
@@ -110,7 +110,7 @@ body.sheet-open #sa-cover{background:#000000}
 
 /* ── Sistema card attive — geometria rigida condivisa da tutti gli stati ──
    Altezza minima fissa: 64px. Tutti gli stati usano questa struttura:
-   [accent 3px] [body flex] [cta-wrap 96px fisso]
+   [accent 3px] [body flex] [cta-wrap 124px fisso]
    L'unica variante è il contenuto, non la geometria.
 */
 .acard{
@@ -168,9 +168,9 @@ body.sheet-open #sa-cover{background:#000000}
 
 /* CTA wrap — larghezza fissa 96px, allineamento centrato */
 .acard-cta{
-  width:96px;min-width:96px;
+  width:124px;min-width:124px;
   display:flex;align-items:center;justify-content:center;
-  padding:10px 16px 10px 8px;
+  padding:10px 12px;
   flex-shrink:0;
 }
 .acard-btn{
@@ -485,16 +485,48 @@ body.sheet-open #sa-cover{background:#000000}
 .pelo{font-size:12px;color:#4a4642;margin-top:2px}
 
 /* ── Leaderboard ── */
-.lbrow{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:13px 14px;margin-bottom:6px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .15s}
-.lbrow:active{border-color:#3a3630}
-.lbrow.me{border-color:#3a3630;background:#252220}
-.lbrank{font-size:13px;color:#4a4642;width:22px;text-align:center;flex-shrink:0}
-.lbname{font-size:15px;color:#e8e6e3;font-weight:600}
-.lbname.me{color:#e8e6e3}
-.lbrecord{font-size:11px;color:#4a4642;margin-top:2px}
-.lbelo{font-size:16px;font-weight:700;color:#e8e6e3;margin-left:auto}
-#lb-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:12px 16px calc(80px + env(safe-area-inset-bottom,0px))}
-#lb-list::-webkit-scrollbar{display:none}
+#lb-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:8px 16px calc(80px + env(safe-area-inset-bottom,0px))}
+#lb-scroll::-webkit-scrollbar{display:none}
+.lb-section-label{font-size:10px;font-weight:600;color:#3a3630;text-transform:uppercase;letter-spacing:1.4px;padding:10px 0 8px}
+.lb-feed-row{padding:10px 0;border-bottom:0.5px solid #252220;font-size:12px;color:#6a6560;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.lb-feed-row:last-child{border-bottom:none}
+.lb-feed-row:active{opacity:.6}
+.lb-feed-delta{font-weight:600}
+.lb-feed-delta.pos{color:#3d6b1a}
+.lb-feed-delta.neg{color:#7a2020}
+.lb-feed-time{color:#3a3630;margin-left:4px}
+#lb-feed-section.hidden{display:none}
+.lb-leader{background:#1d1a16;border:1px solid #3a3630;border-radius:14px;padding:20px 18px;margin-bottom:10px;display:flex;align-items:center;gap:16px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.lb-leader:active{background:#252220}
+.lb-leader.me{background:#252220}
+.lb-leader-rank{font-size:22px;font-weight:800;color:#e8e6e3;width:30px;text-align:center;flex-shrink:0}
+.lb-leader-name{font-size:17px;font-weight:700;color:#e8e6e3}
+.lb-leader-record{font-size:11px;color:#4a4642;margin-top:2px}
+.lb-leader-elo{font-size:24px;font-weight:800;color:#e8e6e3;margin-left:auto;letter-spacing:-1px}
+.lb-row-trend{font-size:9px;margin-left:2px}
+.lb-row-trend.up{color:#3d6b1a}
+.lb-row-trend.down{color:#7a2020}
+.lb-group{background:#1d1a16;border:0.5px solid #2a2724;border-radius:14px;overflow:hidden}
+.lb-row{display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:0.5px solid #252220;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .1s}
+.lb-row:last-child{border-bottom:none}
+.lb-row:active{background:#252220}
+.lb-row.me{background:#252220}
+.lb-row-rank{font-size:13px;font-weight:600;color:#4a4642;width:24px;text-align:center;flex-shrink:0}
+.lb-row.first .lb-row-rank{font-size:16px;font-weight:700;color:#e8e6e3}
+.lb-row-info{flex:1;min-width:0}
+.lb-row-name{font-size:15px;font-weight:600;color:#e8e6e3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
+.lb-row-me-tag{font-size:10px;font-weight:400;color:#4a4642}
+.lb-row-record{font-size:11px;color:#4a4642;margin-top:2px}
+.lb-row-elo-wrap{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.lb-row-elo{font-size:16px;font-weight:700;color:#e8e6e3}
+.lb-row.first .lb-row-elo{font-size:20px}
+.lb-row-daily{font-size:11px;font-weight:500}
+.lb-row-daily.pos{color:#3d6b1a}
+.lb-row-daily.neg{color:#7a2020}
+.lb-row-daily.zero{display:none}
+.lb-me-sticky{position:fixed;bottom:calc(52px + max(env(safe-area-inset-bottom),8px));left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:0 16px;z-index:50}
+.lb-me-sticky-inner{background:#1d1a16;border:1px solid #3a3630;border-radius:12px;display:flex;align-items:center;gap:12px;padding:12px 14px;box-shadow:0 -4px 20px rgba(0,0,0,.5);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.lb-me-sticky-inner:active{background:#252220}
 
 /* ── Profile ── */
 .prof-sticky{flex-shrink:0;background:#161512;padding:0 16px}
@@ -683,7 +715,20 @@ canvas{width:100%!important;display:block}
 
     <!-- LEADERBOARD -->
     <div id="page-lb" class="page">
-      <div id="lb-list" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
+      <div id="lb-scroll">
+        <div id="lb-feed-section">
+          <div id="lb-feed-header" class="lb-section-label" onclick="toggleLbFeed()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+            <span id="lb-feed-label">Ultime</span>
+            <span id="lb-feed-chevron" style="color:#3a3630;font-size:11px">›</span>
+          </div>
+          <div id="lb-feed" class="hidden"></div>
+        </div>
+        <div id="lb-rank-section">
+          <div class="lb-section-label">Classifica</div>
+          <div id="lb-rank-list"></div>
+        </div>
+      </div>
+      <div id="lb-me-sticky" class="lb-me-sticky hidden"></div>
     </div>
 
     <!-- PROFILE -->
@@ -774,6 +819,7 @@ const supabaseClient = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
 let authToken = null;
 let me = null, players = [], matches = [], activeMatch = null, pollTimer = null, heartbeatTimer = null;
+let globalMatches = [];
 
 function startPolling() {
   stopPolling();
@@ -1149,11 +1195,12 @@ const _toastedMatchIds = new Set();
 async function fetchAll() {
   if(!me) return;
   const prevMatches = [...matches];
-  const [ps, ms, done, eloH] = await Promise.all([
+  const [ps, ms, done, eloH, globalDone] = await Promise.all([
     db.get("players", "order=elo.desc"),
     db.get("matches", `or=(p1.eq.${me.id},p2.eq.${me.id})&status=in.(active,pending_challenge)&select=*&order=created_at.desc&limit=50`),
     db.get("matches", `or=(p1.eq.${me.id},p2.eq.${me.id})&status=eq.done&select=*&order=updated_at.desc&limit=30`),
-    db.get("elo_history", `player_id=eq.${me.id}&select=*&order=created_at.desc&limit=20`)
+    db.get("elo_history", `player_id=eq.${me.id}&select=*&order=created_at.desc&limit=20`),
+    db.get("matches", "status=eq.done&result=not.is.null&result=not.eq.cancelled&order=updated_at.desc&limit=5&select=*")
   ]);
   if(Array.isArray(ps)) {
     players = ps;
@@ -1164,6 +1211,7 @@ async function fetchAll() {
   if(Array.isArray(ms) && Array.isArray(done)) matches = [...ms, ...done];
   else if(Array.isArray(ms)) matches = ms;
   if(Array.isArray(eloH)) eloH.forEach(e => eloCache[e.match_id] = e);
+  if(Array.isArray(globalDone)) globalMatches = globalDone;
 
   updateTopbar();
   await cleanupExpired();
@@ -1471,7 +1519,7 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
     const opp = getP(oppId);
     cards.push(mkCard('red', opp?.nickname||'?', opp?.elo||'',
       {text:'Non torna — rifai', cls:'red'},
-      `<button class="acard-btn danger" onclick="openResultSheet('${m.id}')">Riprova</button>`
+      `<button class="acard-btn danger" onclick="openResultSheet('${m.id}')">Reinserisci</button>`
     ));
   });
 
@@ -1786,11 +1834,8 @@ function updateCAB() {
     // Card attive comunicano già tutto — nascondi il CAB
     $('cab').style.display = 'none';
   } else if(sentChal.length > 0 && liveCards.length === 0 && disputedCards.length === 0 && incomingChal.length === 0) {
-    // Solo sfide inviate — CAB idle, l'utente può sfidare altri
-    $('cab').style.display = '';
-    _setCABState('idle', bar, label, labelSub, icon, arrow);
-    label.textContent = 'Sfida qualcuno';
-    bar.onclick = onCABTap;
+    // Solo sfide inviate — nascondi il CAB
+    $('cab').style.display = 'none';
   } else {
     // IDLE — nessuna card attiva
     $('cab').style.display = '';
@@ -2244,17 +2289,18 @@ function openResultSheet(matchId) {
   const black = m.white_player_id ? getP(m.white_player_id === m.p1 ? m.p2 : m.p1) : getP(m.p2);
 
   if(isDisputed && white && black) {
-    // mostra cosa ha detto l'avversario
-    const oppRes = isP1 ? m.result_p2 : m.result_p1;
-    const oppSaid = oppRes === 'draw' ? 'Patta'
-      : oppRes === (isP1 ? 'p2' : 'p1') ? 'Vinta'
-      : oppRes ? 'Persa' : '';
-    $('rsheet-context').innerHTML = `
-      <div style="font-size:13px;color:#6a6560;margin-bottom:2px">${oppName} dice: <strong>${oppSaid}</strong></div>
-      <div style="font-size:12px;color:#4a4642">${white.nickname} ○ — ${black.nickname} ●</div>`;
+    // Leggi last_result — il trigger salva i valori prima di azzerare result_p1/p2
+    const oppLastRes = isP1 ? m.last_result_p2 : m.last_result_p1;
+    const oppPlayerId = isP1 ? m.p2 : m.p1;
+    const oppSaid = oppLastRes === 'draw' ? 'Patta'
+      : oppLastRes === oppPlayerId ? 'Ha vinto'
+      : oppLastRes ? 'Ha perso' : null;
+    $('rsheet-context').innerHTML = oppSaid
+      ? `<div style="font-size:13px;color:#6a6560">${oppName} dice: <strong>${oppSaid}</strong></div>`
+      : `<div style="font-size:13px;color:#6a6560">${oppName} non è d'accordo</div>`;
     $('rsheet-dispute-warn').classList.remove('hidden');
   } else if(white && black) {
-    $('rsheet-context').innerHTML = `<div style="font-size:13px;color:#6a6560">${white.nickname} ○ — ${black.nickname} ●</div>`;
+    $('rsheet-context').innerHTML = `<div style="font-size:13px;color:#6a6560">${white.nickname} — ${black.nickname}</div>`;
     $('rsheet-dispute-warn').classList.add('hidden');
   } else {
     $('rsheet-context').textContent = 'vs ' + oppName;
@@ -2284,11 +2330,16 @@ async function confirmResultSheet(choice) {
   const myResult = choice === 'win' ? (isP1 ? 'p1' : 'p2')
                  : choice === 'loss' ? (isP1 ? 'p2' : 'p1')
                  : 'draw';
-  const cardEl = $('card-live-' + matchId);
-  if(cardEl) { cardEl.style.transition = 'opacity .3s'; cardEl.style.opacity = '0.4'; }
   const field = isP1 ? 'result_p1' : 'result_p2';
-  // STEP 2: mostra feedback nella CAB prima di fetchAll
+
+  // Optimistic update — aggiorna il match locale immediatamente
+  m[field] = myResult;
+  renderHome();
+
+  // Feedback
   cabShowFeedback();
+
+  // Scrivi su DB e sincronizza
   await db.patch('matches', `id=eq.${matchId}`, {[field]: myResult});
   activeMatch = null;
   await fetchAll();
@@ -2308,21 +2359,140 @@ async function submitResultInline(matchId, myResult, btn) {
 }
 
 // --- LEADERBOARD ---
+function getDailyDelta(playerId, currentElo) {
+  const key = 'turko_elo_' + playerId;
+  const stored = sessionStorage.getItem(key);
+  if(!stored) { sessionStorage.setItem(key, String(currentElo)); return 0; }
+  return currentElo - parseInt(stored);
+}
+
+function getRankChange(playerId, currentRank) {
+  const key = 'turko_rank_' + playerId;
+  const stored = sessionStorage.getItem(key);
+  if(!stored) { sessionStorage.setItem(key, String(currentRank)); return 0; }
+  return parseInt(stored) - currentRank; // positivo = salito
+}
+
+let _lbFeedExpanded = false;
+function toggleLbFeed() {
+  const feed = $('lb-feed');
+  const chevron = $('lb-feed-chevron');
+  feed.classList.toggle('hidden');
+  if(chevron) chevron.textContent = feed.classList.contains('hidden') ? '›' : 'ˇ';
+  _lbFeedExpanded = !feed.classList.contains('hidden');
+}
+
 function renderLeaderboard() {
-  const sorted = [...players].sort((a,b) => b.elo - a.elo);
-  $("lb-list").innerHTML = sorted.map((p,i) => {
-    const rankStr = i===0 ? '♛' : i===1 ? '2' : i===2 ? '3' : String(i+1);
-    const rankColor = i===0 ? '#b8a04a' : i===1 ? '#888' : i===2 ? '#8a6a3a' : '#4a4642';
-    const isMe = p.id===me.id;
-    return `<div class="lbrow${isMe?" me":""}" onclick="openProfile('${p.id}', 'leaderboard')">
-      <div class="lbrank" style="color:${rankColor};font-size:${i===0?'16':'13'}px">${rankStr}</div>
-      <div style="flex:1">
-        <div class="lbname">${p.nickname}${isMe?' <span style="font-size:10px;color:#4a4642;font-weight:400">tu</span>':""}</div>
-        <div class="lbrecord">${p.wins}V · ${p.losses}P · ${p.draws}=</div>
+  const sorted = [...players].sort((a, b) => b.elo - a.elo);
+  const myRank = sorted.findIndex(p => p.id === me.id);
+
+  // ── Feed live ──
+  const feedSection = $('lb-feed-section');
+  const feedContainer = $('lb-feed');
+  const now = Date.now();
+  const cutoff = now - 48 * 60 * 60 * 1000;
+
+  const recentGlobal = (globalMatches || [])
+    .filter(m => m.status === 'done' && m.result && m.result !== 'cancelled' && new Date(m.updated_at).getTime() > cutoff)
+    .slice(0, 5);
+
+  if(recentGlobal.length === 0) {
+    feedSection.classList.add('hidden');
+  } else {
+    feedSection.classList.remove('hidden');
+    // Aggiorna label con conteggio
+    const labelEl = $('lb-feed-label');
+    if(labelEl) labelEl.textContent = `Ultime ${recentGlobal.length} partite`;
+    feedContainer.innerHTML = recentGlobal.map(m => {
+      const p1 = getP(m.p1);
+      const p2 = getP(m.p2);
+      const isDraw = m.result === 'draw';
+      const winnerId = m.result === 'p1' ? m.p1 : m.result === 'p2' ? m.p2 : m.p1;
+      const winner = getP(winnerId);
+      const loser = getP(isDraw ? m.p2 : (m.result === 'p1' ? m.p2 : m.p1));
+      const timeStr = timeAgo(m.updated_at);
+      if(isDraw) {
+        return `<div class="lb-feed-row" onclick="openProfile('${m.p1}','leaderboard')">
+          <strong style="color:#e8e6e3">${p1?.nickname || '?'}</strong> patta con ${getP(m.p2)?.nickname || '?'} <span class="lb-feed-time">· ${timeStr}</span>
+        </div>`;
+      } else {
+        return `<div class="lb-feed-row" onclick="openProfile('${winnerId}','leaderboard')">
+          <strong style="color:#e8e6e3">${winner?.nickname || '?'}</strong> ha battuto ${loser?.nickname || '?'} <span class="lb-feed-time">· ${timeStr}</span>
+        </div>`;
+      }
+    }).join('');
+  }
+
+  // ── Helper sessionStorage ──
+  // getDailyDelta e getRankChange usano sessionStorage per il delta da inizio sessione
+
+  // ── Classifica ──
+  const rankList = $('lb-rank-list');
+  if(sorted.length === 0) { rankList.innerHTML = ''; return; }
+
+  const leader = sorted[0];
+  const leaderIsMe = leader.id === me.id;
+  const leaderDelta = getDailyDelta(leader.id, leader.elo);
+  const leaderDeltaHtml = leaderDelta !== 0
+    ? `<div style="font-size:11px;font-weight:500;margin-top:2px;color:${leaderDelta>0?'#3d6b1a':'#7a2020'}">${leaderDelta>0?'+':''}${leaderDelta}</div>`
+    : '';
+
+  const leaderHtml = `<div class="lb-leader${leaderIsMe?' me':''}" onclick="openProfile('${leader.id}','leaderboard')">
+    <div class="lb-leader-rank">1</div>
+    <div class="lb-row-info">
+      <div class="lb-leader-name">${leader.nickname}</div>
+      <div class="lb-leader-record">${leader.wins + leader.losses + leader.draws === 0 ? 'Nuovo' : (leader.wins + leader.losses + leader.draws) + ' partite'}</div>
+    </div>
+    <div class="lb-row-elo-wrap">
+      <div class="lb-leader-elo">${leader.elo}</div>
+      ${leaderDeltaHtml}
+    </div>
+  </div>`;
+
+  const restHtml = sorted.slice(1).map((p, i) => {
+    const rank = i + 2;
+    const isMe = p.id === me.id;
+    const delta = getDailyDelta(p.id, p.elo);
+    const rankChange = getRankChange(p.id, rank);
+    const trendHtml = rankChange > 0
+      ? '<span class="lb-row-trend up">▲</span>'
+      : rankChange < 0 ? '<span class="lb-row-trend down">▼</span>' : '';
+    const deltaHtml = delta !== 0
+      ? `<div class="lb-row-daily ${delta>0?'pos':'neg'}">${delta>0?'+':''}${delta}</div>`
+      : '';
+    return `<div class="lb-row${isMe?' me':''}" onclick="openProfile('${p.id}','leaderboard')">
+      <div class="lb-row-rank">${rank}${trendHtml}</div>
+      <div class="lb-row-info">
+        <div class="lb-row-name">${p.nickname}${isMe?'<span class="lb-row-me-tag">tu</span>':''}</div>
+        <div class="lb-row-record">${p.wins + p.losses + p.draws === 0 ? 'Nuovo' : (p.wins + p.losses + p.draws) + ' partite'}</div>
       </div>
-      <div class="lbelo">${p.elo}</div>
+      <div class="lb-row-elo-wrap">
+        <div class="lb-row-elo">${p.elo}</div>
+        ${deltaHtml}
+      </div>
     </div>`;
-  }).join("");
+  }).join('');
+
+  rankList.innerHTML = leaderHtml + (restHtml ? `<div class="lb-group">${restHtml}</div>` : '');
+
+  // ── Sticky "la tua posizione" ──
+  const sticky = $('lb-me-sticky');
+  if(sorted.length > 12 && myRank >= 12) {
+    sticky.classList.remove('hidden');
+    sticky.innerHTML = `<div class="lb-me-sticky-inner" onclick="openProfile('${me.id}','leaderboard')">
+      <div class="lb-row-rank" style="color:#e8e6e3;font-weight:600">${myRank + 1}</div>
+      <div class="lb-row-info">
+        <div class="lb-row-name">${me.nickname} <span class="lb-row-me-tag">tu</span></div>
+        <div class="lb-row-record">${me.wins + me.losses + me.draws} partite</div>
+      </div>
+      <div class="lb-row-elo-wrap">
+        <div class="lb-row-elo" style="font-size:16px">${me.elo}</div>
+      </div>
+    </div>`;
+  } else {
+    sticky.classList.add('hidden');
+    sticky.innerHTML = '';
+  }
 }
 
 // --- PROFILE ---
