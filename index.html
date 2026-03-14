@@ -83,7 +83,7 @@ body.sheet-open #sa-cover{background:#000000}
 .notif{position:fixed;top:calc(env(safe-area-inset-top,20px) + 58px);left:50%;transform:translateX(-50%) translateY(-4px);background:#e8e6e3;color:#161512;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;max-width:90vw;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5);opacity:0;transition:opacity .2s,transform .2s}
 .notif.err{background:#2a1010;color:#e87070;border:1px solid rgba(200,50,50,.2)}
 @keyframes glowWin{0%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0px rgba(98,153,36,0)}50%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 30px rgba(98,153,36,.12)}100%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0px rgba(98,153,36,0)}}
-.notif.result{top:45%;bottom:auto;left:50%;font-size:16px;font-weight:700;padding:14px 28px;border-radius:16px;letter-spacing:-.2px;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.notif.result{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 120px);left:50%;font-size:16px;font-weight:700;padding:14px 28px;border-radius:16px;letter-spacing:-.2px;box-shadow:0 4px 24px rgba(0,0,0,.5)}
 .notif.result-win{background:#1a2a10;color:#8cbf4a;border:1px solid rgba(98,153,36,.15);box-shadow:0 4px 24px rgba(0,0,0,.5);animation:glowWin .6s ease .3s both}
 .notif.result-loss{background:#252220;color:#e8e6e3;border:none;box-shadow:0 4px 24px rgba(0,0,0,.5)}
 .notif.result-draw{background:#252220;color:#6a6560;border:none;box-shadow:0 4px 24px rgba(0,0,0,.5)}
@@ -126,6 +126,7 @@ body.sheet-open #sa-cover{background:#000000}
 .acard.acard-passive{
   background:#1d1a16;
   border-color:#1d1a16;
+  opacity:.70;
 }
 /* Accent bar — 3px, colore per stato */
 .acard-accent{width:3px;min-width:3px;flex-shrink:0;background:#252220}
@@ -216,7 +217,7 @@ body.sheet-open #sa-cover{background:#000000}
 .acard-decline{
   padding:13px 18px;
   font-size:12px;font-weight:500;
-  background:transparent;color:#3a3630;
+  background:transparent;color:#4a4642;
   border:none;border-left:0.5px solid #252220;
   border-radius:0 0 14px 0;
   cursor:pointer;font-family:inherit;
@@ -433,13 +434,13 @@ body.sheet-open #sa-cover{background:#000000}
 
 /* Action sheet risultato */
 .rsheet-context{font-size:13px;color:#6a6560;text-align:center;margin-bottom:16px;font-weight:500}
-.rsheet-btns{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
-.rsheet-btn{width:100%;padding:16px 20px;border-radius:12px;font-size:16px;font-weight:700;text-align:left;cursor:pointer;transition:opacity .15s,transform .1s;border:none;font-family:inherit;letter-spacing:-.2px}
-.rsheet-btn:active{opacity:.8;transform:scale(.99)}
-.rsheet-btn.win{background:#2a2724;color:#e8e6e3;border:1px solid #3a3630}
-/* STEP 1: draw — colore neutro #6a6560, mai rosso */
-.rsheet-btn.draw{background:#2a2724;color:#6a6560;border:1px solid #3a3630}
-.rsheet-btn.loss{background:#2a2724;color:#e8e6e3;border:1px solid #3a3630}
+.rsheet-btns{background:#252220;border-radius:14px;overflow:hidden;margin-bottom:8px}
+.rsheet-btn{width:100%;padding:16px 20px;border-radius:0;font-size:16px;font-weight:600;text-align:left;cursor:pointer;transition:opacity .15s,background .1s;border:none;border-bottom:0.5px solid #3a3630;font-family:inherit;letter-spacing:-.2px;background:transparent;color:#e8e6e3}
+.rsheet-btn:last-child{border-bottom:none}
+.rsheet-btn:active{background:#2a2724;opacity:.8}
+.rsheet-btn.win{}
+.rsheet-btn.draw{}
+.rsheet-btn.loss{}
 .rsheet-cancel{width:100%;background:transparent;border:none;color:#4a4642;font-size:15px;font-weight:500;padding:14px;cursor:pointer;font-family:inherit;transition:opacity .15s}
 .rsheet-cancel:active{opacity:.5}
 .btn-result{width:100%;background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:15px 18px;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .2s cubic-bezier(.34,1.56,.64,1);text-align:left;display:flex;align-items:center;justify-content:space-between}
@@ -448,8 +449,6 @@ body.sheet-open #sa-cover{background:#000000}
 .btn-result.waiting{background:#1d1a16;color:#6a6560;border:1px solid #2a2724;cursor:default}
 .btn-result.waiting::after{display:none}
 .waiting-dots{font-size:11px;color:#3a3630;flex-shrink:0}
-
-/* Card sfida ricevuta */
 
 .btn-accept{flex:1;background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:15px 0;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .2s cubic-bezier(.34,1.56,.64,1);font-family:inherit;letter-spacing:-.2px}
 .btn-accept:active{opacity:.8;transform:scale(.96)}
@@ -475,8 +474,6 @@ body.sheet-open #sa-cover{background:#000000}
 .btn-no{background:transparent;color:#c33;border:1px solid #c33;border-radius:8px;padding:10px 16px;font-size:13px;transition:opacity .15s}
 .btn-no:active{opacity:.7}
 
-/* ── Ongoing card ── */
-
 .btn-sm{background:#2a2724;color:#e8e6e3;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;flex-shrink:0;transition:opacity .15s;border:1px solid #3a3630}
 .btn-sm:active{opacity:.7}
 .btn-play{background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:10px 18px;font-size:14px;font-weight:700;flex-shrink:0;cursor:pointer;font-family:inherit;transition:opacity .15s,transform .1s}
@@ -488,8 +485,6 @@ body.sheet-open #sa-cover{background:#000000}
 .prow:active{border-color:#3a3630}
 .pname{font-size:15px;color:#e8e6e3;font-weight:600}
 .pelo{font-size:12px;color:#4a4642;margin-top:2px}
-
-/* ── Match result ── */
 
 /* ── Leaderboard ── */
 .lbrow{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:13px 14px;margin-bottom:6px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .15s}
@@ -1442,16 +1437,11 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
     const opp = getP(m.p1);
     const oppName = opp?.nickname || '?';
     const eloStr = opp?.elo ? String(opp.elo) : '';
-    // Riga colore: ○ bianco  ● nero — primo = bianco
-    let colorsRow = '';
+    // Colore inline nella status line
+    let colorLine = 'Ti sfida';
     if(m.white_player_id) {
       const amIWhite = m.white_player_id === me.id;
-      const p1Name = amIWhite ? (me?.nickname||'tu') : oppName;
-      const p2Name = amIWhite ? oppName : (me?.nickname||'tu');
-      colorsRow = `<div class="acard-colors">
-        <span class="acard-color-player"><span class="cdot w"></span>${p1Name}</span>
-        <span class="acard-color-player"><span class="cdot b"></span>${p2Name}</span>
-      </div>`;
+      colorLine = `Ti sfida · tu col ${amIWhite ? 'bianco' : 'nero'}`;
     }
     // Calcola countdown
     const incomingExpire = new Date(m.created_at).getTime() + CHALLENGE_EXPIRE_MS;
@@ -1463,8 +1453,7 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
         <div class="acard-accent green"></div>
         <div class="acard-body">
           <div class="acard-name">${oppName}${eloStr ? `<span class="acard-elo">${eloStr}</span>` : ''}</div>
-          <div class="acard-status">Ti sfida</div>
-          ${colorsRow}
+          <div class="acard-status">${colorLine}</div>
         </div>
         <div class="acard-cta" style="width:0;min-width:0;padding:0"></div>
       </div>
@@ -1483,8 +1472,8 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
     const oppId = m.p1 === me.id ? m.p2 : m.p1;
     const opp = getP(oppId);
     cards.push(mkCard('red', opp?.nickname||'?', opp?.elo||'',
-      {text:'Non concorda — reinserisci', cls:'red'},
-      `<button class="acard-btn danger" onclick="openResultSheet('${m.id}')">Reinserisci</button>`
+      {text:'Non torna — rifai', cls:'red'},
+      `<button class="acard-btn danger" onclick="openResultSheet('${m.id}')">Riprova</button>`
     ));
   });
 
@@ -1493,7 +1482,7 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
     const oppId = m.p1 === me.id ? m.p2 : m.p1;
     const opp = getP(oppId);
     cards.push(mkCard('green', opp?.nickname||'?', opp?.elo||'',
-      {text:'Inserisci il risultato'},
+      {text:"Com'è andata?"},
       `<button class="acard-btn primary" onclick="openResultSheet('${m.id}')">Inserisci</button>`
     ));
   });
@@ -1503,7 +1492,7 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
     const oppId = m.p1 === me.id ? m.p2 : m.p1;
     const opp = getP(oppId);
     cards.push(mkCard('', opp?.nickname||'?', '',
-      {text:'Aspetta conferma'},
+      {text:"Aspetta l'altro"},
       `<span class="acard-btn muted">In attesa</span>`,
       '', true
     ));
@@ -2273,10 +2262,10 @@ function openResultSheet(matchId) {
       : oppRes ? 'Persa' : '';
     $('rsheet-context').innerHTML = `
       <div style="font-size:13px;color:#6a6560;margin-bottom:2px">${oppName} dice: <strong>${oppSaid}</strong></div>
-      <div style="font-size:12px;color:#6a6560">${white.nickname} ○  ${black.nickname} ●</div>`;
+      <div style="font-size:12px;color:#4a4642">${white.nickname} ○ — ${black.nickname} ●</div>`;
     $('rsheet-dispute-warn').classList.remove('hidden');
   } else if(white && black) {
-    $('rsheet-context').innerHTML = `<div style="font-size:13px;color:#6a6560">${white.nickname} ○&nbsp;&nbsp;${black.nickname} ●</div>`;
+    $('rsheet-context').innerHTML = `<div style="font-size:13px;color:#6a6560">${white.nickname} ○ — ${black.nickname} ●</div>`;
     $('rsheet-dispute-warn').classList.add('hidden');
   } else {
     $('rsheet-context').textContent = 'vs ' + oppName;
