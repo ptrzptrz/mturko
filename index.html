@@ -519,35 +519,32 @@ body.sheet-open #sa-cover{background:#000000}
 .lb-me-sticky{position:fixed;bottom:calc(52px + max(env(safe-area-inset-bottom),8px));left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:0 16px;z-index:50}
 .lb-me-sticky-inner{background:#1d1a16;border:1px solid #3a3630;border-radius:12px;display:flex;align-items:center;gap:12px;padding:12px 14px;box-shadow:0 -4px 20px rgba(0,0,0,.5);cursor:pointer;-webkit-tap-highlight-color:transparent}
 .lb-me-sticky-inner:active{background:#252220}
-.lb-feed-row{padding:11px 0;border-bottom:0.5px solid #252220;display:flex;align-items:center;gap:10px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.lb-feed-row{padding:11px 14px;border-bottom:0.5px solid #252220;display:flex;align-items:center;gap:10px;cursor:pointer;-webkit-tap-highlight-color:transparent;background:transparent}
+.lb-feed-row:active{background:#252220}
 .lb-feed-row:last-child{border-bottom:none}
-.lb-feed-row:active{opacity:.6}
+.lb-group .lb-feed-row:last-child{border-bottom:none}
 .lb-feed-left{flex:1;min-width:0}
-.lb-feed-name{font-size:14px;font-weight:600;color:#e8e6e3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lb-feed-meta{font-size:11px;color:#4a4642;margin-top:2px}
-.lb-feed-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:1px}
-.lb-feed-delta{font-size:14px;font-weight:700}
+.lb-feed-name{font-size:14px;font-weight:400;color:#6a6560;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:5px}
+.lb-feed-name strong{font-weight:700}
+.lb-feed-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end}
+.lb-feed-delta{font-size:14px;font-weight:700;line-height:1}
 .lb-feed-delta.pos{color:#3d6b1a}
 .lb-feed-delta.neg{color:#7a2020}
-.lb-feed-delta.draw{color:#4a4642}
-.lb-feed-result{font-size:11px;font-weight:500}
-.lb-feed-result.win{color:#3d6b1a}
-.lb-feed-result.loss{color:#7a2020}
-.lb-feed-result.draw{color:#4a4642}
-.lb-feed-time{color:#3a3630}
-
+.lb-feed-delta.draw{color:#3a3630}
+.lb-feed-event .lb-feed-name{color:#e8e6e3;font-weight:400}
+.lb-feed-event .lb-feed-name strong{font-weight:600}
+.lb-feed-event .lb-feed-name strong.ev-overtake-pos{color:#629924}
+.lb-feed-event .lb-feed-name strong.ev-overtake-neg{color:#7a2020}
+.lb-feed-event .lb-feed-name strong.ev-overtake-other{color:#6a6560}
+.lb-feed-event .lb-feed-name strong.ev-upset{color:#b8a04a}
+.lb-feed-event .lb-feed-name strong.ev-milestone{color:#b8a04a}
+.lb-feed-event .lb-feed-name strong.ev-streak{color:#e8e6e3}
+.lb-feed-event .lb-feed-name strong.ev-newplayer{color:#e8e6e3}
+.lb-feed-event.ev-other .lb-feed-name{color:#6a6560}
+.lb-feed-event.ev-other .lb-feed-name strong{color:#6a6560}
+.feed-divider{display:flex;align-items:center;gap:10px;font-size:10px;font-weight:600;color:#3a3630;margin:14px 0 6px;text-transform:uppercase;letter-spacing:1.2px}
+.feed-divider::before,.feed-divider::after{content:'';flex:1;height:0.5px;background:#252220}
 .feed-counter{font-size:12px;color:#4a4642;text-align:center;padding:8px 0 12px;font-weight:500}
-.feed-card{background:#1d1a16;border:0.5px solid #2a2724;border-radius:14px;padding:14px 16px;margin:6px 0;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .1s}
-.feed-card:active{background:#252220}
-.feed-card-header{display:flex;align-items:center;gap:8px;font-size:13px;color:#6a6560}
-.feed-card-icon{font-size:14px;flex-shrink:0;width:18px;text-align:center}
-.feed-card-label{flex:1;min-width:0;font-size:14px;color:#e8e6e3;font-weight:500}
-.feed-card-label strong{font-weight:700}
-.feed-card-time{margin-left:auto;font-size:11px;color:#3a3630;flex-shrink:0}
-.feed-card-sub{font-size:12px;color:#4a4642;margin-top:4px;padding-left:28px}
-.feed-row-delta{font-weight:600;font-size:12px;margin-left:2px}
-.feed-row-delta.pos{color:#3d6b1a}
-.feed-row-delta.neg{color:#7a2020}
 /* ── Profile ── */
 .prof-sticky{flex-shrink:0;background:#161512;padding:0 16px}
 .prof-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px calc(80px + env(safe-area-inset-bottom,0px))}
@@ -2529,114 +2526,84 @@ function switchLbView(view, btn) {
   else renderLeaderboard();
 }
 
+// ── Feed: label divider temporale ──
+function dateToDividerLabel(d) {
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  if(d.toDateString() === today.toDateString()) return 'Oggi';
+  if(d.toDateString() === yesterday.toDateString()) return 'Ieri';
+  const diffDays = Math.floor((today.getTime() - d.getTime()) / 86400000);
+  if(diffDays === 2) return '2 giorni fa';
+  if(diffDays === 3) return '3 giorni fa';
+  if(diffDays === 4) return '4 giorni fa';
+  if(diffDays === 5) return '5 giorni fa';
+  if(diffDays === 6) return '6 giorni fa';
+  if(diffDays < 14) return 'Una settimana fa';
+  if(diffDays < 21) return '2 settimane fa';
+  if(diffDays < 28) return '3 settimane fa';
+  if(diffDays < 60) return 'Un mese fa';
+  if(diffDays < 90) return '2 mesi fa';
+  if(diffDays < 120) return '3 mesi fa';
+  return d.toLocaleDateString('it-IT', {day:'numeric', month:'long'});
+}
+
 function generateFeedEvents() {
   const events = [];
-  const now = Date.now();
 
-  // ── EVENTI DAL DB — card prominenti ──
+  // ── EVENTI DAL DB ──
   (globalEvents || []).forEach(ev => {
+    if(ev.type === 'peak') return;
     const time = new Date(ev.created_at).getTime();
     const data = ev.data || {};
     const player = getP(ev.player_id);
     const target = getP(ev.target_id);
     const timeStr = timeAgo(ev.created_at);
-    const playerName = player?.nickname || '?';
-    const targetName = target?.nickname || '?';
-    const involvesMe = ev.player_id === me.id || ev.target_id === me.id;
-    let html = '';
+    const playerName = player?.nickname || data.nickname || '?';
+    const targetName = target?.nickname || data.overtaken_name || '?';
+
+    let text = '';
+    let rowClass = 'lb-feed-row lb-feed-event';
 
     switch(ev.type) {
       case 'overtake':
         if(ev.target_id === me.id) {
-          html = `<div class="feed-card" onclick="openProfile('${ev.player_id}','leaderboard')">
-            <div class="feed-card-header">
-              <span class="feed-card-icon" style="color:#7a2020">↑</span>
-              <span class="feed-card-label"><strong>${playerName}</strong> ti ha superato</span>
-              <span class="feed-card-time">${timeStr}</span>
-            </div>
-          </div>`;
+          text = `<strong class="ev-overtake-neg">${playerName}</strong> ti ha superato`;
         } else if(ev.player_id === me.id) {
-          html = `<div class="feed-card" onclick="openProfile('${ev.target_id}','leaderboard')">
-            <div class="feed-card-header">
-              <span class="feed-card-icon" style="color:#3d6b1a">↑</span>
-              <span class="feed-card-label">Hai superato <strong>${targetName}</strong></span>
-              <span class="feed-card-time">${timeStr}</span>
-            </div>
-          </div>`;
+          text = `Hai superato <strong class="ev-overtake-pos">${targetName}</strong>`;
         } else {
-          html = `<div class="feed-card" onclick="openProfile('${ev.player_id}','leaderboard')">
-            <div class="feed-card-header">
-              <span class="feed-card-icon" style="color:#6a6560">↑</span>
-              <span class="feed-card-label"><strong>${playerName}</strong> ha superato ${targetName}</span>
-              <span class="feed-card-time">${timeStr}</span>
-            </div>
-          </div>`;
+          text = `<strong class="ev-overtake-other">${playerName}</strong> ha superato ${targetName}`;
+          rowClass = 'lb-feed-row lb-feed-event ev-other';
         }
         break;
-
-      case 'milestone':
-        html = `<div class="feed-card" onclick="openProfile('${ev.player_id}','leaderboard')">
-          <div class="feed-card-header">
-            <span class="feed-card-icon" style="color:#b8a04a">★</span>
-            <span class="feed-card-label"><strong>${playerName}</strong> ha raggiunto ${data.milestone || data.elo} ELO</span>
-            <span class="feed-card-time">${timeStr}</span>
-          </div>
-        </div>`;
-        break;
-
-      case 'streak':
-        html = `<div class="feed-card" onclick="openProfile('${ev.player_id}','leaderboard')">
-          <div class="feed-card-header">
-            <span class="feed-card-icon">🔥</span>
-            <span class="feed-card-label"><strong>${playerName}</strong> — ${data.streak} vittorie di fila</span>
-            <span class="feed-card-time">${timeStr}</span>
-          </div>
-        </div>`;
-        break;
-
       case 'upset':
-        html = `<div class="feed-card" onclick="openProfile('${ev.player_id}','leaderboard')">
-          <div class="feed-card-header">
-            <span class="feed-card-icon" style="color:#b8a04a">!</span>
-            <span class="feed-card-label"><strong>${playerName}</strong> ha battuto ${targetName} <span style="color:#b8a04a;font-size:11px">upset</span></span>
-            <span class="feed-card-time">${timeStr}</span>
-          </div>
-          <div class="feed-card-sub">${data.diff || ''} punti di differenza · +${data.delta || ''}</div>
-        </div>`;
+        text = `<strong class="ev-upset">${playerName}</strong> ha battuto ${targetName} !`;
         break;
-
+      case 'milestone':
+        text = `<strong class="ev-milestone">${playerName}</strong> ha raggiunto ${data.milestone || data.elo}`;
+        break;
+      case 'streak':
+        text = `<strong class="ev-streak">${playerName}</strong> ${data.streak} vittorie di fila`;
+        break;
       case 'new_player':
-        html = `<div class="feed-card" onclick="openProfile('${ev.player_id}','leaderboard')">
-          <div class="feed-card-header">
-            <span class="feed-card-icon" style="color:#4a4642">+</span>
-            <span class="feed-card-label"><strong>${data.nickname || playerName}</strong> si è unito a turko</span>
-            <span class="feed-card-time">${timeStr}</span>
-          </div>
-        </div>`;
-        break;
-
-      case 'peak':
-        html = `<div class="feed-card" onclick="openProfile('${ev.player_id}','leaderboard')">
-          <div class="feed-card-header">
-            <span class="feed-card-icon" style="color:#629924">▲</span>
-            <span class="feed-card-label"><strong>${playerName}</strong> — nuovo record: ${data.elo} ELO</span>
-            <span class="feed-card-time">${timeStr}</span>
-          </div>
-        </div>`;
+        text = `<strong class="ev-newplayer">${data.nickname || playerName}</strong> si è unito`;
         break;
     }
 
-    if(html) {
+    if(text) {
       events.push({
         type: ev.type,
-        priority: involvesMe ? 1 : 3,
         time: time,
-        html: html
+        html: `<div class="${rowClass}" onclick="openProfile('${ev.player_id || ''}','leaderboard')">
+          <div class="lb-feed-left">
+            <div class="lb-feed-name">${text}</div>
+          </div>
+        </div>`
       });
     }
   });
 
-  // ── PARTITE — righe cronologiche ──
+  // ── PARTITE ──
   const allMatches = (globalMatches || []).filter(m =>
     m.status === 'done' && m.result && m.result !== 'cancelled'
   ).slice(0, 30);
@@ -2648,54 +2615,60 @@ function generateFeedEvents() {
     const loserId = isDraw ? m.p2 : (m.result === 'p1' ? m.p2 : m.p1);
     const winner = getP(winnerId);
     const loser = getP(loserId);
-    const timeStr = timeAgo(m.updated_at);
+    const p1 = getP(m.p1);
+    const p2 = getP(m.p2);
+
+    let nameText;
+    if(isDraw) {
+      nameText = `${p1?.nickname || '?'} patta con ${p2?.nickname || '?'}`;
+    } else {
+      nameText = `<strong>${winner?.nickname || '?'}</strong> ha vinto contro ${loser?.nickname || '?'}`;
+    }
+
     const winElo = globalEloCache[m.id + '_' + winnerId];
     const winDelta = winElo ? (winElo.elo_after - winElo.elo_before) : null;
+    const displayDeltaClass = isDraw ? 'draw' : (winDelta !== null && winDelta >= 0 ? 'pos' : 'neg');
 
-    // Delta dal punto di vista dell'utente loggato
-    let displayDelta = winDelta;
-    let displayDeltaClass = isDraw ? 'draw' : (winDelta !== null && winDelta >= 0 ? 'pos' : 'neg');
-    if(isMyMatch && !isDraw && winDelta !== null) {
-      const myEh = globalEloCache[m.id + '_' + me.id] || eloCache[m.id];
-      if(myEh) {
-        displayDelta = myEh.elo_after - myEh.elo_before;
-        displayDeltaClass = displayDelta >= 0 ? 'pos' : 'neg';
-      }
-    }
-    const deltaStr = displayDelta !== null
-      ? `<div class="lb-feed-delta ${displayDeltaClass}">${displayDelta >= 0 ? '+' : ''}${displayDelta}</div>`
+    const deltaStr = winDelta !== null
+      ? `<div class="lb-feed-delta ${displayDeltaClass}">${winDelta >= 0 ? '+' : ''}${winDelta}</div>`
       : '';
-    const nameText = isDraw
-      ? `${getP(m.p1)?.nickname || '?'} — ${getP(m.p2)?.nickname || '?'}`
-      : `<strong>${winner?.nickname || '?'}</strong> — ${loser?.nickname || '?'}`;
-    const resultLabel = isMyMatch
-      ? (isDraw ? 'Patta' : winnerId === me.id ? 'Vinta' : 'Persa')
-      : '';
-    const resultClass = isDraw ? 'draw' : winnerId === me.id ? 'win' : loserId === me.id ? 'loss' : '';
-    const resultHtml = resultLabel
-      ? `<div class="lb-feed-result ${resultClass}">${resultLabel}</div>`
-      : '';
+
     events.push({
       type: 'match',
-      priority: 7,
       time: new Date(m.updated_at).getTime(),
       html: `<div class="lb-feed-row" onclick="openProfile('${isDraw ? m.p1 : winnerId}','leaderboard')">
         <div class="lb-feed-left">
           <div class="lb-feed-name">${nameText}</div>
-          <div class="lb-feed-meta">${timeStr}${winner?.elo ? ` · ${winner.elo}` : ''}</div>
         </div>
         <div class="lb-feed-right">
           ${deltaStr}
-          ${resultHtml}
         </div>
       </div>`
     });
   });
 
-  // Ordina tutto per tempo — cronologico
   events.sort((a, b) => b.time - a.time);
 
-  return events;
+  // ── Raggruppa per giorno ──
+  const byDay = [];
+  let currentDay = '';
+  let dayRows = [];
+
+  function flushDay() {
+    if(!currentDay) return;
+    byDay.push(`<div class="feed-divider">${currentDay}</div>`);
+    if(dayRows.length > 0) byDay.push(`<div class="lb-group">${dayRows.join('')}</div>`);
+    dayRows = [];
+  }
+
+  events.forEach(ev => {
+    const dateStr = dateToDividerLabel(new Date(ev.time));
+    if(dateStr !== currentDay) { flushDay(); currentDay = dateStr; }
+    dayRows.push(ev.html);
+  });
+  flushDay();
+
+  return byDay;
 }
 
 function renderLeaderboard() {
@@ -2807,7 +2780,7 @@ function renderLeaderboard() {
     feedEmpty.classList.remove('hidden');
   } else {
     feedEmpty.classList.add('hidden');
-    feedContainer.innerHTML = counterHtml + feedEvents.map(e => e.html).join('');
+    feedContainer.innerHTML = counterHtml + feedEvents.join('');
   }
   initLbFeedScroll();
 }
@@ -2844,44 +2817,72 @@ async function loadMoreFeed() {
   if(more.length < 30) _lbFeedAllLoaded = true;
 
   const feedContainer = $('lb-feed');
-  const html = more
-    .filter(m => m.result !== 'cancelled')
-    .map(m => {
-      const isDraw = m.result === 'draw';
-      const isMyMatch = m.p1 === me.id || m.p2 === me.id;
-      const winnerId = m.result === 'p1' ? m.p1 : m.result === 'p2' ? m.p2 : m.p1;
-      const loserId = isDraw ? m.p2 : (m.result === 'p1' ? m.p2 : m.p1);
-      const winner = getP(winnerId);
-      const loser = getP(loserId);
-      const timeStr = timeAgo(m.updated_at);
-      const winElo = globalEloCache[m.id + '_' + winnerId];
-      const winDelta = winElo ? (winElo.elo_after - winElo.elo_before) : null;
-      const deltaClass = isDraw ? 'draw' : (winDelta !== null && winDelta >= 0 ? 'pos' : 'neg');
-      const deltaStr = winDelta !== null
-        ? `<div class="lb-feed-delta ${deltaClass}">${winDelta >= 0 ? '+' : ''}${winDelta}</div>`
-        : '';
-      const nameText = isDraw
-        ? `${getP(m.p1)?.nickname || '?'} — ${getP(m.p2)?.nickname || '?'}`
-        : `<strong>${winner?.nickname || '?'}</strong> — ${loser?.nickname || '?'}`;
-      const resultLabel = isMyMatch
-        ? (isDraw ? 'Patta' : winnerId === me.id ? 'Vinta' : 'Persa')
-        : '';
-      const resultClass = isDraw ? 'draw' : winnerId === me.id ? 'win' : 'loss';
-      const resultHtml = resultLabel
-        ? `<div class="lb-feed-result ${resultClass}">${resultLabel}</div>`
-        : '';
-      return `<div class="lb-feed-row" onclick="openProfile('${isDraw ? m.p1 : winnerId}','leaderboard')">
-        <div class="lb-feed-left">
-          <div class="lb-feed-name">${nameText}</div>
-          <div class="lb-feed-meta">${timeStr}${winner?.elo ? ` · ${winner.elo}` : ''}</div>
-        </div>
-        <div class="lb-feed-right">
-          ${deltaStr}
-          ${resultHtml}
-        </div>
-      </div>`;
-    }).join('');
-  feedContainer.insertAdjacentHTML('beforeend', html);
+  const rows = more.filter(m => m.result !== 'cancelled').map(m => {
+    const isDraw = m.result === 'draw';
+    const isMyMatch = m.p1 === me.id || m.p2 === me.id;
+    const winnerId = m.result === 'p1' ? m.p1 : m.result === 'p2' ? m.p2 : m.p1;
+    const loserId = isDraw ? m.p2 : (m.result === 'p1' ? m.p2 : m.p1);
+    const winner = getP(winnerId);
+    const loser = getP(loserId);
+    const p1 = getP(m.p1);
+    const p2 = getP(m.p2);
+    let nameText;
+    if(isDraw) {
+      nameText = `${p1?.nickname || '?'} patta con ${p2?.nickname || '?'}`;
+    } else {
+      nameText = `<strong>${winner?.nickname || '?'}</strong> ha vinto contro ${loser?.nickname || '?'}`;
+    }
+    const winElo = globalEloCache[m.id + '_' + winnerId];
+    const winDelta = winElo ? (winElo.elo_after - winElo.elo_before) : null;
+    const displayDeltaClass = isDraw ? 'draw' : (winDelta !== null && winDelta >= 0 ? 'pos' : 'neg');
+    const deltaStr = winDelta !== null
+      ? `<div class="lb-feed-delta ${displayDeltaClass}">${winDelta >= 0 ? '+' : ''}${winDelta}</div>`
+      : '';
+    return {
+      time: new Date(m.updated_at).getTime(),
+      html: `<div class="lb-feed-row" onclick="openProfile('${isDraw ? m.p1 : winnerId}','leaderboard')">
+        <div class="lb-feed-left"><div class="lb-feed-name">${nameText}</div></div>
+        <div class="lb-feed-right">${deltaStr}</div>
+      </div>`
+    };
+  });
+
+  const allDividers = feedContainer.querySelectorAll('.feed-divider');
+  const lastExistingDivider = allDividers.length > 0 ? allDividers[allDividers.length - 1].textContent.trim() : '';
+  let currentDay = lastExistingDivider;
+  let newHtml = '';
+  let currentGroupRows = '';
+
+  rows.forEach(row => {
+    const dateStr = dateToDividerLabel(new Date(row.time));
+    if(dateStr !== currentDay) {
+      if(currentGroupRows) {
+        if(currentDay === lastExistingDivider && !newHtml) {
+          const lastGroup = feedContainer.querySelector('.lb-group:last-of-type');
+          if(lastGroup) { lastGroup.insertAdjacentHTML('beforeend', currentGroupRows); currentGroupRows = ''; }
+          else { newHtml += `<div class="lb-group">${currentGroupRows}</div>`; currentGroupRows = ''; }
+        } else {
+          newHtml += `<div class="lb-group">${currentGroupRows}</div>`;
+          currentGroupRows = '';
+        }
+      }
+      currentDay = dateStr;
+      newHtml += `<div class="feed-divider">${dateStr}</div>`;
+    }
+    currentGroupRows += row.html;
+  });
+
+  if(currentGroupRows) {
+    if(!newHtml && currentDay === lastExistingDivider) {
+      const lastGroup = feedContainer.querySelector('.lb-group:last-of-type');
+      if(lastGroup) { lastGroup.insertAdjacentHTML('beforeend', currentGroupRows); }
+      else { newHtml += `<div class="lb-group">${currentGroupRows}</div>`; }
+    } else {
+      newHtml += `<div class="lb-group">${currentGroupRows}</div>`;
+    }
+  }
+
+  if(newHtml) feedContainer.insertAdjacentHTML('beforeend', newHtml);
 }
 
 
