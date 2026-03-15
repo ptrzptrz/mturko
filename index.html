@@ -1313,6 +1313,7 @@ async function doLogout() {
 // --- DATA ---
 let eloCache = {};
 const _toastedMatchIds = new Set();
+const _eventedMatchIds = new Set();
 
 async function fetchAll() {
   if(!me) return;
@@ -1360,8 +1361,11 @@ async function fetchAll() {
           else if(won) toast(resultCopy('win', delta), 'result-win');
           else toast(resultCopy('loss', delta), 'result-loss');
 
-          // Genera eventi per questa partita (fire and forget)
-          generateMatchEvents(m);
+          // Genera eventi per questa partita (fire and forget, guard anti-duplicati)
+          if(!_eventedMatchIds.has(m.id)) {
+            _eventedMatchIds.add(m.id);
+            generateMatchEvents(m);
+          }
         }
       }
     });
@@ -2550,7 +2554,6 @@ function generateFeedEvents() {
               <span class="feed-card-label"><strong>${playerName}</strong> ti ha superato</span>
               <span class="feed-card-time">${timeStr}</span>
             </div>
-            <div class="feed-card-sub">ELO ${data.new_elo || ''} vs ${data.overtaken_elo || ''}</div>
           </div>`;
         } else if(ev.player_id === me.id) {
           html = `<div class="feed-card" onclick="openProfile('${ev.target_id}','leaderboard')">
@@ -2648,9 +2651,19 @@ function generateFeedEvents() {
     const timeStr = timeAgo(m.updated_at);
     const winElo = globalEloCache[m.id + '_' + winnerId];
     const winDelta = winElo ? (winElo.elo_after - winElo.elo_before) : null;
-    const deltaClass = isDraw ? 'draw' : (winDelta !== null && winDelta >= 0 ? 'pos' : 'neg');
-    const deltaStr = winDelta !== null
-      ? `<div class="lb-feed-delta ${deltaClass}">${winDelta >= 0 ? '+' : ''}${winDelta}</div>`
+
+    // Delta dal punto di vista dell'utente loggato
+    let displayDelta = winDelta;
+    let displayDeltaClass = isDraw ? 'draw' : (winDelta !== null && winDelta >= 0 ? 'pos' : 'neg');
+    if(isMyMatch && !isDraw && winDelta !== null) {
+      const myEh = globalEloCache[m.id + '_' + me.id] || eloCache[m.id];
+      if(myEh) {
+        displayDelta = myEh.elo_after - myEh.elo_before;
+        displayDeltaClass = displayDelta >= 0 ? 'pos' : 'neg';
+      }
+    }
+    const deltaStr = displayDelta !== null
+      ? `<div class="lb-feed-delta ${displayDeltaClass}">${displayDelta >= 0 ? '+' : ''}${displayDelta}</div>`
       : '';
     const nameText = isDraw
       ? `${getP(m.p1)?.nickname || '?'} — ${getP(m.p2)?.nickname || '?'}`
