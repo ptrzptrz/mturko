@@ -519,6 +519,10 @@ body.sheet-open #sa-cover{background:#000000}
 .lb-me-sticky{position:fixed;bottom:calc(52px + max(env(safe-area-inset-bottom),8px));left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:0 16px;z-index:50}
 .lb-me-sticky-inner{background:#1d1a16;border:1px solid #3a3630;border-radius:12px;display:flex;align-items:center;gap:12px;padding:12px 14px;box-shadow:0 -4px 20px rgba(0,0,0,.5);cursor:pointer;-webkit-tap-highlight-color:transparent}
 .lb-me-sticky-inner:active{background:#252220}
+.lb-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:#3d6b1a;margin-left:6px;vertical-align:middle}
+.lb-dot.playing{animation:lb-pulse 1.5s ease-in-out infinite}
+@keyframes lb-pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.lb-status{font-size:11px;color:#4a4642;font-weight:400}
 .lb-feed-row{padding:11px 14px;border-bottom:0.5px solid #252220;display:flex;align-items:center;gap:10px;cursor:pointer;-webkit-tap-highlight-color:transparent;background:transparent}
 .lb-feed-row:active{background:#252220}
 .lb-feed-row:last-child{border-bottom:none}
@@ -544,58 +548,74 @@ body.sheet-open #sa-cover{background:#000000}
 .lb-feed-event.ev-other .lb-feed-name strong{color:#6a6560}
 .feed-divider{display:flex;align-items:center;gap:10px;font-size:10px;font-weight:600;color:#3a3630;margin:14px 0 6px;text-transform:uppercase;letter-spacing:1.2px}
 .feed-divider::before,.feed-divider::after{content:'';flex:1;height:0.5px;background:#252220}
-.feed-counter{font-size:12px;color:#4a4642;text-align:center;padding:8px 0 12px;font-weight:500}
+.feed-counter{font-size:13px;color:#6a6560;text-align:center;padding:8px 0 12px;font-weight:600}
 /* ── Profile ── */
 .prof-sticky{flex-shrink:0;background:#161512;padding:0 16px}
 .prof-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px calc(80px + env(safe-area-inset-bottom,0px))}
 .prof-scroll::-webkit-scrollbar{display:none}
-.prof-header{background:#1d1a16;border:1px solid #252220;border-radius:14px;padding:20px 16px;margin-bottom:10px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100px}
-.prof-back-icon{position:absolute;top:12px;left:14px;background:none;border:none;color:#4a4642;font-size:18px;cursor:pointer;padding:4px;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center}
+.prof-header{background:#1d1a16;border:1px solid #252220;border-radius:14px;padding:20px 16px;margin-bottom:12px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80px}
+.prof-back-icon{position:absolute;top:12px;left:14px;background:none;border:none;color:#3a3630;font-size:18px;cursor:pointer;padding:4px;line-height:1;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
 .prof-back-icon:active{opacity:.6}
-.prof-edit-icon{position:absolute;top:12px;right:14px;background:none;border:none;color:#4a4642;font-size:16px;cursor:pointer;padding:4px;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center}
-.prof-edit-icon:active{opacity:.6}
-.prof-logout-icon{position:absolute;top:12px;right:14px;background:none;border:none;color:#4a4642;cursor:pointer;padding:4px;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center}
-.prof-logout-icon:active{color:#c33}
 .prof-nick{font-size:20px;font-weight:700;color:#e8e6e3;text-align:center;margin-bottom:4px}
-.prof-bio{font-size:12px;color:#4a4642;text-align:center;margin-bottom:3px}
-.prof-meta{font-size:11px;color:#4a4642;text-align:center;line-height:1.7}
+.prof-rank-meta{font-size:11px;color:#4a4642;text-align:center;margin-bottom:3px}
+.prof-bio{font-size:12px;color:#4a4642;text-align:center;margin-bottom:0}
 .prof-edit-form{background:#1d1a16;border:1px solid #252220;border-radius:14px;padding:16px;margin-bottom:14px}
 .prof-edit-form input,.prof-edit-form textarea{margin-bottom:8px}
-.stats-row{display:flex;gap:8px;margin-bottom:10px}
-.stat{flex:1;background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:12px 8px;text-align:center;position:relative}
-.stat-v{font-size:22px;font-weight:700;color:#e8e6e3}
-.stat-v.g{color:#629924}.stat-v.r{color:#c33}
-.stat-l{font-size:10px;color:#4a4642;text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
-.chart-wrap{background:#1d1a16;border:1px solid #252220;border-radius:14px;padding:16px;margin-bottom:12px}
-.chart-title{font-size:10px;color:#4a4642;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+.prof-elo-hero{text-align:center;margin-bottom:2px}
+.prof-elo-num{font-size:32px;font-weight:800;color:#e8e6e3;line-height:1}
+.prof-elo-peak{font-size:11px;color:#4a4642;margin-top:4px}
+.prof-elo-peak strong{color:#6a6560;font-weight:600}
+.prof-elo-gap{font-size:11px;color:#7a2020;margin-top:2px;text-align:center}
+.prof-stats-line{font-size:13px;color:#6a6560;text-align:center;margin-top:6px;margin-bottom:14px}
+.prof-stats-line .win{color:#3d6b1a;font-weight:600}
+.prof-stats-line .loss{color:#7a2020;font-weight:600}
+.prof-stats-line .draw{color:#4a4642;font-weight:600}
+.prof-stats-line .rate{color:#e8e6e3;font-weight:700}
+.prof-stats-line .streak{color:#e8e6e3;font-weight:600}
+.prof-chart-wrap{margin-bottom:14px}
 canvas{width:100%!important;display:block}
-.tab-bar{display:flex;border-bottom:1px solid #252220;flex-shrink:0;margin-bottom:4px}
-.tab{background:none!important;border:none!important;border-radius:0;color:#4a4642;font-size:13px;font-weight:500;padding:10px 16px;cursor:pointer;border-bottom:2px solid transparent!important;margin-bottom:-1px;outline:none;-webkit-appearance:none;transition:color .15s}
-.tab.on{color:#e8e6e3;border-bottom:2px solid #e8e6e3!important}
+.prof-section-label{font-size:10px;font-weight:600;color:#3a3630;text-transform:uppercase;letter-spacing:1.4px;margin-bottom:8px;margin-top:18px}
+.prof-h2h{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+.prof-h2h-label{font-size:14px;color:#e8e6e3;font-weight:600}
+.prof-h2h-record{font-size:14px;font-weight:700;display:flex;gap:6px}
+.prof-h2h-record .w{color:#3d6b1a}
+.prof-h2h-record .l{color:#7a2020}
+.prof-h2h-record .d{color:#4a4642}
+.prof-rival-row{padding:11px 14px;border-bottom:0.5px solid #252220;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.prof-rival-row:active{background:#252220}
+.prof-rival-row:last-child{border-bottom:none}
+.prof-rival-name{font-size:14px;font-weight:600;color:#e8e6e3}
+.prof-rival-record{font-size:13px;color:#6a6560;font-weight:500}
+.prof-rival-record .w{color:#3d6b1a;font-weight:700}
+.prof-rival-record .l{color:#7a2020;font-weight:700}
+.prof-rival-record .d{color:#4a4642;font-weight:700}
+.prof-day-header{display:flex;align-items:center;justify-content:space-between;padding:6px 0 6px}
+.prof-day-label{font-size:12px;color:#4a4642;font-weight:600}
+.prof-day-summary{font-size:11px;color:#4a4642}
+.prof-day-summary .elo-up{color:#3d6b1a}
+.prof-day-summary .elo-down{color:#7a2020}
+.prof-match-row{padding:11px 14px;border-bottom:0.5px solid #252220;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.prof-match-row:active{background:#252220}
+.prof-match-row:last-child{border-bottom:none}
+.prof-match-left{flex:1;min-width:0}
+.prof-match-name{font-size:14px;font-weight:600;color:#e8e6e3}
+.prof-match-meta{font-size:11px;color:#4a4642;margin-top:1px}
+.prof-match-right{text-align:right;flex-shrink:0}
+.prof-match-result{font-size:11px;font-weight:500}
+.prof-match-result.win{color:#3d6b1a}
+.prof-match-result.loss{color:#7a2020}
+.prof-match-result.draw{color:#4a4642}
+.prof-match-delta{font-size:14px;font-weight:700;margin-top:1px}
+.prof-footer{padding:24px 0 16px;text-align:center}
+.prof-footer-link{background:none;border:none;color:#4a4642;font-size:13px;font-weight:500;cursor:pointer;padding:10px 16px;display:block;width:100%;-webkit-tap-highlight-color:transparent}
+.prof-footer-link:active{color:#6a6560}
+.prof-cta{position:fixed;bottom:0;left:0;right:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,#161512 30%);z-index:50}
+.prof-cta button{width:100%;padding:14px;border-radius:12px;font-size:16px;font-weight:700;border:none;cursor:pointer}
+.prof-cta button.active{background:#e8e6e3;color:#161512}
+.prof-cta button.active:active{opacity:.85}
+.prof-cta button.disabled{background:#252220;color:#4a4642;pointer-events:none}
 .back-btn{background:none;border:none;color:#4a4642;font-size:13px;padding:0;margin-bottom:12px;display:flex;align-items:center;gap:6px;cursor:pointer}
 .back-btn:active{opacity:.7}
-
-/* ── Activity / History ── */
-.act-day{margin-bottom:16px}
-.act-day-label{font-size:12px;color:#4a4642;font-weight:600;margin-bottom:8px;padding-top:8px}
-.act-row{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:12px 14px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
-.act-desc{font-size:13px;color:#e8e6e3}
-.act-boxes{display:flex;gap:3px;align-items:center}
-.act-box{min-width:18px;height:17px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;padding:0 4px}
-.act-box.win{background:#3d6b1a}
-.act-box.draw{background:#4a4642}
-.act-box.loss{background:#7a2020}
-.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.dot.win{background:#629924}.dot.loss{background:#c33}.dot.draw{background:#555}
-.mcard{background:#1d1a16;border:1px solid #252220;border-radius:12px;margin-bottom:8px;overflow:hidden}
-.mcard-top{padding:11px 14px;display:flex;align-items:center;justify-content:space-between}
-.mcard-opp{font-size:14px;color:#e8e6e3;font-weight:600}
-.mcard-meta{font-size:11px;color:#4a4642;margin-top:2px}
-.mcard-right{text-align:right}
-.mcard-result{font-size:13px;font-weight:600}
-.mcard-result.win{color:#629924}.mcard-result.loss{color:#c33}.mcard-result.draw{color:#6a6560}
-.mcard-elo{font-size:11px;margin-top:2px}
-
 /* ── hrow — storico home ── */
 .hrow-wrap{position:relative;overflow:hidden;margin-bottom:0;background:transparent}
 .hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:0;overflow:hidden;display:flex;align-items:center;justify-content:center;pointer-events:none;transition:width 0s}
@@ -736,8 +756,8 @@ canvas{width:100%!important;display:block}
     <div id="page-lb" class="page">
       <!-- Chip bar -->
       <div class="lb-chips">
-        <button class="lb-chip active" data-view="classifica" onclick="switchLbView('classifica', this)">Classifica</button>
-        <button class="lb-chip" data-view="live" onclick="switchLbView('live', this)">Live</button>
+        <button class="lb-chip active" data-view="classifica" onclick="switchLbView('classifica', this)">Ranking</button>
+        <button class="lb-chip" data-view="live" onclick="switchLbView('live', this)">Feed</button>
       </div>
       <!-- Vista: Classifica -->
       <div id="lb-view-classifica" class="lb-view active">
@@ -758,35 +778,18 @@ canvas{width:100%!important;display:block}
       <div class="prof-sticky">
         <button class="back-btn hidden" id="profile-back">← indietro</button>
         <div id="prof-header-wrap"></div>
-        <div class="stats-row">
-          <div class="stat" style="position:relative">
-            <div id="prof-elo" class="stat-v">—</div>
-            <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-top:2px">
-              <div class="stat-l">ELO</div>
-              <span class="elo-info-btn" onclick="toggleEloTooltip(event)" style="margin-top:0">?</span>
-            </div>
-            <div class="elo-tooltip" id="elo-tooltip-prof" style="top:calc(100% + 6px);left:0;right:auto;width:220px">
-              <div class="elo-tooltip-title">Come funziona l'ELO</div>
-              <div class="elo-tooltip-text">Il punteggio ELO misura la tua forza relativa agli altri giocatori. Vinci contro un avversario forte → guadagni più punti. Perdi contro uno debole → perdi di più.<br><br><strong style="color:#e8e6e3">K variabile:</strong> K=40 prime 30 partite, K=32 standard, K=20 se ELO ≥ 2000.<br><br><strong style="color:#e8e6e3">Anti-farming:</strong> dalla 4ª partita dello stesso giorno con lo stesso avversario i punti si dimezzano.</div>
-            </div>
-          </div>
-          <div class="stat"><div id="prof-wins" class="stat-v g">0</div><div class="stat-l">Vinte</div></div>
-          <div class="stat"><div id="prof-losses" class="stat-v r">0</div><div class="stat-l">Perse</div></div>
-          <div class="stat"><div id="prof-draws" class="stat-v">0</div><div class="stat-l">Patte</div></div>
-        </div>
-        <div class="chart-wrap">
-          <div class="chart-title">Andamento ELO</div>
+      </div>
+      <div class="prof-scroll" id="prof-scroll">
+        <div id="prof-elo-section"></div>
+        <div class="prof-chart-wrap">
           <canvas id="elo-chart" height="120"></canvas>
         </div>
-        <div class="tab-bar">
-          <button class="tab on" onclick="switchProfTab('activity', this)">Attività</button>
-          <button class="tab" onclick="switchProfTab('matches', this)">Partite</button>
-        </div>
+        <div id="prof-h2h"></div>
+        <div id="prof-rivals"></div>
+        <div id="prof-day-groups"></div>
+        <div id="prof-footer"></div>
       </div>
-      <div class="prof-scroll">
-        <div id="prof-activity"></div>
-        <div id="prof-matches" class="hidden"></div>
-      </div>
+      <div id="prof-cta-wrap"></div>
     </div>
   </div>
   <div class="navbar-frost"></div>
@@ -797,7 +800,7 @@ canvas{width:100%!important;display:block}
     </button>
     <button class="nbtn" data-page="leaderboard">
       <svg class="nicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="7" width="4" height="14"/><rect x="17" y="3" width="4" height="18"/></svg>
-      <span>Attività</span>
+      <span>Arena</span>
     </button>
     <button class="nbtn" data-page="profile-me">
       <svg class="nicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
@@ -2571,10 +2574,8 @@ function generateFeedEvents() {
           text = `<strong class="ev-overtake-neg">${playerName}</strong> ti ha superato`;
         } else if(ev.player_id === me.id) {
           text = `Hai superato <strong class="ev-overtake-pos">${targetName}</strong>`;
-        } else {
-          text = `<strong class="ev-overtake-other">${playerName}</strong> ha superato ${targetName}`;
-          rowClass = 'lb-feed-row lb-feed-event ev-other';
         }
+        // Sorpassi tra altri: non mostrare (text resta vuoto → riga non generata)
         break;
       case 'upset':
         text = `<strong class="ev-upset">${playerName}</strong> ha battuto ${targetName} !`;
@@ -2620,7 +2621,13 @@ function generateFeedEvents() {
 
     let nameText;
     if(isDraw) {
-      nameText = `${p1?.nickname || '?'} patta con ${p2?.nickname || '?'}`;
+      if(m.p1 === me.id) nameText = `Patta con ${p2?.nickname || '?'}`;
+      else if(m.p2 === me.id) nameText = `Patta con ${p1?.nickname || '?'}`;
+      else nameText = `${p1?.nickname || '?'} patta con ${p2?.nickname || '?'}`;
+    } else if(winnerId === me.id) {
+      nameText = `Hai vinto contro ${loser?.nickname || '?'}`;
+    } else if(loserId === me.id) {
+      nameText = `${winner?.nickname || '?'} ti ha battuto`;
     } else {
       nameText = `<strong>${winner?.nickname || '?'}</strong> ha vinto contro ${loser?.nickname || '?'}`;
     }
@@ -2692,7 +2699,8 @@ function renderLeaderboard() {
     const leaderHtml = `<div class="lb-leader${leaderIsMe?' me':''}" onclick="openProfile('${leader.id}','leaderboard')">
       <div class="lb-leader-rank">1</div>
       <div class="lb-row-info">
-        <div class="lb-leader-name">${leader.nickname}</div>
+        <div class="lb-leader-name">${leader.nickname}${(() => { const isOnlineL = leader.last_seen_at && (Date.now() - new Date(leader.last_seen_at).getTime()) < 30000; return leader.is_playing ? '<span class="lb-dot playing"></span>' : isOnlineL ? '<span class="lb-dot"></span>' : ''; })()}</div>
+        ${leader.is_playing ? '<div class="lb-status">In partita</div>' : ''}
       </div>
       <div class="lb-row-elo-wrap">
         <div class="lb-leader-elo">${leader.elo}</div>
@@ -2721,8 +2729,8 @@ function renderLeaderboard() {
       return `<div class="lb-row${isMe?' me':''}" onclick="openProfile('${p.id}','leaderboard')">
         <div class="lb-row-rank">${rank}${trendHtml}</div>
         <div class="lb-row-info">
-          <div class="lb-row-name">${p.nickname}${isMe?'<span class="lb-row-me-tag">tu</span>':''}</div>
-          ${subLabel}
+          <div class="lb-row-name">${p.nickname}${(() => { const isOnlineP = p.last_seen_at && (Date.now() - new Date(p.last_seen_at).getTime()) < 30000; return p.is_playing ? '<span class="lb-dot playing"></span>' : isOnlineP ? '<span class="lb-dot"></span>' : ''; })()}${isMe?'<span class="lb-row-me-tag">tu</span>':''}</div>
+          ${p.is_playing ? '<div class="lb-status">In partita</div>' : subLabel}
         </div>
         <div class="lb-row-elo-wrap">
           <div class="lb-row-elo">${p.elo}</div>
@@ -2828,7 +2836,13 @@ async function loadMoreFeed() {
     const p2 = getP(m.p2);
     let nameText;
     if(isDraw) {
-      nameText = `${p1?.nickname || '?'} patta con ${p2?.nickname || '?'}`;
+      if(m.p1 === me.id) nameText = `Patta con ${p2?.nickname || '?'}`;
+      else if(m.p2 === me.id) nameText = `Patta con ${p1?.nickname || '?'}`;
+      else nameText = `${p1?.nickname || '?'} patta con ${p2?.nickname || '?'}`;
+    } else if(winnerId === me.id) {
+      nameText = `Hai vinto contro ${loser?.nickname || '?'}`;
+    } else if(loserId === me.id) {
+      nameText = `${winner?.nickname || '?'} ti ha battuto`;
     } else {
       nameText = `<strong>${winner?.nickname || '?'}</strong> ha vinto contro ${loser?.nickname || '?'}`;
     }
@@ -2892,67 +2906,75 @@ let currentProfileMatches = [];
 
 function openMyProfile() { openProfile(me.id, 'home'); }
 
-function switchProfTab(tab, btn) {
-  document.querySelectorAll('.tab-bar .tab').forEach(t => t.classList.remove('on'));
-  btn.classList.add('on');
-  if(tab==='activity') { $('prof-activity').classList.remove('hidden'); $('prof-matches').classList.add('hidden'); }
-  else { $('prof-activity').classList.add('hidden'); $('prof-matches').classList.remove('hidden'); }
-}
-
 async function openProfile(playerId, fromPage, noPush) {
   if(!noPush) profileStack.push({id: playerId, from: fromPage});
   currentProfileId = playerId;
-  const playerRes = await db.get("players", `id=eq.${playerId}&select=*`);
-  const player = Array.isArray(playerRes) ? playerRes[0] : null;
+
+  var playerRes = await db.get("players", "id=eq." + playerId + "&select=*");
+  var player = Array.isArray(playerRes) ? playerRes[0] : null;
   if(!player) return;
-  const idx = players.findIndex(p => p.id===playerId);
-  if(idx>=0) players[idx] = player;
-  if(playerId===me.id) me = player;
+  var idx = players.findIndex(function(p) { return p.id === playerId; });
+  if(idx >= 0) players[idx] = player;
+  if(playerId === me.id) me = player;
+
+  var isMe = playerId === me.id;
+
   renderProfileHeader(player);
-  $("prof-elo").textContent = player.elo;
-  $("prof-wins").textContent = player.wins;
-  $("prof-losses").textContent = player.losses;
-  $("prof-draws").textContent = player.draws;
-  $("prof-activity").innerHTML = `<div class="empty">Carico...</div>`;
-  $("prof-matches").innerHTML = `<div class="empty">Carico...</div>`;
-  document.querySelectorAll('.tab-bar .tab').forEach((t,i) => { t.classList.toggle('on', i===0); });
-  $('prof-activity').classList.remove('hidden');
-  $('prof-matches').classList.add('hidden');
+  renderEloSection(player);
+
+  $("prof-h2h").innerHTML = '';
+  $("prof-rivals").innerHTML = '';
+  $("prof-day-groups").innerHTML = '<div class="empty">Carico...</div>';
+  $("prof-cta-wrap").innerHTML = '';
+  $("prof-footer").innerHTML = '';
+  renderProfileFooter(isMe);
+
   showPage("profile");
-  const [eloH, matchH] = await Promise.all([
-    db.get("elo_history", `player_id=eq.${playerId}&order=created_at.asc&select=*`),
-    db.get("matches", `or=(p1.eq.${playerId},p2.eq.${playerId})&status=eq.done&order=created_at.desc&limit=30`)
-  ]);
+
+  var eloH = await db.get("elo_history", "player_id=eq." + playerId + "&order=created_at.asc&select=*");
+  var matchH = await db.get("matches", "or=(p1.eq." + playerId + ",p2.eq." + playerId + ")&status=eq.done&order=created_at.desc&limit=50");
+
   currentProfileMatches = Array.isArray(matchH) ? matchH : [];
+  var eloMap = {};
+  if(Array.isArray(eloH)) eloH.forEach(function(e) { eloMap[e.match_id] = e; });
+
   drawEloChart(eloH, player.elo);
-  const eloMap = {};
-  if(Array.isArray(eloH)) eloH.forEach(e => eloMap[e.match_id] = e);
-  renderActivityTab(currentProfileMatches, eloMap, playerId);
-  renderMatchesTab(currentProfileMatches, eloMap, playerId);
+
+  if(!isMe) renderH2H(playerId, currentProfileMatches);
+  renderRivals(playerId, currentProfileMatches);
+  renderDayGroups(currentProfileMatches, eloMap, playerId);
+  if(!isMe) renderProfileCTA(player);
 }
 
 function renderProfileHeader(player) {
-  const isMe = player.id === me.id;
-  const lastSeenRaw = player.last_seen_at;
-  const isEpoch = lastSeenRaw && new Date(lastSeenRaw).getFullYear() < 2000;
-  const lastSeen = (lastSeenRaw && !isEpoch) ? timeAgo(lastSeenRaw) : null;
-  $("prof-header-wrap").innerHTML = `
-    <div class="prof-header">
-      <button class="prof-back-icon" onclick="document.getElementById('profile-back').click()">←</button>
-      ${isMe ? `
-        <div style="position:absolute;top:12px;right:12px;display:flex;gap:2px">
-          <button class="prof-edit-icon" style="position:static" onclick="showEditProfile()">✎</button>
-          <button class="prof-logout-icon" style="position:static" onclick="doLogout()" title="Esci">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          </button>
-        </div>` : ''}
-      <div class="prof-nick">${player.nickname}</div>
-      ${player.bio ? `<div class="prof-bio">${player.bio}</div>` : ''}
-      <div class="prof-meta">
-        ${player.city ? `${player.city} · ` : ''}Membro ${memberSince(player.created_at)}${lastSeen ? `<br>Visto ${lastSeen}` : ''}
-      </div>
-    </div>
-    <div id="prof-edit-wrap"></div>`;
+  var isMe = player.id === me.id;
+  var lastSeenRaw = player.last_seen_at;
+  var isEpoch = lastSeenRaw && new Date(lastSeenRaw).getFullYear() < 2000;
+  var lastSeen = (lastSeenRaw && !isEpoch) ? timeAgo(lastSeenRaw) : null;
+
+  var sorted = [...players].sort(function(a, b) { return b.elo - a.elo; });
+  var rank = sorted.findIndex(function(p) { return p.id === player.id; }) + 1;
+  var totalPlayers = sorted.length;
+
+  var metaParts = [];
+  if(rank > 0) metaParts.push('#' + rank + ' di ' + totalPlayers);
+  if(player.city) metaParts.push(player.city);
+  var joinDate = new Date(player.created_at);
+  var monthNames = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+  metaParts.push(monthNames[joinDate.getMonth()] + ' ' + joinDate.getFullYear());
+  var metaLine = metaParts.join(' · ');
+
+  var seenLine = (!isMe && lastSeen) ? '<div class="prof-rank-meta">Visto ' + lastSeen + '</div>' : '';
+
+  $("prof-header-wrap").innerHTML =
+    '<div class="prof-header">' +
+      '<button class="prof-back-icon" onclick="document.getElementById(&quot;profile-back&quot;).click()">←</button>' +
+      '<div class="prof-nick">' + player.nickname + '</div>' +
+      '<div class="prof-rank-meta">' + metaLine + '</div>' +
+      (player.bio ? '<div class="prof-bio">' + player.bio + '</div>' : '') +
+      seenLine +
+    '</div>' +
+    '<div id="prof-edit-wrap"></div>';
 }
 
 function showEditProfile() {
@@ -2982,74 +3004,233 @@ async function saveProfile() {
   }
 }
 
-function renderActivityTab(matchH, eloMap, playerId) {
-  if(!matchH.length) { $("prof-activity").innerHTML = `<div class="empty">Nessuna attività ancora</div>`; return; }
-  const byDay = {};
+function renderEloSection(player) {
+  var total = player.wins + player.losses + player.draws;
+  var winRate = total > 0 ? Math.round((player.wins / total) * 100) : 0;
+  var streak = player.win_streak || 0;
+  var peak = player.elo_peak || player.elo;
+  var gap = peak - player.elo;
+
+  var statsHtml = '<span class="win">' + player.wins + 'V</span> · <span class="loss">' + player.losses + 'P</span> · <span class="draw">' + player.draws + '=</span>';
+  if(total > 0) statsHtml += ' · <span class="rate">' + winRate + '%</span>';
+  if(streak >= 2) statsHtml += ' · <span class="streak">' + streak + '🔥</span>';
+
+  $("prof-elo-section").innerHTML =
+    '<div class="prof-elo-hero">' +
+      '<div class="prof-elo-num">' + player.elo + '</div>' +
+      (peak > player.elo ? '<div class="prof-elo-peak">Peak <strong>' + peak + '</strong></div>' : '') +
+      (gap > 0 ? '<div class="prof-elo-gap">−' + gap + ' dal peak</div>' : '') +
+    '</div>' +
+    '<div class="prof-stats-line">' + statsHtml + '</div>';
+}
+
+function renderProfileFooter(isMe) {
+  if(!isMe) { $("prof-footer").innerHTML = ''; return; }
+  $("prof-footer").innerHTML =
+    '<div class="prof-footer">' +
+      '<button class="prof-footer-link" onclick="showEditProfile()">Modifica profilo</button>' +
+      '<button class="prof-footer-link" onclick="doLogout()" style="color:#7a2020">Esci</button>' +
+    '</div>';
+}
+
+function renderH2H(playerId, matchH) {
+  const h2hMatches = matchH.filter(m =>
+    (m.p1 === me.id && m.p2 === playerId) || (m.p1 === playerId && m.p2 === me.id)
+  );
+  if(h2hMatches.length === 0) {
+    $("prof-h2h").innerHTML = '';
+    return;
+  }
+  let myWins = 0, myLosses = 0, draws = 0;
+  h2hMatches.forEach(m => {
+    if(m.result === 'draw') { draws++; return; }
+    const winnerId = m.result === 'p1' ? m.p1 : m.p2;
+    if(winnerId === me.id) myWins++;
+    else myLosses++;
+  });
+  $("prof-h2h").innerHTML = `
+    <div class="prof-section-label">Testa a testa</div>
+    <div class="lb-group">
+      <div class="prof-h2h">
+        <div class="prof-h2h-label">vs ${getP(playerId)?.nickname || '?'}</div>
+        <div class="prof-h2h-record">
+          <span class="w">${myWins}V</span>
+          <span class="l">${myLosses}P</span>
+          ${draws > 0 ? `<span class="d">${draws}=</span>` : ''}
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderRivals(playerId, matchH) {
+  const rivalMap = {};
   matchH.forEach(m => {
-    const day = new Date(m.created_at).toLocaleDateString('it-IT', {day:'2-digit', month:'long', year:'numeric'});
+    const oppId = m.p1 === playerId ? m.p2 : m.p1;
+    if(!rivalMap[oppId]) rivalMap[oppId] = {wins: 0, losses: 0, draws: 0, total: 0};
+    rivalMap[oppId].total++;
+    if(m.result === 'draw') { rivalMap[oppId].draws++; return; }
+    const winnerId = m.result === 'p1' ? m.p1 : m.p2;
+    if(winnerId === playerId) rivalMap[oppId].wins++;
+    else rivalMap[oppId].losses++;
+  });
+
+  const rivals = Object.entries(rivalMap)
+    .map(([id, r]) => ({id, ...r}))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 10);
+
+  if(rivals.length === 0) {
+    $("prof-rivals").innerHTML = '';
+    return;
+  }
+
+  const rows = rivals.map(r => {
+    const opp = getP(r.id);
+    return `<div class="prof-rival-row" onclick="openProfile('${r.id}','profile')">
+      <div class="prof-rival-name">${opp?.nickname || '?'}</div>
+      <div class="prof-rival-record"><span class="w">${r.wins}</span>-<span class="l">${r.losses}</span>${r.draws > 0 ? `-<span class="d">${r.draws}</span>` : ''}</div>
+    </div>`;
+  }).join('');
+
+  $("prof-rivals").innerHTML = `
+    <div class="prof-section-label">Rivali</div>
+    <div class="lb-group">${rows}</div>`;
+}
+
+
+
+function renderProfileCTA(player) {
+  const isOnline = player.last_seen_at && (Date.now() - new Date(player.last_seen_at).getTime()) < 30000;
+  const isPlaying = player.is_playing;
+
+  let btnClass, btnText, btnAction;
+  if(!isOnline) {
+    btnClass = 'disabled';
+    btnText = 'Offline';
+    btnAction = '';
+  } else if(isPlaying) {
+    btnClass = 'disabled';
+    btnText = 'In partita';
+    btnAction = '';
+  } else {
+    btnClass = 'active';
+    btnText = 'Sfida';
+    btnAction = `onclick="openColorSheet('${player.id}')"`;
+  }
+
+  $("prof-cta-wrap").innerHTML = `
+    <div class="prof-cta">
+      <button class="${btnClass}" ${btnAction}>${btnText}</button>
+    </div>`;
+}
+
+function renderDayGroups(matchH, eloMap, playerId) {
+  if(!matchH.length) {
+    $("prof-day-groups").innerHTML = '<div class="empty" style="margin-top:24px">Nessuna partita ancora</div>';
+    return;
+  }
+
+  var byDay = {};
+  matchH.forEach(function(m) {
+    var day = new Date(m.created_at).toLocaleDateString('it-IT', {day:'2-digit', month:'long', year:'numeric'});
     if(!byDay[day]) byDay[day] = [];
     byDay[day].push(m);
   });
-  $("prof-activity").innerHTML = Object.entries(byDay).map(([day, ms]) => {
-    const wins = ms.filter(m => { const isP1=m.p1===playerId; return m.result==="p1"?isP1:m.result==="p2"?!isP1:false; }).length;
-    const losses = ms.filter(m => { const isP1=m.p1===playerId; return m.result==="p1"?!isP1:m.result==="p2"?isP1:false; }).length;
-    const draws = ms.filter(m => m.result==="draw").length;
-    const eloDeltas = ms.map(m => { const e=eloMap[m.id]; return e?(e.elo_after-e.elo_before):0; });
-    const totalDelta = eloDeltas.reduce((a,b)=>a+b,0);
-    const dayElos = ms.map(m => eloMap[m.id]).filter(Boolean).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
-    const eloStart = dayElos.length ? dayElos[0].elo_before : null;
-    const eloEnd = dayElos.length ? dayElos[dayElos.length-1].elo_after : null;
-    // STEP 1: draw delta sempre grigio
-    const deltaClass = totalDelta>0?'elo-up':totalDelta<0?'elo-down':'elo-draw';
-    const deltaStr = `<span class="${deltaClass}" style="font-size:11px">${totalDelta>0?'+':''}${totalDelta}</span>`;
-    const eloStr = eloStart!==null ? `<span style="font-size:11px;color:#6a6560">${eloStart} → ${eloEnd}</span>` : '';
-    const boxes = [
-      wins > 0 ? `<div class="act-box win">${wins}</div>` : '',
-      losses > 0 ? `<div class="act-box loss">${losses}</div>` : '',
-      draws > 0 ? `<div class="act-box draw">${draws}</div>` : '',
-    ].join('');
-    return `<div class="act-day">
-      <div class="act-day-label">${day}</div>
-      <div class="act-row">
-        <div>
-          <div class="act-desc">${ms.filter(m=>m.result!=='cancelled').length} ${ms.filter(m=>m.result!=='cancelled').length===1?'partita':'partite'}</div>
-          <div style="display:flex;align-items:center;gap:6px;margin-top:2px">${eloStr}${deltaStr}</div>
-        </div>
-        <div class="act-boxes">${boxes}</div>
-      </div>
-    </div>`;
-  }).join('');
+
+  var html = '<div class="prof-section-label">Storico</div>';
+
+  Object.entries(byDay).forEach(function(entry) {
+    var day = entry[0], ms = entry[1];
+    var validMs = ms.filter(function(m) { return m.result !== 'cancelled'; });
+
+    var wins = validMs.filter(function(m) {
+      var isP1 = m.p1 === playerId;
+      return m.result === 'p1' ? isP1 : m.result === 'p2' ? !isP1 : false;
+    }).length;
+    var losses = validMs.filter(function(m) {
+      var isP1 = m.p1 === playerId;
+      return m.result === 'p1' ? !isP1 : m.result === 'p2' ? isP1 : false;
+    }).length;
+    var draws = validMs.filter(function(m) { return m.result === 'draw'; }).length;
+
+    var dayElos = validMs.map(function(m) { return eloMap[m.id]; }).filter(Boolean).sort(function(a, b) {
+      return new Date(a.created_at) - new Date(b.created_at);
+    });
+    var eloStart = dayElos.length ? dayElos[0].elo_before : null;
+    var eloEnd = dayElos.length ? dayElos[dayElos.length - 1].elo_after : null;
+    var totalDelta = dayElos.length ? eloEnd - eloStart : 0;
+    var deltaClass = totalDelta > 0 ? 'elo-up' : totalDelta < 0 ? 'elo-down' : '';
+    var deltaStr = totalDelta !== 0 ? '<span class="' + deltaClass + '">' + (totalDelta > 0 ? '+' : '') + totalDelta + '</span>' : '';
+
+    var summaryParts = [];
+    summaryParts.push(validMs.length + (validMs.length === 1 ? ' partita' : ' partite'));
+    if(eloStart !== null) summaryParts.push(eloStart + '→' + eloEnd);
+
+    html += '<div class="prof-day-header">' +
+      '<div class="prof-day-label">' + day + '</div>' +
+      '<div class="prof-day-summary">' + summaryParts.join(' · ') + ' ' + deltaStr + '</div>' +
+    '</div>';
+
+    html += '<div class="lb-group">';
+    validMs.forEach(function(m) {
+      var isP1 = m.p1 === playerId;
+      var oppId = isP1 ? m.p2 : m.p1;
+      var opp = getP(oppId);
+      var won = m.result === 'p1' ? isP1 : m.result === 'p2' ? !isP1 : null;
+      var resultLabel = won === null ? 'Patta' : won ? 'Vittoria' : 'Sconfitta';
+      var resultClass = won === null ? 'draw' : won ? 'win' : 'loss';
+      var elo = eloMap[m.id];
+      var delta = elo ? (elo.elo_after - elo.elo_before) : null;
+      var deltaHtml = delta !== null ? '<div class="prof-match-delta ' + (delta >= 0 ? 'elo-up' : 'elo-down') + '">' + (delta >= 0 ? '+' : '') + delta + '</div>' : '';
+
+      html += '<div class="prof-match-row" onclick="openProfile(&apos;' + oppId + '&apos;,&apos;profile&apos;)">' +
+        '<div class="prof-match-left">' +
+          '<div class="prof-match-name">' + (opp ? opp.nickname : '?') + '</div>' +
+          '<div class="prof-match-meta">' + timeAgo(m.created_at) + '</div>' +
+        '</div>' +
+        '<div class="prof-match-right">' +
+          '<div class="prof-match-result ' + resultClass + '">' + resultLabel + '</div>' +
+          deltaHtml +
+        '</div>' +
+      '</div>';
+    });
+    html += '</div>';
+  });
+
+  $("prof-day-groups").innerHTML = html;
 }
 
-async function renderMatchesTab(matchH, eloMap, playerId) {
-  if(!matchH.length) { $("prof-matches").innerHTML = `<div class="empty">Nessuna partita ancora</div>`; return; }
-  $("prof-matches").innerHTML = matchH.map(m => {
-    const isP1 = m.p1===playerId;
-    const oppId = isP1?m.p2:m.p1;
-    const opp = getP(oppId);
-    const won = m.result==="p1"?isP1:m.result==="p2"?!isP1:null;
-    const isCancelled = m.result === "cancelled";
-    const resultLabel = isCancelled ? "—" : won===null?"Patta":won?"Vittoria":"Sconfitta";
-    // STEP 1: draw in mcard — coerente con sistema
-    const resultClass = isCancelled ? "draw" : won===null?"draw":won?"win":"loss";
-    const elo = eloMap[m.id];
-    const eloDelta = elo?(elo.elo_after-elo.elo_before):null;
-    const eloStr = eloDelta!==null?`<span class="${eloDelta>=0?'elo-up':'elo-down'}">${eloDelta>=0?'+':''}${eloDelta}</span>`:'';
-    const oppElo = opp ? `<span style="font-size:11px;color:#6a6560;margin-left:5px;font-weight:400">${opp.elo}</span>` : '';
-    return `<div class="mcard" id="mcard-${m.id}">
-      <div class="mcard-top">
-        <div class="mcard-left">
-          <div class="mcard-opp" onclick="openProfile('${oppId}', 'profile')" style="cursor:pointer">${opp?.nickname||"?"}${oppElo}</div>
-          <div class="mcard-meta">${timeAgo(m.created_at)}</div>
-        </div>
-        <div class="mcard-right" style="text-align:right">
-          <div class="hrow-result ${resultClass}">${resultLabel}</div>
-          <div class="mcard-elo" style="font-size:11px;margin-top:1px">${eloStr}</div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
+// ── Swipe-back profilo ──
+(function() {
+  var scrollEl = $('prof-scroll');
+  if(!scrollEl) return;
+  var startX = 0, startY = 0, swiping = false;
+
+  scrollEl.addEventListener('touchstart', function(e) {
+    var touch = e.touches[0];
+    if(touch.clientX > 25) return;
+    startX = touch.clientX;
+    startY = touch.clientY;
+    swiping = true;
+  }, {passive: true});
+
+  scrollEl.addEventListener('touchmove', function(e) {
+    if(!swiping) return;
+    var dx = e.touches[0].clientX - startX;
+    var dy = Math.abs(e.touches[0].clientY - startY);
+    if(dy > Math.abs(dx)) { swiping = false; }
+  }, {passive: true});
+
+  scrollEl.addEventListener('touchend', function(e) {
+    if(!swiping) return;
+    swiping = false;
+    var dx = e.changedTouches[0].clientX - startX;
+    if(dx > 80) {
+      var backBtn = $('profile-back');
+      if(backBtn) backBtn.click();
+    }
+  }, {passive: true});
+})();
 
 function escHtml(str) {
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -3081,10 +3262,8 @@ function drawEloChart(eloH, currentElo) {
   if(!Array.isArray(eloH) || eloH.length === 0) {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0,0,canvas.width,canvas.height);
-    canvas.parentElement.querySelector('.chart-title').textContent = "Andamento ELO — nessuna partita ancora";
-    return;
+      return;
   }
-  canvas.parentElement.querySelector('.chart-title').textContent = "Andamento ELO";
   const labels = eloH.map(e => {
     const d = new Date(e.created_at);
     return d.toLocaleDateString('it-IT', {day:'2-digit', month:'short'});
@@ -3092,6 +3271,11 @@ function drawEloChart(eloH, currentElo) {
   const data = eloH.map(e => e.elo_after);
   labels.unshift('');
   data.unshift(eloH[0].elo_before);
+
+  // Peak annotation
+  const peakValue = Math.max(...data);
+  const peakIndex = data.indexOf(peakValue);
+
   eloChartInstance = new Chart(canvas, {
     type: 'line',
     data: {
@@ -3100,48 +3284,23 @@ function drawEloChart(eloH, currentElo) {
         data,
         borderColor: '#e8e6e3',
         backgroundColor: 'rgba(255,255,255,0.04)',
-        borderWidth: 2.5,
-        pointRadius: 0,
-        pointHoverRadius: 5,
-        pointHoverBackgroundColor: '#e8e6e3',
-        pointHoverBorderColor: '#161512',
-        pointHoverBorderWidth: 2,
+        borderWidth: 2,
+        pointRadius: data.map((v, i) => i === peakIndex ? 4 : 0),
+        pointBackgroundColor: data.map((v, i) => i === peakIndex ? '#629924' : 'transparent'),
         fill: true,
         tension: 0.4,
       }]
     },
     options: {
       responsive: true,
-      interaction: { mode: 'index', intersect: false },
+      interaction: { mode: null },
       plugins: {
         legend: { display: false },
-        tooltip: {
-          callbacks: {
-            title: ctx => ctx[0].label || '',
-            label: ctx => `ELO ${ctx.parsed.y}`
-          },
-          backgroundColor: '#1d1a16',
-          borderColor: '#2a2724',
-          borderWidth: 1,
-          titleColor: '#6a6560',
-          titleFont: { size: 11 },
-          bodyColor: '#e8e6e3',
-          bodyFont: { size: 14, weight: '700' },
-          padding: 10,
-          displayColors: false,
-        }
+        tooltip: { enabled: false }
       },
       scales: {
-        x: {
-          ticks: { color: '#6a6560', font: {size:10}, maxTicksLimit: 6, maxRotation: 0 },
-          grid: { display: false },
-          border: { display: false }
-        },
-        y: {
-          ticks: { color: '#6a6560', font: {size:10}, maxTicksLimit: 4 },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          border: { display: false }
-        }
+        x: { display: false },
+        y: { display: false }
       }
     }
   });
