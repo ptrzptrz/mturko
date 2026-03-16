@@ -553,12 +553,13 @@ body.sheet-open #sa-cover{background:#000000}
 .prof-sticky{flex-shrink:0;background:#161512;padding:0 16px}
 .prof-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px calc(80px + env(safe-area-inset-bottom,0px))}
 .prof-scroll::-webkit-scrollbar{display:none}
-.prof-header{background:#1d1a16;border:1px solid #252220;border-radius:14px;padding:20px 16px;margin-bottom:12px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80px}
+.prof-header{padding:8px 0 12px;position:relative}
 .prof-back-icon{position:absolute;top:12px;left:14px;background:none;border:none;color:#3a3630;font-size:18px;cursor:pointer;padding:4px;line-height:1;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
 .prof-back-icon:active{opacity:.6}
-.prof-nick{font-size:20px;font-weight:700;color:#e8e6e3;text-align:center;margin-bottom:4px}
-.prof-rank-meta{font-size:11px;color:#4a4642;text-align:center;margin-bottom:3px}
-.prof-bio{font-size:12px;color:#4a4642;text-align:center;margin-bottom:0}
+.prof-nick{font-size:20px;font-weight:700;color:#e8e6e3;margin-bottom:2px}
+.prof-rank-meta{font-size:11px;color:#4a4642;margin-bottom:2px}
+.prof-bio{font-size:12px;color:#6a6560;margin-bottom:0;max-width:240px;line-height:1.4}
+.prof-city{font-size:11px;color:#3a3630;margin-top:2px}
 .prof-edit-form{background:#1d1a16;border:1px solid #252220;border-radius:14px;padding:16px;margin-bottom:14px}
 .prof-edit-form input,.prof-edit-form textarea{margin-bottom:8px}
 .prof-elo-hero{text-align:center;margin-bottom:2px}
@@ -572,6 +573,7 @@ body.sheet-open #sa-cover{background:#000000}
 .prof-stats-line .draw{color:#4a4642;font-weight:600}
 .prof-stats-line .rate{color:#e8e6e3;font-weight:700}
 .prof-stats-line .streak{color:#e8e6e3;font-weight:600}
+.prof-color-rate{font-size:12px;color:#4a4642;text-align:center;margin-top:2px;margin-bottom:14px;letter-spacing:.5px}
 .prof-chart-wrap{margin-bottom:14px}
 canvas{width:100%!important;display:block}
 .prof-section-label{font-size:10px;font-weight:600;color:#3a3630;text-transform:uppercase;letter-spacing:1.4px;margin-bottom:8px;margin-top:18px}
@@ -594,6 +596,11 @@ canvas{width:100%!important;display:block}
 .prof-day-summary{font-size:11px;color:#4a4642}
 .prof-day-summary .elo-up{color:#3d6b1a}
 .prof-day-summary .elo-down{color:#7a2020}
+.prof-day-header{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.prof-day-header:active{opacity:.7}
+.prof-day-group.collapsed .lb-group{display:none}
+.prof-day-chevron{color:#3a3630;font-size:11px;margin-left:6px;transition:transform .2s ease}
+.prof-day-group.collapsed .prof-day-chevron{transform:rotate(-90deg)}
 .prof-match-row{padding:11px 14px;border-bottom:0.5px solid #252220;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .prof-match-row:active{background:#252220}
 .prof-match-row:last-child{border-bottom:none}
@@ -693,9 +700,7 @@ canvas{width:100%!important;display:block}
 <div id="main" class="hidden">
   <div class="topbar">
     <span class="logo">turko</span>
-    <button class="topbar-logout" onclick="doLogout()" title="Esci">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-    </button>
+
   </div>
   <div class="pages">
     <!-- HOME -->
@@ -1554,7 +1559,7 @@ function updateTopbar() {
   if(hSub) {
     const played = matches.filter(m => m.status === 'done' && (m.p1===me.id||m.p2===me.id) && m.result !== 'cancelled').length;
     if(played > 0) {
-      hSub.textContent = played + (played === 1 ? ' partita' : ' partite');
+      // Sub-label rimossa
     } else {
       hSub.textContent = '';
     }
@@ -2935,6 +2940,7 @@ async function openProfile(playerId, fromPage, noPush) {
   var matchH = await db.get("matches", "or=(p1.eq." + playerId + ",p2.eq." + playerId + ")&status=eq.done&order=created_at.desc&limit=50");
 
   currentProfileMatches = Array.isArray(matchH) ? matchH : [];
+  renderEloSection(player); // Re-render con match data per win rate bianco/nero
   var eloMap = {};
   if(Array.isArray(eloH)) eloH.forEach(function(e) { eloMap[e.match_id] = e; });
 
@@ -2952,27 +2958,24 @@ function renderProfileHeader(player) {
   var isEpoch = lastSeenRaw && new Date(lastSeenRaw).getFullYear() < 2000;
   var lastSeen = (lastSeenRaw && !isEpoch) ? timeAgo(lastSeenRaw) : null;
 
-  var sorted = [...players].sort(function(a, b) { return b.elo - a.elo; });
-  var rank = sorted.findIndex(function(p) { return p.id === player.id; }) + 1;
+  var sorted = players.slice().sort(function(a, b) { return b.elo - a.elo; });
+  var rank = -1;
+  for(var i = 0; i < sorted.length; i++) { if(sorted[i].id === player.id) { rank = i + 1; break; } }
   var totalPlayers = sorted.length;
 
-  var metaParts = [];
-  if(rank > 0) metaParts.push('#' + rank + ' di ' + totalPlayers);
-  if(player.city) metaParts.push(player.city);
-  var joinDate = new Date(player.created_at);
   var monthNames = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
-  metaParts.push(monthNames[joinDate.getMonth()] + ' ' + joinDate.getFullYear());
-  var metaLine = metaParts.join(' · ');
+  var joinDate = new Date(player.created_at);
+  var metaLine = (rank > 0 ? '#' + rank + ' di ' + totalPlayers + ' · ' : '') + monthNames[joinDate.getMonth()] + ' ' + joinDate.getFullYear();
 
   var seenLine = (!isMe && lastSeen) ? '<div class="prof-rank-meta">Visto ' + lastSeen + '</div>' : '';
+  var cityLine = player.city ? '<div class="prof-city">' + player.city + '</div>' : '';
+  var bioLine = player.bio ? '<div class="prof-bio">' + player.bio + '</div>' : '';
 
   $("prof-header-wrap").innerHTML =
     '<div class="prof-header">' +
-      '<button class="prof-back-icon" onclick="document.getElementById(&quot;profile-back&quot;).click()">←</button>' +
       '<div class="prof-nick">' + player.nickname + '</div>' +
       '<div class="prof-rank-meta">' + metaLine + '</div>' +
-      (player.bio ? '<div class="prof-bio">' + player.bio + '</div>' : '') +
-      seenLine +
+      seenLine + bioLine + cityLine +
     '</div>' +
     '<div id="prof-edit-wrap"></div>';
 }
@@ -2983,7 +2986,7 @@ function showEditProfile() {
     <div class="prof-edit-form">
       <div class="box-label">Modifica profilo</div>
       <textarea id="edit-bio" rows="2" placeholder="Bio (max 100 caratteri)" maxlength="100">${p.bio||''}</textarea>
-      <input id="edit-city" value="${p.city||''}" placeholder="Città" autocorrect="off">
+      <input id="edit-city" value="${p.city||''}" placeholder="Città" autocorrect="off" maxlength="30">
       <div id="edit-err" class="err"></div>
       <button class="btn-g" onclick="saveProfile()">Salva</button>
       <button class="btn-o" onclick="$('prof-edit-wrap').innerHTML=''">Annulla</button>
@@ -3012,8 +3015,37 @@ function renderEloSection(player) {
   var gap = peak - player.elo;
 
   var statsHtml = '<span class="win">' + player.wins + 'V</span> · <span class="loss">' + player.losses + 'P</span> · <span class="draw">' + player.draws + '=</span>';
-  if(total > 0) statsHtml += ' · <span class="rate">' + winRate + '%</span>';
-  if(streak >= 2) statsHtml += ' · <span class="streak">' + streak + '🔥</span>';
+  if(total > 0) statsHtml += ' · <span class="rate">win ' + winRate + '%</span>';
+  if(streak >= 2) statsHtml += ' · <span class="streak">' + streak + ' di fila</span>';
+
+  var whiteWins = 0, whiteLosses = 0, whiteDraws = 0;
+  var blackWins = 0, blackLosses = 0, blackDraws = 0;
+  currentProfileMatches.forEach(function(m) {
+    if(m.result === 'cancelled') return;
+    var isP1 = m.p1 === player.id;
+    var playsWhite = m.white_player_id === player.id;
+    var won = m.result === 'p1' ? isP1 : m.result === 'p2' ? !isP1 : null;
+    if(playsWhite) {
+      if(won === true) whiteWins++;
+      else if(won === false) whiteLosses++;
+      else whiteDraws++;
+    } else if(m.white_player_id) {
+      if(won === true) blackWins++;
+      else if(won === false) blackLosses++;
+      else blackDraws++;
+    }
+  });
+  var whiteTotal = whiteWins + whiteLosses + whiteDraws;
+  var blackTotal = blackWins + blackLosses + blackDraws;
+  var whiteRate = whiteTotal > 0 ? Math.round((whiteWins / whiteTotal) * 100) : null;
+  var blackRate = blackTotal > 0 ? Math.round((blackWins / blackTotal) * 100) : null;
+  var colorHtml = '';
+  if(whiteRate !== null || blackRate !== null) {
+    var parts = [];
+    if(whiteRate !== null) parts.push('○ ' + whiteRate + '%');
+    if(blackRate !== null) parts.push('● ' + blackRate + '%');
+    colorHtml = '<div class="prof-color-rate">' + parts.join('  ') + '</div>';
+  }
 
   $("prof-elo-section").innerHTML =
     '<div class="prof-elo-hero">' +
@@ -3021,7 +3053,8 @@ function renderEloSection(player) {
       (peak > player.elo ? '<div class="prof-elo-peak">Peak <strong>' + peak + '</strong></div>' : '') +
       (gap > 0 ? '<div class="prof-elo-gap">−' + gap + ' dal peak</div>' : '') +
     '</div>' +
-    '<div class="prof-stats-line">' + statsHtml + '</div>';
+    '<div class="prof-stats-line">' + statsHtml + '</div>' +
+    colorHtml;
 }
 
 function renderProfileFooter(isMe) {
@@ -3077,7 +3110,7 @@ function renderRivals(playerId, matchH) {
   const rivals = Object.entries(rivalMap)
     .map(([id, r]) => ({id, ...r}))
     .sort((a, b) => b.total - a.total)
-    .slice(0, 10);
+    .slice(0, 5);
 
   if(rivals.length === 0) {
     $("prof-rivals").innerHTML = '';
@@ -3131,27 +3164,23 @@ function renderDayGroups(matchH, eloMap, playerId) {
   }
 
   var byDay = {};
+  var dayOrder = [];
   matchH.forEach(function(m) {
     var day = new Date(m.created_at).toLocaleDateString('it-IT', {day:'2-digit', month:'long', year:'numeric'});
-    if(!byDay[day]) byDay[day] = [];
+    if(!byDay[day]) { byDay[day] = []; dayOrder.push(day); }
     byDay[day].push(m);
   });
 
   var html = '<div class="prof-section-label">Storico</div>';
 
-  Object.entries(byDay).forEach(function(entry) {
-    var day = entry[0], ms = entry[1];
+  dayOrder.forEach(function(day, dayIdx) {
+    var ms = byDay[day];
     var validMs = ms.filter(function(m) { return m.result !== 'cancelled'; });
 
     var wins = validMs.filter(function(m) {
       var isP1 = m.p1 === playerId;
       return m.result === 'p1' ? isP1 : m.result === 'p2' ? !isP1 : false;
     }).length;
-    var losses = validMs.filter(function(m) {
-      var isP1 = m.p1 === playerId;
-      return m.result === 'p1' ? !isP1 : m.result === 'p2' ? isP1 : false;
-    }).length;
-    var draws = validMs.filter(function(m) { return m.result === 'draw'; }).length;
 
     var dayElos = validMs.map(function(m) { return eloMap[m.id]; }).filter(Boolean).sort(function(a, b) {
       return new Date(a.created_at) - new Date(b.created_at);
@@ -3160,15 +3189,19 @@ function renderDayGroups(matchH, eloMap, playerId) {
     var eloEnd = dayElos.length ? dayElos[dayElos.length - 1].elo_after : null;
     var totalDelta = dayElos.length ? eloEnd - eloStart : 0;
     var deltaClass = totalDelta > 0 ? 'elo-up' : totalDelta < 0 ? 'elo-down' : '';
-    var deltaStr = totalDelta !== 0 ? '<span class="' + deltaClass + '">' + (totalDelta > 0 ? '+' : '') + totalDelta + '</span>' : '';
+    var deltaStr = totalDelta !== 0 ? ' <span class="' + deltaClass + '">' + (totalDelta > 0 ? '+' : '') + totalDelta + '</span>' : '';
 
     var summaryParts = [];
     summaryParts.push(validMs.length + (validMs.length === 1 ? ' partita' : ' partite'));
     if(eloStart !== null) summaryParts.push(eloStart + '→' + eloEnd);
 
-    html += '<div class="prof-day-header">' +
+    var collapsed = dayIdx > 0 ? ' collapsed' : '';
+    var groupId = 'prof-day-' + dayIdx;
+
+    html += '<div class="prof-day-group' + collapsed + '" id="' + groupId + '">';
+    html += '<div class="prof-day-header" onclick="toggleDayGroup(&quot;' + groupId + '&quot;)">' +
       '<div class="prof-day-label">' + day + '</div>' +
-      '<div class="prof-day-summary">' + summaryParts.join(' · ') + ' ' + deltaStr + '</div>' +
+      '<div class="prof-day-summary">' + summaryParts.join(' · ') + deltaStr + ' <span class="prof-day-chevron">▼</span></div>' +
     '</div>';
 
     html += '<div class="lb-group">';
@@ -3183,7 +3216,7 @@ function renderDayGroups(matchH, eloMap, playerId) {
       var delta = elo ? (elo.elo_after - elo.elo_before) : null;
       var deltaHtml = delta !== null ? '<div class="prof-match-delta ' + (delta >= 0 ? 'elo-up' : 'elo-down') + '">' + (delta >= 0 ? '+' : '') + delta + '</div>' : '';
 
-      html += '<div class="prof-match-row" onclick="openProfile(&apos;' + oppId + '&apos;,&apos;profile&apos;)">' +
+      html += '<div class="prof-match-row" onclick="event.stopPropagation();openProfile(&apos;' + oppId + '&apos;,&apos;profile&apos;)">' +
         '<div class="prof-match-left">' +
           '<div class="prof-match-name">' + (opp ? opp.nickname : '?') + '</div>' +
           '<div class="prof-match-meta">' + timeAgo(m.created_at) + '</div>' +
@@ -3194,10 +3227,15 @@ function renderDayGroups(matchH, eloMap, playerId) {
         '</div>' +
       '</div>';
     });
-    html += '</div>';
+    html += '</div></div>';
   });
 
   $("prof-day-groups").innerHTML = html;
+}
+
+function toggleDayGroup(id) {
+  var el = document.getElementById(id);
+  if(el) el.classList.toggle('collapsed');
 }
 
 // ── Swipe-back profilo ──
@@ -3226,8 +3264,19 @@ function renderDayGroups(matchH, eloMap, playerId) {
     swiping = false;
     var dx = e.changedTouches[0].clientX - startX;
     if(dx > 80) {
-      var backBtn = $('profile-back');
-      if(backBtn) backBtn.click();
+      var profPage = $('page-profile');
+      if(profPage) {
+        profPage.style.transition = 'transform .25s ease, opacity .25s ease';
+        profPage.style.transform = 'translateX(100%)';
+        profPage.style.opacity = '0';
+        setTimeout(function() {
+          profPage.style.transition = '';
+          profPage.style.transform = '';
+          profPage.style.opacity = '';
+          var backBtn = $('profile-back');
+          if(backBtn) backBtn.click();
+        }, 260);
+      }
     }
   }, {passive: true});
 })();
@@ -3288,19 +3337,42 @@ function drawEloChart(eloH, currentElo) {
         pointRadius: data.map((v, i) => i === peakIndex ? 4 : 0),
         pointBackgroundColor: data.map((v, i) => i === peakIndex ? '#629924' : 'transparent'),
         fill: true,
-        tension: 0.4,
+        tension: 0.55,
       }]
     },
     options: {
       responsive: true,
-      interaction: { mode: null },
+      layout: { padding: { top: 8 } },
+      interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
-        tooltip: { enabled: false }
+        tooltip: {
+          callbacks: {
+            title: function(ctx) { return ctx[0].label || ''; },
+            label: function(ctx) { return 'ELO ' + ctx.parsed.y; }
+          },
+          backgroundColor: '#1d1a16',
+          borderColor: '#2a2724',
+          borderWidth: 1,
+          titleColor: '#6a6560',
+          titleFont: { size: 11 },
+          bodyColor: '#e8e6e3',
+          bodyFont: { size: 14, weight: '700' },
+          padding: 10,
+          displayColors: false
+        }
       },
       scales: {
-        x: { display: false },
-        y: { display: false }
+        x: {
+          ticks: { color: '#6a6560', font: {size: 10}, maxTicksLimit: 5, maxRotation: 0 },
+          grid: { display: false },
+          border: { display: false }
+        },
+        y: {
+          ticks: { color: '#6a6560', font: {size: 10}, maxTicksLimit: 4 },
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          border: { display: false }
+        }
       }
     }
   });
