@@ -42,9 +42,11 @@ body.sheet-open #sa-cover{background:#000000}
 .navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;display:flex;padding-bottom:max(env(safe-area-inset-bottom),8px);background:transparent;z-index:100}
 /* STEP 1: frost ridotto 140→80px — meno schermo coperto */
 .navbar-frost{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:80px;background:linear-gradient(to top, #161512 50%, transparent 100%);pointer-events:none;z-index:99}
-.nbtn{flex:1;min-height:52px;padding:10px 0;background:none;border:none;color:#4a4642;font-size:10px;text-transform:uppercase;letter-spacing:.8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative;transition:color .2s ease}
+.nbtn{flex:1;min-height:52px;padding:10px 0;background:none;border:none;color:#4a4642;font-size:10px;text-transform:uppercase;letter-spacing:.8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative;transition:color .2s ease,transform .15s ease}
 .nbtn.on{color:#e8e6e3}
-.nbtn:active{opacity:.6}
+.nbtn:active{transform:scale(0.9)}
+.nbtn .nicon{transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.nbtn.pop .nicon{transform:scale(1.2)}
 .nicon{width:22px;height:22px;display:block}
 .badge{position:absolute;top:8px;right:calc(50% - 20px);background:#c33;color:#fff;border-radius:8px;padding:0 5px;font-size:9px;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center}
 
@@ -95,6 +97,10 @@ body.sheet-open #sa-cover{background:#000000}
 .home-hero-delta{font-size:15px;font-weight:600;letter-spacing:-.3px}
 .home-hero-delta.up{color:#629924}
 .home-hero-sub{font-size:11px;color:#3a3630;margin-top:1px;min-height:14px}
+.home-hero-progress{margin-top:8px;width:100%;max-width:200px}
+.h-progress-bar{height:3px;background:#252220;border-radius:2px;overflow:hidden}
+.h-progress-fill{height:100%;background:#629924;border-radius:2px;transition:width .6s ease}
+.h-progress-label{font-size:10px;color:#4a4642;margin-top:4px;text-align:center}
 /* STEP 1: delta down era #c33 — ora coerente con sistema: rosso solo per perdite, non per draw */
 .home-hero-delta.down{color:#c33}
 
@@ -580,7 +586,7 @@ body.sheet-open #sa-cover{background:#000000}
 .prof-chart-chip{background:transparent;border:none;color:#4a4642;font-size:11px;font-weight:600;padding:4px 10px;border-radius:8px;cursor:pointer;font-family:inherit;transition:color .15s,background .15s;-webkit-tap-highlight-color:transparent}
 .prof-chart-chip.active{background:#252220;color:#e8e6e3}
 .prof-chart-chip:active{opacity:.6}
-.prof-kebab{position:absolute;top:8px;right:0;background:none;border:none;color:#3a3630;font-size:20px;cursor:pointer;padding:8px 12px;line-height:1;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
+.prof-kebab{background:none;border:none;color:#3a3630;font-size:20px;cursor:pointer;padding:4px 0 4px 8px;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .prof-kebab:active{color:#6a6560}
 .prof-section-label{font-size:10px;font-weight:600;color:#3a3630;text-transform:uppercase;letter-spacing:1.4px;margin-bottom:8px;margin-top:18px}
 .prof-h2h{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
@@ -725,6 +731,10 @@ body.sheet-open #sa-cover{background:#000000}
 
         </div>
         <div id="h-sub" class="home-hero-sub"></div>
+        <div id="h-progress" class="home-hero-progress hidden">
+          <div class="h-progress-bar"><div class="h-progress-fill" id="h-progress-fill"></div></div>
+          <div class="h-progress-label" id="h-progress-label"></div>
+        </div>
       </div>
 
       <!-- STEP 2: Contextual Action Bar — inline sotto l'ELO -->
@@ -1578,14 +1588,23 @@ function updateTopbar() {
       hDelta.classList.add('hidden');
     }
   }
-  // Sub-label hero: partite giocate (non calcola percentile — lo lasciamo semplice)
+  // Sub-label hero
   const hSub = $('h-sub');
-  if(hSub) {
-    const played = matches.filter(m => m.status === 'done' && (m.p1===me.id||m.p2===me.id) && m.result !== 'cancelled').length;
-    if(played > 0) {
-      // Sub-label rimossa
+  if(hSub) hSub.textContent = '';
+
+  // Progress bar Zeigarnik
+  const hProgress = $('h-progress');
+  if(hProgress && me.elo) {
+    const nextMilestone = Math.ceil(me.elo / 100) * 100;
+    const prevMilestone = nextMilestone - 100;
+    const progress = ((me.elo - prevMilestone) / 100) * 100;
+    const remaining = nextMilestone - me.elo;
+    if(remaining > 0 && remaining < 100) {
+      $('h-progress-fill').style.width = progress + '%';
+      $('h-progress-label').textContent = remaining + ' pt ai ' + nextMilestone;
+      hProgress.classList.remove('hidden');
     } else {
-      hSub.textContent = '';
+      hProgress.classList.add('hidden');
     }
   }
 }
@@ -3612,7 +3631,12 @@ function showPage(name) {
   const pageEl = $(pageMap[name]);
   if(pageEl) pageEl.classList.add("active");
   const navBtn = document.querySelector(`.nbtn[data-page="${name}"]`);
-  if(navBtn) navBtn.classList.add("on");
+  if(navBtn) {
+    navBtn.classList.add("on");
+    // Icon pop animation
+    navBtn.classList.add("pop");
+    setTimeout(function() { navBtn.classList.remove("pop"); }, 250);
+  }
   // STEP 2: visibilità CAB — solo su home
   setCabVisibility(name === 'profile-me' ? 'profile' : name);
   if(name==="search") { $("search-input").value = ""; renderSearch(); setTimeout(() => $("search-input").focus(), 50); }
