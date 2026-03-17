@@ -2974,7 +2974,9 @@ async function openProfile(playerId, fromPage, noPush) {
   $("prof-day-groups").innerHTML = '<div class="empty">Carico...</div>';
   $("prof-cta-wrap").innerHTML = '';
 
-  showPage("profile");
+  // Only switch page if not already on profile
+  var profPage = $('page-profile');
+  if(!profPage || !profPage.classList.contains('active')) showPage("profile");
 
   var eloH = await db.get("elo_history", "player_id=eq." + playerId + "&order=created_at.asc&select=*");
   var matchH = await db.get("matches", "or=(p1.eq." + playerId + ",p2.eq." + playerId + ")&status=eq.done&order=created_at.desc&limit=50");
@@ -3628,7 +3630,7 @@ function showPage(name) {
   document.querySelectorAll(".nbtn").forEach(b => b.classList.remove("on"));
   const pageEl = $(pageMap[name]);
   if(pageEl) pageEl.classList.add("active");
-  const navBtn = document.querySelector(`.nbtn[data-page="${name}"]`);
+  const navBtn = document.querySelector(`.nbtn[data-page="${name}"]`) || document.querySelector('.nbtn[data-page="profile-me"]');
   if(navBtn) navBtn.classList.add("on");
   // STEP 2: visibilità CAB — solo su home
   setCabVisibility(name === 'profile-me' ? 'profile' : name);
