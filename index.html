@@ -28,7 +28,7 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 
 /* ── Layout ── */
 #auth{min-height:100dvh;display:flex;flex-direction:column;justify-content:flex-start;padding:env(safe-area-inset-top,40px) 24px 40px;padding-top:max(env(safe-area-inset-top,0px) + 60px, 80px);gap:40px}
-#main{height:100dvh;display:flex;flex-direction:column;overflow:hidden;padding-top:calc(env(safe-area-inset-top,20px) + 8px)}
+#main{height:100dvh;display:flex;flex-direction:column;overflow:hidden;padding-top:calc(env(safe-area-inset-top,20px) + 12px)}
 .pages{flex:1;overflow:hidden;display:flex;flex-direction:column}
 .page{display:none;flex:1;overflow:hidden}
 .page.active{display:flex;flex-direction:column}
@@ -75,7 +75,7 @@ body.sheet-open #sa-cover{background:#000000}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:#252220}
 
 /* ── Notif ── */
-.notif{position:fixed;top:calc(env(safe-area-inset-top,20px) + 58px);left:50%;transform:translateX(-50%) translateY(-4px);background:#e8e6e3;color:#161512;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;max-width:90vw;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5);opacity:0;transition:opacity .2s,transform .2s}
+.notif{position:fixed;top:calc(env(safe-area-inset-top,20px) + 20px);left:50%;transform:translateX(-50%) translateY(-4px);background:#e8e6e3;color:#161512;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;max-width:90vw;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5);opacity:0;transition:opacity .2s,transform .2s}
 .notif.err{background:#2a1010;color:#e87070;border:1px solid rgba(200,50,50,.2)}
 @keyframes glowWin{0%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0px rgba(98,153,36,0)}50%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 30px rgba(98,153,36,.12)}100%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0px rgba(98,153,36,0)}}
 .notif.result{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 120px);left:50%;font-size:16px;font-weight:700;padding:14px 28px;border-radius:16px;letter-spacing:-.2px;box-shadow:0 4px 24px rgba(0,0,0,.5)}
@@ -572,11 +572,12 @@ body.sheet-open #sa-cover{background:#000000}
 .prof-trend{font-size:12px;color:#4a4642}
 .prof-trend .elo-up{color:#3d6b1a;font-weight:600}
 .prof-trend .elo-down{color:#7a2020;font-weight:600}
-.prof-chart-wrap{margin-bottom:14px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.prof-chart-wrap{margin-bottom:14px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;min-height:160px}
 .prof-chart-wrap::-webkit-scrollbar{display:none}
 .prof-kebab{position:absolute;top:8px;right:0;background:none;border:none;color:#3a3630;font-size:20px;cursor:pointer;padding:8px 12px;line-height:1;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
 .prof-kebab:active{color:#6a6560}
-canvas{width:100%!important;display:block}
+canvas{display:block}
+.prof-chart-wrap canvas{width:auto!important}
 .prof-section-label{font-size:10px;font-weight:600;color:#3a3630;text-transform:uppercase;letter-spacing:1.4px;margin-bottom:8px;margin-top:18px}
 .prof-h2h{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
 .prof-h2h-label{font-size:14px;color:#e8e6e3;font-weight:600}
@@ -676,7 +677,7 @@ canvas{width:100%!important;display:block}
 </style>
 </head>
 <body>
-<div id="sa-cover" style="position:fixed;top:0;left:0;right:0;height:calc(env(safe-area-inset-top,20px) + 50px);background:#161512;z-index:9999;pointer-events:none;transition:background .35s"></div>
+<div id="sa-cover" style="position:fixed;top:0;left:0;right:0;height:calc(env(safe-area-inset-top,20px) + 12px);background:#161512;z-index:9999;pointer-events:none;transition:background .35s"></div>
 <div id="notif" class="notif"></div>
 
 <!-- AUTH -->
@@ -794,7 +795,7 @@ canvas{width:100%!important;display:block}
       <div class="prof-scroll" id="prof-scroll">
         <div id="prof-elo-section"></div>
         <div class="prof-chart-wrap">
-          <canvas id="elo-chart" height="120"></canvas>
+          <canvas id="elo-chart" height="140"></canvas>
         </div>
         <div id="prof-h2h"></div>
         <div id="prof-best-wins"></div>
@@ -3414,9 +3415,13 @@ function drawEloChart(eloH, currentElo) {
   var peakIndex = data.indexOf(peakValue);
 
   var chartWidth = Math.max(320, data.length * 10);
+  var dpr = window.devicePixelRatio || 1;
   canvas.style.width = chartWidth + 'px';
-  canvas.width = chartWidth;
-  canvas.height = 120;
+  canvas.style.height = '140px';
+  canvas.width = chartWidth * dpr;
+  canvas.height = 140 * dpr;
+  var ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
 
   eloChartInstance = new Chart(canvas, {
     type: 'line',
