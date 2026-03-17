@@ -36,12 +36,7 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 #page-profile.active,#page-lb.active,#page-search.active,#page-tourn.active{overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 
 /* ── Topbar ── */
-.topbar{background:#161512;padding:env(safe-area-inset-top,20px) 16px 0;min-height:calc(50px + env(safe-area-inset-top,20px));display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:10000}
-body.sheet-open .topbar{background:#000000}
 body.sheet-open #sa-cover{background:#000000}
-.topbar-logout{background:none;border:none;color:#3a3630;font-size:12px;cursor:pointer;padding:14px;transition:color .15s ease}
-.topbar-logout:active{color:#e8e6e3}
-.logo{color:#e8e6e3;font-size:15px;font-weight:700;letter-spacing:-.2px}
 
 /* ── Navbar ── */
 .navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;display:flex;padding-bottom:max(env(safe-area-inset-bottom),8px);background:transparent;z-index:100}
@@ -553,28 +548,34 @@ body.sheet-open #sa-cover{background:#000000}
 .prof-sticky{flex-shrink:0;background:#161512;padding:0 16px}
 .prof-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px calc(80px + env(safe-area-inset-bottom,0px))}
 .prof-scroll::-webkit-scrollbar{display:none}
-.prof-header{padding:8px 0 12px;position:relative}
-.prof-back-icon{position:absolute;top:12px;left:14px;background:none;border:none;color:#3a3630;font-size:18px;cursor:pointer;padding:4px;line-height:1;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
-.prof-back-icon:active{opacity:.6}
-.prof-nick{font-size:20px;font-weight:700;color:#e8e6e3;margin-bottom:2px}
-.prof-rank-meta{font-size:11px;color:#4a4642;margin-bottom:2px}
-.prof-bio{font-size:12px;color:#6a6560;margin-bottom:0;max-width:240px;line-height:1.4}
+.prof-header{padding:8px 0 4px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.prof-header-left{flex:1;min-width:0}
+.prof-header-right{flex-shrink:0;text-align:right}
+.prof-nick{font-size:20px;font-weight:700;color:#e8e6e3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prof-rank-meta{font-size:11px;color:#4a4642;margin-top:2px}
+.prof-bio{font-size:12px;color:#6a6560;margin-top:3px;max-width:200px;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .prof-city{font-size:11px;color:#3a3630;margin-top:2px}
+.prof-elo-num{font-size:32px;font-weight:800;color:#e8e6e3;line-height:1}
+.prof-elo-peak{font-size:11px;color:#4a4642;margin-top:3px}
+.prof-elo-peak strong{color:#6a6560;font-weight:600}
+.prof-elo-gap{font-size:11px;color:#7a2020;margin-top:1px}
 .prof-edit-form{background:#1d1a16;border:1px solid #252220;border-radius:14px;padding:16px;margin-bottom:14px}
 .prof-edit-form input,.prof-edit-form textarea{margin-bottom:8px}
-.prof-elo-hero{text-align:center;margin-bottom:2px}
-.prof-elo-num{font-size:32px;font-weight:800;color:#e8e6e3;line-height:1}
-.prof-elo-peak{font-size:11px;color:#4a4642;margin-top:4px}
-.prof-elo-peak strong{color:#6a6560;font-weight:600}
-.prof-elo-gap{font-size:11px;color:#7a2020;margin-top:2px;text-align:center}
-.prof-stats-line{font-size:13px;color:#6a6560;text-align:center;margin-top:6px;margin-bottom:14px}
+.prof-stats-wrap{padding:4px 0 10px}
+.prof-stats-line{font-size:13px;color:#6a6560;margin-bottom:3px}
 .prof-stats-line .win{color:#3d6b1a;font-weight:600}
 .prof-stats-line .loss{color:#7a2020;font-weight:600}
 .prof-stats-line .draw{color:#4a4642;font-weight:600}
 .prof-stats-line .rate{color:#e8e6e3;font-weight:700}
 .prof-stats-line .streak{color:#e8e6e3;font-weight:600}
-.prof-color-rate{font-size:12px;color:#4a4642;text-align:center;margin-top:2px;margin-bottom:14px;letter-spacing:.5px}
-.prof-chart-wrap{margin-bottom:14px}
+.prof-color-rate{font-size:12px;color:#4a4642;margin-bottom:3px;letter-spacing:.3px}
+.prof-trend{font-size:12px;color:#4a4642}
+.prof-trend .elo-up{color:#3d6b1a;font-weight:600}
+.prof-trend .elo-down{color:#7a2020;font-weight:600}
+.prof-chart-wrap{margin-bottom:14px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.prof-chart-wrap::-webkit-scrollbar{display:none}
+.prof-kebab{position:absolute;top:8px;right:0;background:none;border:none;color:#3a3630;font-size:20px;cursor:pointer;padding:8px 12px;line-height:1;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
+.prof-kebab:active{color:#6a6560}
 canvas{width:100%!important;display:block}
 .prof-section-label{font-size:10px;font-weight:600;color:#3a3630;text-transform:uppercase;letter-spacing:1.4px;margin-bottom:8px;margin-top:18px}
 .prof-h2h{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
@@ -591,15 +592,25 @@ canvas{width:100%!important;display:block}
 .prof-rival-record .w{color:#3d6b1a;font-weight:700}
 .prof-rival-record .l{color:#7a2020;font-weight:700}
 .prof-rival-record .d{color:#4a4642;font-weight:700}
-.prof-day-header{display:flex;align-items:center;justify-content:space-between;padding:6px 0 6px}
-.prof-day-label{font-size:12px;color:#4a4642;font-weight:600}
+.prof-bw-row{padding:9px 14px;border-bottom:0.5px solid #252220;display:flex;align-items:center;justify-content:space-between}
+.prof-bw-row:last-child{border-bottom:none}
+.prof-bw-name{font-size:14px;font-weight:600;color:#e8e6e3}
+.prof-bw-elo{font-size:13px;color:#3d6b1a;font-weight:700}
+.prof-bw-meta{font-size:11px;color:#4a4642;margin-top:1px}
+.prof-day-row{padding:10px 14px;border-bottom:0.5px solid #252220;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent;background:#1d1a16}
+.prof-day-row:active{background:#252220}
+.prof-day-label{font-size:12px;color:#e8e6e3;font-weight:600}
+.prof-day-right{display:flex;align-items:center;gap:8px}
 .prof-day-summary{font-size:11px;color:#4a4642}
 .prof-day-summary .elo-up{color:#3d6b1a}
 .prof-day-summary .elo-down{color:#7a2020}
-.prof-day-header{cursor:pointer;-webkit-tap-highlight-color:transparent}
-.prof-day-header:active{opacity:.7}
-.prof-day-group.collapsed .lb-group{display:none}
-.prof-day-chevron{color:#3a3630;font-size:11px;margin-left:6px;transition:transform .2s ease}
+.prof-day-wld{font-size:11px;font-weight:600}
+.prof-day-wld .w{color:#3d6b1a}
+.prof-day-wld .l{color:#7a2020}
+.prof-day-wld .d{color:#4a4642}
+.prof-day-chevron{color:#3a3630;font-size:10px;transition:transform .2s ease}
+.prof-day-matches{overflow:hidden;max-height:0;transition:max-height .3s ease}
+.prof-day-matches.expanded{max-height:2000px}
 .prof-day-group.collapsed .prof-day-chevron{transform:rotate(-90deg)}
 .prof-match-row{padding:11px 14px;border-bottom:0.5px solid #252220;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .prof-match-row:active{background:#252220}
@@ -698,10 +709,7 @@ canvas{width:100%!important;display:block}
 
 <!-- MAIN -->
 <div id="main" class="hidden">
-  <div class="topbar">
-    <span class="logo">turko</span>
 
-  </div>
   <div class="pages">
     <!-- HOME -->
     <div id="page-home" class="page active">
@@ -790,6 +798,7 @@ canvas{width:100%!important;display:block}
           <canvas id="elo-chart" height="120"></canvas>
         </div>
         <div id="prof-h2h"></div>
+        <div id="prof-best-wins"></div>
         <div id="prof-rivals"></div>
         <div id="prof-day-groups"></div>
         <div id="prof-footer"></div>
@@ -2928,11 +2937,10 @@ async function openProfile(playerId, fromPage, noPush) {
   renderEloSection(player);
 
   $("prof-h2h").innerHTML = '';
+  $("prof-best-wins").innerHTML = '';
   $("prof-rivals").innerHTML = '';
   $("prof-day-groups").innerHTML = '<div class="empty">Carico...</div>';
   $("prof-cta-wrap").innerHTML = '';
-  $("prof-footer").innerHTML = '';
-  renderProfileFooter(isMe);
 
   showPage("profile");
 
@@ -2947,6 +2955,7 @@ async function openProfile(playerId, fromPage, noPush) {
   drawEloChart(eloH, player.elo);
 
   if(!isMe) renderH2H(playerId, currentProfileMatches);
+  renderBestWins(playerId, currentProfileMatches);
   renderRivals(playerId, currentProfileMatches);
   renderDayGroups(currentProfileMatches, eloMap, playerId);
   if(!isMe) renderProfileCTA(player);
@@ -2967,17 +2976,48 @@ function renderProfileHeader(player) {
   var joinDate = new Date(player.created_at);
   var metaLine = (rank > 0 ? '#' + rank + ' di ' + totalPlayers + ' · ' : '') + monthNames[joinDate.getMonth()] + ' ' + joinDate.getFullYear();
 
-  var seenLine = (!isMe && lastSeen) ? '<div class="prof-rank-meta">Visto ' + lastSeen + '</div>' : '';
-  var cityLine = player.city ? '<div class="prof-city">' + player.city + '</div>' : '';
-  var bioLine = player.bio ? '<div class="prof-bio">' + player.bio + '</div>' : '';
+  var seenHtml = (!isMe && lastSeen) ? '<div class="prof-rank-meta">Visto ' + lastSeen + '</div>' : '';
+  var bioHtml = player.bio ? '<div class="prof-bio">' + player.bio + '</div>' : '';
+  var cityHtml = player.city ? '<div class="prof-city">' + player.city + '</div>' : '';
+
+  var peak = player.elo_peak || player.elo;
+  var gap = peak - player.elo;
+  var peakHtml = peak > player.elo ? '<div class="prof-elo-peak">Peak <strong>' + peak + '</strong></div>' : '';
+  var gapHtml = gap > 0 ? '<div class="prof-elo-gap">−' + gap + ' dal peak</div>' : '';
 
   $("prof-header-wrap").innerHTML =
     '<div class="prof-header">' +
-      '<div class="prof-nick">' + player.nickname + '</div>' +
-      '<div class="prof-rank-meta">' + metaLine + '</div>' +
-      seenLine + bioLine + cityLine +
+      '<div class="prof-header-left">' +
+        '<div class="prof-nick">' + player.nickname + '</div>' +
+        '<div class="prof-rank-meta">' + metaLine + '</div>' +
+        seenHtml + bioHtml + cityHtml +
+      '</div>' +
+      (isMe ? '<button class="prof-kebab" onclick="showProfileMenu()">⋮</button>' : '') +
+      '<div class="prof-header-right">' +
+        '<div class="prof-elo-num">' + player.elo + '</div>' +
+        peakHtml + gapHtml +
+      '</div>' +
     '</div>' +
     '<div id="prof-edit-wrap"></div>';
+}
+
+function showProfileMenu() {
+  var overlay = document.createElement('div');
+  overlay.id = 'prof-menu-overlay';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:flex-end;justify-content:center';
+  overlay.onclick = function(e) { if(e.target === overlay) closeProfileMenu(); };
+  var sheet = document.createElement('div');
+  sheet.style.cssText = 'background:#1d1a16;border-radius:14px 14px 0 0;width:100%;max-width:500px;padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px))';
+  sheet.innerHTML =
+    '<button style="width:100%;padding:16px 20px;border:none;background:transparent;color:#e8e6e3;font-size:16px;font-weight:500;text-align:left;cursor:pointer;font-family:inherit;border-bottom:0.5px solid #252220" onclick="closeProfileMenu();showEditProfile()">Modifica profilo</button>' +
+    '<button style="width:100%;padding:16px 20px;border:none;background:transparent;color:#7a2020;font-size:16px;font-weight:500;text-align:left;cursor:pointer;font-family:inherit" onclick="closeProfileMenu();doLogout()">Esci</button>';
+  overlay.appendChild(sheet);
+  document.body.appendChild(overlay);
+}
+
+function closeProfileMenu() {
+  var overlay = document.getElementById('prof-menu-overlay');
+  if(overlay) overlay.remove();
 }
 
 function showEditProfile() {
@@ -2985,7 +3025,7 @@ function showEditProfile() {
   $("prof-edit-wrap").innerHTML = `
     <div class="prof-edit-form">
       <div class="box-label">Modifica profilo</div>
-      <textarea id="edit-bio" rows="2" placeholder="Bio (max 100 caratteri)" maxlength="100">${p.bio||''}</textarea>
+      <textarea id="edit-bio" rows="2" placeholder="Bio (max 50 caratteri)" maxlength="50">${p.bio||''}</textarea>
       <input id="edit-city" value="${p.city||''}" placeholder="Città" autocorrect="off" maxlength="30">
       <div id="edit-err" class="err"></div>
       <button class="btn-g" onclick="saveProfile()">Salva</button>
@@ -3011,12 +3051,15 @@ function renderEloSection(player) {
   var total = player.wins + player.losses + player.draws;
   var winRate = total > 0 ? Math.round((player.wins / total) * 100) : 0;
   var streak = player.win_streak || 0;
-  var peak = player.elo_peak || player.elo;
-  var gap = peak - player.elo;
+  var bestStreak = player.best_streak || 0;
 
-  var statsHtml = '<span class="win">' + player.wins + 'V</span> · <span class="loss">' + player.losses + 'P</span> · <span class="draw">' + player.draws + '=</span>';
-  if(total > 0) statsHtml += ' · <span class="rate">win ' + winRate + '%</span>';
-  if(streak >= 2) statsHtml += ' · <span class="streak">' + streak + ' di fila</span>';
+  var line1 = '<span class="win">' + player.wins + 'V</span> · <span class="loss">' + player.losses + 'P</span> · <span class="draw">' + player.draws + '=</span>';
+  if(total > 0) line1 += ' · <span class="rate">win ' + winRate + '%</span>';
+
+  var streakParts = [];
+  if(streak >= 2) streakParts.push('Streak ' + streak);
+  if(bestStreak >= 3) streakParts.push('Best ' + bestStreak);
+  var line2 = streakParts.length > 0 ? '<div class="prof-stats-line">' + streakParts.join(' · ') + '</div>' : '';
 
   var whiteWins = 0, whiteLosses = 0, whiteDraws = 0;
   var blackWins = 0, blackLosses = 0, blackDraws = 0;
@@ -3026,13 +3069,9 @@ function renderEloSection(player) {
     var playsWhite = m.white_player_id === player.id;
     var won = m.result === 'p1' ? isP1 : m.result === 'p2' ? !isP1 : null;
     if(playsWhite) {
-      if(won === true) whiteWins++;
-      else if(won === false) whiteLosses++;
-      else whiteDraws++;
+      if(won === true) whiteWins++; else if(won === false) whiteLosses++; else whiteDraws++;
     } else if(m.white_player_id) {
-      if(won === true) blackWins++;
-      else if(won === false) blackLosses++;
-      else blackDraws++;
+      if(won === true) blackWins++; else if(won === false) blackLosses++; else blackDraws++;
     }
   });
   var whiteTotal = whiteWins + whiteLosses + whiteDraws;
@@ -3042,29 +3081,34 @@ function renderEloSection(player) {
   var colorHtml = '';
   if(whiteRate !== null || blackRate !== null) {
     var parts = [];
-    if(whiteRate !== null) parts.push('○ ' + whiteRate + '%');
-    if(blackRate !== null) parts.push('● ' + blackRate + '%');
-    colorHtml = '<div class="prof-color-rate">' + parts.join('  ') + '</div>';
+    if(whiteRate !== null) parts.push('Bianco ' + whiteRate + '%');
+    if(blackRate !== null) parts.push('Nero ' + blackRate + '%');
+    colorHtml = '<div class="prof-color-rate">' + parts.join(' · ') + '</div>';
+  }
+
+  var trendHtml = '';
+  var recentMatches = currentProfileMatches.filter(function(m) { return m.result !== 'cancelled'; }).slice(0, 12);
+  if(recentMatches.length >= 3) {
+    var recentElos = recentMatches.map(function(m) {
+      var key = m.id + '_' + player.id;
+      var eh = globalEloCache[key];
+      return eh ? (eh.elo_after - eh.elo_before) : 0;
+    });
+    var trendDelta = recentElos.reduce(function(a, b) { return a + b; }, 0);
+    if(trendDelta !== 0) {
+      var trendClass = trendDelta > 0 ? 'elo-up' : 'elo-down';
+      trendHtml = '<div class="prof-trend">Ultime ' + recentMatches.length + ': <span class="' + trendClass + '">' + (trendDelta > 0 ? '+' : '') + trendDelta + '</span></div>';
+    }
   }
 
   $("prof-elo-section").innerHTML =
-    '<div class="prof-elo-hero">' +
-      '<div class="prof-elo-num">' + player.elo + '</div>' +
-      (peak > player.elo ? '<div class="prof-elo-peak">Peak <strong>' + peak + '</strong></div>' : '') +
-      (gap > 0 ? '<div class="prof-elo-gap">−' + gap + ' dal peak</div>' : '') +
-    '</div>' +
-    '<div class="prof-stats-line">' + statsHtml + '</div>' +
-    colorHtml;
-}
-
-function renderProfileFooter(isMe) {
-  if(!isMe) { $("prof-footer").innerHTML = ''; return; }
-  $("prof-footer").innerHTML =
-    '<div class="prof-footer">' +
-      '<button class="prof-footer-link" onclick="showEditProfile()">Modifica profilo</button>' +
-      '<button class="prof-footer-link" onclick="doLogout()" style="color:#7a2020">Esci</button>' +
+    '<div class="prof-stats-wrap">' +
+      '<div class="prof-stats-line">' + line1 + '</div>' +
+      line2 + colorHtml + trendHtml +
     '</div>';
 }
+
+
 
 function renderH2H(playerId, matchH) {
   const h2hMatches = matchH.filter(m =>
@@ -3095,6 +3139,46 @@ function renderH2H(playerId, matchH) {
     </div>`;
 }
 
+function renderBestWins(playerId, matchH) {
+  var wins = matchH.filter(function(m) {
+    if(m.result === 'cancelled' || m.result === 'draw') return false;
+    var isP1 = m.p1 === playerId;
+    return m.result === 'p1' ? isP1 : !isP1;
+  });
+
+  var rated = wins.map(function(m) {
+    var isP1 = m.p1 === playerId;
+    var oppId = isP1 ? m.p2 : m.p1;
+    var oppEloKey = m.id + '_' + oppId;
+    var oppEh = globalEloCache[oppEloKey];
+    var oppElo = oppEh ? oppEh.elo_before : (getP(oppId) ? getP(oppId).elo : 0);
+    return {matchId: m.id, oppId: oppId, oppElo: oppElo, date: m.created_at};
+  });
+
+  rated.sort(function(a, b) { return b.oppElo - a.oppElo; });
+  var top3 = rated.slice(0, 3);
+
+  if(top3.length === 0) { $("prof-best-wins").innerHTML = ''; return; }
+
+  var rows = top3.map(function(w) {
+    var opp = getP(w.oppId);
+    var d = new Date(w.date);
+    var monthNames = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+    var dateStr = d.getDate() + ' ' + monthNames[d.getMonth()];
+    return '<div class="prof-bw-row">' +
+      '<div>' +
+        '<div class="prof-bw-name">' + (opp ? opp.nickname : '?') + '</div>' +
+        '<div class="prof-bw-meta">' + dateStr + '</div>' +
+      '</div>' +
+      '<div class="prof-bw-elo">' + w.oppElo + '</div>' +
+    '</div>';
+  }).join('');
+
+  $("prof-best-wins").innerHTML =
+    '<div class="prof-section-label">Best wins</div>' +
+    '<div class="lb-group">' + rows + '</div>';
+}
+
 function renderRivals(playerId, matchH) {
   const rivalMap = {};
   matchH.forEach(m => {
@@ -3121,7 +3205,7 @@ function renderRivals(playerId, matchH) {
     const opp = getP(r.id);
     return `<div class="prof-rival-row" onclick="openProfile('${r.id}','profile')">
       <div class="prof-rival-name">${opp?.nickname || '?'}</div>
-      <div class="prof-rival-record"><span class="w">${r.wins}</span>-<span class="l">${r.losses}</span>${r.draws > 0 ? `-<span class="d">${r.draws}</span>` : ''}</div>
+      <div class="prof-rival-record"><span class="w">${r.wins}</span>-<span class="l">${r.losses}</span></div>
     </div>`;
   }).join('');
 
@@ -3166,21 +3250,23 @@ function renderDayGroups(matchH, eloMap, playerId) {
   var byDay = {};
   var dayOrder = [];
   matchH.forEach(function(m) {
-    var day = new Date(m.created_at).toLocaleDateString('it-IT', {day:'2-digit', month:'long', year:'numeric'});
+    var day = new Date(m.created_at).toLocaleDateString('it-IT', {day:'2-digit', month:'short'});
     if(!byDay[day]) { byDay[day] = []; dayOrder.push(day); }
     byDay[day].push(m);
   });
 
-  var html = '<div class="prof-section-label">Storico</div>';
+  var html = '<div class="prof-section-label">Storico</div><div class="lb-group">';
 
   dayOrder.forEach(function(day, dayIdx) {
     var ms = byDay[day];
     var validMs = ms.filter(function(m) { return m.result !== 'cancelled'; });
-
-    var wins = validMs.filter(function(m) {
+    var wins = 0, losses = 0, draws = 0;
+    validMs.forEach(function(m) {
       var isP1 = m.p1 === playerId;
-      return m.result === 'p1' ? isP1 : m.result === 'p2' ? !isP1 : false;
-    }).length;
+      if(m.result === 'draw') draws++;
+      else if((m.result === 'p1' && isP1) || (m.result === 'p2' && !isP1)) wins++;
+      else losses++;
+    });
 
     var dayElos = validMs.map(function(m) { return eloMap[m.id]; }).filter(Boolean).sort(function(a, b) {
       return new Date(a.created_at) - new Date(b.created_at);
@@ -3189,22 +3275,22 @@ function renderDayGroups(matchH, eloMap, playerId) {
     var eloEnd = dayElos.length ? dayElos[dayElos.length - 1].elo_after : null;
     var totalDelta = dayElos.length ? eloEnd - eloStart : 0;
     var deltaClass = totalDelta > 0 ? 'elo-up' : totalDelta < 0 ? 'elo-down' : '';
-    var deltaStr = totalDelta !== 0 ? ' <span class="' + deltaClass + '">' + (totalDelta > 0 ? '+' : '') + totalDelta + '</span>' : '';
+    var deltaStr = totalDelta !== 0 ? '<span class="' + deltaClass + '">' + (totalDelta > 0 ? '+' : '') + totalDelta + '</span>' : '';
+    var eloRange = eloStart !== null ? eloStart + '→' + eloEnd + ' ' : '';
 
-    var summaryParts = [];
-    summaryParts.push(validMs.length + (validMs.length === 1 ? ' partita' : ' partite'));
-    if(eloStart !== null) summaryParts.push(eloStart + '→' + eloEnd);
-
-    var collapsed = dayIdx > 0 ? ' collapsed' : '';
+    var expanded = dayIdx === 0 ? ' expanded' : '';
     var groupId = 'prof-day-' + dayIdx;
 
-    html += '<div class="prof-day-group' + collapsed + '" id="' + groupId + '">';
-    html += '<div class="prof-day-header" onclick="toggleDayGroup(&quot;' + groupId + '&quot;)">' +
+    html += '<div class="prof-day-row" onclick="toggleDayGroup(&quot;' + groupId + '&quot;)">' +
       '<div class="prof-day-label">' + day + '</div>' +
-      '<div class="prof-day-summary">' + summaryParts.join(' · ') + deltaStr + ' <span class="prof-day-chevron">▼</span></div>' +
+      '<div class="prof-day-right">' +
+        '<div class="prof-day-summary">' + eloRange + deltaStr + '</div>' +
+        '<div class="prof-day-wld"><span class="w">' + wins + '</span>-<span class="l">' + losses + '</span>' + (draws > 0 ? '-<span class="d">' + draws + '</span>' : '') + '</div>' +
+        '<span class="prof-day-chevron">▼</span>' +
+      '</div>' +
     '</div>';
 
-    html += '<div class="lb-group">';
+    html += '<div class="prof-day-matches' + expanded + '" id="' + groupId + '">';
     validMs.forEach(function(m) {
       var isP1 = m.p1 === playerId;
       var oppId = isP1 ? m.p2 : m.p1;
@@ -3227,15 +3313,16 @@ function renderDayGroups(matchH, eloMap, playerId) {
         '</div>' +
       '</div>';
     });
-    html += '</div></div>';
+    html += '</div>';
   });
 
+  html += '</div>';
   $("prof-day-groups").innerHTML = html;
 }
 
 function toggleDayGroup(id) {
   var el = document.getElementById(id);
-  if(el) el.classList.toggle('collapsed');
+  if(el) el.classList.toggle('expanded');
 }
 
 // ── Swipe-back profilo ──
@@ -3307,41 +3394,53 @@ function timeAgo(iso) {
 
 function drawEloChart(eloH, currentElo) {
   if(eloChartInstance) { eloChartInstance.destroy(); eloChartInstance = null; }
-  const canvas = $("elo-chart");
+  var canvas = $("elo-chart");
+  if(!canvas) return;
+
   if(!Array.isArray(eloH) || eloH.length === 0) {
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-      return;
+    var ctx2 = canvas.getContext('2d');
+    ctx2.clearRect(0, 0, canvas.width, canvas.height);
+    return;
   }
-  const labels = eloH.map(e => {
-    const d = new Date(e.created_at);
+
+  var labels = eloH.map(function(e) {
+    var d = new Date(e.created_at);
     return d.toLocaleDateString('it-IT', {day:'2-digit', month:'short'});
   });
-  const data = eloH.map(e => e.elo_after);
+  var data = eloH.map(function(e) { return e.elo_after; });
   labels.unshift('');
   data.unshift(eloH[0].elo_before);
 
-  // Peak annotation
-  const peakValue = Math.max(...data);
-  const peakIndex = data.indexOf(peakValue);
+  var peakValue = Math.max.apply(null, data);
+  var peakIndex = data.indexOf(peakValue);
+
+  var chartWidth = Math.max(300, data.length * 4);
+  canvas.style.width = chartWidth + 'px';
+  canvas.width = chartWidth * 2;
+  canvas.height = 240;
 
   eloChartInstance = new Chart(canvas, {
     type: 'line',
     data: {
-      labels,
+      labels: labels,
       datasets: [{
-        data,
+        data: data,
         borderColor: '#e8e6e3',
         backgroundColor: 'rgba(255,255,255,0.04)',
         borderWidth: 2,
-        pointRadius: data.map((v, i) => i === peakIndex ? 4 : 0),
-        pointBackgroundColor: data.map((v, i) => i === peakIndex ? '#629924' : 'transparent'),
+        pointRadius: data.map(function(v, i) { return i === peakIndex ? 4 : 0; }),
+        pointBackgroundColor: data.map(function(v, i) { return i === peakIndex ? '#629924' : 'transparent'; }),
+        pointHoverRadius: 5,
+        pointHoverBackgroundColor: '#e8e6e3',
+        pointHoverBorderColor: '#161512',
+        pointHoverBorderWidth: 2,
         fill: true,
-        tension: 0.55,
+        tension: 0.55
       }]
     },
     options: {
-      responsive: true,
+      responsive: false,
+      maintainAspectRatio: false,
       layout: { padding: { top: 8 } },
       interaction: { mode: 'index', intersect: false },
       plugins: {
@@ -3376,6 +3475,9 @@ function drawEloChart(eloH, currentElo) {
       }
     }
   });
+
+  var wrap = canvas.closest('.prof-chart-wrap');
+  if(wrap) wrap.scrollLeft = wrap.scrollWidth;
 }
 
 $("profile-back").onclick = () => {
