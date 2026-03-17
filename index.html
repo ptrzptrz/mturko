@@ -42,11 +42,9 @@ body.sheet-open #sa-cover{background:#000000}
 .navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;display:flex;padding-bottom:max(env(safe-area-inset-bottom),8px);background:transparent;z-index:100}
 /* STEP 1: frost ridotto 140→80px — meno schermo coperto */
 .navbar-frost{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:80px;background:linear-gradient(to top, #161512 50%, transparent 100%);pointer-events:none;z-index:99}
-.nbtn{flex:1;min-height:52px;padding:10px 0;background:none;border:none;color:#4a4642;font-size:10px;text-transform:uppercase;letter-spacing:.8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative;transition:color .2s ease,transform .15s ease}
+.nbtn{flex:1;min-height:52px;padding:10px 0;background:none;border:none;color:#4a4642;font-size:10px;text-transform:uppercase;letter-spacing:.8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative;transition:color .2s ease}
 .nbtn.on{color:#e8e6e3}
-.nbtn:active{transform:scale(0.9)}
-.nbtn .nicon{transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
-.nbtn.pop .nicon{transform:scale(1.2)}
+.nbtn:active{opacity:.6}
 .nicon{width:22px;height:22px;display:block}
 .badge{position:absolute;top:8px;right:calc(50% - 20px);background:#c33;color:#fff;border-radius:8px;padding:0 5px;font-size:9px;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center}
 
@@ -3631,12 +3629,7 @@ function showPage(name) {
   const pageEl = $(pageMap[name]);
   if(pageEl) pageEl.classList.add("active");
   const navBtn = document.querySelector(`.nbtn[data-page="${name}"]`);
-  if(navBtn) {
-    navBtn.classList.add("on");
-    // Icon pop animation
-    navBtn.classList.add("pop");
-    setTimeout(function() { navBtn.classList.remove("pop"); }, 250);
-  }
+  if(navBtn) navBtn.classList.add("on");
   // STEP 2: visibilità CAB — solo su home
   setCabVisibility(name === 'profile-me' ? 'profile' : name);
   if(name==="search") { $("search-input").value = ""; renderSearch(); setTimeout(() => $("search-input").focus(), 50); }
