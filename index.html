@@ -16,10 +16,10 @@
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"></noscript>
 <style>
 /* ── Reset & Base ── */
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{background:#161512}
 body{background:#161512;font-family:'Inter',system-ui,sans-serif;color:#e8e6e3;max-width:480px;margin:0 auto;height:100dvh;overflow:hidden}
-input,select,textarea{background:#2a2724;border:1px solid #3a3630;border-radius:10px;color:#e8e6e3;padding:13px 14px;font-size:16px;font-family:inherit;width:100%;outline:none;display:block;-webkit-user-select:text;user-select:text}
+input,select,textarea{background:#2a2724;border:1px solid #3a3630;border-radius:10px;color:#e8e6e3;padding:13px 14px;font-size:16px;font-family:inherit;width:100%;outline:none;display:block}
 input:focus,select:focus,textarea:focus{border-color:#6a6560}
 input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0px 1000px #161512 inset;-webkit-text-fill-color:#e8e6e3}
 input::placeholder,textarea::placeholder{color:#4a4642}
@@ -28,7 +28,7 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 
 /* ── Layout ── */
 #auth{min-height:100dvh;display:flex;flex-direction:column;justify-content:flex-start;padding:env(safe-area-inset-top,40px) 24px 40px;padding-top:max(env(safe-area-inset-top,0px) + 60px, 80px);gap:40px}
-#main{height:100dvh;display:flex;flex-direction:column;overflow:hidden;padding-top:calc(env(safe-area-inset-top,20px) + 12px)}
+#main{height:100dvh;display:flex;flex-direction:column;overflow:hidden;padding-top:calc(env(safe-area-inset-top,20px) + 8px)}
 .pages{flex:1;overflow:hidden;display:flex;flex-direction:column}
 .page{display:none;flex:1;overflow:hidden}
 .page.active{display:flex;flex-direction:column}
@@ -572,11 +572,17 @@ body.sheet-open #sa-cover{background:#000000}
 .prof-trend{font-size:12px;color:#4a4642}
 .prof-trend .elo-up{color:#3d6b1a;font-weight:600}
 .prof-trend .elo-down{color:#7a2020;font-weight:600}
-.prof-chart-wrap{margin-bottom:14px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.prof-chart-wrap{margin-bottom:14px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:relative}
 .prof-chart-wrap::-webkit-scrollbar{display:none}
-.prof-kebab{background:none;border:none;color:#3a3630;font-size:20px;cursor:pointer;padding:4px 0 4px 8px;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.elo-svg-chart{display:block}
+.elo-chart-tooltip{position:absolute;top:0;left:0;pointer-events:none;opacity:0;transition:opacity .15s ease}
+.elo-chart-tooltip.visible{opacity:1}
+.elo-chart-tooltip-line{stroke:#3a3630;stroke-width:1;stroke-dasharray:3,3}
+.elo-chart-tooltip-dot{fill:#e8e6e3;r:4}
+.elo-chart-tooltip-label{position:absolute;top:-4px;transform:translateX(-50%);font-size:12px;font-weight:700;color:#e8e6e3;white-space:nowrap;pointer-events:none}
+.elo-chart-tooltip-date{position:absolute;bottom:2px;transform:translateX(-50%);font-size:10px;color:#4a4642;white-space:nowrap;pointer-events:none}
+.prof-kebab{position:absolute;top:8px;right:0;background:none;border:none;color:#3a3630;font-size:20px;cursor:pointer;padding:8px 12px;line-height:1;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
 .prof-kebab:active{color:#6a6560}
-canvas{width:100%!important;display:block}
 .prof-section-label{font-size:10px;font-weight:600;color:#3a3630;text-transform:uppercase;letter-spacing:1.4px;margin-bottom:8px;margin-top:18px}
 .prof-h2h{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
 .prof-h2h-label{font-size:14px;color:#e8e6e3;font-weight:600}
@@ -611,7 +617,7 @@ canvas{width:100%!important;display:block}
 .prof-day-wld .d{color:#4a4642}
 .prof-day-matches{overflow:hidden;max-height:0;transition:max-height .3s ease}
 .prof-day-matches.expanded{max-height:2000px}
-.prof-match-row{padding:11px 14px 11px 24px;border-bottom:0.5px solid #252220;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent;background:#1a1714}
+.prof-match-row{padding:11px 14px;border-bottom:0.5px solid #252220;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .prof-match-row:active{background:#252220}
 .prof-match-row:last-child{border-bottom:none}
 .prof-match-left{flex:1;min-width:0}
@@ -676,7 +682,7 @@ canvas{width:100%!important;display:block}
 </style>
 </head>
 <body>
-<div id="sa-cover" style="position:fixed;top:0;left:0;right:0;height:calc(env(safe-area-inset-top,20px) + 12px);background:#161512;z-index:9999;pointer-events:none;transition:background .35s"></div>
+<div id="sa-cover" style="position:fixed;top:0;left:0;right:0;height:calc(env(safe-area-inset-top,20px) + 50px);background:#161512;z-index:9999;pointer-events:none;transition:background .35s"></div>
 <div id="notif" class="notif"></div>
 
 <!-- AUTH -->
@@ -793,8 +799,8 @@ canvas{width:100%!important;display:block}
       </div>
       <div class="prof-scroll" id="prof-scroll">
         <div id="prof-elo-section"></div>
-        <div class="prof-chart-wrap">
-          <canvas id="elo-chart" height="120"></canvas>
+        <div class="prof-chart-wrap" id="prof-chart-wrap">
+          <div id="elo-chart-container"></div>
         </div>
         <div id="prof-h2h"></div>
         <div id="prof-best-wins"></div>
@@ -822,7 +828,6 @@ canvas{width:100%!important;display:block}
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 // ── PWA Manifest ──
@@ -928,7 +933,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 let profileStack = [];
-let eloChartInstance = null;
+let _eloChartData = null;
 
 function authHeaders() {
   return {
@@ -3204,7 +3209,7 @@ function renderRivals(playerId, matchH) {
     const opp = getP(r.id);
     return `<div class="prof-rival-row" onclick="openProfile('${r.id}','profile')">
       <div class="prof-rival-name">${opp?.nickname || '?'}</div>
-      <div class="prof-rival-record"><span class="w">${r.wins}</span>-<span class="l">${r.losses}</span>-<span class="d">${r.draws}</span></div>
+      <div class="prof-rival-record"><span class="w">${r.wins}</span>-<span class="l">${r.losses}</span>${r.draws > 0 ? '-<span class="d">' + r.draws + '</span>' : ''}</div>
     </div>`;
   }).join('');
 
@@ -3219,13 +3224,12 @@ function renderProfileCTA(player) {
   const isOnline = player.last_seen_at && (Date.now() - new Date(player.last_seen_at).getTime()) < 30000;
   const isPlaying = player.is_playing;
 
-  if(!isOnline) {
-    $("prof-cta-wrap").innerHTML = '';
-    return;
-  }
-
   let btnClass, btnText, btnAction;
-  if(isPlaying) {
+  if(!isOnline) {
+    btnClass = 'disabled';
+    btnText = 'Offline';
+    btnAction = '';
+  } else if(isPlaying) {
     btnClass = 'disabled';
     btnText = 'In partita';
     btnAction = '';
@@ -3280,7 +3284,7 @@ function renderDayGroups(matchH, eloMap, playerId) {
     var eloRange = eloStart !== null ? eloStart + '→' + eloEnd + deltaStr : '';
     var groupId = 'prof-day-' + dayIdx;
 
-    var wldHtml = '<div class="prof-day-wld"><span class="w">' + wins + '</span>-<span class="l">' + losses + '</span>-<span class="d">' + draws + '</span></div>';
+    var wldHtml = '<div class="prof-day-wld"><span class="w">' + wins + '</span>-<span class="l">' + losses + '</span>' + (draws > 0 ? '-<span class="d">' + draws + '</span>' : '') + '</div>';
 
     html += '<div class="prof-day-row" onclick="toggleDayGroup(&quot;' + groupId + '&quot;)">' +
       '<div class="prof-day-left">' +
@@ -3322,15 +3326,7 @@ function renderDayGroups(matchH, eloMap, playerId) {
 
 function toggleDayGroup(id) {
   var el = document.getElementById(id);
-  if(!el) return;
-  var isOpen = el.classList.contains('expanded');
-  // Chiudi tutte le altre
-  document.querySelectorAll('.prof-day-matches.expanded').forEach(function(m) {
-    if(m.id !== id) m.classList.remove('expanded');
-  });
-  // Toggle questa
-  if(isOpen) el.classList.remove('expanded');
-  else el.classList.add('expanded');
+  if(el) el.classList.toggle('expanded');
 }
 
 // ── Swipe-back profilo ──
@@ -3401,91 +3397,201 @@ function timeAgo(iso) {
 }
 
 function drawEloChart(eloH, currentElo) {
-  if(eloChartInstance) { eloChartInstance.destroy(); eloChartInstance = null; }
-  var canvas = $("elo-chart");
-  if(!canvas) return;
+  var container = $('elo-chart-container');
+  var wrap = $('prof-chart-wrap');
+  if(!container || !wrap) return;
 
-  if(!Array.isArray(eloH) || eloH.length === 0) {
-    var ctx2 = canvas.getContext('2d');
-    ctx2.clearRect(0, 0, canvas.width, canvas.height);
-    return;
+  container.innerHTML = '';
+
+  if(!Array.isArray(eloH) || eloH.length === 0) return;
+
+  // Prepare data
+  var points = [{value: eloH[0].elo_before, date: eloH[0].created_at}];
+  eloH.forEach(function(e) { points.push({value: e.elo_after, date: e.created_at}); });
+
+  var n = points.length;
+  if(n < 2) return;
+
+  // Dimensions
+  var pxPerPoint = 10;
+  var chartW = Math.max(wrap.clientWidth, n * pxPerPoint);
+  var chartH = 140;
+  var padTop = 24, padBot = 22, padLeft = 0, padRight = 8;
+  var plotW = chartW - padLeft - padRight;
+  var plotH = chartH - padTop - padBot;
+
+  var values = points.map(function(p) { return p.value; });
+  var vMin = Math.min.apply(null, values);
+  var vMax = Math.max.apply(null, values);
+  var vRange = vMax - vMin || 1;
+  // Add 10% padding to Y range
+  vMin = vMin - vRange * 0.1;
+  vMax = vMax + vRange * 0.1;
+  vRange = vMax - vMin;
+
+  var peakIdx = values.indexOf(Math.max.apply(null, values));
+
+  // Map data to coordinates
+  var coords = points.map(function(p, i) {
+    return {
+      x: padLeft + (i / (n - 1)) * plotW,
+      y: padTop + plotH - ((p.value - vMin) / vRange) * plotH,
+      value: p.value,
+      date: p.date
+    };
+  });
+
+  // Monotone cubic spline (Fritsch-Carlson)
+  function monotonePath(pts) {
+    var len = pts.length;
+    if(len < 2) return '';
+    if(len === 2) return 'M' + pts[0].x + ',' + pts[0].y + 'L' + pts[1].x + ',' + pts[1].y;
+
+    var dx = [], dy = [], m = [], t = [];
+    for(var i = 0; i < len - 1; i++) {
+      dx[i] = pts[i+1].x - pts[i].x;
+      dy[i] = pts[i+1].y - pts[i].y;
+      m[i] = dx[i] === 0 ? 0 : dy[i] / dx[i];
+    }
+    t[0] = m[0];
+    for(var i = 1; i < len - 1; i++) {
+      if(m[i-1] * m[i] <= 0) t[i] = 0;
+      else t[i] = (m[i-1] + m[i]) / 2;
+    }
+    t[len-1] = m[len-2];
+
+    // Fritsch-Carlson monotonicity
+    for(var i = 0; i < len - 1; i++) {
+      if(m[i] === 0) { t[i] = 0; t[i+1] = 0; continue; }
+      var a = t[i] / m[i], b = t[i+1] / m[i];
+      var s = a * a + b * b;
+      if(s > 9) { var tau = 3 / Math.sqrt(s); t[i] = tau * a * m[i]; t[i+1] = tau * b * m[i]; }
+    }
+
+    var d = 'M' + pts[0].x.toFixed(1) + ',' + pts[0].y.toFixed(1);
+    for(var i = 0; i < len - 1; i++) {
+      var d0 = dx[i] / 3;
+      var cx1 = pts[i].x + d0;
+      var cy1 = pts[i].y + d0 * t[i];
+      var cx2 = pts[i+1].x - d0;
+      var cy2 = pts[i+1].y - d0 * t[i+1];
+      d += 'C' + cx1.toFixed(1) + ',' + cy1.toFixed(1) + ',' + cx2.toFixed(1) + ',' + cy2.toFixed(1) + ',' + pts[i+1].x.toFixed(1) + ',' + pts[i+1].y.toFixed(1);
+    }
+    return d;
   }
 
-  var labels = eloH.map(function(e) {
-    var d = new Date(e.created_at);
-    return d.toLocaleDateString('it-IT', {day:'2-digit', month:'short'});
-  });
-  var data = eloH.map(function(e) { return e.elo_after; });
-  labels.unshift('');
-  data.unshift(eloH[0].elo_before);
+  var linePath = monotonePath(coords);
 
-  var peakValue = Math.max.apply(null, data);
-  var peakIndex = data.indexOf(peakValue);
+  // Gradient fill path (close to bottom)
+  var fillPath = linePath +
+    'L' + coords[n-1].x.toFixed(1) + ',' + (chartH) +
+    'L' + coords[0].x.toFixed(1) + ',' + (chartH) + 'Z';
 
-  var chartWidth = Math.max(320, data.length * 10);
-  canvas.style.width = chartWidth + 'px';
-  canvas.width = chartWidth;
-  canvas.height = 120;
+  // Date labels (3-4 evenly spaced)
+  var labelCount = Math.min(4, n);
+  var labelIndices = [];
+  for(var i = 0; i < labelCount; i++) {
+    labelIndices.push(Math.round(i * (n - 1) / (labelCount - 1)));
+  }
 
-  eloChartInstance = new Chart(canvas, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [{
-        data: data,
-        borderColor: '#e8e6e3',
-        backgroundColor: 'rgba(255,255,255,0.04)',
-        borderWidth: 2.5,
-        pointRadius: data.map(function(v, i) { return i === peakIndex ? 4 : 0; }),
-        pointBackgroundColor: data.map(function(v, i) { return i === peakIndex ? '#629924' : 'transparent'; }),
-        pointHoverRadius: 5,
-        pointHoverBackgroundColor: '#e8e6e3',
-        pointHoverBorderColor: '#161512',
-        pointHoverBorderWidth: 2,
-        fill: true,
-        tension: 0.55
-      }]
-    },
-    options: {
-      responsive: false,
-      maintainAspectRatio: false,
-      layout: { padding: { top: 8 } },
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            title: function(ctx) { return ctx[0].label || ''; },
-            label: function(ctx) { return 'ELO ' + ctx.parsed.y; }
-          },
-          backgroundColor: '#1d1a16',
-          borderColor: '#2a2724',
-          borderWidth: 1,
-          titleColor: '#6a6560',
-          titleFont: { size: 11 },
-          bodyColor: '#e8e6e3',
-          bodyFont: { size: 14, weight: '700' },
-          padding: 10,
-          displayColors: false
-        }
-      },
-      scales: {
-        x: {
-          ticks: { color: '#6a6560', font: {size: 10}, maxTicksLimit: 5, maxRotation: 0 },
-          grid: { display: false },
-          border: { display: false }
-        },
-        y: {
-          ticks: { color: '#6a6560', font: {size: 10}, maxTicksLimit: 4 },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          border: { display: false }
-        }
-      }
+  var monthNames = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+  function fmtDateShort(iso) {
+    var d = new Date(iso);
+    return d.getDate() + ' ' + monthNames[d.getMonth()];
+  }
+
+  var dateLabelsHtml = labelIndices.map(function(idx) {
+    return '<text x="' + coords[idx].x.toFixed(1) + '" y="' + (chartH - 4) + '" fill="#3a3630" font-size="10" text-anchor="middle" font-family="Inter,system-ui,sans-serif">' + fmtDateShort(points[idx].date) + '</text>';
+  }).join('');
+
+  // Peak dot
+  var peakDot = '<circle cx="' + coords[peakIdx].x.toFixed(1) + '" cy="' + coords[peakIdx].y.toFixed(1) + '" r="3.5" fill="#629924"/>';
+
+  // SVG
+  var svgHtml = '<svg class="elo-svg-chart" width="' + chartW + '" height="' + chartH + '" viewBox="0 0 ' + chartW + ' ' + chartH + '">' +
+    '<defs><linearGradient id="eloGrad" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0%" stop-color="#e8e6e3" stop-opacity="0.08"/>' +
+    '<stop offset="100%" stop-color="#e8e6e3" stop-opacity="0"/>' +
+    '</linearGradient></defs>' +
+    '<path d="' + fillPath + '" fill="url(#eloGrad)"/>' +
+    '<path d="' + linePath + '" fill="none" stroke="#e8e6e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    peakDot +
+    dateLabelsHtml +
+    // Touch overlay elements (hidden by default)
+    '<line id="elo-touch-line" x1="0" y1="' + padTop + '" x2="0" y2="' + (chartH - padBot) + '" stroke="#4a4642" stroke-width="1" stroke-dasharray="3,3" opacity="0"/>' +
+    '<circle id="elo-touch-dot" cx="0" cy="0" r="4" fill="#e8e6e3" opacity="0"/>' +
+    '</svg>';
+
+  // Tooltip elements (positioned absolutely)
+  var tooltipHtml = '<div id="elo-tooltip-val" style="position:absolute;top:2px;left:0;font-size:13px;font-weight:700;color:#e8e6e3;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s"></div>' +
+    '<div id="elo-tooltip-date" style="position:absolute;top:16px;left:0;font-size:10px;color:#4a4642;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s"></div>';
+
+  container.innerHTML = svgHtml + tooltipHtml;
+  container.style.width = chartW + 'px';
+  container.style.position = 'relative';
+
+  // Store data for touch handler
+  _eloChartData = {coords: coords, points: points, chartH: chartH, padTop: padTop, padBot: padBot};
+
+  // Scroll to right (most recent)
+  wrap.scrollLeft = wrap.scrollWidth;
+
+  // Touch interaction
+  var svg = container.querySelector('svg');
+  var touchLine = $('elo-touch-line');
+  var touchDot = $('elo-touch-dot');
+  var tooltipVal = $('elo-tooltip-val');
+  var tooltipDate = $('elo-tooltip-date');
+
+  function findNearest(clientX) {
+    var rect = svg.getBoundingClientRect();
+    var x = clientX - rect.left + wrap.scrollLeft;
+    var best = 0, bestDist = Infinity;
+    for(var i = 0; i < coords.length; i++) {
+      var dist = Math.abs(coords[i].x - x);
+      if(dist < bestDist) { bestDist = dist; best = i; }
     }
-  });
+    return best;
+  }
 
-  var wrap = canvas.closest('.prof-chart-wrap');
-  if(wrap) wrap.scrollLeft = wrap.scrollWidth;
+  function showTooltip(idx) {
+    var c = coords[idx];
+    var p = points[idx];
+    touchLine.setAttribute('x1', c.x); touchLine.setAttribute('x2', c.x); touchLine.setAttribute('opacity', '1');
+    touchDot.setAttribute('cx', c.x); touchDot.setAttribute('cy', c.y); touchDot.setAttribute('opacity', '1');
+    tooltipVal.textContent = p.value;
+    tooltipDate.textContent = fmtDateShort(p.date);
+    tooltipVal.style.opacity = '1';
+    tooltipDate.style.opacity = '1';
+    // Position tooltip labels
+    var labelX = c.x;
+    tooltipVal.style.left = labelX + 'px';
+    tooltipVal.style.transform = 'translateX(-50%)';
+    tooltipDate.style.left = labelX + 'px';
+    tooltipDate.style.transform = 'translateX(-50%)';
+  }
+
+  function hideTooltip() {
+    touchLine.setAttribute('opacity', '0');
+    touchDot.setAttribute('opacity', '0');
+    tooltipVal.style.opacity = '0';
+    tooltipDate.style.opacity = '0';
+  }
+
+  svg.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    var idx = findNearest(e.touches[0].clientX);
+    showTooltip(idx);
+  }, {passive: false});
+
+  svg.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    var idx = findNearest(e.touches[0].clientX);
+    showTooltip(idx);
+  }, {passive: false});
+
+  svg.addEventListener('touchend', function() { hideTooltip(); }, {passive: true});
+  svg.addEventListener('touchcancel', function() { hideTooltip(); }, {passive: true});
 }
 
 $("profile-back").onclick = () => {
