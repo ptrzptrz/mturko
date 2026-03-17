@@ -16,10 +16,10 @@
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"></noscript>
 <style>
 /* ── Reset & Base ── */
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
 html{background:#161512}
 body{background:#161512;font-family:'Inter',system-ui,sans-serif;color:#e8e6e3;max-width:480px;margin:0 auto;height:100dvh;overflow:hidden}
-input,select,textarea{background:#2a2724;border:1px solid #3a3630;border-radius:10px;color:#e8e6e3;padding:13px 14px;font-size:16px;font-family:inherit;width:100%;outline:none;display:block}
+input,select,textarea{background:#2a2724;border:1px solid #3a3630;border-radius:10px;color:#e8e6e3;padding:13px 14px;font-size:16px;font-family:inherit;width:100%;outline:none;display:block;-webkit-user-select:text;user-select:text}
 input:focus,select:focus,textarea:focus{border-color:#6a6560}
 input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0px 1000px #161512 inset;-webkit-text-fill-color:#e8e6e3}
 input::placeholder,textarea::placeholder{color:#4a4642}
@@ -75,7 +75,7 @@ body.sheet-open #sa-cover{background:#000000}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:#252220}
 
 /* ── Notif ── */
-.notif{position:fixed;top:calc(env(safe-area-inset-top,20px) + 20px);left:50%;transform:translateX(-50%) translateY(-4px);background:#e8e6e3;color:#161512;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;max-width:90vw;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5);opacity:0;transition:opacity .2s,transform .2s}
+.notif{position:fixed;top:calc(env(safe-area-inset-top,20px) + 58px);left:50%;transform:translateX(-50%) translateY(-4px);background:#e8e6e3;color:#161512;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;max-width:90vw;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5);opacity:0;transition:opacity .2s,transform .2s}
 .notif.err{background:#2a1010;color:#e87070;border:1px solid rgba(200,50,50,.2)}
 @keyframes glowWin{0%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0px rgba(98,153,36,0)}50%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 30px rgba(98,153,36,.12)}100%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0px rgba(98,153,36,0)}}
 .notif.result{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 120px);left:50%;font-size:16px;font-weight:700;padding:14px 28px;border-radius:16px;letter-spacing:-.2px;box-shadow:0 4px 24px rgba(0,0,0,.5)}
@@ -572,12 +572,11 @@ body.sheet-open #sa-cover{background:#000000}
 .prof-trend{font-size:12px;color:#4a4642}
 .prof-trend .elo-up{color:#3d6b1a;font-weight:600}
 .prof-trend .elo-down{color:#7a2020;font-weight:600}
-.prof-chart-wrap{margin-bottom:14px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;min-height:160px}
+.prof-chart-wrap{margin-bottom:14px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .prof-chart-wrap::-webkit-scrollbar{display:none}
 .prof-kebab{position:absolute;top:8px;right:0;background:none;border:none;color:#3a3630;font-size:20px;cursor:pointer;padding:8px 12px;line-height:1;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
 .prof-kebab:active{color:#6a6560}
-canvas{display:block}
-.prof-chart-wrap canvas{width:auto!important}
+canvas{width:100%!important;display:block}
 .prof-section-label{font-size:10px;font-weight:600;color:#3a3630;text-transform:uppercase;letter-spacing:1.4px;margin-bottom:8px;margin-top:18px}
 .prof-h2h{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
 .prof-h2h-label{font-size:14px;color:#e8e6e3;font-weight:600}
@@ -612,7 +611,7 @@ canvas{display:block}
 .prof-day-wld .d{color:#4a4642}
 .prof-day-matches{overflow:hidden;max-height:0;transition:max-height .3s ease}
 .prof-day-matches.expanded{max-height:2000px}
-.prof-match-row{padding:11px 14px;border-bottom:0.5px solid #252220;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.prof-match-row{padding:11px 14px 11px 24px;border-bottom:0.5px solid #252220;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent;background:#1a1714}
 .prof-match-row:active{background:#252220}
 .prof-match-row:last-child{border-bottom:none}
 .prof-match-left{flex:1;min-width:0}
@@ -795,7 +794,7 @@ canvas{display:block}
       <div class="prof-scroll" id="prof-scroll">
         <div id="prof-elo-section"></div>
         <div class="prof-chart-wrap">
-          <canvas id="elo-chart" height="140"></canvas>
+          <canvas id="elo-chart" height="120"></canvas>
         </div>
         <div id="prof-h2h"></div>
         <div id="prof-best-wins"></div>
@@ -3205,7 +3204,7 @@ function renderRivals(playerId, matchH) {
     const opp = getP(r.id);
     return `<div class="prof-rival-row" onclick="openProfile('${r.id}','profile')">
       <div class="prof-rival-name">${opp?.nickname || '?'}</div>
-      <div class="prof-rival-record"><span class="w">${r.wins}</span>-<span class="l">${r.losses}</span>${r.draws > 0 ? '-<span class="d">' + r.draws + '</span>' : ''}</div>
+      <div class="prof-rival-record"><span class="w">${r.wins}</span>-<span class="l">${r.losses}</span>-<span class="d">${r.draws}</span></div>
     </div>`;
   }).join('');
 
@@ -3220,12 +3219,13 @@ function renderProfileCTA(player) {
   const isOnline = player.last_seen_at && (Date.now() - new Date(player.last_seen_at).getTime()) < 30000;
   const isPlaying = player.is_playing;
 
-  let btnClass, btnText, btnAction;
   if(!isOnline) {
-    btnClass = 'disabled';
-    btnText = 'Offline';
-    btnAction = '';
-  } else if(isPlaying) {
+    $("prof-cta-wrap").innerHTML = '';
+    return;
+  }
+
+  let btnClass, btnText, btnAction;
+  if(isPlaying) {
     btnClass = 'disabled';
     btnText = 'In partita';
     btnAction = '';
@@ -3280,7 +3280,7 @@ function renderDayGroups(matchH, eloMap, playerId) {
     var eloRange = eloStart !== null ? eloStart + '→' + eloEnd + deltaStr : '';
     var groupId = 'prof-day-' + dayIdx;
 
-    var wldHtml = '<div class="prof-day-wld"><span class="w">' + wins + '</span>-<span class="l">' + losses + '</span>' + (draws > 0 ? '-<span class="d">' + draws + '</span>' : '') + '</div>';
+    var wldHtml = '<div class="prof-day-wld"><span class="w">' + wins + '</span>-<span class="l">' + losses + '</span>-<span class="d">' + draws + '</span></div>';
 
     html += '<div class="prof-day-row" onclick="toggleDayGroup(&quot;' + groupId + '&quot;)">' +
       '<div class="prof-day-left">' +
@@ -3322,7 +3322,15 @@ function renderDayGroups(matchH, eloMap, playerId) {
 
 function toggleDayGroup(id) {
   var el = document.getElementById(id);
-  if(el) el.classList.toggle('expanded');
+  if(!el) return;
+  var isOpen = el.classList.contains('expanded');
+  // Chiudi tutte le altre
+  document.querySelectorAll('.prof-day-matches.expanded').forEach(function(m) {
+    if(m.id !== id) m.classList.remove('expanded');
+  });
+  // Toggle questa
+  if(isOpen) el.classList.remove('expanded');
+  else el.classList.add('expanded');
 }
 
 // ── Swipe-back profilo ──
@@ -3415,13 +3423,9 @@ function drawEloChart(eloH, currentElo) {
   var peakIndex = data.indexOf(peakValue);
 
   var chartWidth = Math.max(320, data.length * 10);
-  var dpr = window.devicePixelRatio || 1;
   canvas.style.width = chartWidth + 'px';
-  canvas.style.height = '140px';
-  canvas.width = chartWidth * dpr;
-  canvas.height = 140 * dpr;
-  var ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
+  canvas.width = chartWidth;
+  canvas.height = 120;
 
   eloChartInstance = new Chart(canvas, {
     type: 'line',
