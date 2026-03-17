@@ -28,7 +28,7 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 
 /* ── Layout ── */
 #auth{min-height:100dvh;display:flex;flex-direction:column;justify-content:flex-start;padding:env(safe-area-inset-top,40px) 24px 40px;padding-top:max(env(safe-area-inset-top,0px) + 60px, 80px);gap:40px}
-#main{height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+#main{height:100dvh;display:flex;flex-direction:column;overflow:hidden;padding-top:calc(env(safe-area-inset-top,20px) + 8px)}
 .pages{flex:1;overflow:hidden;display:flex;flex-direction:column}
 .page{display:none;flex:1;overflow:hidden}
 .page.active{display:flex;flex-direction:column}
@@ -597,21 +597,20 @@ canvas{width:100%!important;display:block}
 .prof-bw-name{font-size:14px;font-weight:600;color:#e8e6e3}
 .prof-bw-elo{font-size:13px;color:#3d6b1a;font-weight:700}
 .prof-bw-meta{font-size:11px;color:#4a4642;margin-top:1px}
-.prof-day-row{padding:10px 14px;border-bottom:0.5px solid #252220;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent;background:#1d1a16}
+.prof-day-row{padding:10px 14px;border-bottom:0.5px solid #252220;display:flex;align-items:flex-start;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .prof-day-row:active{background:#252220}
 .prof-day-label{font-size:12px;color:#e8e6e3;font-weight:600}
-.prof-day-right{display:flex;align-items:center;gap:8px}
-.prof-day-summary{font-size:11px;color:#4a4642}
-.prof-day-summary .elo-up{color:#3d6b1a}
-.prof-day-summary .elo-down{color:#7a2020}
+.prof-day-left{flex:1;min-width:0}
+.prof-day-sub{font-size:11px;color:#4a4642;margin-top:2px}
+.prof-day-sub .elo-up{color:#3d6b1a}
+.prof-day-sub .elo-down{color:#7a2020}
+.prof-day-right{flex-shrink:0;text-align:right}
 .prof-day-wld{font-size:11px;font-weight:600}
 .prof-day-wld .w{color:#3d6b1a}
 .prof-day-wld .l{color:#7a2020}
 .prof-day-wld .d{color:#4a4642}
-.prof-day-chevron{color:#3a3630;font-size:10px;transition:transform .2s ease}
 .prof-day-matches{overflow:hidden;max-height:0;transition:max-height .3s ease}
 .prof-day-matches.expanded{max-height:2000px}
-.prof-day-group.collapsed .prof-day-chevron{transform:rotate(-90deg)}
 .prof-match-row{padding:11px 14px;border-bottom:0.5px solid #252220;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .prof-match-row:active{background:#252220}
 .prof-match-row:last-child{border-bottom:none}
@@ -3205,7 +3204,7 @@ function renderRivals(playerId, matchH) {
     const opp = getP(r.id);
     return `<div class="prof-rival-row" onclick="openProfile('${r.id}','profile')">
       <div class="prof-rival-name">${opp?.nickname || '?'}</div>
-      <div class="prof-rival-record"><span class="w">${r.wins}</span>-<span class="l">${r.losses}</span></div>
+      <div class="prof-rival-record"><span class="w">${r.wins}</span>-<span class="l">${r.losses}</span>${r.draws > 0 ? '-<span class="d">' + r.draws + '</span>' : ''}</div>
     </div>`;
   }).join('');
 
@@ -3275,22 +3274,22 @@ function renderDayGroups(matchH, eloMap, playerId) {
     var eloEnd = dayElos.length ? dayElos[dayElos.length - 1].elo_after : null;
     var totalDelta = dayElos.length ? eloEnd - eloStart : 0;
     var deltaClass = totalDelta > 0 ? 'elo-up' : totalDelta < 0 ? 'elo-down' : '';
-    var deltaStr = totalDelta !== 0 ? '<span class="' + deltaClass + '">' + (totalDelta > 0 ? '+' : '') + totalDelta + '</span>' : '';
-    var eloRange = eloStart !== null ? eloStart + '→' + eloEnd + ' ' : '';
+    var deltaStr = totalDelta !== 0 ? ' <span class="' + deltaClass + '">' + (totalDelta > 0 ? '+' : '') + totalDelta + '</span>' : '';
 
-    var expanded = dayIdx === 0 ? ' expanded' : '';
+    var eloRange = eloStart !== null ? eloStart + '→' + eloEnd + deltaStr : '';
     var groupId = 'prof-day-' + dayIdx;
 
+    var wldHtml = '<div class="prof-day-wld"><span class="w">' + wins + '</span>-<span class="l">' + losses + '</span>' + (draws > 0 ? '-<span class="d">' + draws + '</span>' : '') + '</div>';
+
     html += '<div class="prof-day-row" onclick="toggleDayGroup(&quot;' + groupId + '&quot;)">' +
-      '<div class="prof-day-label">' + day + '</div>' +
-      '<div class="prof-day-right">' +
-        '<div class="prof-day-summary">' + eloRange + deltaStr + '</div>' +
-        '<div class="prof-day-wld"><span class="w">' + wins + '</span>-<span class="l">' + losses + '</span>' + (draws > 0 ? '-<span class="d">' + draws + '</span>' : '') + '</div>' +
-        '<span class="prof-day-chevron">▼</span>' +
+      '<div class="prof-day-left">' +
+        '<div class="prof-day-label">' + day + '</div>' +
+        (eloRange ? '<div class="prof-day-sub">' + eloRange + '</div>' : '') +
       '</div>' +
+      '<div class="prof-day-right">' + wldHtml + '</div>' +
     '</div>';
 
-    html += '<div class="prof-day-matches' + expanded + '" id="' + groupId + '">';
+    html += '<div class="prof-day-matches" id="' + groupId + '">';
     validMs.forEach(function(m) {
       var isP1 = m.p1 === playerId;
       var oppId = isP1 ? m.p2 : m.p1;
@@ -3414,10 +3413,10 @@ function drawEloChart(eloH, currentElo) {
   var peakValue = Math.max.apply(null, data);
   var peakIndex = data.indexOf(peakValue);
 
-  var chartWidth = Math.max(300, data.length * 4);
+  var chartWidth = Math.max(320, data.length * 10);
   canvas.style.width = chartWidth + 'px';
-  canvas.width = chartWidth * 2;
-  canvas.height = 240;
+  canvas.width = chartWidth;
+  canvas.height = 120;
 
   eloChartInstance = new Chart(canvas, {
     type: 'line',
@@ -3427,7 +3426,7 @@ function drawEloChart(eloH, currentElo) {
         data: data,
         borderColor: '#e8e6e3',
         backgroundColor: 'rgba(255,255,255,0.04)',
-        borderWidth: 2,
+        borderWidth: 2.5,
         pointRadius: data.map(function(v, i) { return i === peakIndex ? 4 : 0; }),
         pointBackgroundColor: data.map(function(v, i) { return i === peakIndex ? '#629924' : 'transparent'; }),
         pointHoverRadius: 5,
