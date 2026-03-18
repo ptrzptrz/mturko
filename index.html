@@ -1332,26 +1332,58 @@ $("r-pass").addEventListener("input", function() {
   } else {
     setFieldState('r-pass', 'r-pass-hint', 'r-pass-check', 'valid', '');
   }
-  validateConfirmMatch();
+  // Re-check confirm field if it has content
+  var conf = $("r-conf").value;
+  var pass = this.value;
+  if(conf) {
+    if(conf === pass && pass.length >= 6) {
+      setFieldState('r-conf', 'r-conf-hint', 'r-conf-check', 'valid', '');
+    } else {
+      // Don't show error — user might not have re-typed yet
+      var confInput = $('r-conf');
+      if(confInput) confInput.classList.remove('valid','invalid');
+      var confCheck = $('r-conf-check');
+      if(confCheck) confCheck.innerHTML = '';
+      var confHint = $('r-conf-hint');
+      if(confHint) { confHint.textContent = ''; confHint.className = 'auth-field-hint'; }
+    }
+  }
   validateRegForm();
 });
 
 $("r-conf").addEventListener("input", function() {
-  validateConfirmMatch();
+  var pass = $("r-pass").value;
+  var conf = this.value;
+  var checkWrap = $('r-conf-check');
+  var hint = $('r-conf-hint');
+  var input = $('r-conf');
+  
+  if(!conf) {
+    // Empty — reset everything
+    if(input) input.classList.remove('valid','invalid');
+    if(hint) { hint.textContent = ''; hint.className = 'auth-field-hint'; }
+    if(checkWrap) checkWrap.innerHTML = '';
+  } else if(conf === pass && pass.length >= 6) {
+    // Match — green immediately
+    setFieldState('r-conf', 'r-conf-hint', 'r-conf-check', 'valid', '');
+  } else {
+    // Typing but not matching yet — stay neutral (no red while typing)
+    if(input) input.classList.remove('valid','invalid');
+    if(hint) { hint.textContent = ''; hint.className = 'auth-field-hint'; }
+    if(checkWrap) checkWrap.innerHTML = '';
+  }
   validateRegForm();
 });
 
-function validateConfirmMatch() {
+// On blur — if doesn't match, show error
+$("r-conf").addEventListener("blur", function() {
   var pass = $("r-pass").value;
-  var conf = $("r-conf").value;
-  if(!conf) {
-    setFieldState('r-conf', 'r-conf-hint', 'r-conf-check', '', '');
-  } else if(conf === pass && pass.length >= 6) {
-    setFieldState('r-conf', 'r-conf-hint', 'r-conf-check', 'valid', '');
-  } else {
+  var conf = this.value;
+  if(conf && conf !== pass) {
     setFieldState('r-conf', 'r-conf-hint', 'r-conf-check', 'invalid', 'Non coincidono');
   }
-}
+  validateRegForm();
+});
 
 function validateRegForm() {
   var nick = $("r-nick").value.trim();
