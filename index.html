@@ -26,7 +26,6 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 .hidden{display:none!important}
 
 /* ── Layout ── */
-#auth{min-height:100dvh;display:flex;flex-direction:column;justify-content:flex-start;padding:env(safe-area-inset-top,40px) 24px 40px;padding-top:max(env(safe-area-inset-top,0px) + 60px, 80px);gap:40px}
 #main{height:100dvh;display:flex;flex-direction:column;overflow:hidden;padding-top:calc(env(safe-area-inset-top,20px) + 12px)}
 .pages{flex:1;overflow:hidden;display:flex;flex-direction:column}
 .page{display:none;flex:1;overflow:hidden}
@@ -49,11 +48,32 @@ body.sheet-open #sa-cover{background:#000000}
 .badge{position:absolute;top:8px;right:calc(50% - 20px);background:#c33;color:#fff;border-radius:8px;padding:0 5px;font-size:9px;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center}
 
 /* ── Auth ── */
-.auth-wordmark{text-align:center;padding-top:8px}
-.auth-name{font-size:64px;font-weight:800;color:#e8e6e3;letter-spacing:-3px;line-height:1;display:block}
-.auth-tagline{font-size:12px;color:#3a3630;letter-spacing:2px;text-transform:uppercase;margin-top:8px;display:block}
-.box{padding:0}
-.box-label{font-size:11px;color:#4a4642;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:24px;display:block}
+#auth{min-height:100dvh;display:flex;flex-direction:column;background:#161512;position:relative}
+#auth-splash{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 24px;padding-bottom:20vh}
+.auth-wordmark{text-align:center}
+.auth-name{font-size:64px;font-weight:800;color:#e8e6e3;letter-spacing:-3px;line-height:1;display:block;animation:authFadeIn .6s ease}
+.auth-tagline{font-size:12px;color:#3a3630;letter-spacing:2px;text-transform:uppercase;margin-top:8px;display:block;animation:authFadeIn .6s ease .15s both}
+.auth-actions{margin-top:48px;width:100%;max-width:320px;animation:authFadeIn .6s ease .3s both}
+@keyframes authFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Auth sheets */
+.auth-sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:10001;display:flex;align-items:flex-end;pointer-events:none;transition:background .35s ease}
+.auth-sheet-overlay.visible{background:rgba(0,0,0,.6);pointer-events:all}
+.auth-sheet{background:#161512;border-radius:24px 24px 0 0;padding:8px 24px calc(24px + env(safe-area-inset-bottom,0px));width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .4s cubic-bezier(.32,0,.24,1)}
+.auth-sheet-overlay.visible .auth-sheet{transform:translateY(0)}
+.auth-sheet-handle{width:36px;height:4px;background:#2a2724;border-radius:2px;margin:0 auto 20px}
+.auth-sheet-title{font-size:22px;font-weight:800;color:#e8e6e3;margin-bottom:24px;letter-spacing:-.5px}
+.auth-sheet .frow{margin-bottom:4px}
+.auth-sheet .btn-g{margin-top:20px}
+.auth-sheet-footer{font-size:11px;color:#3a3630;text-align:center;margin-top:16px}
+
+/* Field status indicators */
+.auth-field-status{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:13px;opacity:0;transition:opacity .2s}
+.auth-field-status.ok{color:#629924;opacity:1}
+.auth-field-status.err{color:#7a2020;opacity:1}
+.auth-field-hint{font-size:11px;color:#3a3630;margin-bottom:12px;min-height:16px;transition:color .2s}
+.auth-field-hint.ok{color:#3d6b1a}
+.auth-field-hint.err{color:#7a2020}
 .frow{margin-bottom:16px;position:relative}
 .auth-input{background:transparent;border:none;border-bottom:1px solid #2a2724;border-radius:0;padding:14px 0;font-size:17px;font-weight:500;color:#e8e6e3;width:100%;outline:none;display:block;transition:border-color .2s ease}
 .auth-input:focus{border-bottom-color:#e8e6e3}
@@ -66,7 +86,6 @@ body.sheet-open #sa-cover{background:#000000}
 .btn-o:active{color:#e8e6e3}
 .err{color:#c33;font-size:13px;margin-top:12px;min-height:18px;opacity:0;transition:opacity .2s ease}
 .err.visible{opacity:1}
-.auth-hint{font-size:11px;color:#3a3630;margin-bottom:20px;line-height:1.5}
 
 /* ── Common ── */
 .empty{color:#3a3630;text-align:center;margin-top:48px;font-size:14px}
@@ -698,28 +717,53 @@ body.sheet-open #sa-cover{background:#000000}
 
 <!-- AUTH -->
 <div id="auth">
-  <div class="auth-wordmark">
-    <span class="auth-name">turko</span>
-    <span class="auth-tagline">built for over-the-board chess</span>
-  </div>
-  <div id="box-login" class="box">
-    <span class="box-label">Accedi</span>
-    <div class="frow"><input id="l-nick" class="auth-input" placeholder="nickname" autocomplete="username" autocorrect="off" autocapitalize="none" spellcheck="false"></div>
-    <div class="frow"><input id="l-pass" class="auth-input" type="password" placeholder="password" autocomplete="current-password"></div>
-    <div id="l-err" class="err"></div>
-    <button id="l-btn" class="btn-g">Entra</button>
-    <button id="l-toreg" class="btn-o">Crea account</button>
+  <!-- Splash -->
+  <div id="auth-splash">
+    <div class="auth-wordmark">
+      <span class="auth-name">turko</span>
+      <span class="auth-tagline">scacchi dal vivo</span>
+    </div>
+    <div class="auth-actions">
+      <button class="btn-g" id="auth-go-reg">Inizia</button>
+      <button class="btn-o" id="auth-go-login">Hai già un account? <strong>Accedi</strong></button>
+    </div>
   </div>
 
-  <div id="box-reg" class="box hidden">
-    <span class="box-label">Nuovo account</span>
-    <div class="auth-hint">Non perdere la password, non la puoi recuperare.</div>
-    <div class="frow"><input id="r-nick" class="auth-input" placeholder="nickname (3-20 caratteri)" autocomplete="username" autocorrect="off" autocapitalize="none" spellcheck="false" maxlength="20"></div>
-    <div class="frow"><input id="r-pass" class="auth-input" type="password" placeholder="password" autocomplete="new-password"></div>
-    <div class="frow"><input id="r-conf" class="auth-input" type="password" placeholder="conferma password" autocomplete="new-password"></div>
-    <div id="r-err" class="err"></div>
-    <button id="r-btn" class="btn-g">Registrati</button>
-    <button id="r-tolog" class="btn-o">Accedi</button>
+  <!-- Login sheet -->
+  <div id="auth-login-overlay" class="auth-sheet-overlay">
+    <div class="auth-sheet" id="auth-login-sheet">
+      <div class="auth-sheet-handle"></div>
+      <div class="auth-sheet-title">Bentornato</div>
+      <div class="frow"><input id="l-nick" class="auth-input" placeholder="Nickname" autocomplete="username" autocorrect="off" autocapitalize="none" spellcheck="false"></div>
+      <div class="frow"><input id="l-pass" class="auth-input" type="password" placeholder="Password" autocomplete="current-password"></div>
+      <div id="l-err" class="err"></div>
+      <button id="l-btn" class="btn-g">Entra</button>
+    </div>
+  </div>
+
+  <!-- Register sheet -->
+  <div id="auth-reg-overlay" class="auth-sheet-overlay">
+    <div class="auth-sheet" id="auth-reg-sheet">
+      <div class="auth-sheet-handle"></div>
+      <div class="auth-sheet-title">Crea account</div>
+      <div class="frow" style="position:relative">
+        <input id="r-nick" class="auth-input" placeholder="Nickname" autocomplete="username" autocorrect="off" autocapitalize="none" spellcheck="false" maxlength="20">
+        <div id="r-nick-status" class="auth-field-status"></div>
+      </div>
+      <div class="auth-field-hint" id="r-nick-hint">3-20 caratteri. Lettere, numeri, _ e -</div>
+      <div class="frow" style="position:relative">
+        <input id="r-pass" class="auth-input" type="password" placeholder="Password" autocomplete="new-password">
+        <div id="r-pass-strength" class="auth-field-status"></div>
+      </div>
+      <div class="auth-field-hint" id="r-pass-hint">Minimo 6 caratteri</div>
+      <div class="frow">
+        <input id="r-conf" class="auth-input" type="password" placeholder="Conferma password" autocomplete="new-password">
+      </div>
+      <div class="auth-field-hint" id="r-conf-hint"></div>
+      <div id="r-err" class="err"></div>
+      <button id="r-btn" class="btn-g" disabled>Registrati</button>
+      <div class="auth-sheet-footer">Non potrai recuperare la password.</div>
+    </div>
   </div>
 </div>
 
@@ -892,6 +936,31 @@ let me = null, players = [], matches = [], activeMatch = null, pollTimer = null,
 let globalMatches = [];
 let globalEloCache = {};
 let globalEvents = [];
+
+// ── Auto-login: restore session on PWA reopen ──
+(async function autoLogin() {
+  try {
+    var sess = await supabaseClient.auth.getSession();
+    if(sess && sess.data && sess.data.session && sess.data.session.access_token) {
+      authToken = sess.data.session.access_token;
+      var uid = sess.data.session.user.id;
+      // Fetch profile
+      var res = await fetch(SUPA_URL + '/rest/v1/players?id=eq.' + uid + '&select=*', {
+        headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + authToken}
+      });
+      var profiles = await res.json();
+      if(Array.isArray(profiles) && profiles[0]) {
+        enterApp(profiles[0]);
+        return;
+      }
+    }
+  } catch(e) { /* no session, show auth */ }
+  // No valid session — show splash
+  document.getElementById('auth').style.opacity = '1';
+})();
+
+// Hide auth initially until we know if session exists
+(function() { document.getElementById('auth').style.opacity = '0'; document.getElementById('auth').style.transition = 'opacity .3s ease'; })();
 
 function startPolling() {
   stopPolling();
@@ -1131,9 +1200,158 @@ function fmtDate(iso, relative=false) {
 }
 
 // --- AUTH ---
-$("l-toreg").onclick = () => { $("box-login").classList.add("hidden"); $("box-reg").classList.remove("hidden"); clearErr("l-err"); };
-$("r-tolog").onclick = () => { $("box-reg").classList.add("hidden"); $("box-login").classList.remove("hidden"); clearErr("r-err"); };
-$("l-pass").addEventListener("keydown", e => { if(e.key==="Enter") doLogin(); });
+// ── Auth sheet handlers ──
+function openAuthSheet(id) {
+  var overlay = $(id);
+  if(!overlay) return;
+  overlay.classList.add('visible');
+  // Focus first input after animation
+  setTimeout(function() {
+    var inp = overlay.querySelector('.auth-input');
+    if(inp) inp.focus();
+  }, 400);
+}
+function closeAuthSheet(id) {
+  var overlay = $(id);
+  if(!overlay) return;
+  overlay.classList.remove('visible');
+}
+
+$("auth-go-reg").onclick = function() { openAuthSheet('auth-reg-overlay'); };
+$("auth-go-login").onclick = function() { openAuthSheet('auth-login-overlay'); };
+
+// Close sheets on overlay tap
+$("auth-login-overlay").onclick = function(e) { if(e.target === this) closeAuthSheet('auth-login-overlay'); };
+$("auth-reg-overlay").onclick = function(e) { if(e.target === this) closeAuthSheet('auth-reg-overlay'); };
+
+// ── Live validation for registration ──
+var _nickCheckTimer = null;
+
+$("r-nick").addEventListener("input", function() {
+  var nick = this.value.trim();
+  var status = $("r-nick-status");
+  var hint = $("r-nick-hint");
+  clearTimeout(_nickCheckTimer);
+  
+  if(!nick) {
+    status.className = 'auth-field-status';
+    hint.textContent = '3-20 caratteri. Lettere, numeri, _ e -';
+    hint.className = 'auth-field-hint';
+    validateRegForm();
+    return;
+  }
+  if(nick.length < 3) {
+    status.textContent = '';
+    status.className = 'auth-field-status';
+    hint.textContent = 'Ancora ' + (3 - nick.length) + ' caratteri';
+    hint.className = 'auth-field-hint';
+    validateRegForm();
+    return;
+  }
+  if(!/^[a-zA-Z0-9_-]+$/.test(nick)) {
+    status.textContent = '✗';
+    status.className = 'auth-field-status err';
+    hint.textContent = 'Solo lettere, numeri, _ e -';
+    hint.className = 'auth-field-hint err';
+    validateRegForm();
+    return;
+  }
+  // Check availability (debounced)
+  status.textContent = '...';
+  status.className = 'auth-field-status ok';
+  hint.textContent = 'Verifico...';
+  hint.className = 'auth-field-hint';
+  _nickCheckTimer = setTimeout(async function() {
+    try {
+      var res = await fetch(SUPA_URL + '/rest/v1/players?nickname=ilike.' + encodeURIComponent(nick) + '&select=id', {
+        headers: {'apikey': SUPA_KEY}
+      });
+      var data = await res.json();
+      if(Array.isArray(data) && data.length > 0) {
+        status.textContent = '✗';
+        status.className = 'auth-field-status err';
+        hint.textContent = 'Nickname già in uso';
+        hint.className = 'auth-field-hint err';
+      } else {
+        status.textContent = '✓';
+        status.className = 'auth-field-status ok';
+        hint.textContent = 'Disponibile';
+        hint.className = 'auth-field-hint ok';
+      }
+    } catch(e) {
+      status.className = 'auth-field-status';
+      hint.textContent = '';
+      hint.className = 'auth-field-hint';
+    }
+    validateRegForm();
+  }, 500);
+});
+
+$("r-pass").addEventListener("input", function() {
+  var pass = this.value;
+  var strength = $("r-pass-strength");
+  var hint = $("r-pass-hint");
+  
+  if(!pass) {
+    strength.className = 'auth-field-status';
+    hint.textContent = 'Minimo 6 caratteri';
+    hint.className = 'auth-field-hint';
+  } else if(pass.length < 6) {
+    strength.textContent = 'Ancora ' + (6 - pass.length);
+    strength.className = 'auth-field-status err';
+    hint.textContent = 'Troppo corta';
+    hint.className = 'auth-field-hint err';
+  } else if(pass.length < 10) {
+    strength.textContent = '✓';
+    strength.className = 'auth-field-status ok';
+    hint.textContent = 'OK';
+    hint.className = 'auth-field-hint ok';
+  } else {
+    strength.textContent = '✓✓';
+    strength.className = 'auth-field-status ok';
+    hint.textContent = 'Forte';
+    hint.className = 'auth-field-hint ok';
+  }
+  validateConfirmMatch();
+  validateRegForm();
+});
+
+$("r-conf").addEventListener("input", function() {
+  validateConfirmMatch();
+  validateRegForm();
+});
+
+function validateConfirmMatch() {
+  var pass = $("r-pass").value;
+  var conf = $("r-conf").value;
+  var hint = $("r-conf-hint");
+  if(!conf) {
+    hint.textContent = '';
+    hint.className = 'auth-field-hint';
+  } else if(conf === pass) {
+    hint.textContent = 'Coincidono ✓';
+    hint.className = 'auth-field-hint ok';
+  } else {
+    hint.textContent = 'Non coincidono';
+    hint.className = 'auth-field-hint err';
+  }
+}
+
+function validateRegForm() {
+  var nick = $("r-nick").value.trim();
+  var pass = $("r-pass").value;
+  var conf = $("r-conf").value;
+  var nickOk = nick.length >= 3 && /^[a-zA-Z0-9_-]+$/.test(nick);
+  var nickStatus = $("r-nick-status");
+  var nickAvailable = nickStatus && nickStatus.textContent === '✓';
+  var passOk = pass.length >= 6;
+  var confOk = pass === conf && conf.length > 0;
+  $("r-btn").disabled = !(nickOk && nickAvailable && passOk && confOk);
+}
+
+// Enter key handlers
+$("l-pass").addEventListener("keydown", function(e) { if(e.key==="Enter") doLogin(); });
+$("r-conf").addEventListener("keydown", function(e) { if(e.key==="Enter" && !$("r-btn").disabled) doRegister(); });
 $("l-btn").onclick = doLogin;
 $("r-btn").onclick = doRegister;
 
@@ -1143,15 +1361,13 @@ async function doLogin() {
   const pass = $("l-pass").value;
   if(!nick || !pass) return setErr("l-err", "Compila tutti i campi.")
   setLoading("l-btn", true, "Entro...");
-  const res = await fetch(`${SUPA_URL}/auth/v1/token?grant_type=password`, {
-    method: "POST",
-    headers: {"apikey": SUPA_KEY, "Content-Type": "application/json"},
-    body: JSON.stringify({email: nick.toLowerCase()+"@barscacchi.local", password: pass})
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: nick.toLowerCase() + "@barscacchi.local",
+    password: pass
   });
-  const data = await res.json();
   setLoading("l-btn", false, "Entra");
-  if(data.error || !data.access_token) return setErr("l-err", "Nickname o password errati.")
-  authToken = data.access_token;
+  if(error || !data.session) return setErr("l-err", "Nickname o password errati.")
+  authToken = data.session.access_token;
   const profile = await db.get("players", `id=eq.${data.user.id}&select=*`);
   if(!Array.isArray(profile) || !profile[0]) return setErr("l-err", "Profilo non trovato.")
   enterApp(profile[0]);
@@ -1169,29 +1385,24 @@ async function doRegister() {
   if(pass.length < 6) return setErr("r-err", "Password minimo 6 caratteri.")
   if(pass !== conf) return setErr("r-err", "Le password non coincidono.")
   setLoading("r-btn", true, "Registro...");
-  const res = await fetch(`${SUPA_URL}/auth/v1/signup`, {
-    method: "POST",
-    headers: {"apikey": SUPA_KEY, "Content-Type": "application/json"},
-    body: JSON.stringify({email: nick.toLowerCase()+"@barscacchi.local", password: pass})
+
+  // Try signup
+  const { data: signUpData, error: signUpErr } = await supabaseClient.auth.signUp({
+    email: nick.toLowerCase() + "@barscacchi.local",
+    password: pass
   });
-  const data = await res.json();
-  if(data.error || data.error_code) {
-    const isExisting = data.error_code === "user_already_exists" || (data.error?.message||"").includes("already");
-    if(!isExisting) {
-      setLoading("r-btn", false, "Registrati");
-      return setErr("r-err", "Errore: " + (data.error?.message || data.msg))
-    }
-    const loginRes = await fetch(`${SUPA_URL}/auth/v1/token?grant_type=password`, {
-      method: "POST",
-      headers: {"apikey": SUPA_KEY, "Content-Type": "application/json"},
-      body: JSON.stringify({email: nick.toLowerCase()+"@barscacchi.local", password: pass})
+
+  if(signUpErr) {
+    // User might already exist — try login
+    const { data: loginData, error: loginErr } = await supabaseClient.auth.signInWithPassword({
+      email: nick.toLowerCase() + "@barscacchi.local",
+      password: pass
     });
-    const loginData = await loginRes.json();
-    if(!loginData.access_token) {
+    if(loginErr || !loginData.session) {
       setLoading("r-btn", false, "Registrati");
       return setErr("r-err", "Nickname già in uso.")
     }
-    authToken = loginData.access_token;
+    authToken = loginData.session.access_token;
     const existing = await db.get("players", `id=eq.${loginData.user.id}&select=*`);
     if(Array.isArray(existing) && existing[0]) {
       setLoading("r-btn", false, "Registrati");
@@ -1203,22 +1414,23 @@ async function doRegister() {
     enterApp(profile2[0]);
     return;
   }
-  if(!data.user) {
+
+  if(!signUpData.user) {
     setLoading("r-btn", false, "Registrati");
     return setErr("r-err", "Errore nella registrazione. Riprova.")
   }
-  const loginRes2 = await fetch(`${SUPA_URL}/auth/v1/token?grant_type=password`, {
-    method: "POST",
-    headers: {"apikey": SUPA_KEY, "Content-Type": "application/json"},
-    body: JSON.stringify({email: nick.toLowerCase()+"@barscacchi.local", password: pass})
+
+  // Sign in after signup to get session
+  const { data: loginData2, error: loginErr2 } = await supabaseClient.auth.signInWithPassword({
+    email: nick.toLowerCase() + "@barscacchi.local",
+    password: pass
   });
-  const loginData2 = await loginRes2.json();
-  if(!loginData2.access_token) {
+  if(loginErr2 || !loginData2.session) {
     setLoading("r-btn", false, "Registrati");
     return setErr("r-err", "Errore nel login dopo registrazione. Riprova.")
   }
-  authToken = loginData2.access_token;
-  const profile = await db.post("players", {id: data.user.id, nickname: nick});
+  authToken = loginData2.session.access_token;
+  const profile = await db.post("players", {id: signUpData.user.id, nickname: nick});
   setLoading("r-btn", false, "Registrati");
   if(!Array.isArray(profile) || !profile[0]) return setErr("r-err", "Nickname già in uso o errore.")
   enterApp(profile[0]);
@@ -1348,11 +1560,14 @@ async function doLogout() {
   stopRealtime();
   stopHeartbeat();
   await db.patch("players", `id=eq.${me.id}`, {last_seen_at: new Date(0).toISOString()});
-  await fetch(`${SUPA_URL}/auth/v1/logout`, {method:"POST", headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+authToken}});
+  await supabaseClient.auth.signOut();
   authToken = null; me = null; players = []; matches = []; activeMatch = null;
   $("main").classList.add("hidden");
   $("auth").classList.remove("hidden");
-  $("l-nick").value = ""; $("l-pass").value = "";
+  $("auth").style.opacity = "1";
+  // Close any open sheets
+  closeAuthSheet('auth-login-overlay');
+  closeAuthSheet('auth-reg-overlay');
 }
 
 // --- DATA ---
