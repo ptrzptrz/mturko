@@ -642,6 +642,14 @@ body.sheet-open #sa-cover{background:#000000}
 .prof-cta button.disabled{background:#252220;color:#4a4642;pointer-events:none}
 .back-btn{background:none;border:none;color:#4a4642;font-size:13px;padding:0;margin-bottom:12px;display:flex;align-items:center;gap:6px;cursor:pointer}
 .back-btn:active{opacity:.7}
+/* ── Skeleton loading ── */
+.skel{border-radius:6px;background:#252220;position:relative;overflow:hidden}
+.skel::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.03),transparent);animation:skel-shimmer 1.5s ease infinite}
+@keyframes skel-shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.skel-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:0.5px solid #252220}
+.skel-row:last-child{border-bottom:none}
+.skel-left{display:flex;flex-direction:column;gap:6px}
+.skel-chart{margin-bottom:14px}
 /* ── hrow — storico home ── */
 .hrow-wrap{position:relative;overflow:hidden;margin-bottom:0;background:transparent}
 .hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:0;overflow:hidden;display:flex;align-items:center;justify-content:center;pointer-events:none;transition:width 0s}
@@ -2973,7 +2981,7 @@ async function openProfile(playerId, fromPage, noPush) {
   $("prof-h2h").innerHTML = '';
   $("prof-best-wins").innerHTML = '';
   $("prof-rivals").innerHTML = '';
-  $("prof-day-groups").innerHTML = '<div class="empty">Carico...</div>';
+  $("prof-day-groups").innerHTML = skelProfileContent();
   $("prof-cta-wrap").innerHTML = '';
 
   // Only switch page if not already on profile
@@ -2995,6 +3003,36 @@ async function openProfile(playerId, fromPage, noPush) {
   renderRivals(playerId, currentProfileMatches);
   renderDayGroups(currentProfileMatches, eloMap, playerId);
   if(!isMe) renderProfileCTA(player);
+}
+
+// ── Skeleton screens ──
+function skelRow(nameW, valW) {
+  return '<div class="skel-row"><div class="skel-left"><div class="skel" style="width:' + nameW + 'px;height:14px"></div><div class="skel" style="width:' + Math.round(nameW * 0.6) + 'px;height:10px"></div></div><div class="skel" style="width:' + valW + 'px;height:14px"></div></div>';
+}
+
+function skelSection(label, rows) {
+  var html = '<div class="prof-section-label">' + label + '</div><div class="lb-group">';
+  for(var i = 0; i < rows; i++) {
+    var nw = 60 + Math.round(Math.random() * 40);
+    html += skelRow(nw, 30 + Math.round(Math.random() * 20));
+  }
+  return html + '</div>';
+}
+
+function skelChart() {
+  return '<div class="skel skel-chart" style="width:100%;height:140px;border-radius:12px"></div>';
+}
+
+function skelProfileContent() {
+  return skelChart() + skelSection('', 3) + skelSection('', 4);
+}
+
+function skelLeaderboard() {
+  var html = '<div class="skel" style="width:100%;height:80px;border-radius:14px;margin-bottom:12px"></div><div class="lb-group">';
+  for(var i = 0; i < 6; i++) {
+    html += '<div class="skel-row"><div style="display:flex;align-items:center;gap:10px"><div class="skel" style="width:20px;height:16px"></div><div class="skel" style="width:' + (60 + Math.round(Math.random() * 50)) + 'px;height:14px"></div></div><div class="skel" style="width:40px;height:16px"></div></div>';
+  }
+  return html + '</div>';
 }
 
 function renderProfileHeader(player) {
