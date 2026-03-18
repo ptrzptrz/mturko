@@ -16,8 +16,8 @@
 <style>
 /* ── Reset & Base ── */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
-html{background:#161512}
-body{background:#161512;font-family:'Inter',system-ui,sans-serif;color:#e8e6e3;max-width:480px;margin:0 auto;height:100dvh;overflow:hidden}
+html{background:#161512;overscroll-behavior:none}
+body{background:#161512;font-family:'Inter',system-ui,sans-serif;color:#e8e6e3;max-width:480px;margin:0 auto;height:100dvh;overflow:hidden;overscroll-behavior:none}
 input,select,textarea{background:#2a2724;border:1px solid #3a3630;border-radius:10px;color:#e8e6e3;padding:13px 14px;font-size:16px;font-family:inherit;width:100%;outline:none;display:block;-webkit-user-select:text;user-select:text}
 input:focus,select:focus,textarea:focus{border-color:#6a6560}
 input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0px 1000px #161512 inset;-webkit-text-fill-color:#e8e6e3}
@@ -269,7 +269,7 @@ body.sheet-open #sa-cover{background:#000000}
 }
 
 /* STEP 2: CAB è inline — padding bottom solo per navbar */
-#home-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:4px 16px calc(80px + env(safe-area-inset-bottom,0px))}
+#home-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:4px 16px calc(80px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
 #home-scroll::-webkit-scrollbar{display:none}
 
 /* ── STEP 2: Contextual Action Bar — inline sotto l'ELO ── */
@@ -488,7 +488,7 @@ body.sheet-open #sa-cover{background:#000000}
 .lb-chip{padding:8px 18px;border-radius:20px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:background .15s,color .15s;-webkit-tap-highlight-color:transparent;white-space:nowrap;border:none;outline:none;background:#252220;color:#6a6560}
 .lb-chip:active{opacity:.75}
 .lb-chip.active{background:#e8e6e3;color:#161512}
-.lb-view{display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:8px 16px calc(80px + env(safe-area-inset-bottom,0px))}
+.lb-view{display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:8px 16px calc(80px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
 .lb-view::-webkit-scrollbar{display:none}
 .lb-view.active{display:block}
 .lb-leader{background:#1d1a16;border:1px solid #3a3630;border-radius:14px;padding:20px 18px;margin-bottom:10px;display:flex;align-items:center;gap:16px;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -550,7 +550,7 @@ body.sheet-open #sa-cover{background:#000000}
 .feed-counter{font-size:13px;color:#6a6560;text-align:center;padding:8px 0 12px;font-weight:600}
 /* ── Profile ── */
 .prof-sticky{flex-shrink:0;background:#161512;padding:0 16px}
-.prof-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px calc(80px + env(safe-area-inset-bottom,0px))}
+.prof-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px calc(80px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
 .prof-scroll::-webkit-scrollbar{display:none}
 .prof-header{padding:8px 0 4px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .prof-header-left{flex:1;min-width:0}
