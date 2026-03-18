@@ -68,12 +68,23 @@ body.sheet-open #sa-cover{background:#000000}
 .auth-sheet-footer{font-size:11px;color:#3a3630;text-align:center;margin-top:16px}
 
 /* Field status indicators */
-.auth-field-status{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:13px;opacity:0;transition:opacity .2s}
-.auth-field-status.ok{color:#629924;opacity:1}
-.auth-field-status.err{color:#7a2020;opacity:1}
-.auth-field-hint{font-size:11px;color:#3a3630;margin-bottom:12px;min-height:16px;transition:color .2s}
+.auth-input.valid{border-bottom-color:#629924}
+.auth-input.invalid{border-bottom-color:#c33}
+.auth-field-hint{font-size:11px;color:#3a3630;margin-top:2px;margin-bottom:12px;min-height:16px;transition:color .2s}
 .auth-field-hint.ok{color:#3d6b1a}
-.auth-field-hint.err{color:#7a2020}
+.auth-field-hint.err{color:#c33}
+.check-circle{width:18px;height:18px;flex-shrink:0;display:inline-block;vertical-align:middle}
+.check-circle svg{display:block}
+.check-circle .circle{fill:none;stroke-width:1.5;stroke-linecap:round;stroke-dasharray:50;stroke-dashoffset:50}
+.check-circle.ok .circle{stroke:#629924;animation:circleIn .5s cubic-bezier(.2,0,.2,1) forwards}
+.check-circle.err .circle{stroke:#c33;animation:circleIn .5s cubic-bezier(.2,0,.2,1) forwards}
+.check-circle .mark{fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:20;stroke-dashoffset:20}
+.check-circle.ok .mark{stroke:#629924;animation:markIn .4s cubic-bezier(.2,0,.2,1) .35s forwards}
+.check-circle.err .mark{stroke:#c33;animation:markIn .35s cubic-bezier(.2,0,.2,1) .35s forwards}
+@keyframes circleIn{to{stroke-dashoffset:0}}
+@keyframes markIn{to{stroke-dashoffset:0}}
+.auth-field-row{display:flex;align-items:center;gap:8px}
+.auth-field-row .frow{flex:1;margin-bottom:0}
 .frow{margin-bottom:16px;position:relative}
 .auth-input{background:transparent;border:none;border-bottom:1px solid #2a2724;border-radius:0;padding:14px 0;font-size:17px;font-weight:500;color:#e8e6e3;width:100%;outline:none;display:block;transition:border-color .2s ease}
 .auth-input:focus{border-bottom-color:#e8e6e3}
@@ -721,7 +732,6 @@ body.sheet-open #sa-cover{background:#000000}
   <div id="auth-splash">
     <div class="auth-wordmark">
       <span class="auth-name">turko</span>
-      <span class="auth-tagline">scacchi dal vivo</span>
     </div>
     <div class="auth-actions">
       <button class="btn-g" id="auth-go-reg">Inizia</button>
@@ -746,18 +756,25 @@ body.sheet-open #sa-cover{background:#000000}
     <div class="auth-sheet" id="auth-reg-sheet">
       <div class="auth-sheet-handle"></div>
       <div class="auth-sheet-title">Crea account</div>
-      <div class="frow" style="position:relative">
-        <input id="r-nick" class="auth-input" placeholder="Nickname" autocomplete="username" autocorrect="off" autocapitalize="none" spellcheck="false" maxlength="20">
-        <div id="r-nick-status" class="auth-field-status"></div>
+      <div class="auth-field-row">
+        <div class="frow">
+          <input id="r-nick" class="auth-input" placeholder="Nickname" autocomplete="username" autocorrect="off" autocapitalize="none" spellcheck="false" maxlength="12">
+        </div>
+        <div id="r-nick-check"></div>
       </div>
-      <div class="auth-field-hint" id="r-nick-hint">3-20 caratteri. Lettere, numeri, _ e -</div>
-      <div class="frow" style="position:relative">
-        <input id="r-pass" class="auth-input" type="password" placeholder="Password" autocomplete="new-password">
-        <div id="r-pass-strength" class="auth-field-status"></div>
+      <div class="auth-field-hint" id="r-nick-hint"></div>
+      <div class="auth-field-row">
+        <div class="frow">
+          <input id="r-pass" class="auth-input" type="password" placeholder="Password" autocomplete="new-password">
+        </div>
+        <div id="r-pass-check"></div>
       </div>
       <div class="auth-field-hint" id="r-pass-hint">Minimo 6 caratteri</div>
-      <div class="frow">
-        <input id="r-conf" class="auth-input" type="password" placeholder="Conferma password" autocomplete="new-password">
+      <div class="auth-field-row">
+        <div class="frow">
+          <input id="r-conf" class="auth-input" type="password" placeholder="Conferma password" autocomplete="new-password">
+        </div>
+        <div id="r-conf-check"></div>
       </div>
       <div class="auth-field-hint" id="r-conf-hint"></div>
       <div id="r-err" class="err"></div>
@@ -1226,41 +1243,53 @@ $("auth-reg-overlay").onclick = function(e) { if(e.target === this) closeAuthShe
 
 // ── Live validation for registration ──
 var _nickCheckTimer = null;
+var _nickAvailable = false;
+
+function makeCheckSvg(ok) {
+  var div = document.createElement('div');
+  div.className = 'check-circle ' + (ok ? 'ok' : 'err');
+  if(ok) {
+    div.innerHTML = '<svg viewBox="0 0 18 18"><circle class="circle" cx="9" cy="9" r="7.5"/><polyline class="mark" points="5.5,9.5 8,12 12.5,6.5"/></svg>';
+  } else {
+    div.innerHTML = '<svg viewBox="0 0 18 18"><circle class="circle" cx="9" cy="9" r="7.5"/><line class="mark" x1="6.5" y1="6.5" x2="11.5" y2="11.5"/><line class="mark" x1="11.5" y1="6.5" x2="6.5" y2="11.5" style="animation-delay:.25s"/></svg>';
+  }
+  return div;
+}
+
+function setFieldState(inputId, hintId, checkId, state, text) {
+  var input = $(inputId);
+  var hint = $(hintId);
+  var checkWrap = $(checkId);
+  if(input) { input.classList.remove('valid','invalid'); if(state) input.classList.add(state); }
+  if(hint) { hint.textContent = text || ''; hint.className = 'auth-field-hint' + (state === 'valid' ? ' ok' : state === 'invalid' ? ' err' : ''); }
+  if(checkWrap) {
+    checkWrap.innerHTML = '';
+    if(state === 'valid') checkWrap.appendChild(makeCheckSvg(true));
+    else if(state === 'invalid') checkWrap.appendChild(makeCheckSvg(false));
+  }
+}
 
 $("r-nick").addEventListener("input", function() {
   var nick = this.value.trim();
-  var status = $("r-nick-status");
-  var hint = $("r-nick-hint");
+  _nickAvailable = false;
   clearTimeout(_nickCheckTimer);
-  
+
   if(!nick) {
-    status.className = 'auth-field-status';
-    hint.textContent = '3-20 caratteri. Lettere, numeri, _ e -';
-    hint.className = 'auth-field-hint';
+    setFieldState('r-nick', 'r-nick-hint', 'r-nick-check', '', '');
     validateRegForm();
     return;
   }
   if(nick.length < 3) {
-    status.textContent = '';
-    status.className = 'auth-field-status';
-    hint.textContent = 'Ancora ' + (3 - nick.length) + ' caratteri';
-    hint.className = 'auth-field-hint';
+    setFieldState('r-nick', 'r-nick-hint', 'r-nick-check', '', 'Ancora ' + (3 - nick.length));
     validateRegForm();
     return;
   }
   if(!/^[a-zA-Z0-9_-]+$/.test(nick)) {
-    status.textContent = '✗';
-    status.className = 'auth-field-status err';
-    hint.textContent = 'Solo lettere, numeri, _ e -';
-    hint.className = 'auth-field-hint err';
+    setFieldState('r-nick', 'r-nick-hint', 'r-nick-check', 'invalid', 'Solo lettere, numeri, _ e -');
     validateRegForm();
     return;
   }
-  // Check availability (debounced)
-  status.textContent = '...';
-  status.className = 'auth-field-status ok';
-  hint.textContent = 'Verifico...';
-  hint.className = 'auth-field-hint';
+  setFieldState('r-nick', 'r-nick-hint', 'r-nick-check', '', '...');
   _nickCheckTimer = setTimeout(async function() {
     try {
       var res = await fetch(SUPA_URL + '/rest/v1/players?nickname=ilike.' + encodeURIComponent(nick) + '&select=id', {
@@ -1268,20 +1297,14 @@ $("r-nick").addEventListener("input", function() {
       });
       var data = await res.json();
       if(Array.isArray(data) && data.length > 0) {
-        status.textContent = '✗';
-        status.className = 'auth-field-status err';
-        hint.textContent = 'Nickname già in uso';
-        hint.className = 'auth-field-hint err';
+        _nickAvailable = false;
+        setFieldState('r-nick', 'r-nick-hint', 'r-nick-check', 'invalid', 'Già in uso');
       } else {
-        status.textContent = '✓';
-        status.className = 'auth-field-status ok';
-        hint.textContent = 'Disponibile';
-        hint.className = 'auth-field-hint ok';
+        _nickAvailable = true;
+        setFieldState('r-nick', 'r-nick-hint', 'r-nick-check', 'valid', 'Disponibile');
       }
     } catch(e) {
-      status.className = 'auth-field-status';
-      hint.textContent = '';
-      hint.className = 'auth-field-hint';
+      setFieldState('r-nick', 'r-nick-hint', 'r-nick-check', '', '');
     }
     validateRegForm();
   }, 500);
@@ -1289,28 +1312,12 @@ $("r-nick").addEventListener("input", function() {
 
 $("r-pass").addEventListener("input", function() {
   var pass = this.value;
-  var strength = $("r-pass-strength");
-  var hint = $("r-pass-hint");
-  
   if(!pass) {
-    strength.className = 'auth-field-status';
-    hint.textContent = 'Minimo 6 caratteri';
-    hint.className = 'auth-field-hint';
+    setFieldState('r-pass', 'r-pass-hint', 'r-pass-check', '', 'Minimo 6 caratteri');
   } else if(pass.length < 6) {
-    strength.textContent = 'Ancora ' + (6 - pass.length);
-    strength.className = 'auth-field-status err';
-    hint.textContent = 'Troppo corta';
-    hint.className = 'auth-field-hint err';
-  } else if(pass.length < 10) {
-    strength.textContent = '✓';
-    strength.className = 'auth-field-status ok';
-    hint.textContent = 'OK';
-    hint.className = 'auth-field-hint ok';
+    setFieldState('r-pass', 'r-pass-hint', 'r-pass-check', 'invalid', 'Ancora ' + (6 - pass.length));
   } else {
-    strength.textContent = '✓✓';
-    strength.className = 'auth-field-status ok';
-    hint.textContent = 'Forte';
-    hint.className = 'auth-field-hint ok';
+    setFieldState('r-pass', 'r-pass-hint', 'r-pass-check', 'valid', '');
   }
   validateConfirmMatch();
   validateRegForm();
@@ -1324,16 +1331,12 @@ $("r-conf").addEventListener("input", function() {
 function validateConfirmMatch() {
   var pass = $("r-pass").value;
   var conf = $("r-conf").value;
-  var hint = $("r-conf-hint");
   if(!conf) {
-    hint.textContent = '';
-    hint.className = 'auth-field-hint';
-  } else if(conf === pass) {
-    hint.textContent = 'Coincidono ✓';
-    hint.className = 'auth-field-hint ok';
+    setFieldState('r-conf', 'r-conf-hint', 'r-conf-check', '', '');
+  } else if(conf === pass && pass.length >= 6) {
+    setFieldState('r-conf', 'r-conf-hint', 'r-conf-check', 'valid', '');
   } else {
-    hint.textContent = 'Non coincidono';
-    hint.className = 'auth-field-hint err';
+    setFieldState('r-conf', 'r-conf-hint', 'r-conf-check', 'invalid', 'Non coincidono');
   }
 }
 
@@ -1341,12 +1344,10 @@ function validateRegForm() {
   var nick = $("r-nick").value.trim();
   var pass = $("r-pass").value;
   var conf = $("r-conf").value;
-  var nickOk = nick.length >= 3 && /^[a-zA-Z0-9_-]+$/.test(nick);
-  var nickStatus = $("r-nick-status");
-  var nickAvailable = nickStatus && nickStatus.textContent === '✓';
+  var nickOk = nick.length >= 3 && nick.length <= 12 && /^[a-zA-Z0-9_-]+$/.test(nick) && _nickAvailable;
   var passOk = pass.length >= 6;
   var confOk = pass === conf && conf.length > 0;
-  $("r-btn").disabled = !(nickOk && nickAvailable && passOk && confOk);
+  $("r-btn").disabled = !(nickOk && passOk && confOk);
 }
 
 // Enter key handlers
@@ -1380,7 +1381,7 @@ async function doRegister() {
   const conf = $("r-conf").value;
   if(!nick) return setErr("r-err", "Inserisci un nickname.")
   if(nick.length < 3) return setErr("r-err", "Nickname minimo 3 caratteri.")
-  if(nick.length > 20) return setErr("r-err", "Nickname massimo 20 caratteri.")
+  if(nick.length > 12) return setErr("r-err", "Nickname massimo 12 caratteri.")
   if(!/^[a-zA-Z0-9_-]+$/.test(nick)) return setErr("r-err", "Solo lettere, numeri, _ e - sono permessi.")
   if(pass.length < 6) return setErr("r-err", "Password minimo 6 caratteri.")
   if(pass !== conf) return setErr("r-err", "Le password non coincidono.")
