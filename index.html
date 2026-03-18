@@ -85,6 +85,7 @@ body.sheet-open #sa-cover{background:#000000}
 @keyframes markIn{to{stroke-dashoffset:0}}
 .auth-field-row{display:flex;align-items:center;gap:8px}
 .auth-field-row .frow{flex:1;margin-bottom:0}
+.auth-field-row .check-wrap{width:18px;height:18px;flex-shrink:0}
 .frow{margin-bottom:16px;position:relative}
 .auth-input{background:transparent;border:none;border-bottom:1px solid #2a2724;border-radius:0;padding:14px 0;font-size:17px;font-weight:500;color:#e8e6e3;width:100%;outline:none;display:block;transition:border-color .2s ease}
 .auth-input:focus{border-bottom-color:#e8e6e3}
@@ -760,21 +761,21 @@ body.sheet-open #sa-cover{background:#000000}
         <div class="frow">
           <input id="r-nick" class="auth-input" placeholder="Nickname" autocomplete="username" autocorrect="off" autocapitalize="none" spellcheck="false" maxlength="12">
         </div>
-        <div id="r-nick-check"></div>
+        <div id="r-nick-check" class="check-wrap"></div>
       </div>
       <div class="auth-field-hint" id="r-nick-hint"></div>
       <div class="auth-field-row">
         <div class="frow">
           <input id="r-pass" class="auth-input" type="password" placeholder="Password" autocomplete="new-password">
         </div>
-        <div id="r-pass-check"></div>
+        <div id="r-pass-check" class="check-wrap"></div>
       </div>
       <div class="auth-field-hint" id="r-pass-hint">Minimo 6 caratteri</div>
       <div class="auth-field-row">
         <div class="frow">
           <input id="r-conf" class="auth-input" type="password" placeholder="Conferma password" autocomplete="new-password">
         </div>
-        <div id="r-conf-check"></div>
+        <div id="r-conf-check" class="check-wrap"></div>
       </div>
       <div class="auth-field-hint" id="r-conf-hint"></div>
       <div id="r-err" class="err"></div>
@@ -1280,7 +1281,13 @@ $("r-nick").addEventListener("input", function() {
     return;
   }
   if(nick.length < 3) {
-    setFieldState('r-nick', 'r-nick-hint', 'r-nick-check', '', 'Ancora ' + (3 - nick.length));
+    // Just countdown, no circle
+    var input = $('r-nick');
+    var hint = $('r-nick-hint');
+    var checkWrap = $('r-nick-check');
+    if(input) { input.classList.remove('valid','invalid'); }
+    if(hint) { hint.textContent = 'Ancora ' + (3 - nick.length); hint.className = 'auth-field-hint'; }
+    if(checkWrap) checkWrap.innerHTML = '';
     validateRegForm();
     return;
   }
@@ -1315,7 +1322,13 @@ $("r-pass").addEventListener("input", function() {
   if(!pass) {
     setFieldState('r-pass', 'r-pass-hint', 'r-pass-check', '', 'Minimo 6 caratteri');
   } else if(pass.length < 6) {
-    setFieldState('r-pass', 'r-pass-hint', 'r-pass-check', 'invalid', 'Ancora ' + (6 - pass.length));
+    // Just show countdown, no error circle — user is still typing
+    var input = $('r-pass');
+    var hint = $('r-pass-hint');
+    var checkWrap = $('r-pass-check');
+    if(input) { input.classList.remove('valid','invalid'); }
+    if(hint) { hint.textContent = 'Ancora ' + (6 - pass.length); hint.className = 'auth-field-hint'; }
+    if(checkWrap) checkWrap.innerHTML = '';
   } else {
     setFieldState('r-pass', 'r-pass-hint', 'r-pass-check', 'valid', '');
   }
