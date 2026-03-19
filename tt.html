@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<title>turko — Typography Scale</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none}
+body{background:#161512;font-family:'Inter',system-ui,sans-serif;color:#e8e6e3;padding:calc(env(safe-area-inset-top,20px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 40px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+h2{font-size:11px;font-weight:600;color:#7ab535;text-transform:uppercase;letter-spacing:1.4px;margin:36px 0 12px}
+h2:first-of-type{margin-top:0}
+.desc{font-size:11px;color:#8a8580;margin-bottom:16px;line-height:1.5}
+.divider{height:1px;background:#2a2724;margin:36px 0}
+.sample{margin-bottom:20px}
+.sample-label{font-size:10px;color:#504a45;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:4px}
+
+/* Palette B */
+:root{
+  --bg:#161512;--surface:#1d1a16;--border:#2a2724;
+  --text:#e8e6e3;--muted:#8a8580;--dim:#6a6560;--ghost:#504a45;
+  --green:#7ab535;--red:#d45454;
+}
+
+/* Simulated components */
+.group{background:var(--surface);border:0.5px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px}
+.cell{padding:13px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border)}
+.cell:last-child{border-bottom:none}
+.label-section{text-transform:uppercase;letter-spacing:1.4px;margin-bottom:8px;margin-top:16px}
+</style>
+</head>
+<body>
+
+<h2>Scala attuale (17 size diverse)</h2>
+<p class="desc">8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 22, 24, 32, 36, 48, 64px — troppa variazione, nessuna coerenza.</p>
+
+<div class="divider"></div>
+
+<h2>Proposta A — 6 livelli stretti</h2>
+<p class="desc">hero 48/800 · title 20/700 · body 15/600 · caption 13/500 · label 11/600 · micro 10/500</p>
+
+<div class="sample">
+  <div class="sample-label">hero — 48px/800 (ELO home)</div>
+  <div style="font-size:48px;font-weight:800;color:var(--text);letter-spacing:-2px">1534</div>
+</div>
+<div class="sample">
+  <div class="sample-label">title — 20px/700 (nome profilo, titoli sheet)</div>
+  <div style="font-size:20px;font-weight:700;color:var(--text)">mario</div>
+</div>
+<div class="sample">
+  <div class="sample-label">body — 15px/600 (nomi nelle cell, testo primario)</div>
+  <div style="font-size:15px;font-weight:600;color:var(--text)">tizio</div>
+  <div style="font-size:15px;font-weight:400;color:var(--muted)">Ha vinto contro mario</div>
+</div>
+<div class="sample">
+  <div class="sample-label">caption — 13px/500 (valori secondari, record rivali)</div>
+  <div style="font-size:13px;font-weight:500;color:var(--dim)">ieri · 1435</div>
+  <div style="font-size:13px;font-weight:700"><span style="color:var(--green)">17</span>-<span style="color:var(--red)">6</span>-<span style="color:var(--dim)">3</span></div>
+</div>
+<div class="sample">
+  <div class="sample-label">label — 11px/600 (section header, meta, hint)</div>
+  <div style="font-size:11px;font-weight:600;color:var(--ghost);text-transform:uppercase;letter-spacing:1.4px">Partite recenti</div>
+  <div style="font-size:11px;font-weight:400;color:var(--dim)">3 min fa · 1501</div>
+</div>
+<div class="sample">
+  <div class="sample-label">micro — 10px/500 (badge, chip inattivo, progress label)</div>
+  <div style="font-size:10px;font-weight:500;color:var(--ghost)">85 pt ai 1600</div>
+</div>
+
+<div class="divider"></div>
+
+<h2>Proposta A — Simulazione completa</h2>
+
+<div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:2px">MARIO</div>
+<div style="font-size:48px;font-weight:800;color:var(--text);letter-spacing:-2px;line-height:1">1534</div>
+<div style="font-size:10px;font-weight:500;color:var(--ghost);margin-top:4px">85 pt ai <span style="color:var(--dim);font-weight:600">1600</span></div>
+
+<div class="label-section" style="font-size:11px;font-weight:600;color:var(--ghost)">Partite recenti</div>
+<div class="group">
+  <div class="cell">
+    <div>
+      <div style="font-size:15px;font-weight:600;color:var(--text)">tizio</div>
+      <div style="font-size:11px;font-weight:400;color:var(--dim);margin-top:2px">ieri · 1435</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:15px;font-weight:700;color:var(--green)">+17</div>
+      <div style="font-size:11px;font-weight:500;color:var(--green)">Vinta</div>
+    </div>
+  </div>
+  <div class="cell">
+    <div>
+      <div style="font-size:15px;font-weight:600;color:var(--text)">ppp</div>
+      <div style="font-size:11px;font-weight:400;color:var(--dim);margin-top:2px">ieri · 1528</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:15px;font-weight:700;color:var(--red)">-13</div>
+      <div style="font-size:11px;font-weight:500;color:var(--red)">Persa</div>
+    </div>
+  </div>
+  <div class="cell">
+    <div>
+      <div style="font-size:15px;font-weight:600;color:var(--text)">aaa</div>
+      <div style="font-size:11px;font-weight:400;color:var(--dim);margin-top:2px">2 giorni fa · 1486</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:15px;font-weight:700;color:var(--dim)">0</div>
+      <div style="font-size:11px;font-weight:500;color:var(--dim)">Patta</div>
+    </div>
+  </div>
+</div>
+
+<div style="font-size:13px;font-weight:500;color:var(--dim)"><span style="color:var(--green);font-weight:600">30V</span> · <span style="color:var(--red);font-weight:600">33P</span> · <span style="color:var(--dim);font-weight:600">44=</span> · <span style="color:var(--text);font-weight:700">win 28%</span></div>
+<div style="font-size:11px;font-weight:400;color:var(--dim);margin-top:2px">Bianco 65% · Nero 31%</div>
+<div style="font-size:11px;font-weight:400;color:var(--dim);margin-top:2px">Ultime 12: <span style="color:var(--green);font-weight:600">+22</span></div>
+
+<div class="label-section" style="font-size:11px;font-weight:600;color:var(--ghost)">Rivali</div>
+<div class="group">
+  <div class="cell">
+    <div style="font-size:15px;font-weight:600;color:var(--text)">tizio</div>
+    <div style="font-size:13px;font-weight:700"><span style="color:var(--green)">17</span>-<span style="color:var(--red)">6</span>-<span style="color:var(--dim)">3</span></div>
+  </div>
+  <div class="cell">
+    <div style="font-size:15px;font-weight:600;color:var(--text)">sss</div>
+    <div style="font-size:13px;font-weight:700"><span style="color:var(--green)">5</span>-<span style="color:var(--red)">5</span>-<span style="color:var(--dim)">0</span></div>
+  </div>
+</div>
+
+<div class="label-section" style="font-size:11px;font-weight:600;color:var(--ghost)">Storico</div>
+<div class="group">
+  <div class="cell" style="cursor:pointer">
+    <div>
+      <div style="font-size:13px;font-weight:600;color:var(--text)">18 mar</div>
+      <div style="font-size:11px;font-weight:400;color:var(--dim);margin-top:2px">1498→1534 <span style="color:var(--green)">+36</span></div>
+    </div>
+    <div style="font-size:11px;font-weight:600"><span style="color:var(--green)">3</span>-<span style="color:var(--red)">1</span>-<span style="color:var(--dim)">0</span></div>
+  </div>
+  <div class="cell" style="cursor:pointer">
+    <div>
+      <div style="font-size:13px;font-weight:600;color:var(--text)">17 mar</div>
+      <div style="font-size:11px;font-weight:400;color:var(--dim);margin-top:2px">1520→1498 <span style="color:var(--red)">-22</span></div>
+    </div>
+    <div style="font-size:11px;font-weight:600"><span style="color:var(--green)">1</span>-<span style="color:var(--red)">3</span>-<span style="color:var(--dim)">1</span></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<h2>Profilo header — con proposta A</h2>
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:8px 0">
+  <div style="flex:1;min-width:0">
+    <div style="font-size:20px;font-weight:700;color:var(--text)">mario</div>
+    <div style="font-size:11px;font-weight:400;color:var(--dim);margin-top:2px">#2 di 10 · mar 2026</div>
+    <div style="font-size:11px;font-weight:400;color:var(--dim);margin-top:2px">Visto 3 min fa</div>
+    <div style="font-size:13px;font-weight:400;color:var(--muted);margin-top:4px;line-height:1.4">questa è una prova di bio</div>
+  </div>
+  <div style="text-align:right;flex-shrink:0">
+    <div style="font-size:32px;font-weight:800;color:var(--text);line-height:1">1534</div>
+    <div style="font-size:11px;font-weight:400;color:var(--dim);margin-top:2px">Peak <span style="font-weight:600;color:var(--muted)">1545</span></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<h2>Auth sheet — con proposta A</h2>
+<div style="background:var(--surface);border-radius:24px;padding:24px;margin-top:8px">
+  <div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px"></div>
+  <div style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:24px;letter-spacing:-.5px">Crea account</div>
+  <div style="border-bottom:1px solid var(--border);padding:14px 0;font-size:15px;font-weight:500;color:var(--ghost)">Nickname</div>
+  <div style="font-size:11px;color:var(--green);margin-top:2px;margin-bottom:12px">Disponibile</div>
+  <div style="border-bottom:1px solid var(--border);padding:14px 0;font-size:15px;font-weight:500;color:var(--ghost)">Password</div>
+  <div style="font-size:11px;color:var(--ghost);margin-top:2px;margin-bottom:12px">Minimo 6 caratteri</div>
+  <div style="border-bottom:1px solid var(--border);padding:14px 0;font-size:15px;font-weight:500;color:var(--ghost)">Conferma password</div>
+  <div style="background:var(--text);color:var(--bg);border-radius:12px;padding:17px;font-size:15px;font-weight:700;text-align:center;margin-top:20px">Registrati</div>
+  <div style="font-size:11px;color:var(--ghost);text-align:center;margin-top:16px">Non potrai recuperare la password.</div>
+</div>
+
+<div class="divider"></div>
+<p class="desc">La scala A usa 6 size: 48, 20, 15, 13, 11, 10. Ogni livello ha un ruolo chiaro. Combinata con palette B.</p>
+
+</body>
+</html>
