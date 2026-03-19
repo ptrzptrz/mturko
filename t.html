@@ -237,6 +237,42 @@ body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:var(--t
 @keyframes dot-pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* ═══════════════════════════════════════
+   COMPONENT: .color-btn
+   Color selection in challenge sheet
+   ═══════════════════════════════════════ */
+.color-btn{
+  flex:1;border:none;border-radius:var(--r-lg);cursor:pointer;
+  font-family:inherit;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  height:88px;transition:transform var(--dur-normal) var(--ease-spring), opacity var(--dur-fast);
+  -webkit-tap-highlight-color:transparent;
+  opacity:.38;
+}
+.color-btn:active{transform:scale(.94)}
+.color-btn.selected{opacity:1}
+.color-white{background:var(--text)}
+.color-white .color-name{font-size:var(--fs-caption);font-weight:700;color:var(--bg);letter-spacing:-.2px}
+.color-black{background:var(--bg);box-shadow:inset 0 0 0 1px var(--border)}
+.color-black .color-name{font-size:var(--fs-caption);font-weight:700;color:var(--text);letter-spacing:-.2px}
+
+/* ═══════════════════════════════════════
+   COMPONENT: .sheet-result-btn
+   Result option in result sheet
+   ═══════════════════════════════════════ */
+.sheet-result-btn{
+  width:100%;padding:var(--sp-lg);
+  border:none;background:transparent;
+  display:flex;align-items:center;justify-content:space-between;
+  color:var(--text);font-size:var(--fs-body);font-weight:600;
+  text-align:left;cursor:pointer;font-family:inherit;
+  border-bottom:0.5px solid var(--border);
+  transition:background var(--dur-fast);
+  -webkit-tap-highlight-color:transparent;
+}
+.sheet-result-btn:last-child{border-bottom:none}
+.sheet-result-btn:active{background:var(--border)}
+
+/* ═══════════════════════════════════════
    COMPONENT: .wld (Win-Loss-Draw record)
    ═══════════════════════════════════════ */
 .wld{font-size:var(--fs-caption);font-weight:700}
@@ -548,7 +584,131 @@ body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:var(--t
   <button class="btn-primary" style="max-width:200px;margin:0 auto">Sfida</button>
 </div>
 
+<div class="test-divider"></div>
+
+<!-- ═══════════════════════ SHEET: "+" Nuova partita ═══════════════════════ -->
+<div class="test-h">Sheet — "+" Nuova partita (futuro)</div>
+<p class="test-desc">Tap dal "+" nella navbar. Per ora una sola opzione, pronta per club e tornei.</p>
+<button class="btn-small" onclick="document.getElementById('sheet-plus').classList.add('visible')">Apri "+"</button>
+
+<div class="sheet-overlay" id="sheet-plus" onclick="if(event.target===this)this.classList.remove('visible')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Nuova</div>
+    <button class="sheet-option" onclick="this.closest('.sheet-overlay').classList.remove('visible');document.getElementById('sheet-color').classList.add('visible')">Sfida un giocatore</button>
+    <button class="sheet-option" style="color:var(--ghost)">Crea club <span style="font-size:var(--fs-micro);color:var(--ghost);margin-left:4px">prossimamente</span></button>
+    <button class="sheet-option" style="color:var(--ghost)">Crea torneo <span style="font-size:var(--fs-micro);color:var(--ghost);margin-left:4px">prossimamente</span></button>
+  </div>
+</div>
+
+<div class="test-divider"></div>
+
+<!-- ═══════════════════════ SHEET: Selezione colore ═══════════════════════ -->
+<div class="test-h">Sheet — Selezione colore</div>
+<p class="test-desc">Dopo aver scelto l'avversario. Bianco preselezionato.</p>
+<button class="btn-small" onclick="document.getElementById('sheet-color').classList.add('visible')">Apri colore</button>
+
+<div class="sheet-overlay" id="sheet-color" onclick="if(event.target===this)this.classList.remove('visible')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div style="font-size:var(--fs-label);color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px">Scegli il colore</div>
+    <div style="display:flex;gap:8px;margin-bottom:var(--sp-lg)">
+      <button class="color-btn color-white selected" onclick="selectColor(this,'white')">
+        <span class="color-name">Bianco</span>
+      </button>
+      <button class="color-btn color-black" onclick="selectColor(this,'black')">
+        <span class="color-name">Nero</span>
+      </button>
+    </div>
+    <button class="btn-primary" onclick="this.closest('.sheet-overlay').classList.remove('visible')">Sfida</button>
+  </div>
+</div>
+
+<div class="test-divider"></div>
+
+<!-- ═══════════════════════ SHEET: Inserisci risultato ═══════════════════════ -->
+<div class="test-h">Sheet — Inserisci risultato</div>
+<p class="test-desc">Dopo la partita. Chi ha vinto?</p>
+<button class="btn-small" onclick="document.getElementById('sheet-result').classList.add('visible')">Apri risultato</button>
+
+<div class="sheet-overlay" id="sheet-result" onclick="if(event.target===this)this.classList.remove('visible')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div style="font-size:var(--fs-caption);color:var(--muted);text-align:center;margin-bottom:var(--sp-lg);font-weight:500">mario vs tizio</div>
+    <div class="group">
+      <button class="sheet-result-btn" onclick="this.closest('.sheet-overlay').classList.remove('visible')">
+        <span>Ho vinto</span>
+        <span style="color:var(--green);font-size:var(--fs-label)">Vittoria</span>
+      </button>
+      <button class="sheet-result-btn" onclick="this.closest('.sheet-overlay').classList.remove('visible')">
+        <span>Ho perso</span>
+        <span style="color:var(--red);font-size:var(--fs-label)">Sconfitta</span>
+      </button>
+      <button class="sheet-result-btn" onclick="this.closest('.sheet-overlay').classList.remove('visible')">
+        <span>Patta</span>
+        <span style="color:var(--dim);font-size:var(--fs-label)">Pareggio</span>
+      </button>
+    </div>
+    <button class="btn-secondary" onclick="this.closest('.sheet-overlay').classList.remove('visible')">Annulla</button>
+  </div>
+</div>
+
+<div class="test-divider"></div>
+
+<!-- ═══════════════════════ SHEET: Profilo menu (kebab) ═══════════════════════ -->
+<div class="test-h">Sheet — Profilo menu (kebab ⋮)</div>
+<p class="test-desc">Dal tap sul kebab nel proprio profilo.</p>
+<button class="btn-small" onclick="document.getElementById('sheet-profile').classList.add('visible')">Apri menu profilo</button>
+
+<div class="sheet-overlay" id="sheet-profile" onclick="if(event.target===this)this.classList.remove('visible')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <button class="sheet-option" onclick="this.closest('.sheet-overlay').classList.remove('visible')">Modifica profilo</button>
+    <button class="sheet-option danger" onclick="this.closest('.sheet-overlay').classList.remove('visible')">Esci</button>
+  </div>
+</div>
+
+<div class="test-divider"></div>
+
+<!-- ═══════════════════════ SHEET: Annullamento consensuale ═══════════════════════ -->
+<div class="test-h">Sheet — Annulla partita</div>
+<p class="test-desc">Richiesta di annullamento consensuale durante una partita attiva.</p>
+<button class="btn-small" onclick="document.getElementById('sheet-cancel').classList.add('visible')">Apri annullamento</button>
+
+<div class="sheet-overlay" id="sheet-cancel" onclick="if(event.target===this)this.classList.remove('visible')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Annulla partita</div>
+    <div style="font-size:var(--fs-caption);color:var(--muted);margin-bottom:var(--sp-xl);line-height:1.5">Vuoi annullare la partita contro <strong style="color:var(--text)">tizio</strong>? L'avversario dovrà confermare.</div>
+    <button class="btn-primary" style="background:var(--red);color:var(--text)" onclick="this.closest('.sheet-overlay').classList.remove('visible')">Annulla partita</button>
+    <button class="btn-secondary" onclick="this.closest('.sheet-overlay').classList.remove('visible')">Torna alla partita</button>
+  </div>
+</div>
+
+<div class="test-divider"></div>
+
+<!-- ═══════════════════════ SHEET: Conferma logout ═══════════════════════ -->
+<div class="test-h">Sheet — Conferma logout</div>
+<p class="test-desc">Conferma prima di uscire dall'account.</p>
+<button class="btn-small" onclick="document.getElementById('sheet-logout').classList.add('visible')">Apri logout</button>
+
+<div class="sheet-overlay" id="sheet-logout" onclick="if(event.target===this)this.classList.remove('visible')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Esci</div>
+    <div style="font-size:var(--fs-caption);color:var(--muted);margin-bottom:var(--sp-xl);line-height:1.5">Sei sicuro di voler uscire? Dovrai reinserire le credenziali al prossimo accesso.</div>
+    <button class="btn-primary" style="background:var(--red);color:var(--text)" onclick="this.closest('.sheet-overlay').classList.remove('visible')">Esci</button>
+    <button class="btn-secondary" onclick="this.closest('.sheet-overlay').classList.remove('visible')">Annulla</button>
+  </div>
+</div>
+
 <script>
+// Color selection
+function selectColor(btn, color) {
+  btn.closest('.sheet').querySelectorAll('.color-btn').forEach(function(b) { b.classList.remove('selected'); });
+  btn.classList.add('selected');
+}
+
 // Accordion toggle
 document.querySelectorAll('.accordion').forEach(function(acc) {
   acc.classList.add('open');
