@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<title>turko — UI Components</title>
+<style>
+/* ── Design System Tokens ── */
+:root{
+  --bg:#161512;
+  --surface:#1d1a16;
+  --border:#2a2724;
+  --text:#e8e6e3;
+  --muted:#8a8580;
+  --dim:#6a6560;
+  --ghost:#504a45;
+  --green:#7ab535;
+  --red:#d45454;
+  --gold:#b8a04a;
+  /* Typography */
+  --fs-hero:48px;
+  --fs-hero-sm:32px;
+  --fs-title:22px;
+  --fs-body:16px;
+  --fs-caption:13px;
+  --fs-label:12px;
+  --fs-micro:10px;
+  /* Spacing */
+  --sp-xs:4px;
+  --sp-sm:8px;
+  --sp-md:12px;
+  --sp-lg:16px;
+  --sp-xl:24px;
+  /* Radius */
+  --r-sm:10px;
+  --r-md:14px;
+  --r-lg:16px;
+  --r-xl:24px;
+  /* Animation */
+  --ease-out:cubic-bezier(.2,0,.2,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --dur-fast:150ms;
+  --dur-normal:250ms;
+  --dur-slow:400ms;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:var(--text);max-width:480px;margin:0 auto;padding:calc(env(safe-area-inset-top,20px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 80px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+/* ── Section labels for this test ── */
+.test-h{font-size:var(--fs-micro);font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:1.4px;margin:32px 0 12px}
+.test-h:first-of-type{margin-top:0}
+.test-desc{font-size:var(--fs-label);color:var(--muted);margin-bottom:var(--sp-lg);line-height:1.5}
+.test-divider{height:1px;background:var(--border);margin:32px 0}
+
+/* ═══════════════════════════════════════
+   COMPONENT: .group
+   Container arrotondato per liste di cell
+   ═══════════════════════════════════════ */
+.group{
+  background:var(--surface);
+  border:0.5px solid var(--border);
+  border-radius:var(--r-md);
+  overflow:hidden;
+  margin-bottom:var(--sp-md);
+}
+
+/* ═══════════════════════════════════════
+   COMPONENT: .cell
+   Riga tappabile dentro un .group
+   Struttura: [left: name + meta] [right: value + sub]
+   Min height 44px per Apple HIG
+   ═══════════════════════════════════════ */
+.cell{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:var(--sp-md) var(--sp-lg);
+  min-height:44px;
+  border-bottom:0.5px solid var(--border);
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  transition:background var(--dur-fast) ease;
+}
+.cell:last-child{border-bottom:none}
+.cell:active{background:var(--border)}
+.cell-left{flex:1;min-width:0}
+.cell-right{flex-shrink:0;text-align:right}
+.cell-name{font-size:var(--fs-body);font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cell-meta{font-size:var(--fs-label);color:var(--dim);margin-top:2px}
+.cell-value{font-size:var(--fs-body);font-weight:700;color:var(--text)}
+.cell-sub{font-size:var(--fs-label);font-weight:500;margin-top:2px}
+.cell-sub.win{color:var(--green)}
+.cell-sub.loss{color:var(--red)}
+.cell-sub.draw{color:var(--dim)}
+/* Cell variant: rank (with rank number left) */
+.cell-rank{font-size:var(--fs-caption);font-weight:600;color:var(--dim);width:24px;text-align:center;flex-shrink:0;margin-right:var(--sp-md)}
+/* Cell variant: no tap (display only) */
+.cell.static{cursor:default}
+.cell.static:active{background:transparent}
+/* Cell variant: nested (inside accordion) */
+.cell.nested{padding-left:var(--sp-xl);background:#1a1714}
+
+/* ═══════════════════════════════════════
+   COMPONENT: .section-label
+   Uppercase label above groups
+   ═══════════════════════════════════════ */
+.section-label{
+  font-size:var(--fs-micro);
+  font-weight:600;
+  color:var(--ghost);
+  text-transform:uppercase;
+  letter-spacing:1.4px;
+  margin-bottom:var(--sp-sm);
+  margin-top:var(--sp-xl);
+}
+
+/* ═══════════════════════════════════════
+   COMPONENT: .chip
+   Filter pills
+   ═══════════════════════════════════════ */
+.chip{
+  display:inline-block;
+  padding:var(--sp-sm) var(--sp-lg);
+  border-radius:20px;
+  font-size:var(--fs-caption);
+  font-weight:600;
+  font-family:inherit;
+  cursor:pointer;
+  border:none;
+  transition:background var(--dur-fast), color var(--dur-fast);
+  -webkit-tap-highlight-color:transparent;
+  background:var(--border);
+  color:var(--dim);
+}
+.chip:active{opacity:.6}
+.chip.active{background:var(--text);color:var(--bg)}
+
+/* ═══════════════════════════════════════
+   COMPONENT: .sheet
+   Action sheet dal basso
+   ═══════════════════════════════════════ */
+.sheet-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0);
+  z-index:10001;
+  display:flex;align-items:flex-end;
+  pointer-events:none;
+  transition:background .35s ease;
+}
+.sheet-overlay.visible{background:rgba(0,0,0,.6);pointer-events:all}
+.sheet{
+  background:var(--bg);
+  border-radius:var(--r-xl) var(--r-xl) 0 0;
+  padding:var(--sp-sm) var(--sp-xl) calc(var(--sp-xl) + env(safe-area-inset-bottom,0px));
+  width:100%;max-width:480px;margin:0 auto;
+  transform:translateY(100%);
+  transition:transform var(--dur-slow) var(--ease-out);
+}
+.sheet-overlay.visible .sheet{transform:translateY(0)}
+.sheet-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px}
+.sheet-title{font-size:var(--fs-title);font-weight:800;color:var(--text);margin-bottom:var(--sp-xl);letter-spacing:-.5px}
+/* Sheet option row */
+.sheet-option{
+  width:100%;padding:var(--sp-lg) 0;
+  border:none;background:transparent;
+  color:var(--text);font-size:var(--fs-body);font-weight:500;
+  text-align:left;cursor:pointer;font-family:inherit;
+  border-bottom:0.5px solid var(--border);
+  transition:opacity var(--dur-fast);
+  -webkit-tap-highlight-color:transparent;
+}
+.sheet-option:last-of-type{border-bottom:none}
+.sheet-option:active{opacity:.5}
+.sheet-option.danger{color:var(--red)}
+
+/* ═══════════════════════════════════════
+   COMPONENT: .btn
+   Buttons
+   ═══════════════════════════════════════ */
+.btn-primary{
+  background:var(--text);color:var(--bg);
+  border:none;border-radius:var(--r-md);
+  padding:17px var(--sp-lg);
+  font-size:var(--fs-body);font-weight:700;font-family:inherit;
+  width:100%;cursor:pointer;
+  transition:transform var(--dur-fast) var(--ease-spring), opacity var(--dur-fast);
+  letter-spacing:-.2px;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn-primary:active{transform:scale(.97);opacity:.9}
+.btn-primary:disabled{background:var(--border);color:var(--ghost);cursor:not-allowed;transform:none}
+
+.btn-secondary{
+  background:transparent;color:var(--dim);
+  border:none;padding:var(--sp-lg);
+  font-size:var(--fs-caption);font-weight:500;font-family:inherit;
+  width:100%;cursor:pointer;
+  transition:color var(--dur-fast);
+  -webkit-tap-highlight-color:transparent;
+}
+.btn-secondary:active{color:var(--text)}
+
+.btn-small{
+  background:var(--border);color:var(--text);
+  border:none;border-radius:var(--r-sm);
+  padding:var(--sp-sm) var(--sp-lg);
+  font-size:var(--fs-caption);font-weight:600;font-family:inherit;
+  cursor:pointer;
+  transition:opacity var(--dur-fast);
+  -webkit-tap-highlight-color:transparent;
+}
+.btn-small:active{opacity:.7}
+
+/* ═══════════════════════════════════════
+   COMPONENT: .hero
+   ELO display
+   ═══════════════════════════════════════ */
+.hero-nick{font-size:var(--fs-label);font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:2px}
+.hero-elo{font-size:var(--fs-hero);font-weight:800;color:var(--text);letter-spacing:-2px;line-height:1}
+.hero-delta{font-size:var(--fs-body);font-weight:600}
+.hero-delta.up{color:var(--green)}
+.hero-delta.down{color:var(--red)}
+.hero-progress{margin-top:6px;width:140px}
+.hero-progress-bar{height:1.5px;background:var(--border);border-radius:1px;overflow:hidden}
+.hero-progress-fill{height:100%;background:var(--green);border-radius:1px;width:15%}
+.hero-progress-label{font-size:var(--fs-micro);color:var(--ghost);margin-top:3px}
+
+/* ═══════════════════════════════════════
+   COMPONENT: .dot (presence indicator)
+   ═══════════════════════════════════════ */
+.dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--green);margin-left:6px;vertical-align:middle}
+.dot.playing{animation:dot-pulse 1.5s ease-in-out infinite}
+@keyframes dot-pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ═══════════════════════════════════════
+   COMPONENT: .wld (Win-Loss-Draw record)
+   ═══════════════════════════════════════ */
+.wld{font-size:var(--fs-caption);font-weight:700}
+.wld .w{color:var(--green)}
+.wld .l{color:var(--red)}
+.wld .d{color:var(--dim)}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ HERO ═══════════════════════ -->
+<div class="test-h">Hero — Home ELO</div>
+<div style="padding:6px 0 8px">
+  <div class="hero-nick">MARIO</div>
+  <div style="display:flex;align-items:baseline;gap:10px">
+    <span class="hero-elo">1534</span>
+    <span class="hero-delta up">+17</span>
+  </div>
+  <div class="hero-progress">
+    <div class="hero-progress-bar"><div class="hero-progress-fill"></div></div>
+    <div class="hero-progress-label">85 pt ai <span style="color:var(--dim);font-weight:600">1600</span></div>
+  </div>
+</div>
+
+<div class="test-divider"></div>
+
+<!-- ═══════════════════════ CHIPS ═══════════════════════ -->
+<div class="test-h">Chip — Filtri</div>
+<div style="display:flex;gap:8px;margin-bottom:16px">
+  <button class="chip active">Tutto</button>
+  <button class="chip">Classifica</button>
+  <button class="chip">Le mie</button>
+</div>
+<div style="display:flex;gap:4px">
+  <button class="chip" style="padding:4px 10px;font-size:var(--fs-label)">1S</button>
+  <button class="chip" style="padding:4px 10px;font-size:var(--fs-label)">1M</button>
+  <button class="chip" style="padding:4px 10px;font-size:var(--fs-label)">3M</button>
+  <button class="chip active" style="padding:4px 10px;font-size:var(--fs-label)">Tutto</button>
+</div>
+
+<div class="test-divider"></div>
+
+<!-- ═══════════════════════ GROUP + CELL: Classifica ═══════════════════════ -->
+<div class="test-h">Group + Cell — Classifica</div>
+<div class="group">
+  <div class="cell">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="cell-rank">1</div>
+      <div class="cell-left">
+        <div class="cell-name">mario <span class="dot"></span></div>
+      </div>
+    </div>
+    <div class="cell-right">
+      <div class="cell-value">1534</div>
+      <div class="cell-sub win">+17</div>
+    </div>
+  </div>
+  <div class="cell">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="cell-rank">2</div>
+      <div class="cell-left">
+        <div class="cell-name">sss</div>
+      </div>
+    </div>
+    <div class="cell-right">
+      <div class="cell-value">1529</div>
+      <div class="cell-sub loss">-8</div>
+    </div>
+  </div>
+  <div class="cell">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="cell-rank">3</div>
+      <div class="cell-left">
+        <div class="cell-name">tizio <span class="dot playing"></span></div>
+        <div class="cell-meta">In partita</div>
+      </div>
+    </div>
+    <div class="cell-right">
+      <div class="cell-value">1487</div>
+    </div>
+  </div>
+</div>
+
+<div class="test-divider"></div>
+
+<!-- ═══════════════════════ GROUP + CELL: Storico partite ═══════════════════════ -->
+<div class="test-h">Group + Cell — Partite recenti</div>
+<div class="section-label">Partite recenti</div>
+<div class="group">
+  <div class="cell">
+    <div class="cell-left">
+      <div class="cell-name">tizio</div>
+      <div class="cell-meta">ieri · 1435</div>
+    </div>
+    <div class="cell-right">
+      <div class="cell-value" style="color:var(--green)">+17</div>
+      <div class="cell-sub win">Vinta</div>
+    </div>
+  </div>
+  <div class="cell">
+    <div class="cell-left">
+      <div class="cell-name">ppp</div>
+      <div class="cell-meta">ieri · 1528</div>
+    </div>
+    <div class="cell-right">
+      <div class="cell-value" style="color:var(--red)">-13</div>
+      <div class="cell-sub loss">Persa</div>
+    </div>
+  </div>
+  <div class="cell">
+    <div class="cell-left">
+      <div class="cell-name">aaa</div>
+      <div class="cell-meta">2 giorni fa · 1486</div>
+    </div>
+    <div class="cell-right">
+      <div class="cell-value" style="color:var(--dim)">0</div>
+      <div class="cell-sub draw">Patta</div>
+    </div>
+  </div>
+</div>
+
+<div class="test-divider"></div>
+
+<!-- ═══════════════════════ GROUP + CELL: Rivali ═══════════════════════ -->
+<div class="test-h">Group + Cell — Rivali</div>
+<div class="section-label">Rivali</div>
+<div class="group">
+  <div class="cell">
+    <div class="cell-name">tizio</div>
+    <div class="wld"><span class="w">17</span>-<span class="l">6</span>-<span class="d">3</span></div>
+  </div>
+  <div class="cell">
+    <div class="cell-name">sss</div>
+    <div class="wld"><span class="w">5</span>-<span class="l">5</span>-<span class="d">0</span></div>
+  </div>
+  <div class="cell">
+    <div class="cell-name">ppp</div>
+    <div class="wld"><span class="w">2</span>-<span class="l">3</span>-<span class="d">0</span></div>
+  </div>
+</div>
+
+<div class="test-divider"></div>
+
+<!-- ═══════════════════════ GROUP + CELL: Storico accordion ═══════════════════════ -->
+<div class="test-h">Group + Cell — Storico (accordion)</div>
+<div class="section-label">Storico</div>
+<div class="group">
+  <div class="cell" onclick="this.nextElementSibling.classList.toggle('open')">
+    <div class="cell-left">
+      <div style="font-size:var(--fs-caption);font-weight:600;color:var(--text)">18 mar</div>
+      <div class="cell-meta">1498→1534 <span style="color:var(--green)">+36</span></div>
+    </div>
+    <div class="wld"><span class="w">3</span>-<span class="l">1</span>-<span class="d">0</span></div>
+  </div>
+  <div class="accordion" style="max-height:0;overflow:hidden;transition:max-height .3s ease">
+    <div class="cell nested">
+      <div class="cell-left">
+        <div class="cell-name">tizio</div>
+        <div class="cell-meta">3 ore fa</div>
+      </div>
+      <div class="cell-right">
+        <div class="cell-sub win">Vittoria</div>
+        <div style="font-size:var(--fs-caption);font-weight:700;color:var(--green)">+12</div>
+      </div>
+    </div>
+    <div class="cell nested">
+      <div class="cell-left">
+        <div class="cell-name">ppp</div>
+        <div class="cell-meta">4 ore fa</div>
+      </div>
+      <div class="cell-right">
+        <div class="cell-sub loss">Sconfitta</div>
+        <div style="font-size:var(--fs-caption);font-weight:700;color:var(--red)">-8</div>
+      </div>
+    </div>
+  </div>
+  <div class="cell" onclick="this.nextElementSibling.classList.toggle('open')">
+    <div class="cell-left">
+      <div style="font-size:var(--fs-caption);font-weight:600;color:var(--text)">17 mar</div>
+      <div class="cell-meta">1520→1498 <span style="color:var(--red)">-22</span></div>
+    </div>
+    <div class="wld"><span class="w">1</span>-<span class="l">3</span>-<span class="d">1</span></div>
+  </div>
+  <div class="accordion" style="max-height:0;overflow:hidden;transition:max-height .3s ease">
+    <div class="cell nested">
+      <div class="cell-left">
+        <div class="cell-name">sss</div>
+        <div class="cell-meta">ieri</div>
+      </div>
+      <div class="cell-right">
+        <div class="cell-sub loss">Sconfitta</div>
+        <div style="font-size:var(--fs-caption);font-weight:700;color:var(--red)">-15</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="test-divider"></div>
+
+<!-- ═══════════════════════ GROUP + CELL: Best wins ═══════════════════════ -->
+<div class="test-h">Group + Cell — Best Wins</div>
+<div class="section-label">Best wins</div>
+<div class="group">
+  <div class="cell static">
+    <div class="cell-left">
+      <div class="cell-name">caio</div>
+      <div class="cell-meta">18 mar</div>
+    </div>
+    <div style="font-size:var(--fs-caption);font-weight:700;color:var(--green)">1606</div>
+  </div>
+  <div class="cell static">
+    <div class="cell-left">
+      <div class="cell-name">mario</div>
+      <div class="cell-meta">17 mar</div>
+    </div>
+    <div style="font-size:var(--fs-caption);font-weight:700;color:var(--green)">1570</div>
+  </div>
+</div>
+
+<div class="test-divider"></div>
+
+<!-- ═══════════════════════ PROFILO HEADER ═══════════════════════ -->
+<div class="test-h">Profilo — Header</div>
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:8px 0">
+  <div style="flex:1;min-width:0">
+    <div style="font-size:var(--fs-title);font-weight:700;color:var(--text)">mario</div>
+    <div style="font-size:var(--fs-label);color:var(--dim);margin-top:2px">#2 di 10 · mar 2026</div>
+    <div style="font-size:var(--fs-caption);color:var(--muted);margin-top:4px;line-height:1.4">questa è una bio di prova</div>
+  </div>
+  <div style="text-align:right;flex-shrink:0">
+    <div style="font-size:var(--fs-hero-sm);font-weight:800;color:var(--text);line-height:1">1534</div>
+    <div style="font-size:var(--fs-label);color:var(--dim);margin-top:2px">Peak <span style="font-weight:600;color:var(--muted)">1545</span></div>
+    <div style="font-size:var(--fs-label);color:var(--red);margin-top:1px">−11 dal peak</div>
+  </div>
+</div>
+
+<!-- Stats -->
+<div style="padding:4px 0 10px">
+  <div style="font-size:var(--fs-caption);color:var(--dim);margin-bottom:3px"><span style="color:var(--green);font-weight:600">30V</span> · <span style="color:var(--red);font-weight:600">33P</span> · <span style="color:var(--dim);font-weight:600">44=</span> · <span style="color:var(--text);font-weight:700">win 28%</span></div>
+  <div style="font-size:var(--fs-label);color:var(--dim)">Bianco 65% · Nero 31%</div>
+  <div style="font-size:var(--fs-label);color:var(--dim)">Ultime 12: <span style="color:var(--green);font-weight:600">+22</span></div>
+</div>
+
+<div class="test-divider"></div>
+
+<!-- ═══════════════════════ BOTTONI ═══════════════════════ -->
+<div class="test-h">Bottoni</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+  <button class="btn-primary">Sfida</button>
+  <button class="btn-primary" disabled>Offline</button>
+  <button class="btn-secondary">Hai già un account? Accedi</button>
+  <div style="display:flex;gap:8px">
+    <button class="btn-small">Annulla</button>
+    <button class="btn-small" style="background:var(--green);color:var(--bg)">Accetta</button>
+  </div>
+</div>
+
+<div class="test-divider"></div>
+
+<!-- ═══════════════════════ SHEET ═══════════════════════ -->
+<div class="test-h">Action Sheet</div>
+<p class="test-desc">Tap "Apri sheet" per vedere l'animazione.</p>
+<button class="btn-small" onclick="document.getElementById('demo-sheet').classList.add('visible')">Apri sheet</button>
+
+<div class="sheet-overlay" id="demo-sheet" onclick="if(event.target===this)this.classList.remove('visible')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Nuova partita</div>
+    <button class="sheet-option" onclick="this.closest('.sheet-overlay').classList.remove('visible')">Sfida un giocatore</button>
+    <button class="sheet-option" onclick="this.closest('.sheet-overlay').classList.remove('visible')">Crea torneo</button>
+    <button class="sheet-option danger" onclick="this.closest('.sheet-overlay').classList.remove('visible')">Annulla</button>
+  </div>
+</div>
+
+<div class="test-divider"></div>
+
+<!-- ═══════════════════════ SHEET: Auth ═══════════════════════ -->
+<div class="test-h">Action Sheet — Auth</div>
+<button class="btn-small" onclick="document.getElementById('demo-auth-sheet').classList.add('visible')">Apri auth sheet</button>
+
+<div class="sheet-overlay" id="demo-auth-sheet" onclick="if(event.target===this)this.classList.remove('visible')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Crea account</div>
+    <div style="border-bottom:1px solid var(--border);padding:14px 0">
+      <input type="text" style="background:transparent;border:none;padding:0;font-size:var(--fs-body);font-weight:500;color:var(--text);width:100%;outline:none;border-radius:0" placeholder="Nickname">
+    </div>
+    <div style="font-size:var(--fs-label);color:var(--green);margin-top:2px;margin-bottom:12px">Disponibile</div>
+    <div style="border-bottom:1px solid var(--border);padding:14px 0">
+      <input type="text" style="background:transparent;border:none;padding:0;font-size:var(--fs-body);font-weight:500;color:var(--ghost);width:100%;outline:none;-webkit-text-security:disc;border-radius:0" placeholder="Password">
+    </div>
+    <div style="font-size:var(--fs-label);color:var(--ghost);margin-top:2px;margin-bottom:12px">Minimo 6 caratteri</div>
+    <div style="border-bottom:1px solid var(--border);padding:14px 0">
+      <input type="text" style="background:transparent;border:none;padding:0;font-size:var(--fs-body);font-weight:500;color:var(--ghost);width:100%;outline:none;-webkit-text-security:disc;border-radius:0" placeholder="Conferma password">
+    </div>
+    <div style="height:12px"></div>
+    <button class="btn-primary" style="margin-top:var(--sp-lg)">Registrati</button>
+    <div style="font-size:var(--fs-label);color:var(--ghost);text-align:center;margin-top:var(--sp-lg)">Non potrai recuperare la password.</div>
+  </div>
+</div>
+
+<div class="test-divider"></div>
+
+<!-- ═══════════════════════ EMPTY STATE ═══════════════════════ -->
+<div class="test-h">Empty State</div>
+<div style="text-align:center;padding:48px 24px">
+  <div style="font-size:var(--fs-body);font-weight:600;color:var(--dim);margin-bottom:var(--sp-sm)">Nessuna partita ancora</div>
+  <div style="font-size:var(--fs-label);color:var(--ghost);margin-bottom:var(--sp-xl)">Sfida qualcuno per iniziare</div>
+  <button class="btn-primary" style="max-width:200px;margin:0 auto">Sfida</button>
+</div>
+
+<script>
+// Accordion toggle
+document.querySelectorAll('.accordion').forEach(function(acc) {
+  acc.classList.add('open');
+});
+// Toggle open class
+document.addEventListener('click', function(e) {
+  var acc = e.target.closest('.cell')?.nextElementSibling;
+  if(acc && acc.classList.contains('accordion')) {
+    if(acc.style.maxHeight && acc.style.maxHeight !== '0px') {
+      acc.style.maxHeight = '0px';
+    } else {
+      acc.style.maxHeight = acc.scrollHeight + 'px';
+    }
+  }
+});
+// Open first accordion by default
+setTimeout(function() {
+  var first = document.querySelector('.accordion');
+  if(first) first.style.maxHeight = first.scrollHeight + 'px';
+}, 100);
+</script>
+</body>
+</html>
