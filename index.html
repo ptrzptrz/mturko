@@ -183,17 +183,6 @@ body.sheet-open #sa-cover{background:#000000}
 #home-active{flex-shrink:0}
 #home-active:empty{display:none}
 
-/* Storico label */
-#home-history-label{
-  font-size:var(--fs-micro);font-weight:600;color:var(--ghost);
-  text-transform:uppercase;letter-spacing:1.4px;
-  padding:8px 0 5px;flex-shrink:0;
-}
-#home-history-label:empty{display:none}
-
-/* Storico collapsed (legacy — hidden in new design) */
-#home-history-collapsed{display:none}
-
 /* ── CAB (legacy — hidden) ── */
 #cab{display:none}
 .cab-search-bar{height:52px;background:#1d1a16;border:1px solid #504a45;border-radius:16px;display:none;align-items:center;padding:0 14px 0 18px;gap:10px;flex-shrink:0}
@@ -405,6 +394,7 @@ body.sheet-open #sa-cover{background:#000000}
 .ds-cell:active{background:var(--border)}
 .ds-cell.static{cursor:default}
 .ds-cell.static:active{background:transparent}
+.ds-cell.is-me{background:#242018}
 .ds-cell.nested{padding-left:var(--sp-xl);background:#242018;cursor:default}
 .ds-cell.nested:active{background:#242018}
 .ds-cell-left{flex:1;min-width:0}
@@ -603,8 +593,9 @@ body.sheet-open #sa-cover{background:#000000}
         </div>
         <div class="home-chips" id="home-chips">
           <button class="ds-chip on" onclick="switchHomeChip(this,'all')">Tutto</button>
+          <button class="ds-chip" onclick="switchHomeChip(this,'mine')">Partite</button>
+          <button class="ds-chip" onclick="switchHomeChip(this,'events')">Attività</button>
           <button class="ds-chip" onclick="switchHomeChip(this,'ranking')">Classifica</button>
-          <button class="ds-chip" onclick="switchHomeChip(this,'mine')">Le mie</button>
         </div>
       </div>
 
@@ -628,21 +619,14 @@ body.sheet-open #sa-cover{background:#000000}
         <div class="cab-results" id="cab-results"></div>
       </div>
 
+      <!-- Active cards — pinned above scroll, always visible -->
+      <div id="home-active" style="padding:0 var(--sp-lg);flex-shrink:0"></div>
+
       <!-- Scrollable feed -->
       <div class="home-feed" id="home-feed">
-        <!-- Active cards — pinned above feed -->
-        <div id="home-active"></div>
-
         <!-- Feed: Tutto (default) -->
         <div id="home-feed-all">
-          <div id="home-history-label">Partite recenti</div>
-          <div id="home-history-collapsed" onclick="toggleHistoryExpand()">
-            <span id="home-history-collapsed-text"></span>
-            <span class="hcoll-arrow">›</span>
-          </div>
-          <div id="home-history-list">
-            <div id="home-history"></div>
-          </div>
+          <div id="home-history"></div>
         </div>
 
         <!-- Feed: Classifica (hidden) -->
@@ -653,6 +637,11 @@ body.sheet-open #sa-cover{background:#000000}
         <!-- Feed: Le mie (hidden) -->
         <div id="home-feed-mine" class="hidden">
           <div id="home-mine-list"></div>
+        </div>
+
+        <!-- Feed: Attività (hidden) -->
+        <div id="home-feed-events" class="hidden">
+          <div id="home-events-list"></div>
         </div>
       </div>
     </div>
@@ -743,6 +732,7 @@ let me = null, players = [], matches = [], activeMatch = null, pollTimer = null,
 let globalMatches = [];
 let globalEloCache = {};
 let globalEvents = [];
+let matchStakes = {}; // Cache: matchId -> {win_delta, loss_delta, draw_delta}
 
 // ── Auto-login: restore session on PWA reopen ──
 (async function autoLogin() {
@@ -1513,6 +1503,9 @@ async function fetchAll() {
     });
   }
 
+  // Fetch ELO stakes for pending challenges
+  await fetchMatchStakes();
+
   renderHome();
 }
 
@@ -1748,19 +1741,27 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
     </div>`;
   }
 
+  // Helper — format stakes HTML from cache
+  function stakesHtml(matchId) {
+    const s = matchStakes[matchId];
+    if(!s) return '';
+    return ' · <span style="color:var(--green)">+' + s.win_delta + '</span> / <span style="color:var(--red)">' + s.loss_delta + '</span>';
+  }
+
   // 1. Incoming challenges
   incomingChallenges.forEach(m => {
     const opp = getP(m.p1);
     const oppName = opp?.nickname || '?';
     const eloStr = opp?.elo ? String(Math.round(opp.elo)) : '';
-    let statusParts = ['Ti ha sfidato'];
+    let statusParts = ['ti sfida'];
+    if(m.time_control) statusParts.push(m.time_control.charAt(0).toUpperCase() + m.time_control.slice(1));
     if(m.white_player_id) {
       const amIWhite = m.white_player_id === me.id;
-      statusParts.push('tu ' + (amIWhite ? 'bianco' : 'nero'));
+      statusParts.push('giochi con il ' + (amIWhite ? 'bianco' : 'nero'));
     }
-    if(m.time_control) statusParts.push(m.time_control.charAt(0).toUpperCase() + m.time_control.slice(1));
-    cards.push(mkCard('green', oppName, eloStr, statusParts.join(' · '),
-      `<div style="display:flex;align-items:center;gap:var(--sp-md)"><button class="ds-card-btn primary" onclick="acceptChallenge('${m.id}')">Accetta</button><span style="color:var(--ghost);font-size:var(--fs-label);font-weight:500;cursor:pointer;white-space:nowrap" onclick="rejectChallenge('${m.id}')">Rifiuta</span></div>`
+    const stakes = stakesHtml(m.id);
+    cards.push(mkCard('green', oppName, eloStr, statusParts.join(' · ') + stakes,
+      `<div style="display:flex;align-items:center;gap:var(--sp-md)"><button class="ds-card-btn primary" onclick="acceptChallenge('${m.id}')">Gioca</button><span style="color:var(--ghost);font-size:var(--fs-label);font-weight:500;cursor:pointer;white-space:nowrap" onclick="rejectChallenge('${m.id}')">Rifiuta</span></div>`
     ));
   });
 
@@ -1769,7 +1770,7 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
     const oppId = m.p1 === me.id ? m.p2 : m.p1;
     const opp = getP(oppId);
     cards.push(mkCard('red', opp?.nickname||'?', opp?.elo ? String(Math.round(opp.elo)) : '',
-      'Risultati diversi · reinserisci',
+      'Risultati non coincidono · reinserisci',
       `<button class="ds-card-btn danger" onclick="openResultSheet('${m.id}')">Reinserisci</button>`
     ));
   });
@@ -1778,9 +1779,8 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
   activeCards.filter(c => c.type === 'live').forEach(({ m }) => {
     const oppId = m.p1 === me.id ? m.p2 : m.p1;
     const opp = getP(oppId);
-    const timeStr = m.time_control ? ' · ' + m.time_control.charAt(0).toUpperCase() + m.time_control.slice(1) : '';
     cards.push(mkCard('green', opp?.nickname||'?', opp?.elo ? String(Math.round(opp.elo)) : '',
-      'In attesa del risultato' + timeStr,
+      'Com\'è andata?',
       `<button class="ds-card-btn primary" onclick="openResultSheet('${m.id}')">Risultato</button>`
     ));
   });
@@ -1800,19 +1800,38 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
   sentChallenges.forEach(m => {
     const opp = getP(m.p2);
     let statusParts = ['Sfida inviata'];
+    if(m.time_control) statusParts.push(m.time_control.charAt(0).toUpperCase() + m.time_control.slice(1));
     if(m.white_player_id) {
       const amIWhite = m.white_player_id === me.id;
-      statusParts.push('tu ' + (amIWhite ? 'bianco' : 'nero'));
+      statusParts.push('giochi con il ' + (amIWhite ? 'bianco' : 'nero'));
     }
-    if(m.time_control) statusParts.push(m.time_control.charAt(0).toUpperCase() + m.time_control.slice(1));
-    cards.push(mkCard('gray', opp?.nickname||'?', '',
-      statusParts.join(' · '),
+    const stakes = stakesHtml(m.id);
+    cards.push(mkCard('gray', opp?.nickname||'?', opp?.elo ? String(Math.round(opp.elo)) : '',
+      statusParts.join(' · ') + stakes,
       `<button class="ds-card-btn ghost" onclick="cancelChallenge('${m.id}')">Annulla</button>`,
       true
     ));
   });
 
   container.innerHTML = cards.join('');
+}
+
+async function fetchMatchStakes() {
+  if(!me) return;
+  const relevant = (matches || []).filter(m =>
+    (m.status === 'pending_challenge' || m.status === 'active') &&
+    (m.p1 === me.id || m.p2 === me.id)
+  );
+  for(const m of relevant) {
+    if(matchStakes[m.id]) continue;
+    const oppId = m.p1 === me.id ? m.p2 : m.p1;
+    try {
+      const res = await db.rpc('estimate_match_delta', { p1_id: me.id, p2_id: oppId });
+      if(res && !res.error && res.win_delta !== undefined) {
+        matchStakes[m.id] = res;
+      }
+    } catch(e) { /* silently skip */ }
+  }
 }
 
 function renderHome() {
@@ -1844,59 +1863,15 @@ function renderHome() {
   // Contextual Action Bar
   updateCAB();
 
-  // ── Storico ──
-  const hasAnythingActive = allActive.length > 0 || incomingChallenges.length > 0 || sentChallenges.length > 0;
-  const meaningful = done.filter(m => m.result !== "cancelled");
+  // ── Feed ──
+  const activeChip = document.querySelector('.home-chips .ds-chip.on');
+  const chipText = activeChip ? activeChip.textContent.trim() : 'Tutto';
+  const activeView = chipText === 'Classifica' ? 'ranking' : chipText === 'Partite' ? 'mine' : chipText === 'Attività' ? 'events' : 'all';
 
-  if(meaningful.length === 0) {
-    $('home-history-label').style.display = 'none';
-    $('home-history-collapsed').classList.remove('visible');
-    $("home-history").innerHTML = hasAnythingActive ? '' : `
-      <div style="margin-top:32px;text-align:center;padding:0 24px">
-        <div style="font-size:var(--fs-body);color:var(--dim);font-weight:600;margin-bottom:var(--sp-sm)">La tua prima partita ti aspetta</div>
-        <div style="font-size:var(--fs-label);color:var(--ghost);line-height:1.5;cursor:pointer" onclick="onPlusTap()">Tap + per sfidare qualcuno</div>
-      </div>`;
-    return;
-  }
-
-  // Feed always visible — no collapse in new design
-  $('home-history-label').style.display = '';
-  $('home-history-collapsed').classList.remove('visible');
-  var listEl = $('home-history-list');
-  if(listEl) { listEl.classList.remove('collapsed'); listEl.style.maxHeight = ''; }
-
-  $("home-history").innerHTML = meaningful.map(m => {
-    const opp = getP(m.p1===me.id ? m.p2 : m.p1);
-    const isP1 = m.p1===me.id;
-    const won = m.result==="p1" ? isP1 : m.result==="p2" ? !isP1 : null;
-    const isDraw = won === null;
-    const resultLabel = isDraw ? "Patta" : won ? "Vinta" : "Persa";
-    const elo = eloCache[m.id];
-    const eloDelta = elo ? (elo.elo_after - elo.elo_before) : null;
-    const deltaColor = isDraw ? 'var(--dim)' : (eloDelta > 0 ? 'var(--green)' : 'var(--red)');
-    const deltaStr = (eloDelta !== null && eloDelta !== 0)
-      ? `${eloDelta>0?'+':''}${eloDelta}`
-      : '0';
-    const oppId = m.p1===me.id ? m.p2 : m.p1;
-    return `<div class="ds-cell" onclick="openProfile('${oppId}', 'home')">
-      <div class="ds-cell-left">
-        <div class="ds-cell-name">${opp?.nickname||"?"}</div>
-        <div class="ds-cell-meta">${timeAgo(m.created_at)}${opp ? ' · '+Math.round(opp.elo) : ''}</div>
-      </div>
-      <div class="ds-cell-right">
-        <div class="ds-cell-value" style="color:${deltaColor}">${deltaStr}</div>
-        <div class="ds-cell-sub" style="color:${deltaColor}">${resultLabel}</div>
-      </div>
-    </div>`;
-  }).join("");
-
-  // Wrap in ds-group
-  const hist = $("home-history");
-  if(hist.innerHTML) hist.innerHTML = `<div class="ds-group">${hist.innerHTML}</div>`;
-  if(!hist._swipeInit) { hist._swipeInit = true; initHrowSwipe(hist); }
-
-  // Hint swipe — solo quando storico espanso (nessun flusso attivo)
-  if(!hasAnythingActive) setTimeout(maybeShowSwipeHint, 50);
+  if(activeView === 'all') renderHomeFeedAll();
+  if(activeView === 'mine') renderHomeMine();
+  if(activeView === 'events') renderHomeEvents();
+  if(activeView === 'ranking') renderHomeRanking();
 }
 
 // ── Swipe-to-challenge su hrow ──
@@ -2059,55 +2034,239 @@ function switchHomeChip(btn, view) {
   document.querySelectorAll('.home-chips .ds-chip').forEach(c => c.classList.remove('on'));
   btn.classList.add('on');
   $('home-feed-all').classList.toggle('hidden', view !== 'all');
-  $('home-feed-ranking').classList.toggle('hidden', view !== 'ranking');
   $('home-feed-mine').classList.toggle('hidden', view !== 'mine');
-  // Render ranking/mine on demand
-  if (view === 'ranking') renderHomeRanking();
-  if (view === 'mine') renderHomeMine();
+  $('home-feed-events').classList.toggle('hidden', view !== 'events');
+  $('home-feed-ranking').classList.toggle('hidden', view !== 'ranking');
+  if(view === 'all') renderHomeFeedAll();
+  if(view === 'mine') renderHomeMine();
+  if(view === 'events') renderHomeEvents();
+  if(view === 'ranking') renderHomeRanking();
+}
+
+function renderHomeFeedAll() {
+  const container = $('home-history');
+  if(!container) return;
+  const feedItems = [];
+
+  // Events from DB — filtered
+  (globalEvents || []).forEach(ev => {
+    if(ev.type === 'peak') return;
+    const data = ev.data || {};
+    const player = getP(ev.player_id);
+    const target = getP(ev.target_id);
+    const pName = player?.nickname || data.nickname || '?';
+    const tName = target?.nickname || data.overtaken_name || '?';
+    let text = '', deltaStr = '';
+
+    switch(ev.type) {
+      case 'overtake':
+        if(ev.target_id === me.id) text = pName + ' ti ha superato';
+        else if(ev.player_id === me.id) text = 'Hai superato ' + tName;
+        break;
+      case 'upset':
+        var eloDiff = data.elo_diff || 0;
+        if(eloDiff >= 100) { text = pName + ' ha battuto ' + tName; deltaStr = '+' + eloDiff; }
+        break;
+      case 'milestone':
+        var ms = data.milestone || data.elo;
+        if(ms && ms % 100 === 0) text = pName + ' ha raggiunto quota ' + ms;
+        break;
+      case 'streak':
+        if(data.streak >= 5) { text = pName + ', ' + data.streak + ' vittorie di fila!'; if(data.elo_gain) deltaStr = '+' + data.elo_gain; }
+        break;
+      case 'new_player':
+        text = (data.nickname || pName) + ' si è unito a turko';
+        break;
+    }
+    if(text) feedItems.push({ type: 'event', time: new Date(ev.created_at).getTime(), text, deltaStr, playerId: ev.player_id });
+  });
+
+  // All done matches (everyone's)
+  const allDone = (globalMatches || []).filter(m => m.status === 'done' && m.result && m.result !== 'cancelled').slice(0, 30);
+  allDone.forEach(m => {
+    const isDraw = m.result === 'draw';
+    const winnerId = m.result === 'p1' ? m.p1 : m.result === 'p2' ? m.p2 : m.p1;
+    const loserId = isDraw ? m.p2 : (m.result === 'p1' ? m.p2 : m.p1);
+    const winner = getP(winnerId), loser = getP(loserId);
+    const isMyMatch = m.p1 === me.id || m.p2 === me.id;
+    const p1 = getP(m.p1), p2 = getP(m.p2);
+
+    let text;
+    if(isMyMatch) {
+      const oppName = (m.p1 === me.id ? p2 : p1)?.nickname || '?';
+      if(isDraw) text = 'Patta con ' + oppName;
+      else if(winnerId === me.id) text = 'Hai vinto contro ' + oppName;
+      else text = 'Hai perso contro ' + oppName;
+    } else {
+      if(isDraw) text = (p1?.nickname||'?') + ' patta con ' + (p2?.nickname||'?');
+      else text = (winner?.nickname||'?') + ' ha vinto contro ' + (loser?.nickname||'?');
+    }
+
+    let deltaStr = '', deltaColor = 'var(--dim)';
+    if(isMyMatch) {
+      const elo = eloCache[m.id];
+      if(elo) {
+        const d = elo.elo_after - elo.elo_before;
+        deltaStr = d > 0 ? '+' + d : '' + d;
+        deltaColor = isDraw ? 'var(--dim)' : d > 0 ? 'var(--green)' : 'var(--red)';
+      }
+    }
+
+    const oppId = isMyMatch ? (m.p1 === me.id ? m.p2 : m.p1) : winnerId;
+    feedItems.push({ type: 'match', time: new Date(m.updated_at || m.created_at).getTime(), text, deltaStr, deltaColor, isMyMatch, profileId: oppId });
+  });
+
+  feedItems.sort((a, b) => b.time - a.time);
+
+  if(!feedItems.length) {
+    container.innerHTML = '<div style="margin-top:32px;text-align:center;padding:0 24px"><div style="font-size:var(--fs-body);color:var(--dim);font-weight:600;margin-bottom:var(--sp-sm)">La tua prima partita ti aspetta</div><div style="font-size:var(--fs-label);color:var(--ghost);line-height:1.5;cursor:pointer" onclick="onPlusTap()">Tap + per sfidare qualcuno</div></div>';
+    return;
+  }
+
+  // All rows same style — chip filters, doesn't change design
+  container.innerHTML = '<div class="ds-group">' + feedItems.map(item => {
+    let rightHtml = '';
+    const isEvent = item.type === 'event';
+
+    if(item.deltaStr) {
+      const dColor = (item.type === 'match' && item.isMyMatch) ? item.deltaColor : 'var(--green)';
+      rightHtml = '<div class="ds-cell-right"><div class="ds-cell-value" style="color:' + dColor + '">' + item.deltaStr + '</div></div>';
+    }
+
+    const onclick = isEvent ? '' : ' onclick="openProfile(\'' + (item.profileId || item.playerId || '') + '\',\'home\')"';
+    return '<div class="ds-cell' + (isEvent ? ' static' : '') + '"' + onclick + '><div class="ds-cell-left"><div class="ds-cell-name">' + item.text + '</div><div class="ds-cell-meta">' + timeAgo(new Date(item.time).toISOString()) + '</div></div>' + rightHtml + '</div>';
+  }).join('') + '</div>';
 }
 
 function renderHomeRanking() {
-  // Reuse existing leaderboard renderer
   const list = $('home-ranking-list');
-  if (!list || !players.length) return;
-  const sorted = [...players].sort((a,b) => b.elo - a.elo);
+  if(!list || !players.length) return;
+  const sorted = [...players].sort((a, b) => b.elo - a.elo);
+  const myIdx = sorted.findIndex(p => p.id === me.id);
+  const now = Date.now();
+
   let html = '';
   sorted.forEach((p, i) => {
     const isMe = p.id === me.id;
-    html += `<div class="ds-cell${isMe ? '' : ''}" onclick="openProfile('${p.id}','home')">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div class="ds-cell-rank">${i+1}</div>
-        <div class="ds-cell-left">
-          <div class="ds-cell-name">${escHtml(p.nickname)}${isMe ? ' <span style=\"font-size:var(--fs-micro);color:var(--dim);font-weight:400\">tu</span>' : ''}${p.is_playing ? ' <span class=\"ds-dot playing\"></span>' : (p.last_seen_at && (Date.now()-new Date(p.last_seen_at).getTime()<180000) ? ' <span class=\"ds-dot\"></span>' : '')}</div>
-        </div>
-      </div>
-      <div class="ds-cell-right"><div class="ds-cell-value">${Math.round(p.elo)}</div></div>
-    </div>`;
+    const elo = Math.round(p.elo);
+    const online = p.last_seen_at && (now - new Date(p.last_seen_at).getTime()) < 30000;
+    const dotHtml = online ? ' <span class="ds-dot"></span>' : '';
+
+    // Daily delta — only show if non-zero
+    const dailyDelta = getDailyDelta(p.id, elo);
+    let deltaHtml = '';
+    if(dailyDelta > 0) deltaHtml = '<div class="ds-cell-sub" style="color:var(--green);font-weight:600">+' + dailyDelta + '</div>';
+    else if(dailyDelta < 0) deltaHtml = '<div class="ds-cell-sub" style="color:var(--red);font-weight:600">' + dailyDelta + '</div>';
+
+    // Gap hint — only for me and the one below me
+    let metaHtml = '';
+    if(isMe && i > 0) {
+      const above = sorted[i - 1];
+      const gap = Math.round(above.elo) - elo;
+      metaHtml = '<div class="ds-cell-meta" style="color:var(--dim)">a ' + gap + ' punti da #' + i + '</div>';
+    } else if(myIdx >= 0 && i === myIdx + 1) {
+      const gap = Math.round(me.elo) - elo;
+      metaHtml = '<div class="ds-cell-meta" style="color:var(--dim)">a ' + gap + ' punti da te</div>';
+    }
+
+    html += '<div class="ds-cell' + (isMe ? ' is-me' : '') + '" onclick="openProfile(\'' + p.id + '\',\'home\')">' +
+      '<div style="font-size:var(--fs-caption);font-weight:700;color:' + (isMe ? 'var(--text)' : 'var(--ghost)') + ';min-width:24px;text-align:center;flex-shrink:0;margin-right:var(--sp-md)">' + (i + 1) + '</div>' +
+      '<div class="ds-cell-left">' +
+        '<div class="ds-cell-name">' + escHtml(p.nickname) + (isMe ? ' <span style="font-size:var(--fs-micro);color:var(--dim);font-weight:400">tu</span>' : '') + dotHtml + '</div>' +
+        metaHtml +
+      '</div>' +
+      '<div class="ds-cell-right">' +
+        '<div class="ds-cell-value">' + elo + '</div>' +
+        deltaHtml +
+      '</div>' +
+    '</div>';
   });
-  list.innerHTML = `<div class="ds-group">${html}</div>`;
+
+  // Add is-me CSS if not already present
+  list.innerHTML = '<div class="ds-group">' + html + '</div>';
 }
 
 function renderHomeMine() {
   const list = $('home-mine-list');
-  if (!list || !matches.length) return;
-  const myMatches = matches.filter(m => m.status === 'confirmed' && (m.p1 === me.id || m.p2 === me.id)).slice(0, 20);
-  if (!myMatches.length) { list.innerHTML = '<div style="text-align:center;padding:48px;color:var(--ghost);font-size:var(--fs-label)">Nessuna partita ancora</div>'; return; }
+  if(!list) return;
+  const myDone = matches.filter(m => m.status === 'done' && m.result !== 'cancelled' && (m.p1 === me.id || m.p2 === me.id)).slice(0, 20);
+  if(!myDone.length) { list.innerHTML = '<div style="text-align:center;padding:48px;color:var(--ghost);font-size:var(--fs-label)">Nessuna partita ancora</div>'; return; }
   let html = '';
-  myMatches.forEach(m => {
+  myDone.forEach(m => {
     const isP1 = m.p1 === me.id;
     const oppId = isP1 ? m.p2 : m.p1;
     const opp = getP(oppId);
-    const myResult = isP1 ? m.result_p1 : m.result_p2;
-    const delta = (isP1 ? m.elo_after_p1 : m.elo_after_p2) - (isP1 ? m.elo_before_p1 : m.elo_before_p2);
-    const deltaStr = delta > 0 ? '+' + delta : '' + delta;
-    const cls = myResult === 'win' ? 'var(--green)' : myResult === 'loss' ? 'var(--red)' : 'var(--dim)';
-    const label = myResult === 'win' ? 'Vinta' : myResult === 'loss' ? 'Persa' : 'Patta';
+    const isDraw = m.result === 'draw';
+    const won = m.result === 'p1' ? isP1 : m.result === 'p2' ? !isP1 : null;
+    const oppName = opp ? escHtml(opp.nickname) : '?';
+    let text;
+    if(isDraw) text = 'Patta con ' + oppName;
+    else if(won) text = 'Hai vinto contro ' + oppName;
+    else text = 'Hai perso contro ' + oppName;
+
+    let deltaStr = '0', deltaColor = 'var(--dim)';
+    const elo = eloCache[m.id];
+    if(elo) {
+      const d = elo.elo_after - elo.elo_before;
+      deltaStr = d > 0 ? '+' + d : '' + d;
+      deltaColor = isDraw ? 'var(--dim)' : d > 0 ? 'var(--green)' : 'var(--red)';
+    }
     html += `<div class="ds-cell" onclick="openProfile('${oppId}','home')">
-      <div class="ds-cell-left"><div class="ds-cell-name">${opp ? escHtml(opp.nickname) : '?'}</div><div class="ds-cell-meta">${fmtDate(m.updated_at, true)} · ${opp ? Math.round(opp.elo) : '?'}</div></div>
-      <div class="ds-cell-right"><div class="ds-cell-value" style="color:${cls}">${deltaStr}</div><div class="ds-cell-sub" style="color:${cls}">${label}</div></div>
+      <div class="ds-cell-left"><div class="ds-cell-name">${text}</div><div class="ds-cell-meta">${timeAgo(m.created_at)}${opp ? ' · ' + Math.round(opp.elo) : ''}</div></div>
+      <div class="ds-cell-right"><div class="ds-cell-value" style="color:${deltaColor}">${deltaStr}</div></div>
     </div>`;
   });
   list.innerHTML = `<div class="ds-group">${html}</div>`;
+}
+
+function renderHomeEvents() {
+  const list = $('home-events-list');
+  if(!list) return;
+  const items = [];
+
+  (globalEvents || []).forEach(ev => {
+    if(ev.type === 'peak') return;
+    const data = ev.data || {};
+    const player = getP(ev.player_id);
+    const target = getP(ev.target_id);
+    const pName = player?.nickname || data.nickname || '?';
+    const tName = target?.nickname || data.overtaken_name || '?';
+    let text = '', deltaStr = '';
+
+    switch(ev.type) {
+      case 'overtake':
+        if(ev.target_id === me.id) text = pName + ' ti ha superato';
+        else if(ev.player_id === me.id) text = 'Hai superato ' + tName;
+        break;
+      case 'upset':
+        var eloDiff = data.elo_diff || 0;
+        if(eloDiff >= 100) { text = pName + ' ha battuto ' + tName; deltaStr = '+' + eloDiff; }
+        break;
+      case 'milestone':
+        var ms = data.milestone || data.elo;
+        if(ms && ms % 100 === 0) text = pName + ' ha raggiunto quota ' + ms;
+        break;
+      case 'streak':
+        if(data.streak >= 5) { text = pName + ', ' + data.streak + ' vittorie di fila!'; if(data.elo_gain) deltaStr = '+' + data.elo_gain; }
+        break;
+      case 'new_player':
+        text = (data.nickname || pName) + ' si è unito a turko';
+        break;
+    }
+    if(text) items.push({ time: new Date(ev.created_at).getTime(), text, deltaStr, playerId: ev.player_id });
+  });
+
+  items.sort((a, b) => b.time - a.time);
+
+  if(!items.length) {
+    list.innerHTML = '<div style="text-align:center;padding:48px;color:var(--ghost);font-size:var(--fs-label)">Nessuna attività ancora</div>';
+    return;
+  }
+
+  list.innerHTML = '<div class="ds-group">' + items.map(item => {
+    const rightHtml = item.deltaStr ? '<div class="ds-cell-right"><div class="ds-cell-value" style="color:var(--green)">' + item.deltaStr + '</div></div>' : '';
+    return '<div class="ds-cell static"><div class="ds-cell-left"><div class="ds-cell-name">' + item.text + '</div><div class="ds-cell-meta">' + timeAgo(new Date(item.time).toISOString()) + '</div></div>' + rightHtml + '</div>';
+  }).join('') + '</div>';
 }
 
 function onPlusTap() {
@@ -2311,93 +2470,13 @@ function toggleHistoryExpand() {
 // ── Challenge sheet — sfida ricevuta, accetta/declina ──
 let _challengeSheetMatchId = null;
 
-function openChallengeSheet(matchId) {
-  const m = matches.find(x => x.id === matchId);
-  if(!m) return;
-  _challengeSheetMatchId = matchId;
-  const opp = getP(m.p1);
-  $('csheet-name').textContent = opp?.nickname || '?';
-  $('csheet-elo').textContent = opp?.elo ? opp.elo + ' ELO' : '';
-  const amIWhite = m.white_player_id === me.id;
-  if(m.white_player_id) {
-    const dot = $('csheet-color-dot');
-    const colorText = $('csheet-color');
-    if(amIWhite) {
-      dot.style.background = '#e8e6e3';
-      dot.style.boxShadow = 'inset 0 0 0 1px #8a8580';
-      colorText.textContent = 'giochi col bianco';
-    } else {
-      dot.style.background = '#161512';
-      dot.style.boxShadow = 'inset 0 0 0 1px #504a45';
-      colorText.textContent = 'giochi col nero';
-    }
-    $('csheet-color-wrap').style.display = 'flex';
-  } else {
-    $('csheet-color-wrap').style.display = 'none';
-  }
-
-  const overlay = $('challenge-sheet-overlay');
-  overlay.style.display = 'flex';
-  document.body.classList.add('sheet-open');
-  requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('visible')));
-}
-
-function closeChallengeSheet() {
-  const overlay = $('challenge-sheet-overlay');
-  overlay.classList.remove('visible');
-  document.body.classList.remove('sheet-open');
-  setTimeout(() => { overlay.style.display = 'none'; _challengeSheetMatchId = null; }, 320);
-}
-
-async function confirmChallengeSheet(action) {
-  const matchId = _challengeSheetMatchId;
-  closeChallengeSheet();
-  if(!matchId) return;
-  if(action === 'accept') await acceptChallenge(matchId);
-  else await rejectChallenge(matchId);
-}
-
 // N partite live — mini sheet con lista
 function openMultiResultSheet(liveCards) {
-  // Per ora apre la prima — in futuro sheet con lista
-  // TODO: sheet seleziona partita quando N > 1
   openResultSheet(liveCards[0].m.id);
 }
 
 // Feedback "Risultato inviato" → cross-fade → "Gioca" dopo 2s
-function cabShowFeedback() {
-  const prevState = _cabState;
-  _cabState = 'feedback';
-  const feedback = $('cab-feedback');
-  const bar = $('cab-bar');
-
-  // Assicuro che la barra principale sia idle
-  const label = $('cab-label');
-  const labelSub = $('cab-label-sub');
-  const icon = $('cab-icon');
-  const arrow = $('cab-arrow');
-  _setCABState('idle', bar, label, labelSub, icon, arrow);
-  label.textContent = 'Gioca';
-  bar.onclick = onCABTap;
-  _cabState = 'feedback'; // rimetti dopo _setCABState
-
-  // Mostra feedback sopra la barra
-  feedback.classList.remove('hide');
-  feedback.classList.add('show');
-
-  clearTimeout(_cabFeedbackTimer);
-  _cabFeedbackTimer = setTimeout(() => {
-    feedback.classList.remove('show');
-    feedback.classList.add('hide');
-    setTimeout(() => {
-      feedback.classList.remove('hide');
-      _cabState = 'idle';
-      updateCAB();
-    }, 300);
-  }, 2000);
-}
-
-$('cab-search-input').addEventListener('input', renderCABSearch);
+if($('cab-search-input')) $('cab-search-input').addEventListener('input', renderCABSearch);
 
 function renderCABSearch() {
   const q = $('cab-search-input').value.toLowerCase();
@@ -3889,32 +3968,6 @@ document.querySelector('.home-feed').addEventListener('scroll', () => {
     </div>
     <div id="rsheet-dispute-warn" class="hidden" style="font-size:var(--fs-label);color:var(--muted);text-align:center;padding:var(--sp-sm) var(--sp-sm) var(--sp-xs);line-height:1.5">Se non concordate di nuovo, la partita verrà annullata.</div>
     <button class="rsheet-cancel" onclick="closeResultSheet()">Annulla</button>
-  </div>
-</div>
-
-<!-- ACTION SHEET SFIDA RICEVUTA -->
-<div class="asheet-overlay" id="challenge-sheet-overlay" onclick="closeChallengeSheet()">
-  <div class="asheet" onclick="event.stopPropagation()" style="padding:24px 20px 36px">
-
-    <!-- Chi sfida -->
-    <div style="margin-bottom:24px">
-      <div style="font-size:11px;color:#504a45;letter-spacing:.8px;text-transform:uppercase;margin-bottom:12px">Sfida ricevuta</div>
-      <div id="csheet-name" style="font-size:36px;font-weight:800;color:#e8e6e3;letter-spacing:-1px;line-height:1;margin-bottom:4px"></div>
-      <div id="csheet-elo" style="font-size:13px;color:#6a6560;font-weight:500"></div>
-    </div>
-
-    <!-- Colore assegnato — solo se disponibile -->
-    <div id="csheet-color-wrap" style="display:none;align-items:center;gap:8px;margin-bottom:24px">
-      <div id="csheet-color-dot" style="width:10px;height:10px;border-radius:50%;flex-shrink:0"></div>
-      <div id="csheet-color" style="font-size:13px;color:#8a8580;font-weight:500"></div>
-    </div>
-
-    <!-- CTA -->
-    <div style="display:flex;flex-direction:column;gap:6px">
-      <button class="asheet-cta" id="csheet-accept" onclick="confirmChallengeSheet('accept')">Accetta</button>
-      <button class="rsheet-cancel" style="margin:0;padding:12px" onclick="confirmChallengeSheet('decline')">Declina</button>
-    </div>
-
   </div>
 </div>
 
