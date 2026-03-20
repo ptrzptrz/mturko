@@ -123,15 +123,14 @@ body.sheet-open #sa-cover{background:#000000}
 .auth-eye svg{width:20px;height:20px;display:block}
 .auth-field-hint{font-size:var(--fs-label);color:#504a45;margin-top:2px;margin-bottom:var(--sp-md);min-height:16px;transition:color .2s;display:flex;align-items:center;gap:6px}
 .auth-field-hint.ok{color:#7ab535}
-.auth-field-hint.err{color:#d45454}
-/* Inline check in hint (14px) */
-.auth-check-sm{width:14px;height:14px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;opacity:0;animation:checkFadeIn .3s ease forwards}
-.auth-check-sm svg{display:block;width:14px;height:14px}
-.auth-check-sm.ok svg{stroke:#7ab535}
-.auth-check-sm.err svg{stroke:#d45454}
-.auth-check-sm circle{fill:none;stroke-width:1.5;stroke-linecap:round}
-.auth-check-sm polyline,.auth-check-sm line{fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-@keyframes checkFadeIn{to{opacity:1}}
+.auth-field-hint.err{color:#d45454;opacity:1}
+/* Inline check in hint (14px) — no stroke-dash animation for Safari transform compat */
+.check-sm{width:14px;height:14px;flex-shrink:0;display:inline-block}
+.check-sm svg{display:block;width:14px;height:14px}
+.check-sm .circle{fill:none;stroke-width:1.5;stroke-linecap:round;stroke:var(--ghost)}
+.check-sm .mark{fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke:var(--ghost)}
+.check-sm.ok .circle,.check-sm.ok .mark{stroke:var(--green)}
+.check-sm.err .circle,.check-sm.err .mark{stroke:var(--red)}
 .btn-g{background:#e8e6e3;color:#161512;border-radius:12px;padding:17px 16px;font-size:16px;font-weight:700;width:100%;margin-top:12px;display:block;transition:transform .15s cubic-bezier(.34,1.56,.64,1),opacity .15s ease;letter-spacing:-.2px}
 .box .btn-g{margin-top:32px}
 .btn-g:active{transform:scale(0.97);opacity:.9}
@@ -1440,9 +1439,9 @@ var _nickCheckTimer = null;
 var _nickAvailable = false;
 
 function makeCheckSvg(ok) {
-  var cls = 'auth-check-sm ' + (ok ? 'ok' : 'err');
-  if(ok) return '<span class="' + cls + '"><svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke-width="1.5"/><polyline points="4,7.5 6,9.5 10,5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
-  return '<span class="' + cls + '"><svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke-width="1.5"/><line x1="5" y1="5" x2="9" y2="9" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="5" x2="5" y2="9" stroke-width="1.5" stroke-linecap="round"/></svg></span>';
+  var c = ok ? '#7ab535' : '#d45454';
+  if(ok) return '<span style="display:inline-block;width:14px;height:14px;flex-shrink:0"><svg viewBox="0 0 14 14" width="14" height="14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="'+c+'" stroke-width="1.5"/><polyline points="4,7.5 6,9.5 10,5" stroke="'+c+'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>';
+  return '<span style="display:inline-block;width:14px;height:14px;flex-shrink:0"><svg viewBox="0 0 14 14" width="14" height="14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="'+c+'" stroke-width="1.5"/><line x1="5" y1="5" x2="9" y2="9" stroke="'+c+'" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="5" x2="5" y2="9" stroke="'+c+'" stroke-width="1.5" stroke-linecap="round"/></svg></span>';
 }
 
 function setFieldState(inputId, hintId, checkId, state, text) {
@@ -1455,9 +1454,6 @@ function setFieldState(inputId, hintId, checkId, state, text) {
     else if(state === 'invalid') checkHtml = makeCheckSvg(false);
     hint.innerHTML = checkHtml + (text ? '<span>' + text + '</span>' : '');
     hint.className = 'auth-field-hint' + (state === 'valid' ? ' ok' : state === 'invalid' ? ' err' : '');
-    // Force reflow to trigger CSS animation on Safari
-    var check = hint.querySelector('.auth-check-sm');
-    if(check) { check.offsetHeight; }
   }
 }
 
@@ -1493,8 +1489,12 @@ function _setNickState(state, text) {
   else { hint.innerHTML = text ? '<span>' + text + '</span>' : ''; hint.className = 'auth-field-hint'; }
 }
 
+var _lastNickValue = '';
 $("r-nick").addEventListener("input", function() {
   var nick = this.value.trim();
+  // Guard: skip if value hasn't actually changed (Safari ghost input events)
+  if(nick === _lastNickValue) return;
+  _lastNickValue = nick;
   _nickAvailable = false;
   clearTimeout(_nickCheckTimer);
 
