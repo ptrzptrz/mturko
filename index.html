@@ -1737,8 +1737,8 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
   if(total === 0) { container.innerHTML = ''; return; }
 
   // Helper — ds-card A1 structure
-  function mkCard(accentClass, name, eloStr, statusText, ctaHtml, passive=false) {
-    return `<div class="ds-card${passive ? ' acard-passive' : ''}">
+  function mkCard(accentClass, name, eloStr, statusText, ctaHtml, passive=false, cardAttr='') {
+    return `<div class="ds-card${passive ? ' acard-passive' : ''}" ${cardAttr}>
       <div class="ds-card-accent ${accentClass}"></div>
       <div class="ds-card-body">
         <div class="ds-card-name">${name}${eloStr ? ` <span class="ds-card-elo">${eloStr}</span>` : ''}</div>
@@ -1760,7 +1760,7 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
     }
     if(m.time_control) statusParts.push(m.time_control.charAt(0).toUpperCase() + m.time_control.slice(1));
     cards.push(mkCard('green', oppName, eloStr, statusParts.join(' · '),
-      `<div style="display:flex;flex-direction:column;gap:4px;align-items:stretch"><button class="ds-card-btn primary" onclick="acceptChallenge('${m.id}')">Accetta</button><button style="background:none;border:none;color:var(--ghost);font-size:var(--fs-label);font-weight:500;cursor:pointer;padding:4px;font-family:inherit;text-align:center;transition:color var(--dur-fast)" onclick="rejectChallenge('${m.id}')">Rifiuta</button></div>`
+      `<div style="display:flex;align-items:center;gap:var(--sp-md)"><button class="ds-card-btn primary" onclick="acceptChallenge('${m.id}')">Accetta</button><span style="color:var(--ghost);font-size:var(--fs-label);font-weight:500;cursor:pointer;white-space:nowrap" onclick="rejectChallenge('${m.id}')">Rifiuta</span></div>`
     ));
   });
 
@@ -2560,6 +2560,32 @@ async function acceptChallenge(matchId) {
   await db.patch("matches", `id=eq.${matchId}`, {status: "active"});
   await fetchAll();
 }
+function openChallengeDetail(matchId) {
+  const m = matches.find(x => x.id === matchId);
+  if(!m) return;
+  const opp = getP(m.p1);
+  const oppName = opp?.nickname || '?';
+  const oppElo = opp?.elo ? Math.round(opp.elo) : '?';
+  let colorInfo = '';
+  if(m.white_player_id) {
+    const amIWhite = m.white_player_id === me.id;
+    colorInfo = ' · tu ' + (amIWhite ? 'bianco' : 'nero');
+  }
+  // Reuse result sheet overlay pattern
+  const overlay = $('result-sheet-overlay');
+  $('rsheet-eyebrow').textContent = 'Sfida ricevuta';
+  $('rsheet-context').innerHTML = `<div style="font-size:var(--fs-caption);color:var(--muted)">${oppName} (${oppElo})${colorInfo}</div>`;
+  $('rsheet-dispute-warn').classList.add('hidden');
+  // Replace buttons temporarily
+  const btnsContainer = overlay.querySelector('.ds-group');
+  btnsContainer.innerHTML = `
+    <button class="rsheet-btn" onclick="closeResultSheet();acceptChallenge('${matchId}')">Accetta</button>
+    <button class="rsheet-btn" style="color:var(--red)" onclick="closeResultSheet();rejectChallenge('${matchId}')">Rifiuta</button>`;
+  overlay.style.display = 'flex';
+  document.body.classList.add('sheet-open');
+  requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('visible')));
+}
+
 async function rejectChallenge(matchId) {
   await db.delete("matches", `id=eq.${matchId}`);
   await fetchAll();
