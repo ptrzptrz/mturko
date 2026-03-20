@@ -182,294 +182,30 @@ body.sheet-open #sa-cover{background:#000000}
 /* ── Home active section ── */
 #home-active{flex-shrink:0}
 #home-active:empty{display:none}
-.home-active-label{font-size:10px;font-weight:600;color:#504a45;text-transform:uppercase;letter-spacing:1.4px;padding:10px 0 6px}
 
-/* ── Sistema card attive — geometria rigida condivisa da tutti gli stati ──
-   Altezza minima fissa: 64px. Tutti gli stati usano questa struttura:
-   [accent 3px] [body flex] [cta-wrap 124px fisso]
-   L'unica variante è il contenuto, non la geometria.
-*/
-.acard{
-  background:#1d1a16;
-  border:0.5px solid #2a2724;
-  border-radius:14px;
-  min-height:64px;
-  margin-bottom:6px;
-  display:flex;align-items:stretch;
-  overflow:hidden;
-  -webkit-tap-highlight-color:transparent;
-}
-.acard.acard-passive{
-  background:#1d1a16;
-  border-color:#1d1a16;
-  opacity:.70;
-}
-/* Accent bar — 3px, colore per stato */
-.acard-accent{width:3px;min-width:3px;flex-shrink:0;background:#252220}
-.acard-accent.green{background:#7ab535}
-.acard-accent.red{background:#d45454}
-
-/* Body — flex, prende tutto lo spazio */
-.acard-body{
-  flex:1;min-width:0;
-  padding:0 8px 0 14px;
-  display:flex;flex-direction:column;justify-content:center;
-  gap:3px;
-}
-.acard-name{
-  font-size:15px;font-weight:600;color:#e8e6e3;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  line-height:1.2;
-}
-.acard.acard-passive .acard-name{color:#504a45;font-weight:500}
-.acard-elo{font-size:11px;font-weight:400;color:#504a45;margin-left:5px}
-.acard-status{font-size:13px;color:#6a6560;line-height:1.2;font-weight:400}
-.acard-status.red{color:#d45454}
-.acard.acard-passive .acard-status{color:#504a45}
-
-/* Riga colore — solo card incoming */
-.acard-colors{
-  display:flex;align-items:center;gap:10px;
-  margin-top:1px;
-}
-.acard-color-player{
-  display:flex;align-items:center;gap:4px;
-  font-size:11px;font-weight:400;color:#504a45;
-}
-.cdot{
-  width:8px;height:8px;border-radius:50%;flex-shrink:0;
-}
-.cdot.w{background:#c8c4be;box-shadow:inset 0 0 0 1px #8a8580}
-.cdot.b{background:#252220;box-shadow:inset 0 0 0 1px #504a45}
-
-/* CTA wrap — larghezza fissa 96px, allineamento centrato */
-.acard-cta{
-  width:124px;min-width:124px;
-  display:flex;align-items:center;justify-content:center;
-  padding:10px 12px;
-  flex-shrink:0;
-}
-.acard-btn{
-  border:none;border-radius:10px;
-  font-size:13px;font-weight:700;
-  cursor:pointer;
-  transition:opacity .12s,transform .1s;
-  font-family:inherit;
-  padding:8px 14px;
-  letter-spacing:-.1px;
-  white-space:nowrap;
-  width:100%;text-align:center;
-  -webkit-tap-highlight-color:transparent;
-}
-.acard-btn:active{opacity:.75;transform:scale(.97)}
-.acard-btn.primary{background:#e8e6e3;color:#161512}
-.acard-btn.danger{background:#2a1010;color:#e87070;border:1px solid #3a1515}
-.acard-btn.muted{
-  background:transparent;color:#504a45;
-  font-weight:400;font-size:12px;
-  cursor:default;
-}
-.acard-btn.muted:active{opacity:1;transform:none}
-.acard-btn.cancel{background:#252220;color:#8a8580;font-weight:500;font-size:12px;border:none}
-.acard-btn.cancel:active{opacity:.5;transform:scale(.97)}
-
-/* Card incoming — due bottoni in fondo, stessa larghezza totale */
-.acard-incoming-btns{
-  display:flex;
-  border-top:0.5px solid #252220;
-  flex-shrink:0;
-}
-.acard-accept{
-  flex:1;padding:13px 0;
-  font-size:14px;font-weight:700;
-  background:#e8e6e3;color:#161512;
-  border:none;border-radius:0 0 0 14px;
-  cursor:pointer;font-family:inherit;
-  letter-spacing:-.2px;
-  transition:opacity .12s;
-  -webkit-tap-highlight-color:transparent;
-}
-.acard-accept:active{opacity:.75}
-.acard-decline{
-  padding:13px 18px;
-  font-size:12px;font-weight:500;
-  background:transparent;color:#6a6560;
-  border:none;border-left:0.5px solid #252220;
-  border-radius:0 0 14px 0;
-  cursor:pointer;font-family:inherit;
-  transition:opacity .12s;
-  -webkit-tap-highlight-color:transparent;
-}
-.acard-decline:active{color:#8a8580}
-
-/* Progress bar countdown nelle acard (incoming/sent) */
-.acard-progress-wrap{
-  height:2px;background:#252220;flex-shrink:0;
-  margin:0;width:100%;
-}
-.acard-progress{
-  height:100%;background:#7ab535;
-  transition:width 1s linear;
-  border-radius:0;
-}
-.acard-progress.urgent{background:#d45454}
-
-/* Storico — label ripristinata */
+/* Storico label */
 #home-history-label{
-  font-size:10px;font-weight:600;color:#504a45;
+  font-size:var(--fs-micro);font-weight:600;color:var(--ghost);
   text-transform:uppercase;letter-spacing:1.4px;
   padding:8px 0 5px;flex-shrink:0;
 }
 #home-history-label:empty{display:none}
 
-/* Storico collassato — riga singola cliccabile */
-#home-history-collapsed{
-  display:none;
-  align-items:center;justify-content:space-between;
-  padding:12px 0;
-  cursor:pointer;
-  -webkit-tap-highlight-color:transparent;
-}
-#home-history-collapsed.visible{display:flex}
-#home-history-collapsed span{font-size:12px;color:#504a45;font-weight:500}
-#home-history-collapsed .hcoll-arrow{font-size:12px;color:#2a2724}
+/* Storico collapsed (legacy — hidden in new design) */
+#home-history-collapsed{display:none}
 
-/* Storico espanso — animazione collasso */
-#home-history-list{
-  overflow:hidden;
-  transition:max-height .3s ease-out, opacity .3s ease-out;
-}
-#home-history-list.collapsed{
-  max-height:0!important;
-  opacity:0;
-  pointer-events:none;
-}
-
-/* STEP 2: CAB è inline — padding bottom solo per navbar */
-.home-feed{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:4px 16px calc(80px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
-.home-feed::-webkit-scrollbar{display:none}
-
-/* ── STEP 2: Contextual Action Bar — inline sotto l'ELO ── */
-#cab{
-  position:relative;
-  width:100%;
-  padding:0 16px 10px;
-}
-
-/* Barra principale — altezza fissa, contenuto cambia */
-.cab-bar{
-  height:52px;
-  border-radius:16px;
-  display:flex;align-items:center;
-  padding:0 18px;
-  gap:12px;
-  cursor:pointer;
-  position:relative;
-  overflow:hidden;
-  transition:background .2s ease, box-shadow .2s ease, opacity .15s;
-  -webkit-tap-highlight-color:transparent;
-  user-select:none;
-  flex-shrink:0;
-}
-.cab-bar:active{opacity:.85;transform:scale(.99)}
-/* reset active per stati non-tappabili */
-.cab-bar.cab-inactive:active{opacity:1;transform:none}
-
-/* Stato IDLE: surface con bordo — tappabile ma non compete con ELO */
-.cab-idle{
-  background:#1d1a16;
-  box-shadow:inset 0 0 0 2px #6a6560;
-}
-.cab-idle .cab-label{color:#e8e6e3;font-size:16px;font-weight:800;letter-spacing:-.3px}
-.cab-idle .cab-arrow{opacity:.4}
-.cab-idle:active{opacity:.75;transform:scale(.99)}
-.cab-icon{display:none!important}
-
-/* Stato WAITING/disabled: quasi invisibile — le card comunicano già tutto */
-.cab-waiting{
-  background:#1d1a16;
-  box-shadow:inset 0 0 0 0.5px #2a2724;
-  cursor:default;animation:none;
-}
-.cab-waiting .cab-label{color:#8a8580;font-size:13px;font-weight:500;letter-spacing:0}
-.cab-inactive{pointer-events:none}
-
-/* Label container: permette cross-fade tra stati */
-.cab-label-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0}
-.cab-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cab-arrow{font-size:15px;opacity:.4;flex-shrink:0;margin-left:auto}
-
-/* Search aperta nella CAB: la barra diventa input */
-.cab-search-bar{
-  height:52px;
-  background:#1d1a16;
-  border:1px solid #504a45;
-  border-radius:16px;
-  display:none;
-  align-items:center;
-  padding:0 14px 0 18px;
-  gap:10px;
-  flex-shrink:0;
-}
+/* ── CAB (legacy — hidden) ── */
+#cab{display:none}
+.cab-search-bar{height:52px;background:#1d1a16;border:1px solid #504a45;border-radius:16px;display:none;align-items:center;padding:0 14px 0 18px;gap:10px;flex-shrink:0}
 .cab-search-bar.open{display:flex}
-.cab-search-input{
-  flex:1;background:transparent;border:none;border-radius:0;
-  padding:0;font-size:16px;font-weight:500;color:#e8e6e3;
-  outline:none;height:100%;
-}
+.cab-search-input{flex:1;background:transparent;border:none;border-radius:0;padding:0;font-size:16px;font-weight:500;color:#e8e6e3;outline:none;height:100%}
 .cab-search-input::placeholder{color:#6a6560;font-weight:400;font-size:15px}
-.cab-close-btn{background:none;border:none;color:#8a8580;font-size:20px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0;transition:color .15s}
-.cab-close-btn:active{color:#e8e6e3}
-
-/* Risultati search — appaiono sotto la barra */
-.cab-results{
-  position:absolute;
-  top:calc(100% + 4px);
-  left:16px;right:16px;
-  background:#161512;
-  border:1px solid #2a2724;
-  border-radius:16px;
-  overflow:hidden;
-  max-height:300px;
-  overflow-y:auto;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
-  box-shadow:0 8px 32px rgba(0,0,0,.6);
-  display:none;
-  z-index:10;
-}
+.cab-close-btn{background:none;border:none;color:#8a8580;font-size:20px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0}
+.cab-results{position:absolute;top:calc(100% + 4px);left:16px;right:16px;background:#161512;border:1px solid #2a2724;border-radius:16px;overflow:hidden;max-height:300px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;box-shadow:0 8px 32px rgba(0,0,0,.6);display:none;z-index:10}
 .cab-results.open{display:block}
-.cab-results::-webkit-scrollbar{display:none}
-
-/* Feedback "Risultato inviato" — cross-fade sopra la barra */
-@keyframes cabFadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-@keyframes cabFadeOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-4px)}}
-.cab-feedback{
-  position:absolute;inset:0;
-  border-radius:16px;
-  background:#1d1a16;
-  border:1px solid #2a2724;
-  display:flex;align-items:center;justify-content:center;
-  font-size:14px;font-weight:600;color:#8a8580;letter-spacing:-.1px;
-  pointer-events:none;
-  opacity:0;
-}
-.cab-feedback.show{animation:cabFadeIn .3s ease forwards}
-.cab-feedback.hide{animation:cabFadeOut .3s ease forwards}
+.cab-feedback{display:none}
 
 
-
-/* Search aperta — solo lo storico sfuma, state-bar resta visibile */
-#page-home.search-open .home-feed{
-  opacity:.06;
-  pointer-events:none;
-  transition:opacity .18s ease;
-}
-#page-home:not(.search-open) .home-feed{
-  opacity:1;
-  pointer-events:auto;
-  transition:opacity .18s ease;
-}
 
 /* Lista giocatori nella search */
 .prow{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:13px 14px;margin-bottom:7px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .15s}
@@ -483,15 +219,6 @@ body.sheet-open #sa-cover{background:#000000}
 .asheet{background:#161512;border-radius:24px 24px 0 0;padding:24px 16px 40px;width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,0,.24,1)}
 .asheet-overlay.visible .asheet{transform:translateY(0)}
 .asheet-eyebrow{font-size:11px;color:#8a8580;text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
-.asheet-colors{display:flex;gap:8px;margin-bottom:12px}
-.asheet-color-btn{flex:1;border:none;border-radius:16px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:transform .2s cubic-bezier(.34,1.56,.64,1),opacity .2s;position:relative;height:88px}
-.asheet-color-btn:active{transform:scale(.94)}
-.asheet-color-white{background:#e8e6e3}
-.asheet-color-white .asheet-color-name{font-size:14px;font-weight:700;color:#161512;letter-spacing:-.2px}
-.asheet-color-black{background:#161512;box-shadow:inset 0 0 0 1px #2a2724}
-.asheet-color-black .asheet-color-name{font-size:14px;font-weight:700;color:#e8e6e3;letter-spacing:-.2px}
-.asheet-color-white{opacity:1}
-.asheet-color-black{opacity:.38}
 .asheet-cta{width:100%;background:#e8e6e3;border:none;border-radius:14px;padding:16px;color:#161512;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .15s,transform .12s;margin-bottom:8px}
 .asheet-cta:active{opacity:.85;transform:scale(.99)}
 .asheet-cta:disabled{background:#252220;color:#504a45;cursor:not-allowed}
@@ -506,15 +233,12 @@ body.sheet-open #sa-cover{background:#000000}
 /* ── Storico — archivio, non UI primaria ── */
 
 /* Action sheet risultato */
-.rsheet-context{font-size:13px;color:#8a8580;text-align:center;margin-bottom:16px;font-weight:500}
+.rsheet-context{font-size:var(--fs-caption);color:var(--muted);text-align:center;margin-bottom:var(--sp-lg);font-weight:500}
 .rsheet-btns{background:#252220;border-radius:14px;overflow:hidden;margin-bottom:8px}
-.rsheet-btn{width:100%;padding:16px 20px;border-radius:0;font-size:16px;font-weight:600;text-align:left;cursor:pointer;transition:opacity .15s,background .1s;border:none;border-bottom:0.5px solid #504a45;font-family:inherit;letter-spacing:-.2px;background:transparent;color:#e8e6e3}
+.rsheet-btn{width:100%;padding:var(--sp-lg);border-radius:0;font-size:var(--fs-body);font-weight:600;text-align:center;cursor:pointer;transition:opacity var(--dur-fast),background .1s;border:none;border-bottom:0.5px solid var(--border);font-family:inherit;letter-spacing:-.2px;background:transparent;color:var(--text)}
 .rsheet-btn:last-child{border-bottom:none}
-.rsheet-btn:active{background:#2a2724;opacity:.8}
-.rsheet-btn.win{}
-.rsheet-btn.draw{}
-.rsheet-btn.loss{}
-.rsheet-cancel{width:100%;background:transparent;border:none;color:#6a6560;font-size:15px;font-weight:500;padding:14px;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.rsheet-btn:active{background:var(--border);opacity:.8}
+.rsheet-cancel{width:100%;background:transparent;border:none;color:var(--dim);font-size:var(--fs-caption);font-weight:500;padding:var(--sp-lg);cursor:pointer;font-family:inherit;transition:opacity var(--dur-fast);text-align:center}
 .rsheet-cancel:active{opacity:.5}
 .btn-result{width:100%;background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:15px 18px;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .2s cubic-bezier(.34,1.56,.64,1);text-align:left;display:flex;align-items:center;justify-content:space-between}
 .btn-result:not(.no-arrow)::after{content:'→';font-size:16px;opacity:.5}
@@ -642,17 +366,6 @@ body.sheet-open #sa-cover{background:#000000}
 .prof-elo-gap{font-size:11px;color:#d45454;margin-top:1px}
 .prof-edit-form{background:#1d1a16;border:1px solid #252220;border-radius:14px;padding:16px;margin-bottom:14px}
 .prof-edit-form input,.prof-edit-form textarea{margin-bottom:8px}
-.prof-stats-wrap{padding:4px 0 10px}
-.prof-stats-line{font-size:13px;color:#8a8580;margin-bottom:3px}
-.prof-stats-line .win{color:#7ab535;font-weight:600}
-.prof-stats-line .loss{color:#d45454;font-weight:600}
-.prof-stats-line .draw{color:#6a6560;font-weight:600}
-.prof-stats-line .rate{color:#e8e6e3;font-weight:700}
-.prof-stats-line .streak{color:#e8e6e3;font-weight:600}
-.prof-color-rate{font-size:12px;color:#6a6560;margin-bottom:3px;letter-spacing:.3px}
-.prof-trend{font-size:12px;color:#6a6560}
-.prof-trend .elo-up{color:#7ab535;font-weight:600}
-.prof-trend .elo-down{color:#d45454;font-weight:600}
 .prof-chart-wrap{margin-bottom:14px;position:relative}
 .prof-chart-header{display:flex;align-items:baseline;justify-content:space-between;padding:0 0 8px}
 .prof-chart-val{font-size:20px;font-weight:800;color:#e8e6e3;transition:opacity .12s;min-width:50px}
@@ -664,60 +377,9 @@ body.sheet-open #sa-cover{background:#000000}
 .prof-chart-chip:active{opacity:.6}
 .prof-kebab{background:none;border:none;color:#504a45;font-size:20px;cursor:pointer;padding:4px 0 4px 8px;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .prof-kebab:active{color:#8a8580}
-.prof-section-label{font-size:10px;font-weight:600;color:#504a45;text-transform:uppercase;letter-spacing:1.4px;margin-bottom:8px;margin-top:18px}
-.prof-h2h{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
-.prof-h2h-label{font-size:14px;color:#e8e6e3;font-weight:600}
-.prof-h2h-record{font-size:14px;font-weight:700;display:flex;gap:6px}
-.prof-h2h-record .w{color:#7ab535}
-.prof-h2h-record .l{color:#d45454}
-.prof-h2h-record .d{color:#6a6560}
-.prof-rival-row{padding:11px 14px;border-bottom:0.5px solid #252220;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.prof-rival-row:active{background:#252220}
-.prof-rival-row:last-child{border-bottom:none}
-.prof-rival-name{font-size:14px;font-weight:600;color:#e8e6e3}
-.prof-rival-record{font-size:13px;color:#8a8580;font-weight:500}
-.prof-rival-record .w{color:#7ab535;font-weight:700}
-.prof-rival-record .l{color:#d45454;font-weight:700}
-.prof-rival-record .d{color:#6a6560;font-weight:700}
-.prof-bw-row{padding:9px 14px;border-bottom:0.5px solid #252220;display:flex;align-items:center;justify-content:space-between}
-.prof-bw-row:last-child{border-bottom:none}
-.prof-bw-name{font-size:14px;font-weight:600;color:#e8e6e3}
-.prof-bw-elo{font-size:13px;color:#7ab535;font-weight:700}
-.prof-bw-meta{font-size:11px;color:#6a6560;margin-top:1px}
-.prof-day-row{padding:10px 14px;border-bottom:0.5px solid #252220;display:flex;align-items:flex-start;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.prof-day-row:active{background:#252220}
-.prof-day-label{font-size:12px;color:#e8e6e3;font-weight:600}
-.prof-day-left{flex:1;min-width:0}
-.prof-day-sub{font-size:11px;color:#6a6560;margin-top:2px}
-.prof-day-sub .elo-up{color:#7ab535}
-.prof-day-sub .elo-down{color:#d45454}
-.prof-day-right{flex-shrink:0;text-align:right}
-.prof-day-wld{font-size:11px;font-weight:600}
-.prof-day-wld .w{color:#7ab535}
-.prof-day-wld .l{color:#d45454}
-.prof-day-wld .d{color:#6a6560}
-.prof-day-matches{overflow:hidden;max-height:0;transition:max-height .3s ease}
-.prof-day-matches.expanded{max-height:2000px}
-.prof-match-row{padding:11px 14px 11px 24px;border-bottom:0.5px solid #252220;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent;background:#1a1714}
-.prof-match-row:active{background:#252220}
-.prof-match-row:last-child{border-bottom:none}
-.prof-match-left{flex:1;min-width:0}
-.prof-match-name{font-size:14px;font-weight:600;color:#e8e6e3}
-.prof-match-meta{font-size:11px;color:#6a6560;margin-top:1px}
-.prof-match-right{text-align:right;flex-shrink:0}
-.prof-match-result{font-size:11px;font-weight:500}
-.prof-match-result.win{color:#7ab535}
-.prof-match-result.loss{color:#d45454}
-.prof-match-result.draw{color:#6a6560}
-.prof-match-delta{font-size:14px;font-weight:700;margin-top:1px}
 .prof-footer{padding:24px 0 16px;text-align:center}
 .prof-footer-link{background:none;border:none;color:#6a6560;font-size:13px;font-weight:500;cursor:pointer;padding:10px 16px;display:block;width:100%;-webkit-tap-highlight-color:transparent}
 .prof-footer-link:active{color:#8a8580}
-.prof-cta{position:fixed;bottom:0;left:0;right:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,#161512 30%);z-index:50}
-.prof-cta button{width:100%;padding:14px;border-radius:12px;font-size:16px;font-weight:700;border:none;cursor:pointer}
-.prof-cta button.active{background:#e8e6e3;color:#161512}
-.prof-cta button.active:active{opacity:.85}
-.prof-cta button.disabled{background:#252220;color:#6a6560;pointer-events:none}
 .back-btn{background:none;border:none;color:#6a6560;font-size:13px;padding:0;margin-bottom:12px;display:flex;align-items:center;gap:6px;cursor:pointer}
 .back-btn:active{opacity:.7}
 /* ── Skeleton loading ── */
@@ -728,47 +390,6 @@ body.sheet-open #sa-cover{background:#000000}
 .skel-row:last-child{border-bottom:none}
 .skel-left{display:flex;flex-direction:column;gap:6px}
 .skel-chart{margin-bottom:14px}
-/* ── hrow — storico home ── */
-.hrow-wrap{position:relative;overflow:hidden;margin-bottom:0;background:transparent}
-.hrow-reveal{position:absolute;right:0;top:0;bottom:0;width:0;overflow:hidden;display:flex;align-items:center;justify-content:center;pointer-events:none;transition:width 0s}
-.hrow-reveal.state-ok{background:#e8e6e3}
-.hrow-reveal.state-err{background:#2a2724}
-.hrow-reveal-label{font-size:15px;font-weight:700;letter-spacing:-.2px;white-space:nowrap}
-.hrow-reveal.state-ok .hrow-reveal-label{color:#161512}
-.hrow-reveal.state-err .hrow-reveal-label{color:#8a8580}
-.hrow{background:transparent;border:none;border-bottom:0.5px solid #252220;border-radius:0;padding:11px 14px;display:flex;align-items:center;gap:10px;position:relative;will-change:transform;-webkit-tap-highlight-color:transparent}
-.hrow:active{background:#252220}
-.hrow-wrap:last-child .hrow{border-bottom:none}
-/* nessuna accent bar nello storico — il colore è nel dot */
-.hrow-accent{display:none}
-.hrow-left{flex:1;min-width:0}
-.hrow-opp{font-size:14px;color:#e8e6e3;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:5px}
-.color-dot{width:7px;height:7px;min-width:7px;min-height:7px;border-radius:50%;flex-shrink:0;display:block}
-.color-dot-white{background:#6a6560;box-shadow:0 0 0 1px #504a45}
-.color-dot-black{background:#252220;box-shadow:0 0 0 1px #2a2724}
-.hrow-meta{font-size:11px;color:#6a6560;margin-top:2px;display:flex;gap:5px;align-items:center}
-.hrow-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:1px}
-.hrow-result{font-size:11px;font-weight:500;color:#2a2724}
-.hrow-result.win{color:#7ab535}
-.hrow-result.loss{color:#d45454}
-.hrow-result.draw{color:#2a2724}
-.hrow-result.cancelled{color:#252220}
-.hrow-elo{font-size:14px;font-weight:700;line-height:1;color:#6a6560}
-.elo-up{color:#7ab535}
-.elo-down{color:#d45454}
-.elo-draw{color:#2a2724}
-.d-pos{color:#7ab535;font-size:12px}
-.d-neg{color:#d45454;font-size:12px}
-
-/* ── Long press ── */
-.lp-btn{position:relative;overflow:hidden;cursor:pointer;font-family:inherit;user-select:none}
-.lp-bar{position:absolute;left:0;top:0;height:100%;width:0%;background:rgba(195,51,51,0.15);transition:none;pointer-events:none;border-radius:inherit}
-.lp-btn.pressing .lp-bar{width:100%;transition:width 0.8s linear}
-
-/* ── Comments (legacy) ── */
-.comment-nick{font-size:12px;font-weight:600;color:#e8e6e3;cursor:pointer}
-.comment-nick:hover{text-decoration:underline}
-
 /* ═══════════════════════════════════════════════════════════
    DESIGN SYSTEM COMPONENTS (v2)
    These coexist with legacy styles during migration.
@@ -873,6 +494,20 @@ body.sheet-open #sa-cover{background:#000000}
 .ds-divider{display:flex;align-items:center;gap:10px;font-size:var(--fs-micro);font-weight:600;color:var(--ghost);margin:var(--sp-lg) 0 var(--sp-sm);text-transform:uppercase;letter-spacing:1.2px}
 .ds-divider::before,.ds-divider::after{content:'';flex:1;height:0.5px;background:var(--border)}
 
+/* ── Challenge sheet (Uber-style) ── */
+.ch-time-chip{flex:1;padding:var(--sp-md) 0;border:1px solid var(--border);border-radius:var(--r-sm);background:transparent;color:var(--dim);font-size:var(--fs-caption);font-weight:600;font-family:inherit;cursor:pointer;text-align:center;transition:border-color var(--dur-fast),color var(--dur-fast),background var(--dur-fast)}
+.ch-time-chip:active{opacity:.6}
+.ch-time-chip.on{border-color:var(--text);color:var(--text);background:var(--surface)}
+.ch-color-btn{flex:1;border:none;border-radius:var(--r-lg);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;height:80px;transition:transform var(--dur-normal) var(--ease-spring),opacity var(--dur-fast);opacity:.5}
+.ch-color-btn:active{transform:scale(.92);opacity:1}
+.ch-color-white{background:var(--text)}
+.ch-color-white span{font-size:var(--fs-body);font-weight:700;color:var(--bg);letter-spacing:-.2px}
+.ch-color-black{background:var(--bg);box-shadow:inset 0 0 0 1px var(--border)}
+.ch-color-black span{font-size:var(--fs-body);font-weight:700;color:var(--text);letter-spacing:-.2px}
+.ch-player-row{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) 0;border-bottom:0.5px solid var(--border);cursor:pointer;transition:opacity var(--dur-fast)}
+.ch-player-row:last-child{border-bottom:none}
+.ch-player-row:active{opacity:.5}
+
 /* ── Nav Plus button ── */
 .nav-plus-wrap{flex:1;display:flex;align-items:center;justify-content:center;min-height:52px}
 .nav-plus{width:32px;height:32px;border-radius:50%;background:var(--text);color:var(--bg);font-size:22px;font-weight:300;display:flex;align-items:center;justify-content:center;line-height:1;cursor:pointer;border:none;font-family:inherit;transition:transform var(--dur-fast) var(--ease-spring),opacity var(--dur-fast)}
@@ -973,8 +608,8 @@ body.sheet-open #sa-cover{background:#000000}
         </div>
       </div>
 
-      <!-- CAB search (hidden by default, overlays when opened) -->
-      <div id="cab">
+      <!-- CAB (legacy — hidden, kept for JS compatibility) -->
+      <div id="cab" style="display:none">
         <div class="cab-bar cab-idle hidden" id="cab-bar" onclick="onCABTap()">
           <span class="cab-icon" id="cab-icon">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1023,33 +658,6 @@ body.sheet-open #sa-cover{background:#000000}
     </div>
 
     <!-- SEARCH -->
-    <div id="page-search" class="page">
-      <div style="margin-bottom:14px"><input id="search-input" placeholder="cerca per nickname" autocorrect="off" autocapitalize="none" spellcheck="false"></div>
-      <div id="search-results"></div>
-    </div>
-
-    <!-- LEADERBOARD -->
-    <!-- LEADERBOARD / ATTIVITA -->
-    <div id="page-lb" class="page">
-      <!-- Chip bar -->
-      <div class="lb-chips">
-        <button class="lb-chip active" data-view="classifica" onclick="switchLbView('classifica', this)">Ranking</button>
-        <button class="lb-chip" data-view="live" onclick="switchLbView('live', this)">Feed</button>
-      </div>
-      <!-- Vista: Classifica -->
-      <div id="lb-view-classifica" class="lb-view active">
-        <div id="lb-rank-list"></div>
-      </div>
-      <!-- Vista: Ultime (feed) -->
-      <div id="lb-view-live" class="lb-view">
-        <div id="lb-feed"></div>
-        <div id="lb-feed-loader" class="hidden" style="text-align:center;padding:16px;color:#504a45;font-size:12px">Caricamento...</div>
-        <div id="lb-feed-empty" class="hidden" style="color:#504a45;text-align:center;margin-top:48px;font-size:14px">Nessuna partita recente</div>
-      </div>
-      <!-- Sticky posizione utente -->
-      <div id="lb-me-sticky" class="lb-me-sticky hidden"></div>
-    </div>
-
     <!-- PROFILE -->
     <div id="page-profile" class="page">
       <div class="prof-sticky">
@@ -2145,13 +1753,14 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
     const opp = getP(m.p1);
     const oppName = opp?.nickname || '?';
     const eloStr = opp?.elo ? String(Math.round(opp.elo)) : '';
-    let colorLine = 'Ti ha sfidato';
+    let statusParts = ['Ti ha sfidato'];
     if(m.white_player_id) {
       const amIWhite = m.white_player_id === me.id;
-      colorLine = `Ti ha sfidato · tu ${amIWhite ? 'bianco' : 'nero'}`;
+      statusParts.push('tu ' + (amIWhite ? 'bianco' : 'nero'));
     }
-    cards.push(mkCard('green', oppName, eloStr, colorLine,
-      `<button class="ds-card-btn primary" onclick="acceptChallenge('${m.id}')">Accetta</button>`
+    if(m.time_control) statusParts.push(m.time_control.charAt(0).toUpperCase() + m.time_control.slice(1));
+    cards.push(mkCard('green', oppName, eloStr, statusParts.join(' · '),
+      `<div style="display:flex;flex-direction:column;gap:4px;align-items:stretch"><button class="ds-card-btn primary" onclick="acceptChallenge('${m.id}')">Accetta</button><button style="background:none;border:none;color:var(--ghost);font-size:var(--fs-label);font-weight:500;cursor:pointer;padding:4px;font-family:inherit;text-align:center;transition:color var(--dur-fast)" onclick="rejectChallenge('${m.id}')">Rifiuta</button></div>`
     ));
   });
 
@@ -2169,8 +1778,9 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
   activeCards.filter(c => c.type === 'live').forEach(({ m }) => {
     const oppId = m.p1 === me.id ? m.p2 : m.p1;
     const opp = getP(oppId);
+    const timeStr = m.time_control ? ' · ' + m.time_control.charAt(0).toUpperCase() + m.time_control.slice(1) : '';
     cards.push(mkCard('green', opp?.nickname||'?', opp?.elo ? String(Math.round(opp.elo)) : '',
-      'In attesa del risultato',
+      'In attesa del risultato' + timeStr,
       `<button class="ds-card-btn primary" onclick="openResultSheet('${m.id}')">Risultato</button>`
     ));
   });
@@ -2189,13 +1799,14 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
   // 5. Sent challenges — waiting for acceptance
   sentChallenges.forEach(m => {
     const opp = getP(m.p2);
-    let colorLine = 'Sfida inviata';
+    let statusParts = ['Sfida inviata'];
     if(m.white_player_id) {
       const amIWhite = m.white_player_id === me.id;
-      colorLine = `Sfida inviata · tu ${amIWhite ? 'bianco' : 'nero'}`;
+      statusParts.push('tu ' + (amIWhite ? 'bianco' : 'nero'));
     }
+    if(m.time_control) statusParts.push(m.time_control.charAt(0).toUpperCase() + m.time_control.slice(1));
     cards.push(mkCard('gray', opp?.nickname||'?', '',
-      colorLine,
+      statusParts.join(' · '),
       `<button class="ds-card-btn ghost" onclick="cancelChallenge('${m.id}')">Annulla</button>`,
       true
     ));
@@ -2240,7 +1851,6 @@ function renderHome() {
   if(meaningful.length === 0) {
     $('home-history-label').style.display = 'none';
     $('home-history-collapsed').classList.remove('visible');
-    $('home-history-list').classList.remove('collapsed');
     $("home-history").innerHTML = hasAnythingActive ? '' : `
       <div style="margin-top:32px;text-align:center;padding:0 24px">
         <div style="font-size:var(--fs-body);color:var(--dim);font-weight:600;margin-bottom:var(--sp-sm)">La tua prima partita ti aspetta</div>
@@ -2249,27 +1859,11 @@ function renderHome() {
     return;
   }
 
-  // Collassa storico se c'è un flusso attivo
-  if(hasAnythingActive) {
-    $('home-history-label').style.display = 'none';
-    const collEl = $('home-history-collapsed');
-    collEl.classList.add('visible');
-    $('home-history-collapsed-text').textContent =
-      meaningful.length === 1 ? '1 partita recente' : `${meaningful.length} partite recenti`;
-    // Collassa lista se non già espansa manualmente
-    const listEl = $('home-history-list');
-    if(!listEl.dataset.manualExpand) {
-      listEl.style.maxHeight = '0';
-      listEl.classList.add('collapsed');
-    }
-  } else {
-    $('home-history-label').style.display = '';
-    $('home-history-collapsed').classList.remove('visible');
-    const listEl = $('home-history-list');
-    listEl.classList.remove('collapsed');
-    listEl.style.maxHeight = '';
-    delete listEl.dataset.manualExpand;
-  }
+  // Feed always visible — no collapse in new design
+  $('home-history-label').style.display = '';
+  $('home-history-collapsed').classList.remove('visible');
+  var listEl = $('home-history-list');
+  if(listEl) { listEl.classList.remove('collapsed'); listEl.style.maxHeight = ''; }
 
   $("home-history").innerHTML = meaningful.map(m => {
     const opp = getP(m.p1===me.id ? m.p2 : m.p1);
@@ -2414,7 +2008,7 @@ function onSwipeEnd(e) {
   if(guard.ok) {
     const fresh = _evalGuards(oppId);
     if(fresh.ok) {
-      setTimeout(() => { springBack(0); openColorSheet(oppId); }, 160);
+      setTimeout(() => { springBack(0); openNewChallengeSheetForPlayer(oppId); }, 160);
     } else {
       label.textContent = fresh.label;
       reveal.classList.remove('state-ok');
@@ -2517,15 +2111,145 @@ function renderHomeMine() {
 }
 
 function onPlusTap() {
-  // Bridge to existing challenge flow
   // If there's an active match needing result, open result sheet
-  const liveCards = (matches||[]).filter(m => m.status==='in_progress' && (m.p1===me.id||m.p2===me.id) && !m['result_p'+(m.p1===me.id?'1':'2')]);
+  const liveCards = (matches||[]).filter(m => m.status==='active' && (m.p1===me.id||m.p2===me.id) && !m['result_p'+(m.p1===me.id?'1':'2')]);
   if(liveCards.length > 0) {
     openResultSheet(liveCards[0].id);
     return;
   }
-  // Otherwise open challenge search
-  openCABSearch();
+  // If there's an incoming challenge, don't allow new challenge
+  const incoming = (matches||[]).filter(m => m.status==='pending_challenge' && m.p2===me.id);
+  if(incoming.length > 0) {
+    toast('Hai una sfida in arrivo', 'err');
+    return;
+  }
+  // If busy (already sent challenge or have active match waiting), block
+  if(isPlayerBusy(me.id)) {
+    toast('Hai già una partita in corso', 'err');
+    return;
+  }
+  // Open new challenge sheet
+  openNewChallengeSheet();
+}
+
+// ── New Challenge Sheet (Uber-style 2-step) ──
+var _chOppId = null;
+
+function openNewChallengeSheet() {
+  // Reset to step 1
+  $('ch-step1').style.display = 'block';
+  $('ch-step2').style.display = 'none';
+  $('ch-search').value = '';
+  _chOppId = null;
+
+  // Render player list
+  renderChallengePlayers('');
+
+  // Show sheet
+  const overlay = $('challenge-sheet-overlay2');
+  overlay.style.display = 'flex';
+  document.body.classList.add('sheet-open');
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    overlay.classList.add('visible');
+    setTimeout(() => $('ch-search').focus(), 400);
+  }));
+}
+
+function closeNewChallengeSheet() {
+  const overlay = $('challenge-sheet-overlay2');
+  overlay.classList.remove('visible');
+  document.body.classList.remove('sheet-open');
+  setTimeout(() => { overlay.style.display = 'none'; _chOppId = null; }, 320);
+}
+
+function renderChallengePlayers(query) {
+  const list = $('ch-player-list');
+  if(!list) return;
+  const q = query.toLowerCase();
+  const eligible = players.filter(p => p.id !== me.id && (!q || p.nickname.toLowerCase().includes(q)));
+  // Sort: online first, then by elo
+  const now = Date.now();
+  eligible.sort((a, b) => {
+    const aOnline = a.last_seen_at && (now - new Date(a.last_seen_at).getTime()) < 30000 ? 1 : 0;
+    const bOnline = b.last_seen_at && (now - new Date(b.last_seen_at).getTime()) < 30000 ? 1 : 0;
+    if(aOnline !== bOnline) return bOnline - aOnline;
+    return b.elo - a.elo;
+  });
+  if(!eligible.length) {
+    list.innerHTML = '<div style="padding:var(--sp-xl) 0;text-align:center;color:var(--ghost);font-size:var(--fs-label)">Nessun giocatore trovato</div>';
+    return;
+  }
+  list.innerHTML = eligible.map(p => {
+    const online = p.last_seen_at && (now - new Date(p.last_seen_at).getTime()) < 30000;
+    const busy = isPlayerBusy(p.id);
+    const canChallenge = online && !busy;
+    if(!canChallenge) {
+      const reason = busy ? 'in partita' : 'offline';
+      return `<div class="ch-player-row" style="opacity:.4;pointer-events:none">
+        <span style="font-size:var(--fs-body);font-weight:500;color:var(--dim);display:flex;align-items:center;gap:6px">${escHtml(p.nickname)} <span style="font-size:var(--fs-micro);color:var(--ghost)">${reason}</span></span>
+        <span style="font-size:var(--fs-caption);color:var(--ghost)">${Math.round(p.elo)}</span>
+      </div>`;
+    }
+    return `<div class="ch-player-row" onclick="selectChallengePlayer('${p.id}')">
+      <span style="font-size:var(--fs-body);font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px">${escHtml(p.nickname)} <span class="ds-dot"></span></span>
+      <span style="font-size:var(--fs-caption);color:var(--dim)">${Math.round(p.elo)}</span>
+    </div>`;
+  }).join('');
+}
+
+function filterChallengePlayers(query) {
+  renderChallengePlayers(query);
+}
+
+function selectChallengePlayer(oppId) {
+  const opp = getP(oppId);
+  if(!opp) return;
+  _chOppId = oppId;
+
+  // Switch to step 2
+  $('ch-step1').style.display = 'none';
+  $('ch-step2').style.display = 'block';
+  $('ch-opp-name').textContent = opp.nickname;
+  $('ch-opp-elo').textContent = Math.round(opp.elo) + ' ELO';
+
+  // Reset time to Rapid
+  document.querySelectorAll('.ch-time-chip').forEach(c => c.classList.remove('on'));
+  document.querySelector('.ch-time-chip[data-time="rapid"]').classList.add('on');
+}
+
+function pickChallengeTime(btn) {
+  document.querySelectorAll('.ch-time-chip').forEach(c => c.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+async function pickChallengeColor(color) {
+  if(!_chOppId) return;
+  const oppId = _chOppId;
+  const whiteId = color === 'white' ? me.id : oppId;
+
+  // Visual feedback — flash the button
+  const btn = color === 'white' ? document.querySelector('.ch-color-white') : document.querySelector('.ch-color-black');
+  btn.style.opacity = '1';
+  btn.style.transform = 'scale(.95)';
+
+  // Close sheet after brief delay
+  setTimeout(async () => {
+    closeNewChallengeSheet();
+    btn.style.opacity = '';
+    btn.style.transform = '';
+
+    // Send challenge
+    const res = await db.rpc("create_challenge", {opponent_id: oppId, white_player_id: whiteId});
+    if(res?.error) return toast(res.error, "err");
+    if(Array.isArray(res) && res[0]?.error) return toast(res[0].error, "err");
+    await fetchAll();
+  }, 250);
+}
+
+// Open challenge sheet directly at step 2 for a specific player (from swipe, search, etc.)
+function openNewChallengeSheetForPlayer(oppId) {
+  openNewChallengeSheet();
+  setTimeout(() => selectChallengePlayer(oppId), 50);
 }
 
 function onCABTap() {
@@ -2698,7 +2422,7 @@ function renderCABSearch() {
     const statusLabel = isBusy ? 'in partita' : !isOnline ? 'offline' : '';
     const canChallenge = isOnline && !isBusy;
     const playBtn = canChallenge
-      ? `<button class="btn-play" style="padding:9px 16px;font-size:14px" onclick="event.stopPropagation();closeCABSearch();openColorSheet('${p.id}')">Gioca</button>`
+      ? `<button class="btn-play" style="padding:9px 16px;font-size:14px" onclick="event.stopPropagation();closeCABSearch();openNewChallengeSheetForPlayer('${p.id}')">Gioca</button>`
       : `<button class="btn-play unavailable" style="padding:9px 14px;font-size:13px" disabled>${isBusy ? 'In partita' : 'Offline'}</button>`;
     return `<div style="padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #252220;cursor:pointer;-webkit-tap-highlight-color:transparent" onclick="closeCABSearch();openProfile('${p.id}', 'home')">
       <div style="flex:1;min-width:0">
@@ -2729,7 +2453,7 @@ function closeHomeSearch() { closeCABSearch(); }
 let sheetOppId = null;
 let sheetColorChoice = 'me';
 
-function openColorSheet(oppId) {
+function openNewChallengeSheetForPlayer(oppId) {
   const opp = getP(oppId);
   if(!opp) return;
   sheetOppId = oppId;
@@ -2788,14 +2512,15 @@ async function confirmColorSheet() {
 }
 
 async function challengeFromHome(oppId, btn) {
-  openColorSheet(oppId);
+  openNewChallengeSheetForPlayer(oppId);
 }
 
-// --- SEARCH ---
+// --- SEARCH (legacy — page removed, kept for compatibility) ---
 const ONLINE_MS = 30 * 1000;
-$("search-input").addEventListener("input", renderSearch);
+if($("search-input")) $("search-input").addEventListener("input", renderSearch);
 
 function renderSearch() {
+  if(!$("search-input")) return;
   const q = $("search-input").value.toLowerCase();
   const filtered = players.filter(p => p.id!==me.id && p.nickname.toLowerCase().includes(q));
   if(!q) { $("search-results").innerHTML = ""; return; }
@@ -2952,21 +2677,20 @@ function openResultSheet(matchId) {
   const black = m.white_player_id ? getP(m.white_player_id === m.p1 ? m.p2 : m.p1) : getP(m.p2);
 
   if(isDisputed && white && black) {
-    // Leggi last_result — il trigger salva i valori prima di azzerare result_p1/p2
     const oppLastRes = isP1 ? m.last_result_p2 : m.last_result_p1;
     const oppPlayerId = isP1 ? m.p2 : m.p1;
     const oppSaid = oppLastRes === 'draw' ? 'Patta'
       : oppLastRes === oppPlayerId ? 'Ha vinto'
       : oppLastRes ? 'Ha perso' : null;
     $('rsheet-context').innerHTML = oppSaid
-      ? `<div style="font-size:13px;color:#8a8580">${oppName} dice: <strong>${oppSaid}</strong></div>`
-      : `<div style="font-size:13px;color:#8a8580">${oppName} non è d'accordo</div>`;
+      ? `<div style="font-size:var(--fs-caption);color:var(--muted)">${oppName} dice: <strong>${oppSaid}</strong></div>`
+      : `<div style="font-size:var(--fs-caption);color:var(--muted)">${oppName} non è d'accordo</div>`;
     $('rsheet-dispute-warn').classList.remove('hidden');
   } else if(white && black) {
-    $('rsheet-context').innerHTML = `<div style="font-size:13px;color:#8a8580">${white.nickname} — ${black.nickname}</div>`;
+    $('rsheet-context').innerHTML = `<div style="font-size:var(--fs-caption);color:var(--muted)">${white.nickname} (${Math.round(white.elo)}) — ${black.nickname} (${Math.round(black.elo)})</div>`;
     $('rsheet-dispute-warn').classList.add('hidden');
   } else {
-    $('rsheet-context').textContent = 'vs ' + oppName;
+    $('rsheet-context').innerHTML = `<div style="font-size:var(--fs-caption);color:var(--muted)">${me.nickname} (${Math.round(me.elo)}) — ${oppName} (${opp ? Math.round(opp.elo) : '?'})</div>`;
     $('rsheet-dispute-warn').classList.add('hidden');
   }
 
@@ -3000,7 +2724,7 @@ async function confirmResultSheet(choice) {
   renderHome();
 
   // Feedback
-  cabShowFeedback();
+  toast('Risultato inviato');
 
   // Scrivi su DB e sincronizza
   await db.patch('matches', `id=eq.${matchId}`, {[field]: myResult});
@@ -4115,7 +3839,7 @@ $("profile-back").onclick = () => {
 };
 
 // --- NAV ---
-const pageMap = {home:"page-home", search:"page-search", leaderboard:"page-lb", profile:"page-profile", "profile-me":"page-profile"};
+const pageMap = {home:"page-home", profile:"page-profile", "profile-me":"page-profile"};
 
 function showPage(name) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
@@ -4124,10 +3848,7 @@ function showPage(name) {
   if(pageEl) pageEl.classList.add("active");
   const navBtn = document.querySelector(`.nbtn[data-page="${name}"]`) || document.querySelector('.nbtn[data-page="profile-me"]');
   if(navBtn) navBtn.classList.add("on");
-  // STEP 2: visibilità CAB — solo su home
   setCabVisibility(name === 'profile-me' ? 'profile' : name);
-  if(name==="search") { $("search-input").value = ""; renderSearch(); setTimeout(() => $("search-input").focus(), 50); }
-  if(name==="leaderboard") renderLeaderboard();
   if(name==="profile-me") { openProfile(me.id, "home"); }
 }
 
@@ -4161,12 +3882,12 @@ document.querySelector('.home-feed').addEventListener('scroll', () => {
   <div class="asheet" onclick="event.stopPropagation()">
     <div class="asheet-eyebrow" id="rsheet-eyebrow"></div>
     <div class="rsheet-context" id="rsheet-context"></div>
-    <div class="rsheet-btns">
-      <button class="rsheet-btn win" id="rsheet-win" onclick="confirmResultSheet('win')">Ho vinto</button>
-      <button class="rsheet-btn draw" id="rsheet-draw" onclick="confirmResultSheet('draw')">Patta</button>
-      <button class="rsheet-btn loss" id="rsheet-loss" onclick="confirmResultSheet('loss')">Ho perso</button>
+    <div class="ds-group" style="margin-bottom:0">
+      <button class="rsheet-btn" id="rsheet-win" onclick="confirmResultSheet('win')">Ho vinto</button>
+      <button class="rsheet-btn" id="rsheet-draw" onclick="confirmResultSheet('draw')">Patta</button>
+      <button class="rsheet-btn" id="rsheet-loss" onclick="confirmResultSheet('loss')">Ho perso</button>
     </div>
-    <div id="rsheet-dispute-warn" class="hidden" style="font-size:11px;color:#8a8580;text-align:center;padding:0 8px 4px;line-height:1.5">Se non concordate di nuovo, la partita verrà annullata.</div>
+    <div id="rsheet-dispute-warn" class="hidden" style="font-size:var(--fs-label);color:var(--muted);text-align:center;padding:var(--sp-sm) var(--sp-sm) var(--sp-xs);line-height:1.5">Se non concordate di nuovo, la partita verrà annullata.</div>
     <button class="rsheet-cancel" onclick="closeResultSheet()">Annulla</button>
   </div>
 </div>
@@ -4197,19 +3918,39 @@ document.querySelector('.home-feed').addEventListener('scroll', () => {
   </div>
 </div>
 
-<!-- ACTION SHEET COLORE -->
-<div class="asheet-overlay" id="color-sheet-overlay" onclick="closeColorSheet()">
-  <div class="asheet" onclick="event.stopPropagation()">
-    <div class="asheet-eyebrow">Chi gioca col bianco?</div>
-    <div class="asheet-colors">
-      <button class="asheet-color-btn asheet-color-white selected" id="asheet-btn-white" onclick="selectSheetColor('me')">
-        <span class="asheet-color-name" id="asheet-label-white"></span>
-      </button>
-      <button class="asheet-color-btn asheet-color-black" id="asheet-btn-black" onclick="selectSheetColor('opp')">
-        <span class="asheet-color-name" id="asheet-label-black"></span>
-      </button>
+<!-- CHALLENGE SHEET (Uber-style 2-step) -->
+<div class="asheet-overlay" id="challenge-sheet-overlay2" onclick="if(event.target===this)closeNewChallengeSheet()">
+  <div class="asheet" onclick="event.stopPropagation()" style="padding:8px 24px calc(24px + env(safe-area-inset-bottom,0px))">
+    <div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px"></div>
+
+    <!-- Step 1: Player list -->
+    <div id="ch-step1">
+      <div style="font-size:var(--fs-title);font-weight:800;color:var(--text);margin-bottom:var(--sp-lg);letter-spacing:-.5px">Chi sfidi?</div>
+      <input id="ch-search" style="background:transparent;border:none;border-bottom:1px solid var(--border);padding:12px 0;font-size:var(--fs-body);font-weight:500;color:var(--text);width:100%;outline:none;font-family:inherit;-webkit-user-select:text;user-select:text" placeholder="Cerca..." oninput="filterChallengePlayers(this.value)" autocorrect="off" autocapitalize="none" spellcheck="false">
+      <div id="ch-player-list" style="height:280px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-top:var(--sp-sm)"></div>
     </div>
-    <button class="asheet-cta" id="asheet-confirm" onclick="confirmColorSheet()">Conferma</button>
+
+    <!-- Step 2: Config -->
+    <div id="ch-step2" style="display:none">
+      <div style="text-align:center;margin-bottom:var(--sp-lg)">
+        <div style="font-size:var(--fs-title);font-weight:700;color:var(--text)" id="ch-opp-name"></div>
+        <div style="font-size:var(--fs-caption);color:var(--dim);margin-top:2px" id="ch-opp-elo"></div>
+      </div>
+
+      <div style="font-size:var(--fs-label);color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:var(--sp-sm)">Tempo</div>
+      <div style="display:flex;gap:var(--sp-sm);margin-bottom:var(--sp-lg)" id="ch-time-row">
+        <button class="ch-time-chip" onclick="pickChallengeTime(this)" data-time="blitz">Blitz</button>
+        <button class="ch-time-chip on" onclick="pickChallengeTime(this)" data-time="rapid">Rapid</button>
+        <button class="ch-time-chip" onclick="pickChallengeTime(this)" data-time="classic">Classic</button>
+      </div>
+
+      <div style="font-size:var(--fs-label);color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:var(--sp-sm)">Gioca con</div>
+      <div style="display:flex;gap:var(--sp-sm)" id="ch-color-row">
+        <button class="ch-color-btn ch-color-white" onclick="pickChallengeColor('white')"><span>Bianco</span></button>
+        <button class="ch-color-btn ch-color-black" onclick="pickChallengeColor('black')"><span>Nero</span></button>
+      </div>
+      <div style="font-size:var(--fs-label);color:var(--ghost);text-align:center;margin-top:var(--sp-md)">Scegli il colore per sfidare</div>
+    </div>
   </div>
 </div>
 </body>
