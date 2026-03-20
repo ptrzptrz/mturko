@@ -1737,8 +1737,8 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
   if(total === 0) { container.innerHTML = ''; return; }
 
   // Helper — ds-card A1 structure
-  function mkCard(accentClass, name, eloStr, statusText, ctaHtml, passive=false, cardAttr='') {
-    return `<div class="ds-card${passive ? ' acard-passive' : ''}" ${cardAttr}>
+  function mkCard(accentClass, name, eloStr, statusText, ctaHtml, passive=false) {
+    return `<div class="ds-card${passive ? ' acard-passive' : ''}">
       <div class="ds-card-accent ${accentClass}"></div>
       <div class="ds-card-body">
         <div class="ds-card-name">${name}${eloStr ? ` <span class="ds-card-elo">${eloStr}</span>` : ''}</div>
@@ -2560,32 +2560,6 @@ async function acceptChallenge(matchId) {
   await db.patch("matches", `id=eq.${matchId}`, {status: "active"});
   await fetchAll();
 }
-function openChallengeDetail(matchId) {
-  const m = matches.find(x => x.id === matchId);
-  if(!m) return;
-  const opp = getP(m.p1);
-  const oppName = opp?.nickname || '?';
-  const oppElo = opp?.elo ? Math.round(opp.elo) : '?';
-  let colorInfo = '';
-  if(m.white_player_id) {
-    const amIWhite = m.white_player_id === me.id;
-    colorInfo = ' · tu ' + (amIWhite ? 'bianco' : 'nero');
-  }
-  // Reuse result sheet overlay pattern
-  const overlay = $('result-sheet-overlay');
-  $('rsheet-eyebrow').textContent = 'Sfida ricevuta';
-  $('rsheet-context').innerHTML = `<div style="font-size:var(--fs-caption);color:var(--muted)">${oppName} (${oppElo})${colorInfo}</div>`;
-  $('rsheet-dispute-warn').classList.add('hidden');
-  // Replace buttons temporarily
-  const btnsContainer = overlay.querySelector('.ds-group');
-  btnsContainer.innerHTML = `
-    <button class="rsheet-btn" onclick="closeResultSheet();acceptChallenge('${matchId}')">Accetta</button>
-    <button class="rsheet-btn" style="color:var(--red)" onclick="closeResultSheet();rejectChallenge('${matchId}')">Rifiuta</button>`;
-  overlay.style.display = 'flex';
-  document.body.classList.add('sheet-open');
-  requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('visible')));
-}
-
 async function rejectChallenge(matchId) {
   await db.delete("matches", `id=eq.${matchId}`);
   await fetchAll();
