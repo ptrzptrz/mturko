@@ -1,0 +1,4248 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="turko">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#161512">
+<title>turko</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* ── Design System Tokens ── */
+:root{
+  /* Palette B — WCAG AA accessible */
+  --bg:#161512;
+  --surface:#1d1a16;
+  --border:#2a2724;
+  --border-light:#252220;
+  --text:#e8e6e3;
+  --muted:#8a8580;
+  --dim:#6a6560;
+  --ghost:#504a45;
+  --green:#7ab535;
+  --green-dark:#3d6b1a;
+  --red:#d45454;
+  --red-bg:#2a1010;
+  --gold:#b8a04a;
+  --white-piece:#c8c4be;
+  /* Typography scale */
+  --fs-hero:48px;
+  --fs-hero-sm:32px;
+  --fs-title:22px;
+  --fs-body:16px;
+  --fs-caption:13px;
+  --fs-label:12px;
+  --fs-micro:10px;
+  /* Spacing (4px scale) */
+  --sp-xs:4px;
+  --sp-sm:8px;
+  --sp-md:12px;
+  --sp-lg:16px;
+  --sp-xl:24px;
+  /* Radius */
+  --r-sm:10px;
+  --r-md:14px;
+  --r-lg:16px;
+  --r-xl:24px;
+  /* Animation */
+  --ease-out:cubic-bezier(.2,0,.2,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --dur-fast:150ms;
+  --dur-normal:250ms;
+  --dur-slow:400ms;
+}
+
+/* ── Reset & Base ── */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html{background:var(--bg);overscroll-behavior:none}
+body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:var(--text);max-width:480px;margin:0 auto;height:100dvh;overflow:hidden;overscroll-behavior:none}
+input,select,textarea{background:var(--border);border:1px solid var(--ghost);border-radius:var(--r-sm);color:var(--text);padding:13px 14px;font-size:var(--fs-body);font-family:inherit;width:100%;outline:none;display:block;-webkit-user-select:text;user-select:text}
+input:focus,select:focus,textarea:focus{border-color:var(--dim)}
+input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0px 1000px #161512 inset;-webkit-text-fill-color:#e8e6e3}
+input::placeholder,textarea::placeholder{color:#6a6560}
+button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-color:transparent;outline:none}
+.hidden{display:none!important}
+
+/* ── Layout ── */
+#main{height:100dvh;display:flex;flex-direction:column;overflow:hidden;padding-top:calc(env(safe-area-inset-top,20px) + 12px)}
+.pages{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.page{display:none;flex:1;overflow:hidden}
+.page.active{display:flex;flex-direction:column;animation:pageFadeIn .18s ease}
+@keyframes pageFadeIn{from{opacity:0}to{opacity:1}}
+#page-home.active{height:100%}
+#page-profile.active,#page-lb.active,#page-search.active,#page-tourn.active{overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+
+/* ── Topbar ── */
+body.sheet-open #sa-cover{background:#000000}
+
+/* ── Navbar ── */
+.navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;display:flex;padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg);z-index:100}
+.navbar-frost{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:calc(80px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top, var(--bg) 60%, transparent 100%);pointer-events:none;z-index:99}
+.nbtn{flex:1;min-height:52px;padding:10px 0;background:none;border:none;color:#6a6560;font-size:10px;text-transform:uppercase;letter-spacing:.8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative;transition:color .2s ease}
+.nbtn.on{color:#e8e6e3}
+.nbtn:active{opacity:.6}
+.nicon{width:22px;height:22px;display:block}
+.badge{position:absolute;top:8px;right:calc(50% - 20px);background:#d45454;color:#fff;border-radius:8px;padding:0 5px;font-size:9px;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center}
+
+/* ── Auth ── */
+#auth{min-height:100dvh;display:flex;flex-direction:column;background:#161512;position:relative}
+#auth-splash{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 24px;padding-bottom:20vh}
+.auth-wordmark{text-align:center}
+.auth-name{font-size:64px;font-weight:800;color:#e8e6e3;letter-spacing:-3px;line-height:1;display:block;animation:authFadeIn .6s ease}
+.auth-tagline{font-size:12px;color:#504a45;letter-spacing:2px;text-transform:uppercase;margin-top:8px;display:block;animation:authFadeIn .6s ease .15s both}
+.auth-actions{margin-top:48px;width:100%;max-width:320px;animation:authFadeIn .6s ease .3s both}
+@keyframes authFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Auth sheets */
+.auth-sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:10001;display:flex;align-items:flex-end;pointer-events:none;transition:background .35s ease}
+.auth-sheet-overlay.visible{background:rgba(0,0,0,.6);pointer-events:all}
+.auth-sheet{background:#161512;border-radius:24px 24px 0 0;padding:8px 24px calc(24px + env(safe-area-inset-bottom,0px));width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .4s cubic-bezier(.32,0,.24,1)}
+.auth-sheet-overlay.visible .auth-sheet{transform:translateY(0)}
+.auth-sheet-handle{width:36px;height:4px;background:#2a2724;border-radius:2px;margin:0 auto 20px}
+.auth-sheet-title{font-size:22px;font-weight:800;color:#e8e6e3;margin-bottom:24px;letter-spacing:-.5px}
+.auth-sheet .frow{margin-bottom:4px}
+.auth-sheet .btn-g{margin-top:20px}
+.auth-sheet-footer{font-size:11px;color:#504a45;text-align:center;margin-top:16px}
+
+/* Field status indicators */
+.auth-field{position:relative;margin-bottom:var(--sp-xs)}
+.auth-input.valid{border-bottom-color:#7ab535}
+.auth-input.invalid{border-bottom-color:#d45454}
+.auth-input{background:transparent;border:none;border-bottom:1px solid #2a2724;border-radius:0;padding:14px 40px 14px 0;font-size:var(--fs-body);font-weight:500;color:#e8e6e3;width:100%;outline:none;display:block;transition:border-color .2s ease;font-family:inherit;-webkit-user-select:text;user-select:text}
+.auth-input:focus{border-bottom-color:#e8e6e3}
+.auth-input::placeholder{color:#504a45;font-weight:400}
+.auth-eye{position:absolute;right:0;top:50%;transform:translateY(-50%);background:none;border:none;padding:10px;cursor:pointer;color:var(--ghost);transition:color var(--dur-fast)}
+.auth-eye:active{color:var(--muted)}
+.auth-eye svg{width:20px;height:20px;display:block}
+.auth-field-hint{font-size:var(--fs-label);color:#504a45;margin-top:2px;margin-bottom:var(--sp-md);min-height:16px;transition:color .2s;display:flex;align-items:center;gap:6px}
+.auth-field-hint.ok{color:#7ab535}
+.auth-field-hint.err{color:#d45454;opacity:1}
+/* Inline check in hint (14px) — no stroke-dash animation for Safari transform compat */
+.check-sm{width:14px;height:14px;flex-shrink:0;display:inline-block}
+.check-sm svg{display:block;width:14px;height:14px}
+.check-sm .circle{fill:none;stroke-width:1.5;stroke-linecap:round;stroke:var(--ghost)}
+.check-sm .mark{fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke:var(--ghost)}
+.check-sm.ok .circle,.check-sm.ok .mark{stroke:var(--green)}
+.check-sm.err .circle,.check-sm.err .mark{stroke:var(--red)}
+.btn-g{background:#e8e6e3;color:#161512;border-radius:12px;padding:17px 16px;font-size:16px;font-weight:700;width:100%;margin-top:12px;display:block;transition:transform .15s cubic-bezier(.34,1.56,.64,1),opacity .15s ease;letter-spacing:-.2px}
+.box .btn-g{margin-top:32px}
+.btn-g:active{transform:scale(0.97);opacity:.9}
+.btn-g:disabled{background:#252220;color:#504a45;cursor:not-allowed;transform:none}
+.btn-o{background:transparent;color:#6a6560;border:none;padding:16px;font-size:14px;width:100%;margin-top:4px;display:block;transition:color .15s ease}
+.btn-o:active{color:#e8e6e3}
+.err{color:#d45454;font-size:13px;margin-top:12px;min-height:18px;opacity:0;transition:opacity .2s ease}
+.err.visible{opacity:1}
+
+/* ── Common ── */
+.empty{color:#504a45;text-align:center;margin-top:48px;font-size:14px}
+.slabel{font-size:11px;font-weight:600;color:#6a6560;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px}
+.divider{display:flex;align-items:center;gap:10px;font-size:10px;font-weight:600;color:#504a45;margin:16px 0 8px;text-transform:uppercase;letter-spacing:1.2px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:#252220}
+
+/* ── Notif ── */
+.notif{position:fixed;top:calc(env(safe-area-inset-top,20px) + 20px);left:50%;transform:translateX(-50%) translateY(-4px);background:#e8e6e3;color:#161512;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;max-width:90vw;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5);opacity:0;transition:opacity .2s,transform .2s}
+.notif.err{background:#2a1010;color:#e87070;border:1px solid rgba(200,50,50,.2)}
+@keyframes glowWin{0%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0px rgba(98,153,36,0)}50%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 30px rgba(98,153,36,.12)}100%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0px rgba(98,153,36,0)}}
+.notif.result{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 120px);left:50%;font-size:16px;font-weight:700;padding:14px 28px;border-radius:16px;letter-spacing:-.2px;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.notif.result-win{background:#1a2a10;color:#8cbf4a;border:1px solid rgba(98,153,36,.15);box-shadow:0 4px 24px rgba(0,0,0,.5);animation:glowWin .6s ease .3s both}
+.notif.result-loss{background:#252220;color:#e8e6e3;border:none;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.notif.result-draw{background:#252220;color:#8a8580;border:none;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.2);border-top-color:#161512;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Home hero header ── */
+/* STEP 1: padding compatto — meno spazio sprecato sopra il fold */
+.home-header{flex-shrink:0;background:var(--bg)}
+.home-hero{padding:6px 16px 0;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s}
+.home-hero:active{opacity:.7}
+.home-chips{display:flex;gap:var(--sp-sm);padding:var(--sp-md) 16px}
+.home-feed{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px calc(80px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
+.home-feed::-webkit-scrollbar{display:none}
+.home-hero:active{opacity:.7}
+.home-hero-nick{font-size:11px;font-weight:600;color:#8a8580;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.home-hero-elo-row{display:flex;align-items:baseline;gap:10px}
+.home-hero-elo{font-size:48px;font-weight:800;color:#e8e6e3;letter-spacing:-2px;line-height:1}
+.home-hero-delta{font-size:15px;font-weight:600;letter-spacing:-.3px}
+.home-hero-delta.up{color:#7ab535}
+.home-hero-sub{font-size:11px;color:#504a45;margin-top:0;min-height:0}
+.home-hero-progress{margin-top:6px;margin-bottom:8px;width:140px}
+.h-progress-bar{height:1.5px;background:#252220;border-radius:1px;overflow:hidden}
+.h-progress-fill{height:100%;background:#7ab535;border-radius:1px;transition:width .6s ease}
+.h-progress-label{font-size:10px;color:#504a45;margin-top:3px}
+/* STEP 1: delta down era #c33 — ora coerente con sistema: rosso solo per perdite, non per draw */
+.home-hero-delta.down{color:#d45454}
+
+/* ── Home active section ── */
+#home-active{flex-shrink:0}
+#home-active:empty{display:none}
+
+/* ── CAB (legacy — hidden) ── */
+#cab{display:none}
+.cab-search-bar{height:52px;background:#1d1a16;border:1px solid #504a45;border-radius:16px;display:none;align-items:center;padding:0 14px 0 18px;gap:10px;flex-shrink:0}
+.cab-search-bar.open{display:flex}
+.cab-search-input{flex:1;background:transparent;border:none;border-radius:0;padding:0;font-size:16px;font-weight:500;color:#e8e6e3;outline:none;height:100%}
+.cab-search-input::placeholder{color:#6a6560;font-weight:400;font-size:15px}
+.cab-close-btn{background:none;border:none;color:#8a8580;font-size:20px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0}
+.cab-results{position:absolute;top:calc(100% + 4px);left:16px;right:16px;background:#161512;border:1px solid #2a2724;border-radius:16px;overflow:hidden;max-height:300px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;box-shadow:0 8px 32px rgba(0,0,0,.6);display:none;z-index:10}
+.cab-results.open{display:block}
+.cab-feedback{display:none}
+
+
+
+/* Lista giocatori nella search */
+.prow{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:13px 14px;margin-bottom:7px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .15s}
+.prow:active{border-color:#504a45}
+.pname{font-size:15px;color:#e8e6e3;font-weight:600}
+.pelo{font-size:12px;color:#6a6560;margin-top:2px}
+
+/* ── Action sheet colore ── */
+.asheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:10001;display:flex;align-items:flex-end;pointer-events:none}
+.asheet-overlay.visible{background:rgba(0,0,0,.75);pointer-events:all}
+.asheet{background:#161512;border-radius:24px 24px 0 0;padding:24px 16px 40px;width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,0,.24,1)}
+.asheet-overlay.visible .asheet{transform:translateY(0)}
+.asheet-eyebrow{font-size:11px;color:#8a8580;text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
+.asheet-cta{width:100%;background:#e8e6e3;border:none;border-radius:14px;padding:16px;color:#161512;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .15s,transform .12s;margin-bottom:8px}
+.asheet-cta:active{opacity:.85;transform:scale(.99)}
+.asheet-cta:disabled{background:#252220;color:#504a45;cursor:not-allowed}
+
+/* Animazioni */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes cardEnter{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.card-enter{animation:cardEnter .35s cubic-bezier(.2,0,.2,1) both}
+@keyframes swipeHint{0%{transform:translateX(0)}40%{transform:translateX(-9px)}60%{transform:translateX(-9px)}100%{transform:translateX(0)}}
+.hrow-swipe-hint{animation:swipeHint .7s cubic-bezier(.25,0,.25,1) 1.4s both}
+
+/* ── Storico — archivio, non UI primaria ── */
+
+/* Action sheet risultato */
+.rsheet-context{font-size:var(--fs-caption);color:var(--muted);text-align:center;margin-bottom:var(--sp-lg);font-weight:500}
+.rsheet-btns{background:#252220;border-radius:14px;overflow:hidden;margin-bottom:8px}
+.rsheet-btn{width:100%;padding:var(--sp-lg);border-radius:0;font-size:var(--fs-body);font-weight:600;text-align:center;cursor:pointer;transition:opacity var(--dur-fast),background .1s;border:none;border-bottom:0.5px solid var(--border);font-family:inherit;letter-spacing:-.2px;background:transparent;color:var(--text)}
+.rsheet-btn:last-child{border-bottom:none}
+.rsheet-btn:active{background:var(--border);opacity:.8}
+.rsheet-cancel{width:100%;background:transparent;border:none;color:var(--dim);font-size:var(--fs-caption);font-weight:500;padding:var(--sp-lg);cursor:pointer;font-family:inherit;transition:opacity var(--dur-fast);text-align:center}
+.rsheet-cancel:active{opacity:.5}
+.btn-result{width:100%;background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:15px 18px;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .2s cubic-bezier(.34,1.56,.64,1);text-align:left;display:flex;align-items:center;justify-content:space-between}
+.btn-result:not(.no-arrow)::after{content:'→';font-size:16px;opacity:.5}
+.btn-result:active{opacity:.8;transform:scale(.97)}
+.btn-result.waiting{background:#1d1a16;color:#8a8580;border:1px solid #2a2724;cursor:default}
+.btn-result.waiting::after{display:none}
+.waiting-dots{font-size:11px;color:#504a45;flex-shrink:0}
+
+.btn-accept{flex:1;background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:15px 0;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .2s cubic-bezier(.34,1.56,.64,1);font-family:inherit;letter-spacing:-.2px}
+.btn-accept:active{opacity:.8;transform:scale(.96)}
+.btn-decline{background:transparent;color:#8a8580;border:none;padding:15px 14px;font-size:14px;cursor:pointer;transition:opacity .15s;font-family:inherit;white-space:nowrap;font-weight:500}
+.btn-decline:active{opacity:.4}
+
+/* ── ELO strip ── */
+.elo-info-btn{width:13px;height:13px;border-radius:50%;border:1px solid #504a45;color:#6a6560;font-size:8px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.elo-tooltip{position:absolute;top:calc(100% + 6px);left:0;width:230px;background:#1d1a16;border:1px solid #504a45;border-radius:10px;padding:12px;z-index:30;box-shadow:0 4px 20px rgba(0,0,0,.6);display:none}
+.elo-tooltip.visible{display:block}
+.elo-tooltip-title{font-size:11px;font-weight:700;color:#e8e6e3;margin-bottom:6px}
+.elo-tooltip-text{font-size:10px;color:#8a8580;line-height:1.6}
+#home-history{margin-top:0}
+
+/* ── Alert ── */
+.alert{background:#1d1a16;border:1px solid #504a45;border-radius:12px;padding:14px 16px;margin-bottom:8px}
+.alert-t{font-size:10px;color:#6a6560;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.alert-vs{font-size:15px;color:#e8e6e3;font-weight:600;margin-bottom:3px}
+.alert-r{font-size:12px;color:#8a8580;margin-bottom:12px}
+.alert-btns{display:flex;gap:8px}
+.btn-yes{background:#e8e6e3;color:#161512;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:600;transition:opacity .15s}
+.btn-yes:active{opacity:.8}
+.btn-no{background:transparent;color:#d45454;border:1px solid #c33;border-radius:8px;padding:10px 16px;font-size:13px;transition:opacity .15s}
+.btn-no:active{opacity:.7}
+
+.btn-sm{background:#2a2724;color:#e8e6e3;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;flex-shrink:0;transition:opacity .15s;border:1px solid #504a45}
+.btn-sm:active{opacity:.7}
+.btn-play{background:#e8e6e3;color:#161512;border:none;border-radius:12px;padding:10px 18px;font-size:14px;font-weight:700;flex-shrink:0;cursor:pointer;font-family:inherit;transition:opacity .15s,transform .1s}
+.btn-play:active{opacity:.8;transform:scale(.97)}
+.btn-play.unavailable{background:transparent;color:#504a45;border:1px solid #252220;cursor:default;font-weight:500;font-size:13px}
+
+/* ── Search / Prow ── */
+.prow{background:#1d1a16;border:1px solid #252220;border-radius:12px;padding:13px 14px;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:border-color .15s}
+.prow:active{border-color:#504a45}
+.pname{font-size:15px;color:#e8e6e3;font-weight:600}
+.pelo{font-size:12px;color:#6a6560;margin-top:2px}
+
+/* ── Leaderboard / Attività ── */
+#page-lb.active{display:flex;flex-direction:column;overflow:hidden}
+.lb-chips{display:flex;gap:8px;padding:12px 16px 8px;flex-shrink:0;background:#161512;position:sticky;top:0;z-index:5}
+.lb-chip{padding:8px 18px;border-radius:20px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:background .15s,color .15s;-webkit-tap-highlight-color:transparent;white-space:nowrap;border:none;outline:none;background:#252220;color:#8a8580}
+.lb-chip:active{opacity:.75}
+.lb-chip.active{background:#e8e6e3;color:#161512}
+.lb-view{display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:8px 16px calc(80px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
+.lb-view::-webkit-scrollbar{display:none}
+.lb-view.active{display:block}
+.lb-leader{background:#1d1a16;border:1px solid #504a45;border-radius:14px;padding:20px 18px;margin-bottom:10px;display:flex;align-items:center;gap:16px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.lb-leader:active{background:#252220}
+.lb-leader.me{background:#252220}
+.lb-leader-rank{font-size:22px;font-weight:800;color:#e8e6e3;width:30px;text-align:center;flex-shrink:0}
+.lb-leader-name{font-size:17px;font-weight:700;color:#e8e6e3}
+.lb-leader-elo{font-size:24px;font-weight:800;color:#e8e6e3;margin-left:auto;letter-spacing:-1px}
+.lb-group{background:#1d1a16;border:0.5px solid #2a2724;border-radius:14px;overflow:hidden}
+.lb-row{display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:0.5px solid #252220;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .1s}
+.lb-row:last-child{border-bottom:none}
+.lb-row:active{background:#252220}
+.lb-row.me{background:#252220}
+.lb-row-rank{font-size:13px;font-weight:600;color:#6a6560;width:24px;text-align:center;flex-shrink:0}
+.lb-row-info{flex:1;min-width:0}
+.lb-row-name{font-size:15px;font-weight:600;color:#e8e6e3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
+.lb-row-me-tag{font-size:10px;font-weight:400;color:#6a6560}
+.lb-row-sub{font-size:11px;color:#6a6560;margin-top:2px}
+.lb-row-elo-wrap{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.lb-row-elo{font-size:16px;font-weight:700;color:#e8e6e3}
+.lb-row-daily{font-size:11px;font-weight:500}
+.lb-row-daily.pos{color:#7ab535}
+.lb-row-daily.neg{color:#d45454}
+.lb-row-trend{font-size:9px;margin-left:2px}
+.lb-row-trend.up{color:#7ab535}
+.lb-row-trend.down{color:#d45454}
+.lb-me-sticky{position:fixed;bottom:calc(52px + max(env(safe-area-inset-bottom),8px));left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:0 16px;z-index:50}
+.lb-me-sticky-inner{background:#1d1a16;border:1px solid #504a45;border-radius:12px;display:flex;align-items:center;gap:12px;padding:12px 14px;box-shadow:0 -4px 20px rgba(0,0,0,.5);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.lb-me-sticky-inner:active{background:#252220}
+.lb-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:#7ab535;margin-left:6px;vertical-align:middle}
+.lb-dot.playing{animation:lb-pulse 1.5s ease-in-out infinite}
+@keyframes lb-pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.lb-status{font-size:11px;color:#6a6560;font-weight:400}
+.lb-feed-row{padding:11px 14px;border-bottom:0.5px solid #252220;display:flex;align-items:center;gap:10px;cursor:pointer;-webkit-tap-highlight-color:transparent;background:transparent}
+.lb-feed-row:active{background:#252220}
+.lb-feed-row:last-child{border-bottom:none}
+.lb-group .lb-feed-row:last-child{border-bottom:none}
+.lb-feed-left{flex:1;min-width:0}
+.lb-feed-name{font-size:14px;font-weight:400;color:#8a8580;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:5px}
+.lb-feed-name strong{font-weight:700}
+.lb-feed-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end}
+.lb-feed-delta{font-size:14px;font-weight:700;line-height:1}
+.lb-feed-delta.pos{color:#7ab535}
+.lb-feed-delta.neg{color:#d45454}
+.lb-feed-delta.draw{color:#504a45}
+.lb-feed-event .lb-feed-name{color:#e8e6e3;font-weight:400}
+.lb-feed-event .lb-feed-name strong{font-weight:600}
+.lb-feed-event .lb-feed-name strong.ev-overtake-pos{color:#7ab535}
+.lb-feed-event .lb-feed-name strong.ev-overtake-neg{color:#d45454}
+.lb-feed-event .lb-feed-name strong.ev-overtake-other{color:#8a8580}
+.lb-feed-event .lb-feed-name strong.ev-upset{color:#b8a04a}
+.lb-feed-event .lb-feed-name strong.ev-milestone{color:#b8a04a}
+.lb-feed-event .lb-feed-name strong.ev-streak{color:#e8e6e3}
+.lb-feed-event .lb-feed-name strong.ev-newplayer{color:#e8e6e3}
+.lb-feed-event.ev-other .lb-feed-name{color:#8a8580}
+.lb-feed-event.ev-other .lb-feed-name strong{color:#8a8580}
+.feed-divider{display:flex;align-items:center;gap:10px;font-size:10px;font-weight:600;color:#504a45;margin:14px 0 6px;text-transform:uppercase;letter-spacing:1.2px}
+.feed-divider::before,.feed-divider::after{content:'';flex:1;height:0.5px;background:#252220}
+.feed-counter{font-size:13px;color:#8a8580;text-align:center;padding:8px 0 12px;font-weight:600}
+/* ── Profile ── */
+.prof-sticky{flex-shrink:0;background:#161512;padding:0 16px}
+.prof-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px calc(80px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
+.prof-scroll::-webkit-scrollbar{display:none}
+.prof-header{padding:8px 0 4px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.prof-header-left{flex:1;min-width:0}
+.prof-header-right{flex-shrink:0;text-align:right}
+.prof-nick{font-size:20px;font-weight:700;color:#e8e6e3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prof-rank-meta{font-size:11px;color:#6a6560;margin-top:2px}
+.prof-bio{font-size:12px;color:#8a8580;margin-top:3px;max-width:200px;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.prof-city{font-size:11px;color:#504a45;margin-top:2px}
+.prof-elo-num{font-size:32px;font-weight:800;color:#e8e6e3;line-height:1}
+.prof-elo-peak{font-size:11px;color:#6a6560;margin-top:3px}
+.prof-elo-peak strong{color:#8a8580;font-weight:600}
+.prof-elo-gap{font-size:11px;color:#d45454;margin-top:1px}
+.prof-edit-form{background:#1d1a16;border:1px solid #252220;border-radius:14px;padding:16px;margin-bottom:14px}
+.prof-edit-form input,.prof-edit-form textarea{margin-bottom:8px}
+.prof-chart-wrap{margin-bottom:14px;position:relative}
+.prof-chart-header{display:flex;align-items:baseline;justify-content:space-between;padding:0 0 8px}
+.prof-chart-val{font-size:20px;font-weight:800;color:#e8e6e3;transition:opacity .12s;min-width:50px}
+.prof-chart-val.empty{opacity:0}
+.prof-chart-date{font-size:11px;color:#6a6560;margin-left:6px;transition:opacity .12s}
+.prof-chart-chips{display:flex;gap:4px}
+.prof-chart-chip{background:transparent;border:none;color:#6a6560;font-size:11px;font-weight:600;padding:4px 10px;border-radius:8px;cursor:pointer;font-family:inherit;transition:color .15s,background .15s;-webkit-tap-highlight-color:transparent}
+.prof-chart-chip.active{background:#252220;color:#e8e6e3}
+.prof-chart-chip:active{opacity:.6}
+.prof-kebab{background:none;border:none;color:#504a45;font-size:20px;cursor:pointer;padding:4px 0 4px 8px;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.prof-kebab:active{color:#8a8580}
+.prof-footer{padding:24px 0 16px;text-align:center}
+.prof-footer-link{background:none;border:none;color:#6a6560;font-size:13px;font-weight:500;cursor:pointer;padding:10px 16px;display:block;width:100%;-webkit-tap-highlight-color:transparent}
+.prof-footer-link:active{color:#8a8580}
+.back-btn{background:none;border:none;color:#6a6560;font-size:13px;padding:0;margin-bottom:12px;display:flex;align-items:center;gap:6px;cursor:pointer}
+.back-btn:active{opacity:.7}
+/* ── Skeleton loading ── */
+.skel{border-radius:6px;background:#252220;position:relative;overflow:hidden}
+.skel::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.03),transparent);animation:skel-shimmer 1.5s ease infinite}
+@keyframes skel-shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.skel-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:0.5px solid #252220}
+.skel-row:last-child{border-bottom:none}
+.skel-left{display:flex;flex-direction:column;gap:6px}
+.skel-chart{margin-bottom:14px}
+/* ═══════════════════════════════════════════════════════════
+   DESIGN SYSTEM COMPONENTS (v2)
+   These coexist with legacy styles during migration.
+   Prefix: ds- where ambiguous, otherwise clean names.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Group: rounded container ── */
+.ds-group{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r-md);overflow:hidden;margin-bottom:var(--sp-md)}
+
+/* ── Cell: tappable row inside group, 44px min HIG ── */
+.ds-cell{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--sp-lg);min-height:44px;border-bottom:0.5px solid var(--border);cursor:pointer;transition:background var(--dur-fast)}
+.ds-cell:last-child{border-bottom:none}
+.ds-cell:active{background:var(--border)}
+.ds-cell.static{cursor:default}
+.ds-cell.static:active{background:transparent}
+.ds-cell.is-me{background:#242018}
+.ds-cell.nested{padding-left:var(--sp-xl);background:#242018;cursor:default}
+.ds-cell.nested:active{background:#242018}
+.ds-cell-left{flex:1;min-width:0}
+.ds-cell-right{flex-shrink:0;text-align:right}
+.ds-cell-name{font-size:var(--fs-body);font-weight:600;color:var(--text)}
+.ds-cell-meta{font-size:var(--fs-label);color:var(--dim);margin-top:2px}
+.ds-cell-value{font-size:var(--fs-body);font-weight:700}
+.ds-cell-sub{font-size:var(--fs-label);font-weight:500;margin-top:2px}
+.ds-cell-rank{font-size:var(--fs-caption);font-weight:600;color:var(--dim);width:24px;text-align:center;flex-shrink:0;margin-right:var(--sp-md)}
+
+/* ── Card A1: active match card with accent bar ── */
+.ds-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r-md);min-height:56px;margin-bottom:var(--sp-sm);display:flex;align-items:center;overflow:hidden}
+.ds-card-accent{width:3px;min-width:3px;align-self:stretch;flex-shrink:0}
+.ds-card-accent.green{background:var(--green)}
+.ds-card-accent.gray{background:var(--ghost)}
+.ds-card-accent.red{background:var(--red)}
+.ds-card-body{flex:1;min-width:0;padding:var(--sp-md) var(--sp-sm) var(--sp-md) var(--sp-lg)}
+.ds-card-name{font-size:var(--fs-body);font-weight:600;color:var(--text)}
+.ds-card-elo{font-size:var(--fs-label);color:var(--dim);font-weight:400}
+.ds-card-status{font-size:var(--fs-label);color:var(--dim);margin-top:2px}
+.ds-card-cta{padding:var(--sp-md) var(--sp-lg);flex-shrink:0}
+.ds-card-btn{border:none;border-radius:var(--r-sm);font-size:var(--fs-caption);font-weight:700;cursor:pointer;font-family:inherit;padding:var(--sp-sm) var(--sp-lg);white-space:nowrap;transition:opacity var(--dur-fast),transform .1s}
+.ds-card-btn:active{opacity:.75;transform:scale(.97)}
+.ds-card-btn.primary{background:var(--text);color:var(--bg)}
+.ds-card-btn.ghost{background:var(--border);color:var(--dim)}
+.ds-card-btn.danger{background:rgba(212,84,84,.15);color:var(--red)}
+
+/* ── Chip: filter pills ── */
+.ds-chip{display:inline-block;padding:var(--sp-sm) var(--sp-lg);border-radius:20px;font-size:var(--fs-caption);font-weight:600;font-family:inherit;cursor:pointer;border:none;background:var(--border);color:var(--dim);white-space:nowrap;transition:background var(--dur-fast),color var(--dur-fast)}
+.ds-chip:active{opacity:.6}
+.ds-chip.on{background:var(--text);color:var(--bg)}
+.ds-chip-sm{display:inline-block;padding:4px 10px;border-radius:20px;font-size:var(--fs-label);font-weight:600;font-family:inherit;cursor:pointer;border:none;background:var(--border);color:var(--dim);transition:background var(--dur-fast),color var(--dur-fast)}
+.ds-chip-sm:active{opacity:.6}
+.ds-chip-sm.on{background:var(--text);color:var(--bg)}
+
+/* ── W-L-D pills ── */
+.ds-wld{display:flex;align-items:center;gap:4px}
+.ds-wl{font-size:var(--fs-label);font-weight:700;min-width:24px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;padding:0 6px}
+.ds-wl.w{background:rgba(122,181,53,.12);color:var(--green)}
+.ds-wl.l{background:rgba(212,84,84,.12);color:var(--red)}
+.ds-wl.d{background:rgba(138,133,128,.1);color:var(--dim)}
+
+/* ── Section label ── */
+.ds-section{font-size:var(--fs-micro);font-weight:600;color:var(--ghost);text-transform:uppercase;letter-spacing:1.4px;margin-bottom:var(--sp-sm);margin-top:var(--sp-xl)}
+
+/* ── Stats group (collapsible) ── */
+.ds-stats{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r-md);overflow:hidden;margin-bottom:var(--sp-md)}
+.ds-stats-header{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--sp-lg);cursor:pointer;min-height:44px;transition:background var(--dur-fast)}
+.ds-stats-header:active{background:var(--border)}
+.ds-stats-label{font-size:var(--fs-caption);font-weight:600;color:var(--text)}
+.ds-stats-detail{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.ds-stats-inner{padding:0 var(--sp-lg) var(--sp-lg);border-top:0.5px solid var(--border)}
+.ds-stats-row{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-sm) 0}
+.ds-stats-row:first-child{padding-top:var(--sp-md)}
+.ds-stats-row:last-child{padding-bottom:0}
+.ds-stats-row-label{font-size:var(--fs-label);color:var(--dim)}
+.ds-stats-row-value{font-size:var(--fs-caption);font-weight:600;color:var(--text)}
+
+/* ── Buttons ── */
+.ds-btn-primary{background:var(--text);color:var(--bg);border:none;border-radius:var(--r-md);padding:17px var(--sp-lg);font-size:var(--fs-body);font-weight:700;font-family:inherit;width:100%;cursor:pointer;transition:transform var(--dur-fast) var(--ease-spring),opacity var(--dur-fast);letter-spacing:-.2px}
+.ds-btn-primary:active{transform:scale(.97);opacity:.9}
+.ds-btn-primary:disabled{background:var(--border);color:var(--ghost);cursor:not-allowed;transform:none}
+.ds-btn-secondary{background:transparent;color:var(--dim);border:none;padding:var(--sp-lg);font-size:var(--fs-caption);font-weight:500;font-family:inherit;width:100%;cursor:pointer;text-align:center}
+.ds-btn-secondary:active{color:var(--text)}
+
+/* ── Sheet ── */
+.ds-sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:10001;display:flex;align-items:flex-end;pointer-events:none;transition:background .35s}
+.ds-sheet-overlay.visible{background:rgba(0,0,0,.6);pointer-events:all}
+.ds-sheet{background:var(--bg);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:var(--sp-sm) var(--sp-xl) calc(var(--sp-xl) + env(safe-area-inset-bottom,0px));width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform var(--dur-slow) var(--ease-out)}
+.ds-sheet-overlay.visible .ds-sheet{transform:translateY(0)}
+.ds-sheet-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px}
+.ds-sheet-title{font-size:var(--fs-title);font-weight:800;color:var(--text);margin-bottom:var(--sp-xl);letter-spacing:-.5px}
+.ds-sheet-option{width:100%;padding:var(--sp-lg) 0;border:none;background:transparent;color:var(--text);font-size:var(--fs-body);font-weight:500;text-align:left;cursor:pointer;font-family:inherit;border-bottom:0.5px solid var(--border);transition:opacity var(--dur-fast)}
+.ds-sheet-option:last-child{border-bottom:none}
+.ds-sheet-option:active{opacity:.5}
+.ds-sheet-option.danger{color:var(--red)}
+
+/* ── Dot (presence) ── */
+.ds-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--green)}
+.ds-dot.playing{animation:ds-dp 1.5s ease-in-out infinite}
+@keyframes ds-dp{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── Accordion ── */
+.ds-acc{max-height:0;overflow:hidden;transition:max-height .3s ease}
+
+/* ── Feed divider ── */
+.ds-divider{display:flex;align-items:center;gap:10px;font-size:var(--fs-micro);font-weight:600;color:var(--ghost);margin:var(--sp-lg) 0 var(--sp-sm);text-transform:uppercase;letter-spacing:1.2px}
+.ds-divider::before,.ds-divider::after{content:'';flex:1;height:0.5px;background:var(--border)}
+
+/* ── Challenge sheet (Uber-style) ── */
+.ch-time-chip{flex:1;padding:var(--sp-md) 0;border:1px solid var(--border);border-radius:var(--r-sm);background:transparent;color:var(--dim);font-size:var(--fs-caption);font-weight:600;font-family:inherit;cursor:pointer;text-align:center;transition:border-color var(--dur-fast),color var(--dur-fast),background var(--dur-fast)}
+.ch-time-chip:active{opacity:.6}
+.ch-time-chip.on{border-color:var(--text);color:var(--text);background:var(--surface)}
+.ch-color-btn{flex:1;border:none;border-radius:var(--r-lg);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;height:80px;transition:transform var(--dur-normal) var(--ease-spring),opacity var(--dur-fast);opacity:.5}
+.ch-color-btn:active{transform:scale(.92);opacity:1}
+.ch-color-white{background:var(--text)}
+.ch-color-white span{font-size:var(--fs-body);font-weight:700;color:var(--bg);letter-spacing:-.2px}
+.ch-color-black{background:var(--bg);box-shadow:inset 0 0 0 1px var(--border)}
+.ch-color-black span{font-size:var(--fs-body);font-weight:700;color:var(--text);letter-spacing:-.2px}
+.ch-player-row{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) 0;border-bottom:0.5px solid var(--border);cursor:pointer;transition:opacity var(--dur-fast)}
+.ch-player-row:last-child{border-bottom:none}
+.ch-player-row:active{opacity:.5}
+
+/* ── Nav Plus button ── */
+.nav-plus-wrap{flex:1;display:flex;align-items:center;justify-content:center;min-height:52px}
+.nav-plus{width:32px;height:32px;border-radius:50%;background:var(--text);color:var(--bg);font-size:22px;font-weight:300;display:flex;align-items:center;justify-content:center;line-height:1;cursor:pointer;border:none;font-family:inherit;transition:transform var(--dur-fast) var(--ease-spring),opacity var(--dur-fast)}
+.nav-plus:active{transform:scale(.9);opacity:.8}
+
+/* ── Swipe-to-challenge ── */
+.swipe-wrap{position:relative;overflow:hidden}
+.swipe-reveal{position:absolute;top:0;right:0;bottom:0;width:100%;display:flex;align-items:center;justify-content:flex-end;padding-right:var(--sp-xl);background:var(--border)}
+.swipe-reveal-label{font-size:var(--fs-caption);font-weight:700;letter-spacing:-.1px;white-space:nowrap;color:var(--ghost);transition:color 100ms,transform 100ms;transform-origin:center right}
+.swipe-reveal.armed{background:var(--text);transition:background 100ms}
+.swipe-reveal.armed .swipe-reveal-label{color:var(--bg);transform:scale(1.08)}
+.swipe-reveal.blocked.armed{background:var(--border)}
+.swipe-cell{position:relative;z-index:1;background:var(--surface);transform:translate3d(0,0,0);-webkit-transform:translate3d(0,0,0)}
+</style>
+</head>
+<body>
+<div id="sa-cover" style="position:fixed;top:0;left:0;right:0;height:calc(env(safe-area-inset-top,20px) + 12px);background:#161512;z-index:9999;pointer-events:none;transition:background .35s"></div>
+<div id="notif" class="notif"></div>
+
+<!-- AUTH -->
+<div id="auth">
+  <!-- Splash -->
+  <div id="auth-splash">
+    <div class="auth-wordmark">
+      <span class="auth-name">turko</span>
+    </div>
+    <div class="auth-actions">
+      <button class="btn-g" id="auth-go-reg">Inizia</button>
+      <button class="btn-o" id="auth-go-login">Hai già un account? <strong>Accedi</strong></button>
+    </div>
+  </div>
+
+  <!-- Login sheet -->
+  <div id="auth-login-overlay" class="auth-sheet-overlay">
+    <div class="auth-sheet" id="auth-login-sheet">
+      <div class="auth-sheet-handle"></div>
+      <div class="auth-sheet-title">Bentornato</div>
+      <div class="auth-field">
+        <input id="l-nick" class="auth-input" placeholder="Nickname" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+      </div>
+      <div style="height:var(--sp-md)"></div>
+      <div class="auth-field">
+        <input id="l-pass" class="auth-input" type="text" style="-webkit-text-security:disc" placeholder="Password" autocomplete="off" autocorrect="off" autocapitalize="none" data-masked="true">
+        <button class="auth-eye" onclick="toggleAuthEye('l-pass',this)" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div id="l-err" class="err"></div>
+      <button id="l-btn" class="btn-g">Entra</button>
+    </div>
+  </div>
+
+  <!-- Register sheet -->
+  <div id="auth-reg-overlay" class="auth-sheet-overlay">
+    <div class="auth-sheet" id="auth-reg-sheet">
+      <div class="auth-sheet-handle"></div>
+      <div class="auth-sheet-title">Crea account</div>
+      <div class="auth-field">
+        <input id="r-nick" class="auth-input" placeholder="Nickname" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" maxlength="12">
+      </div>
+      <div class="auth-field-hint" id="r-nick-hint"></div>
+      <div class="auth-field">
+        <input id="r-pass" class="auth-input" type="text" style="-webkit-text-security:disc" placeholder="Password" autocomplete="off" autocorrect="off" autocapitalize="none" data-masked="true">
+        <button class="auth-eye" onclick="toggleAuthEye('r-pass',this)" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div class="auth-field-hint" id="r-pass-hint">Minimo 6 caratteri</div>
+      <div class="auth-field">
+        <input id="r-conf" class="auth-input" type="text" style="-webkit-text-security:disc" placeholder="Conferma password" autocomplete="off" autocorrect="off" autocapitalize="none" data-masked="true">
+        <button class="auth-eye" onclick="toggleAuthEye('r-conf',this)" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div class="auth-field-hint" id="r-conf-hint"></div>
+      <div id="r-err" class="err"></div>
+      <button id="r-btn" class="btn-g" disabled>Registrati</button>
+      <div class="auth-sheet-footer">Non potrai recuperare la password.</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main" class="hidden">
+
+  <div class="pages">
+    <!-- HOME -->
+    <div id="page-home" class="page active">
+      <!-- Sticky header: hero + chips -->
+      <div class="home-header" id="home-header">
+        <div class="home-hero" id="home-hero" onclick="openMyProfile()">
+          <div class="home-hero-nick" id="h-nick"></div>
+          <div class="home-hero-elo-row">
+            <span class="home-hero-elo" id="h-elo"></span>
+            <span class="home-hero-delta hidden" id="h-delta"></span>
+          </div>
+          <div id="h-sub" class="home-hero-sub"></div>
+          <div id="h-progress" class="home-hero-progress hidden">
+            <div class="h-progress-bar"><div class="h-progress-fill" id="h-progress-fill"></div></div>
+            <div class="h-progress-label" id="h-progress-label"></div>
+          </div>
+        </div>
+        <div class="home-chips" id="home-chips">
+          <button class="ds-chip on" onclick="switchHomeChip(this,'all')">Tutto</button>
+          <button class="ds-chip" onclick="switchHomeChip(this,'mine')">Partite</button>
+          <button class="ds-chip" onclick="switchHomeChip(this,'events')">Attività</button>
+          <button class="ds-chip" onclick="switchHomeChip(this,'ranking')">Classifica</button>
+        </div>
+      </div>
+
+      <!-- CAB (legacy — hidden, kept for JS compatibility) -->
+      <div id="cab" style="display:none">
+        <div class="cab-bar cab-idle hidden" id="cab-bar" onclick="onCABTap()">
+          <span class="cab-icon" id="cab-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </span>
+          <div class="cab-label-wrap">
+            <span class="cab-label" id="cab-label">Gioca</span>
+            <span class="cab-label-sub hidden" id="cab-label-sub"></span>
+          </div>
+          <span class="cab-arrow hidden" id="cab-arrow">›</span>
+          <div class="cab-feedback" id="cab-feedback">Inviato</div>
+        </div>
+        <div class="cab-search-bar" id="cab-search-bar">
+          <input id="cab-search-input" class="cab-search-input" placeholder="cerca avversario" autocorrect="off" autocapitalize="none" spellcheck="false">
+          <button class="cab-close-btn" onclick="closeCABSearch()">✕</button>
+        </div>
+        <div class="cab-results" id="cab-results"></div>
+      </div>
+
+      <!-- Active cards — pinned above scroll, always visible -->
+      <div id="home-active" style="padding:0 var(--sp-lg);flex-shrink:0"></div>
+
+      <!-- Scrollable feed -->
+      <div class="home-feed" id="home-feed">
+        <!-- Feed: Tutto (default) -->
+        <div id="home-feed-all">
+          <div id="home-history"></div>
+        </div>
+
+        <!-- Feed: Classifica (hidden) -->
+        <div id="home-feed-ranking" class="hidden">
+          <div id="home-ranking-list"></div>
+        </div>
+
+        <!-- Feed: Le mie (hidden) -->
+        <div id="home-feed-mine" class="hidden">
+          <div id="home-mine-list"></div>
+        </div>
+
+        <!-- Feed: Attività (hidden) -->
+        <div id="home-feed-events" class="hidden">
+          <div id="home-events-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEARCH -->
+    <!-- PROFILE -->
+    <div id="page-profile" class="page">
+      <div class="prof-sticky">
+        <button class="back-btn hidden" id="profile-back">← indietro</button>
+        <div id="prof-header-wrap"></div>
+      </div>
+      <div class="prof-scroll" id="prof-scroll">
+        <div class="prof-chart-wrap" id="prof-chart-wrap">
+          <div class="prof-chart-header">
+            <div style="display:flex;align-items:baseline">
+              <div class="prof-chart-val" id="prof-chart-val">—</div>
+              <div class="prof-chart-date" id="prof-chart-date"></div>
+            </div>
+            <div class="prof-chart-chips" id="prof-chart-chips">
+              <button class="prof-chart-chip" data-range="7" onclick="switchEloRange(7,this)">1S</button>
+              <button class="prof-chart-chip" data-range="30" onclick="switchEloRange(30,this)">1M</button>
+              <button class="prof-chart-chip" data-range="90" onclick="switchEloRange(90,this)">3M</button>
+              <button class="prof-chart-chip active" data-range="0" onclick="switchEloRange(0,this)">Tutto</button>
+            </div>
+          </div>
+          <div id="elo-chart-container"></div>
+        </div>
+        <div id="prof-h2h"></div>
+        <div id="prof-elo-section"></div>
+        <div id="prof-best-wins"></div>
+        <div id="prof-rivals"></div>
+        <div id="prof-day-groups"></div>
+        <div id="prof-footer"></div>
+      </div>
+      <div id="prof-cta-wrap"></div>
+    </div>
+  </div>
+  <div class="navbar-frost"></div>
+  <div class="navbar">
+    <button class="nbtn on" data-page="home">
+      <svg class="nicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+      <span>Home</span><span id="badge" class="badge hidden"></span>
+    </button>
+    <div class="nav-plus-wrap">
+      <button class="nav-plus" id="nav-plus-btn" onclick="onPlusTap()">+</button>
+    </div>
+    <button class="nbtn" data-page="profile-me">
+      <svg class="nicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span>Profilo</span>
+    </button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+// ── PWA Manifest ──
+(function() {
+  const manifest = {
+    name: 'turko',
+    short_name: 'turko',
+    description: 'built for over-the-board chess',
+    start_url: '/',
+    display: 'standalone',
+    background_color: '#161512',
+    theme_color: '#161512',
+    orientation: 'portrait',
+    icons: [{
+      src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23161512'/><text y='78' x='12' font-size='75'>♟</text></svg>",
+      sizes: 'any',
+      type: 'image/svg+xml'
+    }]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('link');
+  link.rel = 'manifest';
+  link.href = url;
+  document.head.appendChild(link);
+})();
+
+const SUPA_URL = "https://prmptevzfofmohefyvrl.supabase.co";
+const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBybXB0ZXZ6Zm9mbW9oZWZ5dnJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwOTg2ODEsImV4cCI6MjA4NzY3NDY4MX0.o-CjHwIbfBnCmJfKTDKKtbUok6h6mFQz8Y8O6XiWMzI";
+
+const supabaseClient = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+let authToken = null;
+let me = null, players = [], matches = [], activeMatch = null, pollTimer = null, heartbeatTimer = null;
+let globalMatches = [];
+let globalEloCache = {};
+let globalEvents = [];
+let matchStakes = {}; // Cache: matchId -> {win_delta, loss_delta, draw_delta}
+
+// ── Auto-login: restore session on PWA reopen ──
+(async function autoLogin() {
+  var authEl = document.getElementById('auth');
+  // Hide auth initially
+  authEl.style.opacity = '0';
+  authEl.style.transition = 'opacity .3s ease';
+  
+  try {
+    // Timeout: if session restore takes > 3s, show splash
+    var timeout = setTimeout(function() {
+      authEl.style.opacity = '1';
+    }, 3000);
+    
+    var sess = await supabaseClient.auth.getSession();
+    if(sess && sess.data && sess.data.session && sess.data.session.access_token) {
+      authToken = sess.data.session.access_token;
+      var uid = sess.data.session.user.id;
+      var res = await fetch(SUPA_URL + '/rest/v1/players?id=eq.' + uid + '&select=*', {
+        headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + authToken}
+      });
+      if(res.ok) {
+        var profiles = await res.json();
+        if(Array.isArray(profiles) && profiles[0]) {
+          clearTimeout(timeout);
+          enterApp(profiles[0]);
+          return;
+        }
+      }
+    }
+  } catch(e) { /* session restore failed */ }
+  
+  // No valid session — show splash
+  authToken = null;
+  authEl.style.opacity = '1';
+})();
+
+function startPolling() {
+  stopPolling();
+  pollTimer = setInterval(fetchAll, 10000);
+}
+function stopPolling() {
+  clearInterval(pollTimer);
+  pollTimer = null;
+}
+function startHeartbeat() {
+  stopHeartbeat();
+  sendHeartbeat();
+  heartbeatTimer = setInterval(sendHeartbeat, 5000);
+}
+function stopHeartbeat() {
+  clearInterval(heartbeatTimer);
+  heartbeatTimer = null;
+}
+async function sendHeartbeat() {
+  if(!me || !authToken) return;
+  try {
+    await db.patch("players", `id=eq.${me.id}`, {last_seen_at: new Date().toISOString()});
+  } catch(e) {}
+}
+
+let realtimeChannel = null;
+let realtimeOk = false;
+
+function startRealtime() {
+  if(realtimeChannel) realtimeChannel.unsubscribe();
+  realtimeOk = false;
+  realtimeChannel = supabaseClient
+    .channel('app-changes')
+    .on('postgres_changes', {event:'*', schema:'public', table:'matches'}, () => fetchAll())
+    .on('postgres_changes', {event:'UPDATE', schema:'public', table:'players'}, (payload) => {
+      if(payload.new && Array.isArray(players)) {
+        const idx = players.findIndex(p => p.id === payload.new.id);
+        if(idx !== -1) players[idx] = {...players[idx], ...payload.new};
+        else players.push(payload.new);
+        if(payload.new.id === me.id) me = {...me, ...payload.new};
+        if(_cabState === 'search') renderCABSearch();
+      }
+    })
+    .subscribe((status) => {
+      realtimeOk = (status === 'SUBSCRIBED');
+      if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        setTimeout(() => { if(me) startRealtime(); }, 3000);
+      }
+    });
+}
+
+function stopRealtime() {
+  if(realtimeChannel) { realtimeChannel.unsubscribe(); realtimeChannel = null; }
+}
+
+document.addEventListener('visibilitychange', () => {
+  if(!me) return;
+  if(document.visibilityState === 'visible') {
+    fetchAll();
+    startPolling();
+    startHeartbeat();
+  } else {
+    stopPolling();
+    stopHeartbeat();
+  }
+});
+
+let profileStack = [];
+// ELO chart data managed in drawEloChart
+
+function authHeaders() {
+  return {
+    "apikey": SUPA_KEY,
+    "Authorization": "Bearer " + (authToken || SUPA_KEY),
+    "Content-Type": "application/json",
+    "Prefer": "return=representation"
+  };
+}
+
+const db = {
+  async get(t, q="") {
+    try {
+      const r = await fetch(`${SUPA_URL}/rest/v1/${t}?${q}`, {headers: authHeaders()});
+      return r.json();
+    } catch(e) { toast("Errore di connessione", "err"); return null; }
+  },
+  async post(t, b) {
+    try {
+      const r = await fetch(`${SUPA_URL}/rest/v1/${t}`, {method:"POST", headers: authHeaders(), body: JSON.stringify(b)});
+      return r.json();
+    } catch(e) { toast("Errore di connessione", "err"); return null; }
+  },
+  async patch(t, q, b) {
+    try {
+      const r = await fetch(`${SUPA_URL}/rest/v1/${t}?${q}`, {method:"PATCH", headers: authHeaders(), body: JSON.stringify(b)});
+      return r.json();
+    } catch(e) { toast("Errore di connessione", "err"); return null; }
+  },
+  async rpc(fn, b) {
+    try {
+      const r = await fetch(`${SUPA_URL}/rest/v1/rpc/${fn}`, {method:"POST", headers: authHeaders(), body: JSON.stringify(b)});
+      if(r.status === 204 || r.headers.get('content-length') === '0') return {};
+      const text = await r.text();
+      return text ? JSON.parse(text) : {};
+    } catch(e) { toast("Errore di connessione", "err"); return null; }
+  },
+  async delete(t, q) {
+    try {
+      const r = await fetch(`${SUPA_URL}/rest/v1/${t}?${q}`, {method:"DELETE", headers: authHeaders()});
+      return r.status;
+    } catch(e) { toast("Errore di connessione", "err"); return null; }
+  },
+};
+
+const $ = id => document.getElementById(id);
+
+// ── Copy variantivo risultati ──
+const _WIN_COPY  = ['Boom!', 'GG', 'Semplice', 'Clean', 'Bravo', 'Mica male', 'Ez', 'Next.', 'Chirurgico', 'OK!'];
+const _LOSS_COPY = ['Capita', 'Skill issue?', 'Cooked', 'Bruh', 'Ahi', 'La prossima', 'No.', 'L', 'Outplayed', 'Rough'];
+const _DRAW_COPY = ['Meh', 'Pari', '50/50', 'Mah', 'Ok, I guess', 'Respect', 'Nulla di fatto', 'Pari e patta', 'Mid', 'X'];
+
+function resultCopy(type, delta) {
+  const d = delta !== null ? `${delta >= 0 ? '+' : ''}${delta} · ` : '';
+  const pool = type === 'win' ? _WIN_COPY : type === 'loss' ? _LOSS_COPY : _DRAW_COPY;
+  return d + pool[Math.floor(Math.random() * pool.length)];
+}
+
+// ── Toast ──
+let _toastQueue = [];
+let _toastBusy = false;
+
+function toast(msg, type="ok") {
+  _toastQueue.push({msg, type});
+  if(!_toastBusy) _toastFlush();
+}
+
+function _toastFlush() {
+  if(!_toastQueue.length) { _toastBusy = false; return; }
+  _toastBusy = true;
+  const {msg, type} = _toastQueue.shift();
+  const el = $("notif");
+  el.textContent = msg;
+
+  const isResult = type.startsWith('result');
+  let cls = 'notif';
+  if(type === 'err') cls += ' err';
+  else if(type === 'result-win')  cls += ' result result-win';
+  else if(type === 'result-loss') cls += ' result result-loss';
+  else if(type === 'result-draw') cls += ' result result-draw';
+  else if(isResult) cls += ' result result-loss';
+  el.className = cls;
+
+  el.style.display = "block";
+  const initTransform = isResult ? "translateX(-50%) scale(.94)" : "translateX(-50%) translateY(-4px)";
+  const showTransform = isResult ? "translateX(-50%) scale(1)"   : "translateX(-50%) translateY(0)";
+  const hideTransform = isResult ? "translateX(-50%) scale(.97)" : "translateX(-50%) translateY(-4px)";
+
+  el.style.opacity = "0";
+  el.style.transform = initTransform;
+  el.style.transition = isResult
+    ? 'opacity .2s ease, transform .25s cubic-bezier(.2,1,.3,1)'
+    : 'opacity .2s, transform .2s';
+  el.getBoundingClientRect();
+  el.style.opacity = "1";
+  el.style.transform = showTransform;
+
+  // Cancella cab feedback se result arriva durante
+  if(isResult) {
+    clearTimeout(_cabFeedbackTimer);
+    const feedback = $('cab-feedback');
+    if(feedback) { feedback.classList.remove('show'); feedback.classList.remove('hide'); }
+    _cabState = 'idle';
+  }
+
+  const duration = isResult ? 3500 : 2400;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => {
+    el.style.transition = isResult
+      ? 'opacity .3s ease, transform .3s ease'
+      : 'opacity .2s, transform .2s';
+    el.style.opacity = "0";
+    el.style.transform = hideTransform;
+    setTimeout(() => {
+      el.style.display = "none";
+      _toastBusy = false;
+      _toastFlush();
+    }, 300);
+  }, duration);
+}
+
+function setErr(id, msg) {
+  const el = $(id);
+  if(!el) return;
+  el.textContent = msg;
+  el.classList.toggle('visible', msg.length > 0);
+}
+function clearErr(id) {
+  const el = $(id);
+  if(!el) return;
+  el.textContent = '';
+  el.classList.remove('visible');
+}
+function setLoading(btnId, on, label) {
+  const btn = $(btnId);
+  if(!btn) return;
+  btn.disabled = on;
+  btn.innerHTML = on ? `<span class="spinner"></span>${label}` : label;
+}
+function isRelativeDate(iso) {
+  const now = new Date();
+  const d = new Date(iso);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dateDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  return Math.round((today - dateDay) / 86400000) <= 7;
+}
+function memberSince(iso) {
+  return isRelativeDate(iso) ? `da ${fmtDate(iso, true)}` : `dal ${fmtDate(iso)}`;
+}
+function fmtDate(iso, relative=false) {
+  const now = new Date();
+  const d = new Date(iso);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dateDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const dayDiff = Math.round((today - dateDay) / 86400000);
+  if(relative) {
+    if(dayDiff === 0) return 'oggi';
+    if(dayDiff === 1) return 'ieri';
+    if(dayDiff < 7) return `${dayDiff} giorni`;
+    if(dayDiff === 7) return 'una settimana';
+  } else {
+    if(dayDiff === 0) return 'oggi';
+    if(dayDiff === 1) return 'ieri';
+    if(dayDiff < 7) return `${dayDiff} giorni fa`;
+    if(dayDiff === 7) return 'una settimana fa';
+  }
+  return d.toLocaleDateString('it-IT', {day:'numeric', month:'long', year:'numeric'});
+}
+
+// --- AUTH ---
+// ── Auth sheet handlers ──
+function openAuthSheet(id) {
+  var overlay = $(id);
+  if(!overlay) return;
+  overlay.classList.add('visible');
+  // Focus first input after animation
+  setTimeout(function() {
+    var inp = overlay.querySelector('.auth-input');
+    if(inp) inp.focus();
+  }, 400);
+}
+function closeAuthSheet(id) {
+  var overlay = $(id);
+  if(!overlay) return;
+  overlay.classList.remove('visible');
+}
+
+$("auth-go-reg").onclick = function() { openAuthSheet('auth-reg-overlay'); };
+$("auth-go-login").onclick = function() { openAuthSheet('auth-login-overlay'); };
+
+// Close sheets on overlay tap
+$("auth-login-overlay").onclick = function(e) { if(e.target === this) closeAuthSheet('auth-login-overlay'); };
+$("auth-reg-overlay").onclick = function(e) { if(e.target === this) closeAuthSheet('auth-reg-overlay'); };
+
+// ── Live validation for registration ──
+var _nickCheckTimer = null;
+var _nickAvailable = false;
+
+function makeCheckSvg(ok) {
+  var c = ok ? '#7ab535' : '#d45454';
+  if(ok) return '<span style="display:inline-block;width:14px;height:14px;flex-shrink:0"><svg viewBox="0 0 14 14" width="14" height="14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="'+c+'" stroke-width="1.5"/><polyline points="4,7.5 6,9.5 10,5" stroke="'+c+'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>';
+  return '<span style="display:inline-block;width:14px;height:14px;flex-shrink:0"><svg viewBox="0 0 14 14" width="14" height="14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="'+c+'" stroke-width="1.5"/><line x1="5" y1="5" x2="9" y2="9" stroke="'+c+'" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="5" x2="5" y2="9" stroke="'+c+'" stroke-width="1.5" stroke-linecap="round"/></svg></span>';
+}
+
+function setFieldState(inputId, hintId, checkId, state, text) {
+  var input = $(inputId);
+  var hint = $(hintId);
+  if(input) { input.classList.remove('valid','invalid'); if(state) input.classList.add(state); }
+  if(hint) {
+    var checkHtml = '';
+    if(state === 'valid') checkHtml = makeCheckSvg(true);
+    else if(state === 'invalid') checkHtml = makeCheckSvg(false);
+    hint.innerHTML = checkHtml + (text ? '<span>' + text + '</span>' : '');
+    hint.className = 'auth-field-hint' + (state === 'valid' ? ' ok' : state === 'invalid' ? ' err' : '');
+  }
+}
+
+// Eye toggle for password fields
+var _eyeOpenSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+var _eyeClosedSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+
+function toggleAuthEye(inputId, btn) {
+  var inp = $(inputId);
+  if(!inp) return;
+  var masked = inp.getAttribute('data-masked') === 'true';
+  if(masked) {
+    inp.style.webkitTextSecurity = 'none';
+    inp.setAttribute('data-masked', 'false');
+    btn.innerHTML = _eyeClosedSvg;
+    btn.style.color = 'var(--muted)';
+  } else {
+    inp.style.webkitTextSecurity = 'disc';
+    inp.setAttribute('data-masked', 'true');
+    btn.innerHTML = _eyeOpenSvg;
+    btn.style.color = 'var(--ghost)';
+  }
+}
+
+function _setNickState(state, text) {
+  var inp = $('r-nick'), hint = $('r-nick-hint');
+  if(!inp || !hint) return;
+  inp.classList.remove('valid','invalid');
+  if(state === 'valid') inp.classList.add('valid');
+  else if(state === 'invalid') inp.classList.add('invalid');
+  if(state === 'valid') { hint.innerHTML = makeCheckSvg(true) + '<span>' + text + '</span>'; hint.className = 'auth-field-hint ok'; }
+  else if(state === 'invalid') { hint.innerHTML = makeCheckSvg(false) + '<span>' + text + '</span>'; hint.className = 'auth-field-hint err'; }
+  else { hint.innerHTML = text ? '<span>' + text + '</span>' : ''; hint.className = 'auth-field-hint'; }
+}
+
+var _lastNickValue = '';
+$("r-nick").addEventListener("input", function() {
+  var nick = this.value.trim();
+  // Guard: skip if value hasn't actually changed (Safari ghost input events)
+  if(nick === _lastNickValue) return;
+  _lastNickValue = nick;
+  _nickAvailable = false;
+  clearTimeout(_nickCheckTimer);
+
+  if(!nick) { _setNickState('', ''); validateRegForm(); return; }
+  if(nick.length < 3) { _setNickState('', 'Ancora ' + (3 - nick.length)); validateRegForm(); return; }
+  if(!/^[a-zA-Z0-9_-]+$/.test(nick)) { _setNickState('invalid', 'Solo lettere, numeri, _ e -'); validateRegForm(); return; }
+
+  _setNickState('', '...');
+  var checkNick = nick;
+  _nickCheckTimer = setTimeout(async function() {
+    if($('r-nick').value.trim() !== checkNick) return;
+    try {
+      var res = await fetch(SUPA_URL + '/rest/v1/players?nickname=ilike.' + encodeURIComponent(checkNick) + '&select=id', {
+        headers: {'apikey': SUPA_KEY}
+      });
+      var data = await res.json();
+      if($('r-nick').value.trim() !== checkNick) return;
+      if(Array.isArray(data) && data.length > 0) {
+        _nickAvailable = false;
+        _setNickState('invalid', 'Già in uso');
+      } else {
+        _nickAvailable = true;
+        _setNickState('valid', 'Disponibile');
+      }
+    } catch(e) {
+      _setNickState('', '');
+    }
+    validateRegForm();
+  }, 500);
+});
+
+$("r-pass").addEventListener("input", function() {
+  var pass = this.value;
+  var inp = $('r-pass'), hint = $('r-pass-hint');
+  if(!pass) {
+    inp.classList.remove('valid','invalid');
+    hint.innerHTML = '<span>Minimo 6 caratteri</span>'; hint.className = 'auth-field-hint';
+  } else if(pass.length < 6) {
+    inp.classList.remove('valid','invalid');
+    hint.innerHTML = '<span>Ancora ' + (6 - pass.length) + '</span>'; hint.className = 'auth-field-hint';
+  } else {
+    inp.classList.remove('invalid'); inp.classList.add('valid');
+    hint.innerHTML = makeCheckSvg(true); hint.className = 'auth-field-hint ok';
+  }
+  // Re-check confirm field if it has content
+  var conf = $("r-conf").value;
+  if(conf) {
+    if(conf === pass && pass.length >= 6) {
+      setFieldState('r-conf', 'r-conf-hint', null, 'valid', '');
+    } else {
+      $('r-conf').classList.remove('valid','invalid');
+      $('r-conf-hint').innerHTML = ''; $('r-conf-hint').className = 'auth-field-hint';
+    }
+  }
+  validateRegForm();
+});
+
+$("r-conf").addEventListener("input", function() {
+  var pass = $("r-pass").value;
+  var conf = this.value;
+  var inp = $('r-conf'), hint = $('r-conf-hint');
+
+  if(!conf) {
+    inp.classList.remove('valid','invalid');
+    hint.innerHTML = ''; hint.className = 'auth-field-hint';
+  } else if(conf === pass && pass.length >= 6) {
+    inp.classList.remove('invalid'); inp.classList.add('valid');
+    hint.innerHTML = makeCheckSvg(true); hint.className = 'auth-field-hint ok';
+  } else {
+    inp.classList.remove('valid','invalid');
+    hint.innerHTML = ''; hint.className = 'auth-field-hint';
+  }
+  validateRegForm();
+});
+
+// On blur — if doesn't match, show error
+$("r-conf").addEventListener("blur", function() {
+  var pass = $("r-pass").value;
+  var conf = this.value;
+  if(conf && conf !== pass) {
+    $('r-conf').classList.remove('valid'); $('r-conf').classList.add('invalid');
+    $('r-conf-hint').innerHTML = makeCheckSvg(false) + '<span>Non coincidono</span>';
+    $('r-conf-hint').className = 'auth-field-hint err';
+  }
+  validateRegForm();
+});
+
+function validateRegForm() {
+  var nick = $("r-nick").value.trim();
+  var pass = $("r-pass").value;
+  var conf = $("r-conf").value;
+  var nickOk = nick.length >= 3 && nick.length <= 12 && /^[a-zA-Z0-9_-]+$/.test(nick) && _nickAvailable;
+  var passOk = pass.length >= 6;
+  var confOk = pass === conf && conf.length > 0;
+  $("r-btn").disabled = !(nickOk && passOk && confOk);
+}
+
+// Enter key handlers
+$("l-pass").addEventListener("keydown", function(e) { if(e.key==="Enter") doLogin(); });
+$("r-conf").addEventListener("keydown", function(e) { if(e.key==="Enter" && !$("r-btn").disabled) doRegister(); });
+$("l-btn").onclick = doLogin;
+$("r-btn").onclick = doRegister;
+
+async function doLogin() {
+  clearErr("l-err");
+  const nick = $("l-nick").value.trim();
+  const pass = $("l-pass").value;
+  if(!nick || !pass) return setErr("l-err", "Compila tutti i campi.")
+  setLoading("l-btn", true, "Entro...");
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: nick.toLowerCase() + "@barscacchi.local",
+    password: pass
+  });
+  setLoading("l-btn", false, "Entra");
+  if(error || !data.session) return setErr("l-err", "Nickname o password errati.")
+  authToken = data.session.access_token;
+  const profile = await db.get("players", `id=eq.${data.user.id}&select=*`);
+  if(!Array.isArray(profile) || !profile[0]) return setErr("l-err", "Profilo non trovato.")
+  enterApp(profile[0]);
+}
+
+async function doRegister() {
+  clearErr("r-err");
+  const nick = $("r-nick").value.trim();
+  const pass = $("r-pass").value;
+  const conf = $("r-conf").value;
+  if(!nick) return setErr("r-err", "Inserisci un nickname.")
+  if(nick.length < 3) return setErr("r-err", "Nickname minimo 3 caratteri.")
+  if(nick.length > 12) return setErr("r-err", "Nickname massimo 12 caratteri.")
+  if(!/^[a-zA-Z0-9_-]+$/.test(nick)) return setErr("r-err", "Solo lettere, numeri, _ e - sono permessi.")
+  if(pass.length < 6) return setErr("r-err", "Password minimo 6 caratteri.")
+  if(pass !== conf) return setErr("r-err", "Le password non coincidono.")
+  setLoading("r-btn", true, "Registro...");
+
+  // Try signup
+  const { data: signUpData, error: signUpErr } = await supabaseClient.auth.signUp({
+    email: nick.toLowerCase() + "@barscacchi.local",
+    password: pass
+  });
+
+  if(signUpErr) {
+    // User might already exist — try login
+    const { data: loginData, error: loginErr } = await supabaseClient.auth.signInWithPassword({
+      email: nick.toLowerCase() + "@barscacchi.local",
+      password: pass
+    });
+    if(loginErr || !loginData.session) {
+      setLoading("r-btn", false, "Registrati");
+      return setErr("r-err", "Nickname già in uso.")
+    }
+    authToken = loginData.session.access_token;
+    const existing = await db.get("players", `id=eq.${loginData.user.id}&select=*`);
+    if(Array.isArray(existing) && existing[0]) {
+      setLoading("r-btn", false, "Registrati");
+      return setErr("r-err", "Nickname già in uso.")
+    }
+    const profile2 = await db.post("players", {id: loginData.user.id, nickname: nick});
+    setLoading("r-btn", false, "Registrati");
+    if(!Array.isArray(profile2) || !profile2[0]) return setErr("r-err", "Errore nella creazione del profilo.")
+    enterApp(profile2[0]);
+    return;
+  }
+
+  if(!signUpData.user) {
+    setLoading("r-btn", false, "Registrati");
+    return setErr("r-err", "Errore nella registrazione. Riprova.")
+  }
+
+  // Sign in after signup to get session
+  const { data: loginData2, error: loginErr2 } = await supabaseClient.auth.signInWithPassword({
+    email: nick.toLowerCase() + "@barscacchi.local",
+    password: pass
+  });
+  if(loginErr2 || !loginData2.session) {
+    setLoading("r-btn", false, "Registrati");
+    return setErr("r-err", "Errore nel login dopo registrazione. Riprova.")
+  }
+  authToken = loginData2.session.access_token;
+  const profile = await db.post("players", {id: signUpData.user.id, nickname: nick});
+  setLoading("r-btn", false, "Registrati");
+  if(!Array.isArray(profile) || !profile[0]) return setErr("r-err", "Nickname già in uso o errore.")
+  enterApp(profile[0]);
+}
+
+async function enterApp(player) {
+  me = player;
+  players = []; matches = []; activeMatch = null;
+  const authEl = $("auth");
+  authEl.style.transition = "opacity .3s ease";
+  authEl.style.opacity = "0";
+  await new Promise(r => setTimeout(r, 300));
+  authEl.classList.add("hidden");
+  authEl.style.opacity = "";
+  authEl.style.transition = "";
+  $("main").classList.remove("hidden");
+  $("main").style.opacity = "0";
+  $("main").style.transition = "opacity .25s ease";
+  requestAnimationFrame(() => { $("main").style.opacity = "1"; });
+  setTimeout(() => { $("main").style.transition = ""; $("main").style.opacity = ""; }, 300);
+  updateTopbar();
+  showPage('home');
+  fetchAll();
+  startPolling();
+  startRealtime();
+  startHeartbeat();
+  // STEP 2: mostra CAB all'entrata
+  setCabVisibility('home');
+}
+
+async function generateMatchEvents(m) {
+  if(!m.result || m.result === 'cancelled' || m.result === 'draw') return;
+
+  const winnerId = m.result === 'p1' ? m.p1 : m.p2;
+  const loserId = m.result === 'p1' ? m.p2 : m.p1;
+  const winner = getP(winnerId);
+  const loser = getP(loserId);
+  if(!winner || !loser) return;
+
+  const winEh = eloCache[m.id] || globalEloCache[m.id + '_' + winnerId];
+  const loseEh = globalEloCache[m.id + '_' + loserId];
+  if(!winEh) return;
+
+  const winOldElo = winEh.elo_before;
+  const winNewElo = winEh.elo_after;
+  const loseOldElo = loseEh ? loseEh.elo_before : null;
+  const loseNewElo = loseEh ? loseEh.elo_after : null;
+
+  const eventsToInsert = [];
+
+  // Sorpasso diretto
+  if(loseOldElo !== null && loseNewElo !== null) {
+    if(winOldElo < loseOldElo && winNewElo > loseNewElo) {
+      eventsToInsert.push({
+        type: 'overtake', player_id: winnerId, target_id: loserId, match_id: m.id,
+        data: { winner_name: winner.nickname, overtaken_name: loser.nickname, new_elo: winNewElo, overtaken_elo: loseNewElo }
+      });
+    }
+  }
+
+  // Sorpassi indiretti (vincitore scavalca terzi)
+  players.forEach(p => {
+    if(p.id === winnerId || p.id === loserId) return;
+    if(p.elo >= winOldElo && p.elo < winNewElo) {
+      eventsToInsert.push({
+        type: 'overtake', player_id: winnerId, target_id: p.id, match_id: m.id,
+        data: { winner_name: winner.nickname, overtaken_name: p.nickname, new_elo: winNewElo, overtaken_elo: p.elo }
+      });
+    }
+  });
+
+  // Sorpassi inversi (terzi superano il perdente)
+  if(loseOldElo !== null && loseNewElo !== null) {
+    players.forEach(p => {
+      if(p.id === winnerId || p.id === loserId) return;
+      if(p.elo <= loseOldElo && p.elo > loseNewElo) {
+        eventsToInsert.push({
+          type: 'overtake', player_id: p.id, target_id: loserId, match_id: m.id,
+          data: { winner_name: p.nickname, overtaken_name: loser.nickname, new_elo: p.elo, overtaken_elo: loseNewElo }
+        });
+      }
+    });
+  }
+
+  // Upset
+  if(loseOldElo !== null && loseOldElo - winOldElo >= 50) {
+    eventsToInsert.push({
+      type: 'upset', player_id: winnerId, target_id: loserId, match_id: m.id,
+      data: { winner_name: winner.nickname, loser_name: loser.nickname, diff: loseOldElo - winOldElo, delta: winNewElo - winOldElo }
+    });
+  }
+
+  // Milestone ELO
+  if(Math.floor(winNewElo / 100) > Math.floor(winOldElo / 100) && winNewElo >= 1500) {
+    eventsToInsert.push({
+      type: 'milestone', player_id: winnerId, match_id: m.id,
+      data: { nickname: winner.nickname, milestone: Math.floor(winNewElo / 100) * 100, elo: winNewElo }
+    });
+  }
+
+  // Streak (3, 5, 10)
+  const streak = winner.win_streak || 0;
+  if(streak === 3 || streak === 5 || streak === 10) {
+    eventsToInsert.push({
+      type: 'streak', player_id: winnerId, match_id: m.id,
+      data: { nickname: winner.nickname, streak: streak }
+    });
+  }
+
+  // Peak (non milestone)
+  if(winNewElo > winOldElo && winNewElo > 1500 && Math.floor(winNewElo / 100) === Math.floor(winOldElo / 100)) {
+    if(winNewElo >= (winner.elo_peak || 1500)) {
+      eventsToInsert.push({
+        type: 'peak', player_id: winnerId, match_id: m.id,
+        data: { nickname: winner.nickname, elo: winNewElo }
+      });
+    }
+  }
+
+  // Inserisci (fire and forget)
+  for(const ev of eventsToInsert) {
+    try { await db.post('events', ev); } catch(e) { console.log('Event insert failed:', e); }
+  }
+}
+
+async function doLogout() {
+  stopPolling();
+  stopRealtime();
+  stopHeartbeat();
+  await db.patch("players", `id=eq.${me.id}`, {last_seen_at: new Date(0).toISOString()});
+  await supabaseClient.auth.signOut();
+  authToken = null; me = null; players = []; matches = []; activeMatch = null;
+  currentProfileId = null;
+  profileStack = [];
+  // Reset UI
+  $("main").classList.add("hidden");
+  $("auth").classList.remove("hidden");
+  $("auth").style.opacity = "1";
+  // Clear auth fields
+  var fields = ["l-nick","l-pass","r-nick","r-pass","r-conf"];
+  fields.forEach(function(id) { var el = $(id); if(el) el.value = ''; });
+  // Reset validation states
+  ["r-nick","r-pass","r-conf"].forEach(function(id) { var el = $(id); if(el) el.classList.remove('valid','invalid'); });
+  ["r-nick-check","r-pass-check","r-conf-check"].forEach(function(id) { var el = $(id); if(el) el.innerHTML = ''; });
+  ["r-nick-hint","r-pass-hint","r-conf-hint"].forEach(function(id) { var el = $(id); if(el) { el.textContent = ''; el.className = 'auth-field-hint'; } });
+  $("r-pass-hint").textContent = 'Minimo 6 caratteri';
+  clearErr("l-err"); clearErr("r-err");
+  if($("r-btn")) $("r-btn").disabled = true;
+  // Close any open sheets
+  closeAuthSheet('auth-login-overlay');
+  closeAuthSheet('auth-reg-overlay');
+  // Reset pages to home
+  document.querySelectorAll(".page").forEach(function(p) { p.classList.remove("active"); });
+  document.querySelectorAll(".nbtn").forEach(function(b) { b.classList.remove("on"); });
+  // Clear stale rendered content
+  var clearIds = ["lb-rank-list","lb-feed-list","prof-header-wrap","prof-elo-section","prof-h2h","prof-best-wins","prof-rivals","prof-day-groups","prof-cta-wrap","elo-chart-container","home-active","home-history"];
+  clearIds.forEach(function(id) { var el = $(id); if(el) el.innerHTML = ''; });
+}
+
+// --- DATA ---
+let eloCache = {};
+const _toastedMatchIds = new Set();
+const _eventedMatchIds = new Set();
+
+async function fetchAll() {
+  if(!me) return;
+  const prevMatches = [...matches];
+  const [ps, ms, done, eloH, globalDone, globalEloH, dbEvents] = await Promise.all([
+    db.get("players", "order=elo.desc"),
+    db.get("matches", `or=(p1.eq.${me.id},p2.eq.${me.id})&status=in.(active,pending_challenge)&select=*&order=created_at.desc&limit=50`),
+    db.get("matches", `or=(p1.eq.${me.id},p2.eq.${me.id})&status=eq.done&select=*&order=updated_at.desc&limit=30`),
+    db.get("elo_history", `player_id=eq.${me.id}&select=*&order=created_at.desc&limit=20`),
+    db.get("matches", "status=eq.done&result=not.is.null&result=not.eq.cancelled&order=updated_at.desc&limit=30&select=*"),
+    db.get("elo_history", "order=created_at.desc&limit=120&select=*"),
+    db.get("events", "order=created_at.desc&limit=50&select=*")
+  ]);
+  if(Array.isArray(ps)) {
+    players = ps;
+    const upd = ps.find(p => p.id===me.id);
+    if(upd) me = upd;
+    if(_cabState === 'search') renderCABSearch();
+  }
+  if(Array.isArray(ms) && Array.isArray(done)) matches = [...ms, ...done];
+  else if(Array.isArray(ms)) matches = ms;
+  if(Array.isArray(eloH)) eloH.forEach(e => eloCache[e.match_id] = e);
+  if(Array.isArray(globalDone)) globalMatches = globalDone;
+  if(Array.isArray(globalEloH)) globalEloH.forEach(e => globalEloCache[e.match_id + '_' + e.player_id] = e);
+  if(Array.isArray(dbEvents)) globalEvents = dbEvents;
+
+  updateTopbar();
+  await cleanupExpired();
+
+  if(Array.isArray(done)) {
+    done.forEach(m => {
+      const wasActive = prevMatches.find(p => p.id === m.id && p.status === 'active');
+      if(wasActive && !_toastedMatchIds.has(m.id)) {
+        _toastedMatchIds.add(m.id);
+
+        if(m.result === 'cancelled') {
+          const wasDisputed = wasActive.disputed;
+          toast(wasDisputed ? "Partita annullata — nessun accordo" : "Partita annullata", "err");
+        } else if(m.result) {
+          const isP1 = m.p1 === me.id;
+          const won = m.result === 'p1' ? isP1 : m.result === 'p2' ? !isP1 : null;
+          const elo = eloCache[m.id];
+          const delta = elo ? (elo.elo_after - elo.elo_before) : null;
+          if(won === null) toast(resultCopy('draw', delta), 'result-draw');
+          else if(won) toast(resultCopy('win', delta), 'result-win');
+          else toast(resultCopy('loss', delta), 'result-loss');
+
+          // Genera eventi per questa partita (fire and forget, guard anti-duplicati)
+          if(!_eventedMatchIds.has(m.id)) {
+            _eventedMatchIds.add(m.id);
+            generateMatchEvents(m);
+          }
+        }
+      }
+    });
+  }
+
+  if(Array.isArray(ms)) {
+    ms.forEach(m => {
+      const prev = prevMatches.find(p => p.id === m.id);
+      if(prev && !prev.disputed && m.disputed) {
+        const opp = players.find(p => p.id === (m.p1===me.id ? m.p2 : m.p1));
+        // STEP 1: messaggio disputa più chiaro e umano
+        toast(`${opp?.nickname||"?"} non è d'accordo`, "err");
+      }
+    });
+  }
+
+  // Fetch ELO stakes for pending challenges
+  await fetchMatchStakes();
+
+  renderHome();
+}
+
+function updateCountdowns() {
+  if(!me) return;
+  const now = Date.now();
+  // Aggiorna barre progress sulle acard (incoming/sent)
+  document.querySelectorAll('.acard[data-expire]').forEach(card => {
+    const expire = parseInt(card.dataset.expire);
+    const pct = Math.max(0, Math.min(100, ((expire - now) / CHALLENGE_EXPIRE_MS) * 100));
+    const bar = card.querySelector('.acard-progress');
+    if(bar) {
+      bar.style.width = pct + '%';
+      pct < 20 ? bar.classList.add('urgent') : bar.classList.remove('urgent');
+    }
+  });
+  let anyExpired = false;
+  matches.forEach(m => {
+    if(m.status === 'pending_challenge') {
+      const elapsed = Date.now() - new Date(m.created_at).getTime();
+      const remaining = CHALLENGE_EXPIRE_MS - elapsed;
+      const pct = Math.max(0, Math.min(100, (remaining / CHALLENGE_EXPIRE_MS) * 100));
+      const urgent = pct < 20;
+      const bar = document.getElementById('prog-' + m.id);
+      if(bar) {
+        bar.style.width = pct + '%';
+        bar.className = 'card-challenge-progress' + (urgent ? ' urgent' : '');
+      }
+      if(remaining <= 0) anyExpired = true;
+    }
+  });
+  if(anyExpired) cleanupExpired();
+}
+setInterval(updateCountdowns, 1000);
+
+function getP(id) { return players.find(p => p.id===id); }
+
+// ── ELO Odometer ──
+let _lastElo = null;
+let _lastDelta = null;
+let _eloAnimating = false;
+const REEL_DURATION = 1200; // ms per il rullo più veloce (cifra meno significativa)
+const REEL_STEP = 80;      // ms aggiuntivi per ogni posizione verso sinistra
+
+function animateElo(el, newVal) {
+  const firstRender = _lastElo === null;
+  if(firstRender) {
+    // Login: mostra direttamente, nessuna animazione
+    el.textContent = String(newVal);
+    _lastElo = newVal;
+    return;
+  }
+  if(_lastElo === newVal) return;
+  if(_eloAnimating) { _lastElo = newVal; el.textContent = String(newVal); return; }
+
+  const oldStr = String(_lastElo).padStart(String(newVal).length, '0');
+  const newStr = String(newVal).padStart(oldStr.length, '0');
+  const goingUp = newVal > _lastElo;
+  _lastElo = newVal;
+  _eloAnimating = true;
+
+  // Costruisci rulli — una colonna per digit
+  el.style.display = 'inline-flex';
+  el.style.alignItems = 'flex-start';
+  el.style.overflow = 'hidden';
+  el.style.lineHeight = '1';
+
+  const digits = newStr.split('');
+  const oldDigits = oldStr.split('');
+  const total = digits.length;
+
+  el.innerHTML = digits.map((d, i) => {
+    const changed = d !== oldDigits[i];
+    return `<span class="odo-col" data-new="${d}" data-old="${oldDigits[i]}" data-changed="${changed}" style="display:inline-block;overflow:hidden;vertical-align:top;line-height:1"></span>`;
+  }).join('');
+
+  const cols = el.querySelectorAll('.odo-col');
+  let maxDuration = 0;
+
+  cols.forEach((col, i) => {
+    const changed = col.dataset.changed === 'true';
+    const newD = col.dataset.new;
+    const oldD = col.dataset.old;
+
+    if(!changed) {
+      col.textContent = newD;
+      return;
+    }
+
+    // Posizione da destra: 0 = cifra meno significativa
+    const posFromRight = total - 1 - i;
+    const duration = REEL_DURATION + posFromRight * REEL_STEP;
+    const delay = posFromRight * 30; // stagger leggero: le unità partono prima
+    maxDuration = Math.max(maxDuration, duration + delay);
+
+    // Stack: old sopra, new sotto (o viceversa)
+    const fromY = goingUp ? '110%' : '-110%';
+    col.style.position = 'relative';
+    col.innerHTML = `
+      <span class="odo-old" style="display:block">${oldD}</span>
+      <span class="odo-new" style="display:block;position:absolute;top:0;left:0;transform:translateY(${fromY})">${newD}</span>`;
+
+    const oldEl = col.querySelector('.odo-old');
+    const newEl = col.querySelector('.odo-new');
+    const toOld = goingUp ? '-110%' : '110%';
+
+    setTimeout(() => {
+      oldEl.style.transition = `transform ${duration}ms cubic-bezier(.2,1,.3,1)`;
+      newEl.style.transition = `transform ${duration}ms cubic-bezier(.2,1,.3,1)`;
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        oldEl.style.transform = `translateY(${toOld})`;
+        newEl.style.transform = 'translateY(0)';
+      }));
+    }, delay);
+  });
+
+  // Cleanup dopo animazione
+  setTimeout(() => {
+    el.textContent = String(newVal);
+    el.style.display = '';
+    el.style.overflow = '';
+    el.style.lineHeight = '';
+    _eloAnimating = false;
+  }, maxDuration + 100);
+}
+
+function updateTopbar() {
+  const hNick = $("h-nick");
+  const hElo = $("h-elo");
+  const hDelta = $("h-delta");
+  if(hNick) hNick.textContent = me.nickname;
+  if(hElo) animateElo(hElo, me.elo);
+  if(hDelta) {
+    const myMatches = matches.filter(m => m.status === "done" && (m.p1===me.id||m.p2===me.id));
+    const last = myMatches[0];
+    const elo = last ? eloCache[last.id] : null;
+    const delta = elo ? (elo.elo_after - elo.elo_before) : null;
+    if(delta !== null && delta !== 0) {
+      const text = (delta > 0 ? '+' : '') + delta;
+      // STEP 1: draw delta in hero — delta 0 non appare mai, ma se appare è neutro
+      const cls = 'home-hero-delta ' + (delta > 0 ? 'up' : 'down');
+      hDelta.classList.remove('hidden');
+      if(delta === _lastDelta) {
+        hDelta.textContent = text;
+        hDelta.className = cls;
+      } else {
+        _lastDelta = delta;
+        const from = delta > 0 ? '60%' : '-60%';
+        const delay = REEL_DURATION + 200;
+        hDelta.textContent = text;
+        hDelta.className = cls;
+        hDelta.style.opacity = '0';
+        hDelta.style.transform = `translateY(${from})`;
+        hDelta.style.transition = 'none';
+        setTimeout(() => {
+          hDelta.style.transition = `transform 1s cubic-bezier(.15,0,.1,1), opacity .5s ease`;
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            hDelta.style.transform = 'translateY(0)';
+            hDelta.style.opacity = '1';
+          }));
+        }, delay);
+      }
+    } else {
+      _lastDelta = null;
+      hDelta.classList.add('hidden');
+    }
+  }
+  // Sub-label hero
+  const hSub = $('h-sub');
+  if(hSub) hSub.textContent = '';
+
+  // Progress bar Zeigarnik
+  const hProgress = $('h-progress');
+  if(hProgress && me.elo) {
+    const nextMilestone = Math.ceil(me.elo / 100) * 100;
+    const prevMilestone = nextMilestone - 100;
+    const progress = ((me.elo - prevMilestone) / 100) * 100;
+    const remaining = nextMilestone - me.elo;
+    if(remaining > 0 && remaining < 100) {
+      $('h-progress-fill').style.width = progress + '%';
+      var milestoneColor = remaining <= 20 ? '#e8e6e3' : '#8a8580';
+      var textColor = remaining <= 20 ? '#6a6560' : '#504a45';
+      $('h-progress-label').innerHTML = '<span style="color:' + textColor + '">' + remaining + ' pt ai </span><span style="color:' + milestoneColor + ';font-weight:600">' + nextMilestone + '</span>';
+      hProgress.classList.remove('hidden');
+    } else {
+      hProgress.classList.add('hidden');
+    }
+  }
+}
+
+// --- HOME ---
+
+function matchLabel(m) {
+  if(!m.white_player_id) {
+    const p1 = getP(m.p1), p2 = getP(m.p2);
+    return `${p1?.nickname||"?"} — ${p2?.nickname||"?"}`;
+  }
+  const white = getP(m.white_player_id);
+  const blackId = m.p1 === m.white_player_id ? m.p2 : m.p1;
+  const black = getP(blackId);
+  return `${white?.nickname||"?"} — ${black?.nickname||"?"}`;
+}
+
+function matchLabelShort(m, myId) {
+  if(!m.white_player_id) {
+    const opp = getP(m.p1===myId ? m.p2 : m.p1);
+    return opp?.nickname||"?";
+  }
+  const white = getP(m.white_player_id);
+  const blackId = m.p1 === m.white_player_id ? m.p2 : m.p1;
+  const black = getP(blackId);
+  return `${white?.nickname||"?"} — ${black?.nickname||"?"}`;
+}
+
+// ── Factory functions card ──
+// ── renderActiveCards: unico entry point per card attive ──
+
+function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
+  const container = $('home-active');
+  const cards = [];
+  const total = incomingChallenges.length + activeCards.length + sentChallenges.length;
+  if(total === 0) { container.innerHTML = ''; return; }
+
+  // Helper — ds-card A1 structure
+  function mkCard(accentClass, name, eloStr, statusText, ctaHtml, passive=false) {
+    return `<div class="ds-card${passive ? ' acard-passive' : ''}">
+      <div class="ds-card-accent ${accentClass}"></div>
+      <div class="ds-card-body">
+        <div class="ds-card-name">${name}${eloStr ? ` <span class="ds-card-elo">${eloStr}</span>` : ''}</div>
+        <div class="ds-card-status">${statusText}</div>
+      </div>
+      <div class="ds-card-cta">${ctaHtml}</div>
+    </div>`;
+  }
+
+  // Helper — format stakes HTML from cache
+  function stakesHtml(matchId) {
+    const s = matchStakes[matchId];
+    if(!s) return '';
+    return ' · <span style="color:var(--green)">+' + s.win_delta + '</span> / <span style="color:var(--red)">' + s.loss_delta + '</span>';
+  }
+
+  // 1. Incoming challenges
+  incomingChallenges.forEach(m => {
+    const opp = getP(m.p1);
+    const oppName = opp?.nickname || '?';
+    const eloStr = opp?.elo ? String(Math.round(opp.elo)) : '';
+    let statusParts = ['ti sfida'];
+    if(m.time_control) statusParts.push(m.time_control.charAt(0).toUpperCase() + m.time_control.slice(1));
+    if(m.white_player_id) {
+      const amIWhite = m.white_player_id === me.id;
+      statusParts.push('giochi con il ' + (amIWhite ? 'bianco' : 'nero'));
+    }
+    const stakes = stakesHtml(m.id);
+    cards.push(mkCard('green', oppName, eloStr, statusParts.join(' · ') + stakes,
+      `<div style="display:flex;align-items:center;gap:var(--sp-md)"><button class="ds-card-btn primary" onclick="acceptChallenge('${m.id}')">Gioca</button><span style="color:var(--ghost);font-size:var(--fs-label);font-weight:500;cursor:pointer;white-space:nowrap" onclick="rejectChallenge('${m.id}')">Rifiuta</span></div>`
+    ));
+  });
+
+  // 2. Disputes
+  activeCards.filter(c => c.type === 'disputed').forEach(({ m }) => {
+    const oppId = m.p1 === me.id ? m.p2 : m.p1;
+    const opp = getP(oppId);
+    cards.push(mkCard('red', opp?.nickname||'?', opp?.elo ? String(Math.round(opp.elo)) : '',
+      'Risultati non coincidono · reinserisci',
+      `<button class="ds-card-btn danger" onclick="openResultSheet('${m.id}')">Reinserisci</button>`
+    ));
+  });
+
+  // 3. Live — need to submit result
+  activeCards.filter(c => c.type === 'live').forEach(({ m }) => {
+    const oppId = m.p1 === me.id ? m.p2 : m.p1;
+    const opp = getP(oppId);
+    cards.push(mkCard('green', opp?.nickname||'?', opp?.elo ? String(Math.round(opp.elo)) : '',
+      'Com\'è andata?',
+      `<button class="ds-card-btn primary" onclick="openResultSheet('${m.id}')">Risultato</button>`
+    ));
+  });
+
+  // 4. Waiting — submitted, waiting for other
+  activeCards.filter(c => c.type === 'waiting').forEach(({ m }) => {
+    const oppId = m.p1 === me.id ? m.p2 : m.p1;
+    const opp = getP(oppId);
+    cards.push(mkCard('gray', opp?.nickname||'?', '',
+      'Risultato inviato · attendi conferma',
+      `<span class="ds-card-btn ghost">Inviato</span>`,
+      true
+    ));
+  });
+
+  // 5. Sent challenges — waiting for acceptance
+  sentChallenges.forEach(m => {
+    const opp = getP(m.p2);
+    let statusParts = ['Sfida inviata'];
+    if(m.time_control) statusParts.push(m.time_control.charAt(0).toUpperCase() + m.time_control.slice(1));
+    if(m.white_player_id) {
+      const amIWhite = m.white_player_id === me.id;
+      statusParts.push('giochi con il ' + (amIWhite ? 'bianco' : 'nero'));
+    }
+    const stakes = stakesHtml(m.id);
+    cards.push(mkCard('gray', opp?.nickname||'?', opp?.elo ? String(Math.round(opp.elo)) : '',
+      statusParts.join(' · ') + stakes,
+      `<button class="ds-card-btn ghost" onclick="cancelChallenge('${m.id}')">Annulla</button>`,
+      true
+    ));
+  });
+
+  container.innerHTML = cards.join('');
+}
+
+// ── Swipe-to-challenge system ──
+var _swipeActive = null;
+var _swipePrevArmed = false;
+var SWIPE_SNAP = 130;
+var SWIPE_RESIST = 0.25;
+
+function _swipeTx(el, x) {
+  el.style.webkitTransform = 'translate3d(' + x + 'px,0,0)';
+  el.style.transform = 'translate3d(' + x + 'px,0,0)';
+}
+
+function _swipeOffset(dx) {
+  var d = Math.abs(dx);
+  if(d <= SWIPE_SNAP) return d;
+  return SWIPE_SNAP + (d - SWIPE_SNAP) * SWIPE_RESIST;
+}
+
+function _swipeSpringBack(el) {
+  el.style.transition = '-webkit-transform 250ms cubic-bezier(.25,.46,.45,.94), transform 250ms cubic-bezier(.25,.46,.45,.94)';
+  _swipeTx(el, 0);
+  el.addEventListener('transitionend', function h() { el.style.transition = ''; el.removeEventListener('transitionend', h); });
+}
+
+function _swipeSlideOut(el, cb) {
+  var w = el.offsetWidth;
+  el.style.transition = '-webkit-transform 450ms cubic-bezier(.32,0,.24,1), transform 450ms cubic-bezier(.32,0,.24,1)';
+  _swipeTx(el, -(w + 20));
+  el.addEventListener('transitionend', function h() {
+    el.removeEventListener('transitionend', h);
+    el.style.transition = '';
+    setTimeout(function() {
+      _swipeTx(el, 40);
+      el.offsetHeight;
+      el.style.transition = '-webkit-transform 600ms cubic-bezier(.34,1.56,.64,1), transform 600ms cubic-bezier(.34,1.56,.64,1)';
+      _swipeTx(el, 0);
+      el.addEventListener('transitionend', function h2() { el.style.transition = ''; el.removeEventListener('transitionend', h2); });
+      if(cb) cb();
+    }, 450);
+  });
+}
+
+function _swipeShake(el) {
+  var steps = [8, -6, 4, -2, 0];
+  var i = 0;
+  function next() { if(i >= steps.length) return; _swipeTx(el, steps[i]); i++; setTimeout(next, 50); }
+  next();
+}
+
+function _swipeArm(el, armed) {
+  var reveal = el.closest('.swipe-wrap');
+  if(!reveal) return;
+  reveal = reveal.querySelector('.swipe-reveal');
+  if(!reveal) return;
+  if(armed && !reveal.classList.contains('armed')) reveal.classList.add('armed');
+  else if(!armed && reveal.classList.contains('armed')) reveal.classList.remove('armed');
+}
+
+function _swipeClearArm(el) {
+  var w = el.closest('.swipe-wrap');
+  if(w) { var r = w.querySelector('.swipe-reveal'); if(r) r.classList.remove('armed'); }
+}
+
+// Evaluate swipe state for an opponent
+function _swipeEval(oppId) {
+  // Am I busy?
+  if(isPlayerBusy(me.id)) return { ok: false, label: 'Hai una partita' };
+  // Do I have incoming challenge?
+  var incoming = (matches||[]).some(function(m) { return m.status === 'pending_challenge' && m.p2 === me.id; });
+  if(incoming) return { ok: false, label: 'Sfida in arrivo' };
+  // Already have pending with this opp?
+  var pending = (matches||[]).some(function(m) { return m.status === 'pending_challenge' && ((m.p1===me.id && m.p2===oppId) || (m.p1===oppId && m.p2===me.id)); });
+  if(pending) return { ok: false, label: 'Sfida già inviata' };
+  // Is opp online?
+  var opp = getP(oppId);
+  if(!opp) return { ok: false, label: 'Non trovato' };
+  var online = opp.last_seen_at && (Date.now() - new Date(opp.last_seen_at).getTime()) < 30000;
+  if(!online) return { ok: false, label: 'Offline' };
+  // Is opp busy?
+  if(isPlayerBusy(oppId)) return { ok: false, label: 'In partita' };
+  return { ok: true, label: 'Sfida' };
+}
+
+function initFeedSwipe(container) {
+  if(!container || container._swipeInit) return;
+  container._swipeInit = true;
+}
+
+// Global swipe handlers — like the working test file
+document.addEventListener('touchstart', function(e) {
+  var cell = e.target.closest('.swipe-cell');
+  if(!cell) return;
+  _swipeActive = { el: cell, x0: e.touches[0].clientX, y0: e.touches[0].clientY, locked: false };
+  _swipePrevArmed = false;
+}, {passive: true});
+
+document.addEventListener('touchmove', function(e) {
+  if(!_swipeActive) return;
+  var dx = e.touches[0].clientX - _swipeActive.x0;
+  var dy = e.touches[0].clientY - _swipeActive.y0;
+  if(!_swipeActive.locked) {
+    if(Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8) { _swipeActive = null; return; }
+    if(Math.abs(dx) > 8) {
+      _swipeActive.locked = true;
+      if(dx > 0) { _swipeActive = null; return; }
+      var feed = $('home-feed');
+      if(feed) feed.style.overflowY = 'hidden';
+    }
+    return;
+  }
+  e.preventDefault();
+  if(dx > 0) dx = 0;
+  var offset = _swipeOffset(dx);
+  _swipeTx(_swipeActive.el, -offset);
+  _swipeArm(_swipeActive.el, offset >= SWIPE_SNAP);
+}, {passive: false});
+
+document.addEventListener('touchend', function(e) {
+  if(!_swipeActive) return;
+  var dx = e.changedTouches[0].clientX - _swipeActive.x0;
+  var offset = _swipeOffset(dx);
+  var el = _swipeActive.el;
+  var armed = offset >= SWIPE_SNAP;
+  var oppId = el.dataset.opp;
+
+  // Re-enable scroll
+  var feed = $('home-feed');
+  if(feed) feed.style.overflowY = '';
+
+  if(armed && oppId) {
+    var ev = _swipeEval(oppId);
+    if(ev.ok) {
+      _swipeSlideOut(el, function() { _swipeClearArm(el); });
+      setTimeout(function() { openNewChallengeSheetForPlayer(oppId); }, 500);
+    } else {
+      _swipeClearArm(el);
+      _swipeShake(el);
+      toast(ev.label, 'err');
+    }
+  } else {
+    _swipeSpringBack(el);
+    _swipeClearArm(el);
+  }
+  _swipeActive = null;
+}, {passive: true});
+
+async function fetchMatchStakes() {
+  if(!me) return;
+  const relevant = (matches || []).filter(m =>
+    (m.status === 'pending_challenge' || m.status === 'active') &&
+    (m.p1 === me.id || m.p2 === me.id)
+  );
+  for(const m of relevant) {
+    if(matchStakes[m.id]) continue;
+    const oppId = m.p1 === me.id ? m.p2 : m.p1;
+    try {
+      const res = await db.rpc('estimate_match_delta', { p1_id: me.id, p2_id: oppId });
+      if(res && !res.error && res.win_delta !== undefined) {
+        matchStakes[m.id] = res;
+      }
+    } catch(e) { /* silently skip */ }
+  }
+}
+
+function renderHome() {
+  const incomingChallenges = matches.filter(m => m.status==="pending_challenge" && m.p2===me.id);
+  const sentChallenges     = matches.filter(m => m.status==="pending_challenge" && m.p1===me.id);
+  const allActive = matches.filter(m => m.status==="active" && !m.tournament_id);
+  const done = matches.filter(m => m.status==="done" && (m.p1===me.id||m.p2===me.id)).slice(0,15);
+
+  const badge = $("badge");
+  if(incomingChallenges.length > 0) { badge.textContent = incomingChallenges.length; badge.classList.remove("hidden"); }
+  else badge.classList.add("hidden");
+
+  updateCountdowns();
+
+  const activeCards = allActive.map(m => {
+    const isP1 = m.p1===me.id;
+    const myRes = isP1 ? m.result_p1 : m.result_p2;
+    if(m.disputed && !myRes) return { m, type: 'disputed' };
+    if(!myRes) return { m, type: 'live' };
+    return { m, type: 'waiting' };
+  });
+  const liveCards     = activeCards.filter(c => c.type === 'live');
+  const disputedCards = activeCards.filter(c => c.type === 'disputed');
+  window._homeState = { incomingChallenges, sentChallenges, liveCards, disputedCards };
+
+  // Active cards — zona fissa tra CAB e storico
+  renderActiveCards(activeCards, sentChallenges, incomingChallenges);
+
+  // Contextual Action Bar
+  updateCAB();
+
+  // ── Feed ──
+  const activeChip = document.querySelector('.home-chips .ds-chip.on');
+  const chipText = activeChip ? activeChip.textContent.trim() : 'Tutto';
+  const activeView = chipText === 'Classifica' ? 'ranking' : chipText === 'Partite' ? 'mine' : chipText === 'Attività' ? 'events' : 'all';
+
+  if(activeView === 'all') renderHomeFeedAll();
+  if(activeView === 'mine') renderHomeMine();
+  if(activeView === 'events') renderHomeEvents();
+  if(activeView === 'ranking') renderHomeRanking();
+}
+
+// ── Swipe-to-challenge su hrow ──
+const SNAP_THRESH = 90;
+
+function initHrowSwipe(container) {
+  container.addEventListener('touchstart', onSwipeStart, {passive: true});
+  container.addEventListener('touchmove', onSwipeMove, {passive: false});
+  container.addEventListener('touchend', onSwipeEnd, {passive: true});
+}
+
+let _sw = null;
+
+function _swipeOffset(rawDx) {
+  if(rawDx <= 0) return 0;
+  const linear = Math.min(rawDx, 80);
+  const extra = rawDx > 80 ? Math.sqrt(rawDx - 80) * 10 : 0;
+  return linear + extra;
+}
+
+function _evalGuards(oppId) {
+  // Sono bloccato solo se ho partite dove NON ho ancora inserito il mio risultato,
+  // oppure ho sfide incoming senza risposta.
+  // "waiting" (ho già inserito) e "disputed" (ho già reinserito) NON bloccano.
+  // Sent challenges NON bloccano — ho già fatto la mia parte.
+  const isBusy = isPlayerBusy(me.id);
+
+  const opp = getP(oppId);
+  const oppOnline = opp?.last_seen_at && (Date.now() - new Date(opp.last_seen_at).getTime()) < ONLINE_MS;
+  const oppBusy = isPlayerBusy(oppId);
+
+  if(!isBusy && oppOnline && !oppBusy) return { ok: true, label: 'Gioca' };
+  const msg = isBusy ? 'Prima registra il risultato' : !oppOnline ? 'Offline' : 'In partita';
+  return { ok: false, label: msg };
+}
+
+function onSwipeStart(e) {
+  const wrap = e.target.closest('.hrow-wrap');
+  if(!wrap) return;
+  const t = e.touches[0];
+  const oppId = wrap.dataset.opp;
+  const guard = _evalGuards(oppId);
+  const reveal = wrap.querySelector('.hrow-reveal');
+  const label = wrap.querySelector('.hrow-reveal-label');
+  reveal.classList.remove('state-ok', 'state-err');
+  reveal.classList.add(guard.ok ? 'state-ok' : 'state-err');
+  label.textContent = guard.label;
+  _sw = {
+    wrap, hrow: wrap.querySelector('.hrow'), reveal, label,
+    cardW: wrap.offsetWidth, startX: t.clientX, startY: t.clientY,
+    locked: null, lastX: t.clientX, lastT: Date.now(), vx: 0, guard
+  };
+}
+
+function onSwipeMove(e) {
+  if(!_sw) return;
+  const t = e.touches[0];
+  const rawDx = _sw.startX - t.clientX;
+  const dy = Math.abs(t.clientY - _sw.startY);
+  if(!_sw.locked) {
+    if(Math.abs(rawDx) < 4 && dy < 4) return;
+    _sw.locked = dy > Math.abs(rawDx) ? 'scroll' : 'swipe';
+  }
+  if(_sw.locked === 'scroll') return;
+  e.preventDefault();
+  const now = Date.now();
+  const dt = now - _sw.lastT || 1;
+  _sw.vx = (rawDx - (_sw.startX - _sw.lastX)) / dt;
+  _sw.lastX = t.clientX;
+  _sw.lastT = now;
+  const offset = _swipeOffset(rawDx);
+  const snapW = _sw.cardW - 24;
+  _sw.hrow.style.transition = 'none';
+  _sw.hrow.style.transform = `translateX(-${Math.min(offset, snapW)}px)`;
+  _sw.reveal.style.width = Math.min(offset, snapW) + 'px';
+}
+
+function onSwipeEnd(e) {
+  if(!_sw || _sw.locked !== 'swipe') {
+    if(_sw) { _sw.reveal.style.width = '0'; _sw.reveal.classList.remove('state-ok','state-err'); }
+    _sw = null;
+    return;
+  }
+  const {wrap, hrow, reveal, label, cardW, guard} = _sw;
+  const oppId = wrap.dataset.opp;
+  const rawDx = _sw.startX - _sw.lastX;
+  const offset = _swipeOffset(rawDx);
+  const vx = _sw.vx;
+  const snapW = cardW - 24;
+  const triggered = offset >= SNAP_THRESH || (vx > 0.5 && rawDx > 30);
+
+  function springBack(delay) {
+    setTimeout(() => {
+      hrow.style.transition = 'transform .45s cubic-bezier(.34,1.3,.64,1)';
+      hrow.style.transform = 'translateX(0)';
+      reveal.style.transition = 'width .45s cubic-bezier(.34,1.3,.64,1)';
+      reveal.style.width = '0';
+      setTimeout(() => { reveal.style.transition = ''; reveal.classList.remove('state-ok', 'state-err'); }, 460);
+    }, delay);
+  }
+
+  if(!triggered) { springBack(0); _sw = null; return; }
+
+  hrow.style.transition = 'transform .3s cubic-bezier(.2,.8,.3,1)';
+  hrow.style.transform = `translateX(-${snapW}px)`;
+  reveal.style.transition = 'width .3s cubic-bezier(.2,.8,.3,1)';
+  reveal.style.width = snapW + 'px';
+
+  if(guard.ok) {
+    const fresh = _evalGuards(oppId);
+    if(fresh.ok) {
+      setTimeout(() => { springBack(0); openNewChallengeSheetForPlayer(oppId); }, 160);
+    } else {
+      label.textContent = fresh.label;
+      reveal.classList.remove('state-ok');
+      reveal.classList.add('state-err');
+      springBack(800);
+    }
+  } else {
+    springBack(800);
+  }
+  _sw = null;
+}
+
+// ── STEP 2: Contextual Action Bar ──
+
+let _cabState = 'idle'; // idle | action | incoming | waiting | search
+let _cabFeedbackTimer = null;
+
+// Stato corrente della CAB — calcolato da renderHome
+function updateCAB() {
+  // CAB bar is replaced by nav "+" button.
+  // Keep cab container for search overlay only.
+  // Hide the bar always, search bar shows/hides via openCABSearch/closeCABSearch.
+  const bar = $('cab-bar');
+  if (bar) bar.classList.add('hidden');
+}
+
+function _setCABState(state, bar, label, labelSub, icon, arrow) {
+  _cabState = state;
+  bar.className = 'cab-bar';
+  labelSub.classList.add('hidden');
+  labelSub.textContent = '';
+  // Rimuovi timer bar se presente (usata solo in stato incoming)
+  const existingTimer = document.getElementById('cab-timer-bar');
+  if(existingTimer && state !== 'incoming') existingTimer.remove();
+
+  if(state === 'idle') {
+    bar.classList.add('cab-idle');
+    arrow.classList.remove('hidden');
+  } else if(state === 'waiting') {
+    bar.classList.add('cab-waiting', 'cab-inactive');
+    icon.classList.add('hidden');
+    arrow.classList.add('hidden');
+  }
+}
+
+// Tap sulla CAB in stato idle — apre search
+function switchHomeChip(btn, view) {
+  document.querySelectorAll('.home-chips .ds-chip').forEach(c => c.classList.remove('on'));
+  btn.classList.add('on');
+  $('home-feed-all').classList.toggle('hidden', view !== 'all');
+  $('home-feed-mine').classList.toggle('hidden', view !== 'mine');
+  $('home-feed-events').classList.toggle('hidden', view !== 'events');
+  $('home-feed-ranking').classList.toggle('hidden', view !== 'ranking');
+  if(view === 'all') renderHomeFeedAll();
+  if(view === 'mine') renderHomeMine();
+  if(view === 'events') renderHomeEvents();
+  if(view === 'ranking') renderHomeRanking();
+}
+
+function renderHomeFeedAll() {
+  const container = $('home-history');
+  if(!container) return;
+  const feedItems = [];
+  const myJoinedAt = me.created_at ? new Date(me.created_at).getTime() : 0;
+
+  // Events from DB — filtered
+  (globalEvents || []).forEach(ev => {
+    if(ev.type === 'peak') return;
+    if(new Date(ev.created_at).getTime() < myJoinedAt) return;
+    const data = ev.data || {};
+    const player = getP(ev.player_id);
+    const target = getP(ev.target_id);
+    const pName = player?.nickname || data.nickname || '?';
+    const tName = target?.nickname || data.overtaken_name || '?';
+    let text = '', deltaStr = '';
+
+    switch(ev.type) {
+      case 'overtake':
+        if(ev.target_id === me.id) text = pName + ' ti ha superato';
+        else if(ev.player_id === me.id) text = 'Hai superato ' + tName;
+        break;
+      case 'upset':
+        var eloDiff = data.elo_diff || 0;
+        if(eloDiff >= 100) { text = pName + ' ha battuto ' + tName; deltaStr = '+' + eloDiff; }
+        break;
+      case 'milestone':
+        var ms = data.milestone || data.elo;
+        if(ms && ms % 100 === 0) text = pName + ' ha raggiunto quota ' + ms;
+        break;
+      case 'streak':
+        if(data.streak >= 5) { text = pName + ', ' + data.streak + ' vittorie di fila!'; if(data.elo_gain) deltaStr = '+' + data.elo_gain; }
+        break;
+      case 'new_player':
+        text = (data.nickname || pName) + ' si è unito a turko';
+        break;
+    }
+    if(text) feedItems.push({ type: 'event', time: new Date(ev.created_at).getTime(), text, deltaStr, playerId: ev.player_id });
+  });
+
+  // All done matches (everyone's — others only after my join date)
+  const allDone = (globalMatches || []).filter(m => {
+    if(m.status !== 'done' || !m.result || m.result === 'cancelled') return false;
+    const isMyMatch = m.p1 === me.id || m.p2 === me.id;
+    if(!isMyMatch && new Date(m.updated_at || m.created_at).getTime() < myJoinedAt) return false;
+    return true;
+  }).slice(0, 30);
+  allDone.forEach(m => {
+    const isDraw = m.result === 'draw';
+    const winnerId = m.result === 'p1' ? m.p1 : m.result === 'p2' ? m.p2 : m.p1;
+    const loserId = isDraw ? m.p2 : (m.result === 'p1' ? m.p2 : m.p1);
+    const winner = getP(winnerId), loser = getP(loserId);
+    const isMyMatch = m.p1 === me.id || m.p2 === me.id;
+    const p1 = getP(m.p1), p2 = getP(m.p2);
+
+    let text;
+    if(isMyMatch) {
+      const oppName = (m.p1 === me.id ? p2 : p1)?.nickname || '?';
+      if(isDraw) text = 'Patta con ' + oppName;
+      else if(winnerId === me.id) text = 'Hai vinto contro ' + oppName;
+      else text = 'Hai perso contro ' + oppName;
+    } else {
+      if(isDraw) text = (p1?.nickname||'?') + ' patta con ' + (p2?.nickname||'?');
+      else text = (winner?.nickname||'?') + ' ha vinto contro ' + (loser?.nickname||'?');
+    }
+
+    let deltaStr = '', deltaColor = 'var(--dim)';
+    if(isMyMatch) {
+      const elo = eloCache[m.id];
+      if(elo) {
+        const d = elo.elo_after - elo.elo_before;
+        deltaStr = d > 0 ? '+' + d : '' + d;
+        deltaColor = isDraw ? 'var(--dim)' : d > 0 ? 'var(--green)' : 'var(--red)';
+      }
+    }
+
+    const oppId = isMyMatch ? (m.p1 === me.id ? m.p2 : m.p1) : winnerId;
+    feedItems.push({ type: 'match', time: new Date(m.updated_at || m.created_at).getTime(), text, deltaStr, deltaColor, isMyMatch, profileId: oppId });
+  });
+
+  feedItems.sort((a, b) => b.time - a.time);
+
+  if(!feedItems.length) {
+    container.innerHTML = '<div style="margin-top:32px;text-align:center;padding:0 24px"><div style="font-size:var(--fs-body);color:var(--dim);font-weight:600;margin-bottom:var(--sp-sm)">La tua prima partita ti aspetta</div><div style="font-size:var(--fs-label);color:var(--ghost);line-height:1.5;cursor:pointer" onclick="onPlusTap()">Tap + per sfidare qualcuno</div></div>';
+    return;
+  }
+
+  // All rows same style — chip filters, doesn't change design
+  container.innerHTML = '<div class="ds-group">' + feedItems.map(item => {
+    let rightHtml = '';
+    const isEvent = item.type === 'event';
+
+    if(item.deltaStr) {
+      const dColor = (item.type === 'match' && item.isMyMatch) ? item.deltaColor : 'var(--green)';
+      rightHtml = '<div class="ds-cell-right"><div class="ds-cell-value" style="color:' + dColor + '">' + item.deltaStr + '</div></div>';
+    }
+
+    const onclick = isEvent ? '' : ' onclick="openProfile(\'' + (item.profileId || item.playerId || '') + '\',\'home\')"';
+    const innerHtml = '<div class="ds-cell-left"><div class="ds-cell-name">' + item.text + '</div><div class="ds-cell-meta">' + timeAgo(new Date(item.time).toISOString()) + '</div></div>' + rightHtml;
+
+    // Wrap my matches in swipe container
+    if(item.type === 'match' && item.isMyMatch && item.profileId) {
+      var ev = _swipeEval(item.profileId);
+      var revealClass = ev.ok ? 'swipe-reveal ok' : 'swipe-reveal blocked';
+      return '<div class="swipe-wrap"><div class="' + revealClass + '"><span class="swipe-reveal-label">' + ev.label + '</span></div><div class="swipe-cell ds-cell" data-opp="' + item.profileId + '"' + onclick + '>' + innerHtml + '</div></div>';
+    }
+    return '<div class="ds-cell' + (isEvent ? ' static' : '') + '"' + onclick + '>' + innerHtml + '</div>';
+  }).join('') + '</div>';
+
+  initFeedSwipe(container.querySelector('.ds-group'));
+}
+
+function renderHomeRanking() {
+  const list = $('home-ranking-list');
+  if(!list || !players.length) return;
+  const sorted = [...players].sort((a, b) => b.elo - a.elo);
+  const now = Date.now();
+
+  // Dense ranking: same ELO = same rank, no skips
+  const ranks = [];
+  let currentRank = 1;
+  sorted.forEach((p, i) => {
+    if(i > 0 && Math.round(p.elo) < Math.round(sorted[i-1].elo)) currentRank++;
+    ranks.push(currentRank);
+  });
+
+  const myIdx = sorted.findIndex(p => p.id === me.id);
+  const myRank = myIdx >= 0 ? ranks[myIdx] : -1;
+
+  let html = '';
+  sorted.forEach((p, i) => {
+    const isMe = p.id === me.id;
+    const elo = Math.round(p.elo);
+    const rank = ranks[i];
+    const online = p.last_seen_at && (now - new Date(p.last_seen_at).getTime()) < 30000;
+    const dotHtml = online ? ' <span class="ds-dot"></span>' : '';
+
+    // Daily delta — only show if non-zero
+    const dailyDelta = getDailyDelta(p.id, elo);
+    let deltaHtml = '';
+    if(dailyDelta > 0) deltaHtml = '<div class="ds-cell-sub" style="color:var(--green);font-weight:600">+' + dailyDelta + '</div>';
+    else if(dailyDelta < 0) deltaHtml = '<div class="ds-cell-sub" style="color:var(--red);font-weight:600">' + dailyDelta + '</div>';
+
+    // Gap hint — only for me and the one below me, skip ties
+    let metaHtml = '';
+    if(isMe && i > 0) {
+      const above = sorted[i - 1];
+      const gap = Math.round(above.elo) - elo;
+      if(gap > 0) metaHtml = '<div class="ds-cell-meta" style="color:var(--dim)">a ' + gap + ' punti da #' + ranks[i-1] + '</div>';
+    } else if(myIdx >= 0 && i === myIdx + 1) {
+      const gap = Math.round(me.elo) - elo;
+      if(gap > 0) metaHtml = '<div class="ds-cell-meta" style="color:var(--dim)">a ' + gap + ' punti da te</div>';
+    }
+
+    html += '<div class="ds-cell' + (isMe ? ' is-me' : '') + '" onclick="openProfile(\'' + p.id + '\',\'home\')">' +
+      '<div style="font-size:var(--fs-caption);font-weight:700;color:' + (isMe ? 'var(--text)' : 'var(--ghost)') + ';min-width:24px;text-align:center;flex-shrink:0;margin-right:var(--sp-md)">' + rank + '</div>' +
+      '<div class="ds-cell-left">' +
+        '<div class="ds-cell-name">' + escHtml(p.nickname) + (isMe ? ' <span style="font-size:var(--fs-micro);color:var(--dim);font-weight:400">tu</span>' : '') + dotHtml + '</div>' +
+        metaHtml +
+      '</div>' +
+      '<div class="ds-cell-right">' +
+        '<div class="ds-cell-value">' + elo + '</div>' +
+        deltaHtml +
+      '</div>' +
+    '</div>';
+  });
+
+  list.innerHTML = '<div class="ds-group">' + html + '</div>';
+}
+
+function renderHomeMine() {
+  const list = $('home-mine-list');
+  if(!list) return;
+  const myDone = matches.filter(m => m.status === 'done' && m.result !== 'cancelled' && (m.p1 === me.id || m.p2 === me.id)).slice(0, 20);
+  if(!myDone.length) { list.innerHTML = '<div style="text-align:center;padding:48px;color:var(--ghost);font-size:var(--fs-label)">Nessuna partita ancora</div>'; return; }
+  let html = '';
+  myDone.forEach(m => {
+    const isP1 = m.p1 === me.id;
+    const oppId = isP1 ? m.p2 : m.p1;
+    const opp = getP(oppId);
+    const isDraw = m.result === 'draw';
+    const won = m.result === 'p1' ? isP1 : m.result === 'p2' ? !isP1 : null;
+    const oppName = opp ? escHtml(opp.nickname) : '?';
+    let text;
+    if(isDraw) text = 'Patta con ' + oppName;
+    else if(won) text = 'Hai vinto contro ' + oppName;
+    else text = 'Hai perso contro ' + oppName;
+
+    let deltaStr = '0', deltaColor = 'var(--dim)';
+    const elo = eloCache[m.id];
+    if(elo) {
+      const d = elo.elo_after - elo.elo_before;
+      deltaStr = d > 0 ? '+' + d : '' + d;
+      deltaColor = isDraw ? 'var(--dim)' : d > 0 ? 'var(--green)' : 'var(--red)';
+    }
+
+    const ev = _swipeEval(oppId);
+    const revealClass = ev.ok ? 'swipe-reveal ok' : 'swipe-reveal blocked';
+    html += '<div class="swipe-wrap"><div class="' + revealClass + '"><span class="swipe-reveal-label">' + ev.label + '</span></div>' +
+      '<div class="swipe-cell ds-cell" data-opp="' + oppId + '" onclick="openProfile(\'' + oppId + '\',\'home\')">' +
+        '<div class="ds-cell-left"><div class="ds-cell-name">' + text + '</div><div class="ds-cell-meta">' + timeAgo(m.created_at) + (opp ? ' · ' + Math.round(opp.elo) : '') + '</div></div>' +
+        '<div class="ds-cell-right"><div class="ds-cell-value" style="color:' + deltaColor + '">' + deltaStr + '</div></div>' +
+      '</div></div>';
+  });
+  list.innerHTML = '<div class="ds-group">' + html + '</div>';
+  initFeedSwipe(list.querySelector('.ds-group'));
+}
+
+function renderHomeEvents() {
+  const list = $('home-events-list');
+  if(!list) return;
+  const items = [];
+  const myJoinedAt = me.created_at ? new Date(me.created_at).getTime() : 0;
+
+  (globalEvents || []).forEach(ev => {
+    if(ev.type === 'peak') return;
+    if(new Date(ev.created_at).getTime() < myJoinedAt) return;
+    const data = ev.data || {};
+    const player = getP(ev.player_id);
+    const target = getP(ev.target_id);
+    const pName = player?.nickname || data.nickname || '?';
+    const tName = target?.nickname || data.overtaken_name || '?';
+    let text = '', deltaStr = '';
+
+    switch(ev.type) {
+      case 'overtake':
+        if(ev.target_id === me.id) text = pName + ' ti ha superato';
+        else if(ev.player_id === me.id) text = 'Hai superato ' + tName;
+        break;
+      case 'upset':
+        var eloDiff = data.elo_diff || 0;
+        if(eloDiff >= 100) { text = pName + ' ha battuto ' + tName; deltaStr = '+' + eloDiff; }
+        break;
+      case 'milestone':
+        var ms = data.milestone || data.elo;
+        if(ms && ms % 100 === 0) text = pName + ' ha raggiunto quota ' + ms;
+        break;
+      case 'streak':
+        if(data.streak >= 5) { text = pName + ', ' + data.streak + ' vittorie di fila!'; if(data.elo_gain) deltaStr = '+' + data.elo_gain; }
+        break;
+      case 'new_player':
+        text = (data.nickname || pName) + ' si è unito a turko';
+        break;
+    }
+    if(text) items.push({ time: new Date(ev.created_at).getTime(), text, deltaStr, playerId: ev.player_id });
+  });
+
+  items.sort((a, b) => b.time - a.time);
+
+  if(!items.length) {
+    list.innerHTML = '<div style="text-align:center;padding:48px;color:var(--ghost);font-size:var(--fs-label)">Nessuna attività ancora</div>';
+    return;
+  }
+
+  list.innerHTML = '<div class="ds-group">' + items.map(item => {
+    const rightHtml = item.deltaStr ? '<div class="ds-cell-right"><div class="ds-cell-value" style="color:var(--green)">' + item.deltaStr + '</div></div>' : '';
+    return '<div class="ds-cell static"><div class="ds-cell-left"><div class="ds-cell-name">' + item.text + '</div><div class="ds-cell-meta">' + timeAgo(new Date(item.time).toISOString()) + '</div></div>' + rightHtml + '</div>';
+  }).join('') + '</div>';
+}
+
+function onPlusTap() {
+  // If there's an active match needing result, open result sheet
+  const liveCards = (matches||[]).filter(m => m.status==='active' && (m.p1===me.id||m.p2===me.id) && !m['result_p'+(m.p1===me.id?'1':'2')]);
+  if(liveCards.length > 0) {
+    openResultSheet(liveCards[0].id);
+    return;
+  }
+  // If there's an incoming challenge, don't allow new challenge
+  const incoming = (matches||[]).filter(m => m.status==='pending_challenge' && m.p2===me.id);
+  if(incoming.length > 0) {
+    toast('Hai una sfida in arrivo', 'err');
+    return;
+  }
+  // If busy (already sent challenge or have active match waiting), block
+  if(isPlayerBusy(me.id)) {
+    toast('Hai già una partita in corso', 'err');
+    return;
+  }
+  // Open new challenge sheet
+  openNewChallengeSheet();
+}
+
+// ── New Challenge Sheet (Uber-style 2-step) ──
+var _chOppId = null;
+
+function openNewChallengeSheet() {
+  // Reset to step 1
+  $('ch-step1').style.display = 'block';
+  $('ch-step2').style.display = 'none';
+  $('ch-search').value = '';
+  _chOppId = null;
+
+  // Render player list
+  renderChallengePlayers('');
+
+  // Show sheet
+  const overlay = $('challenge-sheet-overlay2');
+  overlay.style.display = 'flex';
+  document.body.classList.add('sheet-open');
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    overlay.classList.add('visible');
+    setTimeout(() => $('ch-search').focus(), 400);
+  }));
+}
+
+function closeNewChallengeSheet() {
+  const overlay = $('challenge-sheet-overlay2');
+  overlay.classList.remove('visible');
+  document.body.classList.remove('sheet-open');
+  setTimeout(() => { overlay.style.display = 'none'; _chOppId = null; }, 320);
+}
+
+function renderChallengePlayers(query) {
+  const list = $('ch-player-list');
+  if(!list) return;
+  const q = query.toLowerCase();
+  const eligible = players.filter(p => p.id !== me.id && (!q || p.nickname.toLowerCase().includes(q)));
+  // Sort: online first, then by elo
+  const now = Date.now();
+  eligible.sort((a, b) => {
+    const aOnline = a.last_seen_at && (now - new Date(a.last_seen_at).getTime()) < 30000 ? 1 : 0;
+    const bOnline = b.last_seen_at && (now - new Date(b.last_seen_at).getTime()) < 30000 ? 1 : 0;
+    if(aOnline !== bOnline) return bOnline - aOnline;
+    return b.elo - a.elo;
+  });
+  if(!eligible.length) {
+    list.innerHTML = '<div style="padding:var(--sp-xl) 0;text-align:center;color:var(--ghost);font-size:var(--fs-label)">Nessun giocatore trovato</div>';
+    return;
+  }
+  list.innerHTML = eligible.map(p => {
+    const online = p.last_seen_at && (now - new Date(p.last_seen_at).getTime()) < 30000;
+    const busy = isPlayerBusy(p.id);
+    const canChallenge = online && !busy;
+    if(!canChallenge) {
+      const reason = busy ? 'in partita' : 'offline';
+      return `<div class="ch-player-row" style="opacity:.4;pointer-events:none">
+        <span style="font-size:var(--fs-body);font-weight:500;color:var(--dim);display:flex;align-items:center;gap:6px">${escHtml(p.nickname)} <span style="font-size:var(--fs-micro);color:var(--ghost)">${reason}</span></span>
+        <span style="font-size:var(--fs-caption);color:var(--ghost)">${Math.round(p.elo)}</span>
+      </div>`;
+    }
+    return `<div class="ch-player-row" onclick="selectChallengePlayer('${p.id}')">
+      <span style="font-size:var(--fs-body);font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px">${escHtml(p.nickname)} <span class="ds-dot"></span></span>
+      <span style="font-size:var(--fs-caption);color:var(--dim)">${Math.round(p.elo)}</span>
+    </div>`;
+  }).join('');
+}
+
+function filterChallengePlayers(query) {
+  renderChallengePlayers(query);
+}
+
+function selectChallengePlayer(oppId) {
+  const opp = getP(oppId);
+  if(!opp) return;
+  _chOppId = oppId;
+
+  // Switch to step 2
+  $('ch-step1').style.display = 'none';
+  $('ch-step2').style.display = 'block';
+  $('ch-opp-name').textContent = opp.nickname;
+  $('ch-opp-elo').textContent = Math.round(opp.elo) + ' ELO';
+
+  // Reset time to Rapid
+  document.querySelectorAll('.ch-time-chip').forEach(c => c.classList.remove('on'));
+  document.querySelector('.ch-time-chip[data-time="rapid"]').classList.add('on');
+}
+
+function pickChallengeTime(btn) {
+  document.querySelectorAll('.ch-time-chip').forEach(c => c.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+async function pickChallengeColor(color) {
+  if(!_chOppId) return;
+  const oppId = _chOppId;
+  const whiteId = color === 'white' ? me.id : oppId;
+
+  // Visual feedback — flash the button
+  const btn = color === 'white' ? document.querySelector('.ch-color-white') : document.querySelector('.ch-color-black');
+  btn.style.opacity = '1';
+  btn.style.transform = 'scale(.95)';
+
+  // Close sheet after brief delay
+  setTimeout(async () => {
+    closeNewChallengeSheet();
+    btn.style.opacity = '';
+    btn.style.transform = '';
+
+    // Send challenge
+    const res = await db.rpc("create_challenge", {opponent_id: oppId, white_player_id: whiteId});
+    if(res?.error) return toast(res.error, "err");
+    if(Array.isArray(res) && res[0]?.error) return toast(res[0].error, "err");
+    await fetchAll();
+  }, 250);
+}
+
+// Open challenge sheet directly at step 2 for a specific player (from swipe, search, etc.)
+function onCABTap() {
+  if(_cabState !== 'idle') return;
+  openCABSearch();
+}
+
+function openCABSearch() {
+  _cabState = 'search';
+  $('cab-bar').style.display = 'none';
+  $('cab-search-bar').classList.add('open');
+  $('cab-search-input').value = '';
+  $('cab-results').innerHTML = '';
+  $('cab-results').classList.remove('open');
+  $('page-home').classList.add('search-open');
+  setTimeout(() => $('cab-search-input').focus(), 80);
+}
+
+function closeCABSearch() {
+  _cabState = 'idle';
+  $('cab-bar').style.display = '';
+  $('cab-search-bar').classList.remove('open');
+  $('cab-search-input').value = '';
+  $('cab-results').innerHTML = '';
+  $('cab-results').classList.remove('open');
+  $('page-home').classList.remove('search-open');
+  updateCAB();
+}
+
+function maybeShowSwipeHint() {
+  // Mostra solo una volta — dopo che l'utente ha almeno 1 partita nello storico
+  if(localStorage.getItem('turko_swipe_seen')) return;
+  const firstHrow = document.querySelector('#home-history .hrow-wrap .hrow');
+  if(!firstHrow) return;
+  firstHrow.classList.add('hrow-swipe-hint');
+  firstHrow.addEventListener('animationend', () => {
+    firstHrow.classList.remove('hrow-swipe-hint');
+  }, { once: true });
+  localStorage.setItem('turko_swipe_seen', '1');
+}
+
+function toggleHistoryExpand() {
+  const listEl = $('home-history-list');
+  const isCollapsed = listEl.classList.contains('collapsed');
+  if(isCollapsed) {
+    listEl.dataset.manualExpand = '1';
+    listEl.style.maxHeight = listEl.scrollHeight + 'px';
+    listEl.classList.remove('collapsed');
+  } else {
+    delete listEl.dataset.manualExpand;
+    listEl.style.maxHeight = listEl.scrollHeight + 'px';
+    requestAnimationFrame(() => {
+      listEl.style.maxHeight = '0';
+      listEl.classList.add('collapsed');
+    });
+  }
+}
+
+// ── Challenge sheet — sfida ricevuta, accetta/declina ──
+let _challengeSheetMatchId = null;
+
+// N partite live — mini sheet con lista
+function openMultiResultSheet(liveCards) {
+  openResultSheet(liveCards[0].m.id);
+}
+
+// Feedback "Risultato inviato" → cross-fade → "Gioca" dopo 2s
+if($('cab-search-input')) $('cab-search-input').addEventListener('input', renderCABSearch);
+
+function renderCABSearch() {
+  const q = $('cab-search-input').value.toLowerCase();
+  const results = $('cab-results');
+  if(!q) {
+    results.classList.remove('open');
+    results.innerHTML = '';
+    return;
+  }
+  const filtered = players.filter(p => p.id!==me.id && p.nickname.toLowerCase().includes(q));
+  if(!filtered.length) {
+    results.innerHTML = `<div style="padding:16px 16px;font-size:13px;color:#6a6560;text-align:center">Nessuno trovato.</div>`;
+    results.classList.add('open');
+    return;
+  }
+  const now = Date.now();
+  results.innerHTML = filtered.map(p => {
+    const isOnline = p.last_seen_at && (now - new Date(p.last_seen_at).getTime()) < ONLINE_MS;
+    // usa funzione unificata — coerente con _evalGuards e swipe
+    const isBusy = isPlayerBusy(p.id);
+    const onlineDot = `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${isOnline?'#7ab535':'#2a2724'};flex-shrink:0;margin-top:1px"></span>`;
+    const statusLabel = isBusy ? 'in partita' : !isOnline ? 'offline' : '';
+    const canChallenge = isOnline && !isBusy;
+    const playBtn = canChallenge
+      ? `<button class="btn-play" style="padding:9px 16px;font-size:14px" onclick="event.stopPropagation();closeCABSearch();openNewChallengeSheetForPlayer('${p.id}')">Gioca</button>`
+      : `<button class="btn-play unavailable" style="padding:9px 14px;font-size:13px" disabled>${isBusy ? 'In partita' : 'Offline'}</button>`;
+    return `<div style="padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #252220;cursor:pointer;-webkit-tap-highlight-color:transparent" onclick="closeCABSearch();openProfile('${p.id}', 'home')">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:15px;font-weight:600;color:#e8e6e3;display:flex;align-items:center;gap:7px">${onlineDot}${p.nickname}</div>
+        <div style="font-size:12px;color:#6a6560;margin-top:2px">${p.elo}${statusLabel ? ` · ${statusLabel}` : ''}</div>
+      </div>
+      ${playBtn}
+    </div>`;
+  }).join('');
+  // Rimuovi border sull'ultimo elemento
+  const lastRow = results.lastElementChild;
+  if(lastRow) lastRow.style.borderBottom = 'none';
+  results.classList.add('open');
+}
+
+// Visibilità CAB: solo su home
+// CAB è inline in #page-home — visibilità automatica con la pagina.
+// Questa funzione ora serve solo a chiudere la search se aperta al cambio pagina.
+function setCabVisibility(pageName) {
+  if(pageName !== 'home' && _cabState === 'search') closeCABSearch();
+}
+
+// Legacy — openHomeSearch/closeHomeSearch ora delegano alla CAB
+function openHomeSearch() { openCABSearch(); }
+function closeHomeSearch() { closeCABSearch(); }
+
+// ── Action sheet colore ──
+let sheetOppId = null;
+let sheetColorChoice = 'me';
+
+function openNewChallengeSheetForPlayer(oppId) {
+  const opp = getP(oppId);
+  if(!opp) return;
+  sheetOppId = oppId;
+  sheetColorChoice = 'me';
+  $('asheet-label-white').textContent = me.nickname;
+  $('asheet-label-black').textContent = opp.nickname;
+  $('asheet-btn-white').classList.add('selected');
+  $('asheet-btn-black').classList.remove('selected');
+  const overlay = $('color-sheet-overlay');
+  overlay.style.display = 'flex';
+  document.body.classList.add('sheet-open');
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    overlay.classList.add('visible');
+  }));
+}
+
+function closeColorSheet() {
+  const overlay = $('color-sheet-overlay');
+  overlay.classList.remove('visible');
+  document.body.classList.remove('sheet-open');
+  setTimeout(() => { overlay.style.display = 'none'; sheetOppId = null; }, 320);
+}
+
+function selectSheetColor(choice) {
+  // Toggle: se clicchi su quello già selezionato, inverti
+  if(sheetColorChoice === choice) {
+    choice = choice === 'me' ? 'opp' : 'me';
+  }
+  sheetColorChoice = choice;
+  const opp = getP(sheetOppId);
+  if(choice === 'me') {
+    $('asheet-label-white').textContent = me.nickname;
+    $('asheet-label-black').textContent = opp?.nickname || '?';
+    $('asheet-btn-white').classList.add('selected');
+    $('asheet-btn-black').classList.remove('selected');
+  } else {
+    $('asheet-label-white').textContent = opp?.nickname || '?';
+    $('asheet-label-black').textContent = me.nickname;
+    $('asheet-btn-black').classList.add('selected');
+    $('asheet-btn-white').classList.remove('selected');
+  }
+  const chosen = choice === 'me' ? $('asheet-btn-white') : $('asheet-btn-black');
+  chosen.style.transform = 'scale(1.05)';
+  setTimeout(() => { chosen.style.transform = ''; }, 180);
+}
+
+async function confirmColorSheet() {
+  const oppId = sheetOppId;
+  closeColorSheet();
+  const whiteId = sheetColorChoice === 'me' ? me.id : oppId;
+  const res = await db.rpc("create_challenge", {opponent_id: oppId, white_player_id: whiteId});
+  if(res?.error) return toast(res.error, "err");
+  if(Array.isArray(res) && res[0]?.error) return toast(res[0].error, "err");
+  closeHomeSearch();
+  await fetchAll();
+}
+
+async function challengeFromHome(oppId, btn) {
+  openNewChallengeSheetForPlayer(oppId);
+}
+
+// --- SEARCH (legacy — page removed, kept for compatibility) ---
+const ONLINE_MS = 30 * 1000;
+if($("search-input")) $("search-input").addEventListener("input", renderSearch);
+
+function renderSearch() {
+  if(!$("search-input")) return;
+  const q = $("search-input").value.toLowerCase();
+  const filtered = players.filter(p => p.id!==me.id && p.nickname.toLowerCase().includes(q));
+  if(!q) { $("search-results").innerHTML = ""; return; }
+  if(!filtered.length) { $("search-results").innerHTML = `<div class="empty">Nessuno trovato.</div>`; return; }
+  const now = Date.now();
+  $("search-results").innerHTML = filtered.map(p => {
+    const isOnline = p.last_seen_at && (now - new Date(p.last_seen_at).getTime()) < ONLINE_MS;
+    const isBusy = isPlayerBusy(p.id); // funzione unificata
+    const dot = isOnline
+      ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#7ab535;margin-right:4px;vertical-align:middle"></span>`
+      : `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#2a2724;margin-right:4px;vertical-align:middle"></span>`;
+    const statusLabel = isBusy
+      ? `<span style="font-size:11px;color:#8a8580">in partita</span>`
+      : !isOnline ? `<span style="font-size:11px;color:#2a2724">offline</span>` : '';
+    const canChallenge = isOnline && !isBusy;
+    return `<div class="prow" onclick="openProfile('${p.id}', 'search')" style="cursor:pointer">
+      <div style="flex:1;min-width:0">
+        <div class="pname" style="display:flex;align-items:center;gap:4px">${dot}${p.nickname} ${statusLabel}</div>
+        <div class="pelo">ELO ${p.elo} · ${p.wins}V ${p.losses}P ${p.draws}=</div>
+      </div>
+      ${canChallenge ? `<button class="btn-sm" onclick="event.stopPropagation();challenge('${p.id}', this)">Sfida</button>` : ''}
+    </div>`;
+  }).join("");
+}
+
+async function challenge(oppId, btn) {
+  if(btn) { btn.disabled = true; btn.textContent = "..."; }
+  const res = await db.rpc("create_challenge", {opponent_id: oppId, white_player_id: null});
+  if(btn) { btn.disabled = false; btn.textContent = "Sfida"; }
+  if(res?.error) return toast(res.error, "err");
+  if(Array.isArray(res) && res[0]?.error) return toast(res[0].error, "err");
+  await fetchAll();
+  showPage("home");
+}
+
+async function acceptChallenge(matchId) {
+  await db.patch("matches", `id=eq.${matchId}`, {status: "active"});
+  await fetchAll();
+}
+async function rejectChallenge(matchId) {
+  await db.delete("matches", `id=eq.${matchId}`);
+  await fetchAll();
+}
+async function cancelChallenge(matchId) {
+  await db.delete("matches", `id=eq.${matchId}`);
+  await fetchAll();
+}
+
+// --- pulizia partite scadute ---
+const CHALLENGE_EXPIRE_MS = 2 * 60 * 1000;
+const MATCH_EXPIRE_MS = 15 * 60 * 1000;
+
+// ── Funzione unificata: un giocatore è "occupato" se ha una partita attiva
+// dove non ha ancora inserito il risultato.
+// Una partita dove entrambi hanno già inserito NON blocca nuove sfide.
+function isPlayerBusy(playerId) {
+  // Occupato se ha partite attive dove non ha ancora inserito il risultato
+  const hasUnsubmitted = matches.some(m => {
+    if(m.status !== 'active') return false;
+    if(m.tournament_id) return false;
+    const isP1 = m.p1 === playerId;
+    const isP2 = m.p2 === playerId;
+    if(!isP1 && !isP2) return false;
+    const myRes = isP1 ? m.result_p1 : m.result_p2;
+    return !myRes;
+  });
+  if(hasUnsubmitted) return true;
+  // Per se stesso: sfide incoming non gestite bloccano (devi rispondere prima)
+  if(playerId === me?.id) {
+    return matches.some(m => m.status === 'pending_challenge' && m.p2 === playerId);
+  }
+  return false;
+}
+
+async function cleanupExpired() {
+  if(!me) return;
+  const now = Date.now();
+  const before = matches.length;
+
+  const expiredChallenges = matches.filter(m => {
+    if(m.status !== 'pending_challenge') return false;
+    return (now - new Date(m.created_at).getTime()) > CHALLENGE_EXPIRE_MS;
+  });
+
+  // Partite active scadute — nessuno ha inserito entro il timeout
+  const expiredMatches = matches.filter(m => {
+    if(m.status !== 'active') return false;
+    const ageFromUpdate = now - new Date(m.updated_at || m.created_at).getTime();
+    return ageFromUpdate > MATCH_EXPIRE_MS;
+  });
+
+  matches = matches.filter(m => {
+    const age = now - new Date(m.created_at).getTime();
+    if(m.status === 'pending_challenge') return age <= CHALLENGE_EXPIRE_MS;
+    if(m.status === 'active') {
+      const ageFromUpdate = now - new Date(m.updated_at || m.created_at).getTime();
+      return ageFromUpdate <= MATCH_EXPIRE_MS;
+    }
+    return true;
+  });
+
+  // Patcha DB per sfide scadute
+  for(const m of expiredChallenges) {
+    db.patch("matches", `id=eq.${m.id}`, {status: "done", result: "cancelled"}).catch(() => {});
+  }
+  // Patcha DB per partite active scadute — libera entrambi i giocatori
+  for(const m of expiredMatches) {
+    db.patch("matches", `id=eq.${m.id}`, {status: "done", result: "cancelled"}).catch(() => {});
+  }
+
+  if(matches.length !== before) renderHome();
+}
+
+function countdownStr(createdAt, expireMs) {
+  const remaining = expireMs - (Date.now() - new Date(createdAt).getTime());
+  if(remaining <= 0) return "scaduta";
+  const secs = Math.ceil(remaining / 1000);
+  const col = secs < 60 ? '#c33' : 'inherit';
+  return `<span style="color:${col};font-weight:${secs<60?'600':'400'}">${secs}s</span>`;
+}
+
+function setupLongPress(el, onComplete, ms=800) {
+  let timer = null;
+  const start = () => {
+    el.classList.add('pressing');
+    timer = setTimeout(() => { el.classList.remove('pressing'); onComplete(); }, ms);
+  };
+  const cancel = () => { clearTimeout(timer); el.classList.remove('pressing'); };
+  el.addEventListener('mousedown', start);
+  el.addEventListener('touchstart', e => { e.preventDefault(); start(); }, {passive:false});
+  el.addEventListener('mouseup', cancel);
+  el.addEventListener('mouseleave', cancel);
+  el.addEventListener('touchend', cancel);
+  el.addEventListener('touchcancel', cancel);
+}
+
+// --- RISULTATO: via openResultSheet ---
+
+let resultSheetMatchId = null;
+
+function openResultSheet(matchId) {
+  const m = matches.find(x => x.id===matchId);
+  if(!m) return;
+  resultSheetMatchId = matchId;
+  const isDisputed = m.disputed;
+  const isP1 = m.p1 === me.id;
+  const oppId = isP1 ? m.p2 : m.p1;
+  const opp = getP(oppId);
+  const oppName = opp?.nickname || '?';
+
+  $('rsheet-eyebrow').textContent = isDisputed ? 'Disaccordo' : 'Com\'è andata?';
+
+  const white = m.white_player_id ? getP(m.white_player_id) : getP(m.p1);
+  const black = m.white_player_id ? getP(m.white_player_id === m.p1 ? m.p2 : m.p1) : getP(m.p2);
+
+  if(isDisputed && white && black) {
+    const oppLastRes = isP1 ? m.last_result_p2 : m.last_result_p1;
+    const oppPlayerId = isP1 ? m.p2 : m.p1;
+    const oppSaid = oppLastRes === 'draw' ? 'Patta'
+      : oppLastRes === oppPlayerId ? 'Ha vinto'
+      : oppLastRes ? 'Ha perso' : null;
+    $('rsheet-context').innerHTML = oppSaid
+      ? `<div style="font-size:var(--fs-caption);color:var(--muted)">${oppName} dice: <strong>${oppSaid}</strong></div>`
+      : `<div style="font-size:var(--fs-caption);color:var(--muted)">${oppName} non è d'accordo</div>`;
+    $('rsheet-dispute-warn').classList.remove('hidden');
+  } else if(white && black) {
+    $('rsheet-context').innerHTML = `<div style="font-size:var(--fs-caption);color:var(--muted)">${white.nickname} (${Math.round(white.elo)}) — ${black.nickname} (${Math.round(black.elo)})</div>`;
+    $('rsheet-dispute-warn').classList.add('hidden');
+  } else {
+    $('rsheet-context').innerHTML = `<div style="font-size:var(--fs-caption);color:var(--muted)">${me.nickname} (${Math.round(me.elo)}) — ${oppName} (${opp ? Math.round(opp.elo) : '?'})</div>`;
+    $('rsheet-dispute-warn').classList.add('hidden');
+  }
+
+  const overlay = $('result-sheet-overlay');
+  overlay.style.display = 'flex';
+  document.body.classList.add('sheet-open');
+  requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('visible')));
+}
+
+function closeResultSheet() {
+  const overlay = $('result-sheet-overlay');
+  overlay.classList.remove('visible');
+  document.body.classList.remove('sheet-open');
+  setTimeout(() => { overlay.style.display = 'none'; resultSheetMatchId = null; }, 320);
+}
+
+async function confirmResultSheet(choice) {
+  const matchId = resultSheetMatchId;
+  if(!matchId) return;
+  const m = matches.find(x => x.id===matchId);
+  if(!m) return;
+  closeResultSheet();
+  const isP1 = m.p1 === me.id;
+  const myResult = choice === 'win' ? (isP1 ? 'p1' : 'p2')
+                 : choice === 'loss' ? (isP1 ? 'p2' : 'p1')
+                 : 'draw';
+  const field = isP1 ? 'result_p1' : 'result_p2';
+
+  // Optimistic update — aggiorna il match locale immediatamente
+  m[field] = myResult;
+  renderHome();
+
+  // Feedback
+  toast('Risultato inviato');
+
+  // Scrivi su DB e sincronizza
+  await db.patch('matches', `id=eq.${matchId}`, {[field]: myResult});
+  activeMatch = null;
+  await fetchAll();
+}
+
+async function submitResultInline(matchId, myResult, btn) {
+  if(btn) { btn.disabled=true; btn.style.opacity='0.6'; }
+  const m = matches.find(x => x.id===matchId);
+  if(!m) return;
+  const isP1 = m.p1 === me.id;
+  const field = isP1 ? "result_p1" : "result_p2";
+  await db.patch("matches", `id=eq.${matchId}`, {[field]: myResult});
+  activeMatch = null;
+  const cardEl = $("card-live-" + matchId);
+  if(cardEl) { cardEl.style.transition = "opacity .3s"; cardEl.style.opacity = "0.4"; }
+  await fetchAll();
+}
+
+// --- LEADERBOARD ---
+function getDailyDelta(playerId, currentElo) {
+  const key = 'turko_elo_' + playerId;
+  const stored = sessionStorage.getItem(key);
+  if(!stored) { sessionStorage.setItem(key, String(currentElo)); return 0; }
+  return currentElo - parseInt(stored);
+}
+
+function getRankChange(playerId, currentRank) {
+  const key = 'turko_rank_' + playerId;
+  const stored = sessionStorage.getItem(key);
+  if(!stored) { sessionStorage.setItem(key, String(currentRank)); return 0; }
+  return parseInt(stored) - currentRank; // positivo = salito
+}
+
+let _lbCurrentView = 'classifica';
+let _lbFeedOffset = 30;
+let _lbFeedLoading = false;
+let _lbFeedAllLoaded = false;
+
+function switchLbView(view, btn) {
+  _lbCurrentView = view;
+  if(view === 'live') {
+    _lbFeedOffset = 30;
+    _lbFeedAllLoaded = false;
+  }
+  document.querySelectorAll('.lb-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.lb-view').forEach(v => v.classList.remove('active'));
+  const target = $('lb-view-' + view);
+  if(target) target.classList.add('active');
+  const sticky = $('lb-me-sticky');
+  if(view !== 'classifica') sticky.classList.add('hidden');
+  else renderLeaderboard();
+}
+
+// ── Feed: label divider temporale ──
+function dateToDividerLabel(d) {
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  if(d.toDateString() === today.toDateString()) return 'Oggi';
+  if(d.toDateString() === yesterday.toDateString()) return 'Ieri';
+  const diffDays = Math.floor((today.getTime() - d.getTime()) / 86400000);
+  if(diffDays === 2) return '2 giorni fa';
+  if(diffDays === 3) return '3 giorni fa';
+  if(diffDays === 4) return '4 giorni fa';
+  if(diffDays === 5) return '5 giorni fa';
+  if(diffDays === 6) return '6 giorni fa';
+  if(diffDays < 14) return 'Una settimana fa';
+  if(diffDays < 21) return '2 settimane fa';
+  if(diffDays < 28) return '3 settimane fa';
+  if(diffDays < 60) return 'Un mese fa';
+  if(diffDays < 90) return '2 mesi fa';
+  if(diffDays < 120) return '3 mesi fa';
+  return d.toLocaleDateString('it-IT', {day:'numeric', month:'long'});
+}
+
+function generateFeedEvents() {
+  const events = [];
+
+  // ── EVENTI DAL DB ──
+  (globalEvents || []).forEach(ev => {
+    if(ev.type === 'peak') return;
+    const time = new Date(ev.created_at).getTime();
+    const data = ev.data || {};
+    const player = getP(ev.player_id);
+    const target = getP(ev.target_id);
+    const timeStr = timeAgo(ev.created_at);
+    const playerName = player?.nickname || data.nickname || '?';
+    const targetName = target?.nickname || data.overtaken_name || '?';
+
+    let text = '';
+    let rowClass = 'lb-feed-row lb-feed-event';
+
+    switch(ev.type) {
+      case 'overtake':
+        if(ev.target_id === me.id) {
+          text = `<strong class="ev-overtake-neg">${playerName}</strong> ti ha superato`;
+        } else if(ev.player_id === me.id) {
+          text = `Hai superato <strong class="ev-overtake-pos">${targetName}</strong>`;
+        }
+        // Sorpassi tra altri: non mostrare (text resta vuoto → riga non generata)
+        break;
+      case 'upset':
+        text = `<strong class="ev-upset">${playerName}</strong> ha battuto ${targetName} !`;
+        break;
+      case 'milestone':
+        text = `<strong class="ev-milestone">${playerName}</strong> ha raggiunto ${data.milestone || data.elo}`;
+        break;
+      case 'streak':
+        text = `<strong class="ev-streak">${playerName}</strong> ${data.streak} vittorie di fila`;
+        break;
+      case 'new_player':
+        text = `<strong class="ev-newplayer">${data.nickname || playerName}</strong> si è unito`;
+        break;
+    }
+
+    if(text) {
+      events.push({
+        type: ev.type,
+        time: time,
+        html: `<div class="${rowClass}" onclick="openProfile('${ev.player_id || ''}','leaderboard')">
+          <div class="lb-feed-left">
+            <div class="lb-feed-name">${text}</div>
+          </div>
+        </div>`
+      });
+    }
+  });
+
+  // ── PARTITE ──
+  const allMatches = (globalMatches || []).filter(m =>
+    m.status === 'done' && m.result && m.result !== 'cancelled'
+  ).slice(0, 30);
+
+  allMatches.forEach(m => {
+    const isDraw = m.result === 'draw';
+    const isMyMatch = m.p1 === me.id || m.p2 === me.id;
+    const winnerId = m.result === 'p1' ? m.p1 : m.result === 'p2' ? m.p2 : m.p1;
+    const loserId = isDraw ? m.p2 : (m.result === 'p1' ? m.p2 : m.p1);
+    const winner = getP(winnerId);
+    const loser = getP(loserId);
+    const p1 = getP(m.p1);
+    const p2 = getP(m.p2);
+
+    let nameText;
+    if(isDraw) {
+      if(m.p1 === me.id) nameText = `Patta con ${p2?.nickname || '?'}`;
+      else if(m.p2 === me.id) nameText = `Patta con ${p1?.nickname || '?'}`;
+      else nameText = `${p1?.nickname || '?'} patta con ${p2?.nickname || '?'}`;
+    } else if(winnerId === me.id) {
+      nameText = `Hai vinto contro ${loser?.nickname || '?'}`;
+    } else if(loserId === me.id) {
+      nameText = `${winner?.nickname || '?'} ti ha battuto`;
+    } else {
+      nameText = `<strong>${winner?.nickname || '?'}</strong> ha vinto contro ${loser?.nickname || '?'}`;
+    }
+
+    const winElo = globalEloCache[m.id + '_' + winnerId];
+    const winDelta = winElo ? (winElo.elo_after - winElo.elo_before) : null;
+    const displayDeltaClass = isDraw ? 'draw' : (winDelta !== null && winDelta >= 0 ? 'pos' : 'neg');
+
+    const deltaStr = winDelta !== null
+      ? `<div class="lb-feed-delta ${displayDeltaClass}">${winDelta >= 0 ? '+' : ''}${winDelta}</div>`
+      : '';
+
+    events.push({
+      type: 'match',
+      time: new Date(m.updated_at).getTime(),
+      html: `<div class="lb-feed-row" onclick="openProfile('${isDraw ? m.p1 : winnerId}','leaderboard')">
+        <div class="lb-feed-left">
+          <div class="lb-feed-name">${nameText}</div>
+        </div>
+        <div class="lb-feed-right">
+          ${deltaStr}
+        </div>
+      </div>`
+    });
+  });
+
+  events.sort((a, b) => b.time - a.time);
+
+  // ── Raggruppa per giorno ──
+  const byDay = [];
+  let currentDay = '';
+  let dayRows = [];
+
+  function flushDay() {
+    if(!currentDay) return;
+    byDay.push(`<div class="feed-divider">${currentDay}</div>`);
+    if(dayRows.length > 0) byDay.push(`<div class="lb-group">${dayRows.join('')}</div>`);
+    dayRows = [];
+  }
+
+  events.forEach(ev => {
+    const dateStr = dateToDividerLabel(new Date(ev.time));
+    if(dateStr !== currentDay) { flushDay(); currentDay = dateStr; }
+    dayRows.push(ev.html);
+  });
+  flushDay();
+
+  return byDay;
+}
+
+function renderLeaderboard() {
+  const sorted = [...players].sort((a, b) => b.elo - a.elo);
+  const myRank = sorted.findIndex(p => p.id === me.id);
+
+  // ══════════════════════════════════════
+  // VISTA: Classifica
+  // ══════════════════════════════════════
+  const rankList = $('lb-rank-list');
+  if(sorted.length === 0) {
+    rankList.innerHTML = '<div style="color:#504a45;text-align:center;margin-top:48px;font-size:14px">Nessun giocatore</div>';
+  } else {
+    const leader = sorted[0];
+    const leaderIsMe = leader.id === me.id;
+    const leaderDelta = getDailyDelta(leader.id, leader.elo);
+    const leaderDeltaHtml = leaderDelta !== 0
+      ? `<div class="lb-row-daily ${leaderDelta>0?'pos':'neg'}">${leaderDelta>0?'+':''}${leaderDelta}</div>`
+      : '';
+
+    const leaderHtml = `<div class="lb-leader${leaderIsMe?' me':''}" onclick="openProfile('${leader.id}','leaderboard')">
+      <div class="lb-leader-rank">1</div>
+      <div class="lb-row-info">
+        <div class="lb-leader-name">${leader.nickname}${(() => { const isOnlineL = leader.last_seen_at && (Date.now() - new Date(leader.last_seen_at).getTime()) < 30000; return leader.is_playing ? '<span class="lb-dot playing"></span>' : isOnlineL ? '<span class="lb-dot"></span>' : ''; })()}</div>
+        ${leader.is_playing ? '<div class="lb-status">In partita</div>' : ''}
+      </div>
+      <div class="lb-row-elo-wrap">
+        <div class="lb-leader-elo">${leader.elo}</div>
+        ${leaderDeltaHtml}
+      </div>
+    </div>`;
+
+    const restHtml = sorted.slice(1).map((p, i) => {
+      const rank = i + 2;
+      const isMe = p.id === me.id;
+      const delta = getDailyDelta(p.id, p.elo);
+      const rankChange = getRankChange(p.id, rank);
+      const trendHtml = rankChange > 0
+        ? '<span class="lb-row-trend up">▲</span>'
+        : rankChange < 0 ? '<span class="lb-row-trend down">▼</span>' : '';
+      const deltaHtml = delta !== 0
+        ? `<div class="lb-row-daily ${delta>0?'pos':'neg'}">${delta>0?'+':''}${delta}</div>`
+        : '';
+      const totalGames = p.wins + p.losses + p.draws;
+      let subLabel = totalGames === 0 ? '<div class="lb-row-sub">Nuovo</div>' : '';
+      if(isMe && rank > 1) {
+        const playerAbove = sorted[rank - 2];
+        subLabel = `<div class="lb-row-sub">${playerAbove.elo - p.elo} punti da ${playerAbove.nickname}</div>`;
+      }
+
+      return `<div class="lb-row${isMe?' me':''}" onclick="openProfile('${p.id}','leaderboard')">
+        <div class="lb-row-rank">${rank}${trendHtml}</div>
+        <div class="lb-row-info">
+          <div class="lb-row-name">${p.nickname}${(() => { const isOnlineP = p.last_seen_at && (Date.now() - new Date(p.last_seen_at).getTime()) < 30000; return p.is_playing ? '<span class="lb-dot playing"></span>' : isOnlineP ? '<span class="lb-dot"></span>' : ''; })()}${isMe?'<span class="lb-row-me-tag">tu</span>':''}</div>
+          ${p.is_playing ? '<div class="lb-status">In partita</div>' : subLabel}
+        </div>
+        <div class="lb-row-elo-wrap">
+          <div class="lb-row-elo">${p.elo}</div>
+          ${deltaHtml}
+        </div>
+      </div>`;
+    }).join('');
+
+    rankList.innerHTML = leaderHtml + (restHtml ? `<div class="lb-group">${restHtml}</div>` : '');
+  }
+
+  // Sticky
+  const sticky = $('lb-me-sticky');
+  if(_lbCurrentView === 'classifica' && sorted.length > 12 && myRank >= 12) {
+    sticky.classList.remove('hidden');
+    const above = myRank > 0 ? sorted[myRank - 1] : null;
+    const distanceHtml = above
+      ? `<div style="font-size:11px;color:#6a6560;margin-top:4px;padding-left:36px">${above.elo - me.elo} punti da <strong style="color:#8a8580">${above.nickname}</strong></div>`
+      : '';
+    sticky.innerHTML = `<div class="lb-me-sticky-inner" onclick="openProfile('${me.id}','leaderboard')">
+      <div class="lb-row-rank" style="color:#e8e6e3;font-weight:600">${myRank + 1}</div>
+      <div class="lb-row-info">
+        <div class="lb-row-name">${me.nickname} <span class="lb-row-me-tag">tu</span></div>
+      </div>
+      <div class="lb-row-elo-wrap">
+        <div class="lb-row-elo" style="font-size:16px">${me.elo}</div>
+      </div>
+    </div>${distanceHtml}`;
+  } else {
+    sticky.classList.add('hidden');
+    sticky.innerHTML = '';
+  }
+
+  // ══════════════════════════════════════
+  // VISTA: Live (feed)
+  // ══════════════════════════════════════
+  const feedContainer = $('lb-feed');
+  const feedEmpty = $('lb-feed-empty');
+
+  // Contatore partite oggi
+  const todayStart = new Date();
+  todayStart.setHours(0,0,0,0);
+  const todayMatches = (globalMatches || []).filter(m =>
+    m.status === 'done' && m.result && m.result !== 'cancelled' &&
+    new Date(m.updated_at).getTime() > todayStart.getTime()
+  ).length;
+  const counterHtml = todayMatches > 0
+    ? `<div class="feed-counter">${todayMatches} ${todayMatches === 1 ? 'partita' : 'partite'} oggi</div>`
+    : '';
+
+  const feedEvents = generateFeedEvents();
+
+  if(feedEvents.length === 0) {
+    feedContainer.innerHTML = counterHtml;
+    feedEmpty.classList.remove('hidden');
+  } else {
+    feedEmpty.classList.add('hidden');
+    feedContainer.innerHTML = counterHtml + feedEvents.join('');
+  }
+  initLbFeedScroll();
+}
+
+function initLbFeedScroll() {
+  const view = $('lb-view-live');
+  if(!view || view._scrollInit) return;
+  view._scrollInit = true;
+  view.addEventListener('scroll', () => {
+    if(_lbCurrentView !== 'live') return;
+    if(_lbFeedLoading || _lbFeedAllLoaded) return;
+    if(view.scrollTop + view.clientHeight >= view.scrollHeight - 100) {
+      loadMoreFeed();
+    }
+  }, {passive: true});
+}
+
+async function loadMoreFeed() {
+  _lbFeedLoading = true;
+  const loader = $('lb-feed-loader');
+  if(loader) loader.classList.remove('hidden');
+
+  const more = await db.get("matches", `status=eq.done&result=not.is.null&result=not.eq.cancelled&order=updated_at.desc&limit=30&offset=${_lbFeedOffset}&select=*`);
+
+  if(loader) loader.classList.add('hidden');
+  _lbFeedLoading = false;
+
+  if(!Array.isArray(more) || more.length === 0) {
+    _lbFeedAllLoaded = true;
+    return;
+  }
+
+  _lbFeedOffset += more.length;
+  if(more.length < 30) _lbFeedAllLoaded = true;
+
+  const feedContainer = $('lb-feed');
+  const rows = more.filter(m => m.result !== 'cancelled').map(m => {
+    const isDraw = m.result === 'draw';
+    const isMyMatch = m.p1 === me.id || m.p2 === me.id;
+    const winnerId = m.result === 'p1' ? m.p1 : m.result === 'p2' ? m.p2 : m.p1;
+    const loserId = isDraw ? m.p2 : (m.result === 'p1' ? m.p2 : m.p1);
+    const winner = getP(winnerId);
+    const loser = getP(loserId);
+    const p1 = getP(m.p1);
+    const p2 = getP(m.p2);
+    let nameText;
+    if(isDraw) {
+      if(m.p1 === me.id) nameText = `Patta con ${p2?.nickname || '?'}`;
+      else if(m.p2 === me.id) nameText = `Patta con ${p1?.nickname || '?'}`;
+      else nameText = `${p1?.nickname || '?'} patta con ${p2?.nickname || '?'}`;
+    } else if(winnerId === me.id) {
+      nameText = `Hai vinto contro ${loser?.nickname || '?'}`;
+    } else if(loserId === me.id) {
+      nameText = `${winner?.nickname || '?'} ti ha battuto`;
+    } else {
+      nameText = `<strong>${winner?.nickname || '?'}</strong> ha vinto contro ${loser?.nickname || '?'}`;
+    }
+    const winElo = globalEloCache[m.id + '_' + winnerId];
+    const winDelta = winElo ? (winElo.elo_after - winElo.elo_before) : null;
+    const displayDeltaClass = isDraw ? 'draw' : (winDelta !== null && winDelta >= 0 ? 'pos' : 'neg');
+    const deltaStr = winDelta !== null
+      ? `<div class="lb-feed-delta ${displayDeltaClass}">${winDelta >= 0 ? '+' : ''}${winDelta}</div>`
+      : '';
+    return {
+      time: new Date(m.updated_at).getTime(),
+      html: `<div class="lb-feed-row" onclick="openProfile('${isDraw ? m.p1 : winnerId}','leaderboard')">
+        <div class="lb-feed-left"><div class="lb-feed-name">${nameText}</div></div>
+        <div class="lb-feed-right">${deltaStr}</div>
+      </div>`
+    };
+  });
+
+  const allDividers = feedContainer.querySelectorAll('.feed-divider');
+  const lastExistingDivider = allDividers.length > 0 ? allDividers[allDividers.length - 1].textContent.trim() : '';
+  let currentDay = lastExistingDivider;
+  let newHtml = '';
+  let currentGroupRows = '';
+
+  rows.forEach(row => {
+    const dateStr = dateToDividerLabel(new Date(row.time));
+    if(dateStr !== currentDay) {
+      if(currentGroupRows) {
+        if(currentDay === lastExistingDivider && !newHtml) {
+          const lastGroup = feedContainer.querySelector('.lb-group:last-of-type');
+          if(lastGroup) { lastGroup.insertAdjacentHTML('beforeend', currentGroupRows); currentGroupRows = ''; }
+          else { newHtml += `<div class="lb-group">${currentGroupRows}</div>`; currentGroupRows = ''; }
+        } else {
+          newHtml += `<div class="lb-group">${currentGroupRows}</div>`;
+          currentGroupRows = '';
+        }
+      }
+      currentDay = dateStr;
+      newHtml += `<div class="feed-divider">${dateStr}</div>`;
+    }
+    currentGroupRows += row.html;
+  });
+
+  if(currentGroupRows) {
+    if(!newHtml && currentDay === lastExistingDivider) {
+      const lastGroup = feedContainer.querySelector('.lb-group:last-of-type');
+      if(lastGroup) { lastGroup.insertAdjacentHTML('beforeend', currentGroupRows); }
+      else { newHtml += `<div class="lb-group">${currentGroupRows}</div>`; }
+    } else {
+      newHtml += `<div class="lb-group">${currentGroupRows}</div>`;
+    }
+  }
+
+  if(newHtml) feedContainer.insertAdjacentHTML('beforeend', newHtml);
+}
+
+
+// --- PROFILE ---
+let currentProfileId = null;
+let currentProfileMatches = [];
+
+function openMyProfile() { openProfile(me.id, 'home'); }
+
+async function openProfile(playerId, fromPage, noPush) {
+  if(!noPush) profileStack.push({id: playerId, from: fromPage});
+  currentProfileId = playerId;
+
+  var playerRes = await db.get("players", "id=eq." + playerId + "&select=*");
+  var player = Array.isArray(playerRes) ? playerRes[0] : null;
+  if(!player) return;
+  var idx = players.findIndex(function(p) { return p.id === playerId; });
+  if(idx >= 0) players[idx] = player;
+  if(playerId === me.id) me = player;
+
+  var isMe = playerId === me.id;
+
+  renderProfileHeader(player);
+  renderEloSection(player);
+
+  $("prof-h2h").innerHTML = '';
+  $("prof-best-wins").innerHTML = '';
+  $("prof-rivals").innerHTML = '';
+  $("prof-day-groups").innerHTML = skelProfileContent();
+  $("prof-cta-wrap").innerHTML = '';
+
+  // Only switch page if not already on profile
+  var profPage = $('page-profile');
+  if(!profPage || !profPage.classList.contains('active')) showPage("profile");
+
+  var eloH = await db.get("elo_history", "player_id=eq." + playerId + "&order=created_at.asc&select=*");
+  var matchH = await db.get("matches", "or=(p1.eq." + playerId + ",p2.eq." + playerId + ")&status=eq.done&order=created_at.desc&limit=50");
+
+  currentProfileMatches = Array.isArray(matchH) ? matchH : [];
+  renderEloSection(player); // Re-render con match data per win rate bianco/nero
+  var eloMap = {};
+  if(Array.isArray(eloH)) eloH.forEach(function(e) { eloMap[e.match_id] = e; });
+
+  drawEloChart(eloH, player.elo);
+
+  if(!isMe) renderH2H(playerId, currentProfileMatches);
+  renderBestWins(playerId, currentProfileMatches);
+  renderRivals(playerId, currentProfileMatches);
+  renderDayGroups(currentProfileMatches, eloMap, playerId);
+  if(!isMe) renderProfileCTA(player);
+}
+
+// ── Skeleton screens ──
+function skelRow(nameW, valW) {
+  return '<div class="skel-row"><div class="skel-left"><div class="skel" style="width:' + nameW + 'px;height:14px"></div><div class="skel" style="width:' + Math.round(nameW * 0.6) + 'px;height:10px"></div></div><div class="skel" style="width:' + valW + 'px;height:14px"></div></div>';
+}
+
+function skelSection(label, rows) {
+  var html = '<div class="prof-section-label">' + label + '</div><div class="lb-group">';
+  for(var i = 0; i < rows; i++) {
+    var nw = 60 + Math.round(Math.random() * 40);
+    html += skelRow(nw, 30 + Math.round(Math.random() * 20));
+  }
+  return html + '</div>';
+}
+
+function skelChart() {
+  return '<div class="skel skel-chart" style="width:100%;height:140px;border-radius:12px"></div>';
+}
+
+function skelProfileContent() {
+  return skelChart() + skelSection('', 3) + skelSection('', 4);
+}
+
+function skelLeaderboard() {
+  var html = '<div class="skel" style="width:100%;height:80px;border-radius:14px;margin-bottom:12px"></div><div class="lb-group">';
+  for(var i = 0; i < 6; i++) {
+    html += '<div class="skel-row"><div style="display:flex;align-items:center;gap:10px"><div class="skel" style="width:20px;height:16px"></div><div class="skel" style="width:' + (60 + Math.round(Math.random() * 50)) + 'px;height:14px"></div></div><div class="skel" style="width:40px;height:16px"></div></div>';
+  }
+  return html + '</div>';
+}
+
+function renderProfileHeader(player) {
+  var isMe = player.id === me.id;
+
+  var sorted = players.slice().sort(function(a, b) { return b.elo - a.elo; });
+  var rank = -1;
+  for(var i = 0; i < sorted.length; i++) { if(sorted[i].id === player.id) { rank = i + 1; break; } }
+  var totalPlayers = sorted.length;
+
+  var monthNames = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+  var joinDate = new Date(player.created_at);
+  var sinceStr = 'Iscritto ' + monthNames[joinDate.getMonth()] + ' ' + joinDate.getFullYear();
+
+  var cityHtml = player.city ? '<div style="font-size:var(--fs-label);color:var(--dim);margin-top:4px">' + escHtml(player.city) + '</div>' : '';
+  var bioHtml = player.bio ? '<div style="font-size:var(--fs-caption);color:var(--muted);margin-top:var(--sp-xs);line-height:1.45">' + escHtml(player.bio) + '</div>' : '';
+  var sinceHtml = '<div style="font-size:var(--fs-micro);color:var(--ghost);margin-top:var(--sp-xs)">' + sinceStr + '</div>';
+
+  var peak = player.elo_peak || Math.round(player.elo);
+  var elo = Math.round(player.elo);
+  var gap = peak - elo;
+  var peakHtml = '<div style="font-size:var(--fs-label);color:var(--dim)">Peak <span style="font-weight:600;color:var(--muted)">' + peak + '</span></div>';
+  var deltaHtml = gap > 0 ? '<div style="font-size:var(--fs-label);font-weight:600;color:var(--red)">−' + gap + '</div>' : '';
+  var rankHtml = rank > 0 ? '<div style="font-size:var(--fs-label);color:var(--ghost);margin-top:2px">#' + rank + ' di ' + totalPlayers + '</div>' : '';
+
+  $("prof-header-wrap").innerHTML =
+    '<div style="padding:var(--sp-sm) 0 var(--sp-md)">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between">' +
+        '<div style="font-size:var(--fs-title);font-weight:700;color:var(--text);letter-spacing:-.3px">' + escHtml(player.nickname) + '</div>' +
+        (isMe ? '<button style="background:none;border:none;color:var(--ghost);font-size:22px;cursor:pointer;padding:8px;line-height:1" onclick="showProfileMenu()">⋮</button>' : '') +
+      '</div>' +
+      cityHtml + bioHtml + sinceHtml +
+    '</div>' +
+    '<div style="padding-bottom:var(--sp-lg)">' +
+      '<div style="font-size:var(--fs-hero-sm);font-weight:800;color:var(--text);letter-spacing:-1.5px;line-height:1">' + elo + '</div>' +
+      '<div style="display:flex;align-items:center;gap:var(--sp-md);margin-top:var(--sp-xs)">' + peakHtml + deltaHtml + '</div>' +
+      rankHtml +
+    '</div>' +
+    '<div id="prof-edit-wrap"></div>';
+}
+
+function toggleProfileStats(el) {
+  var detail = el.nextElementSibling;
+  if(detail.style.maxHeight && detail.style.maxHeight !== '0px') {
+    detail.style.maxHeight = '0px';
+  } else {
+    detail.style.maxHeight = detail.scrollHeight + 'px';
+  }
+}
+
+function showProfileMenu() {
+  var overlay = document.createElement('div');
+  overlay.id = 'prof-menu-overlay';
+  overlay.className = 'asheet-overlay visible';
+  overlay.style.display = 'flex';
+  overlay.onclick = function(e) { if(e.target === overlay) closeProfileMenu(); };
+  var sheet = document.createElement('div');
+  sheet.className = 'asheet';
+  sheet.style.transform = 'translateY(0)';
+  sheet.onclick = function(e) { e.stopPropagation(); };
+  sheet.innerHTML =
+    '<div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px"></div>' +
+    '<div class="ds-group" style="margin-bottom:0">' +
+      '<button style="width:100%;padding:var(--sp-lg);border:none;background:transparent;color:var(--text);font-size:var(--fs-body);font-weight:500;text-align:center;cursor:pointer;font-family:inherit;border-bottom:0.5px solid var(--border)" onclick="closeProfileMenu();showEditProfile()">Modifica profilo</button>' +
+      '<button style="width:100%;padding:var(--sp-lg);border:none;background:transparent;color:var(--red);font-size:var(--fs-body);font-weight:500;text-align:center;cursor:pointer;font-family:inherit" onclick="closeProfileMenu();doLogout()">Esci</button>' +
+    '</div>' +
+    '<button class="rsheet-cancel" onclick="closeProfileMenu()">Annulla</button>';
+  overlay.appendChild(sheet);
+  document.body.appendChild(overlay);
+}
+
+function closeProfileMenu() {
+  var overlay = document.getElementById('prof-menu-overlay');
+  if(overlay) overlay.remove();
+}
+
+function showEditProfile() {
+  var p = players.find(function(x) { return x.id === me.id; }) || me;
+  var overlay = document.createElement('div');
+  overlay.id = 'prof-edit-overlay';
+  overlay.className = 'asheet-overlay visible';
+  overlay.style.display = 'flex';
+  overlay.onclick = function(e) { if(e.target === overlay) closeEditProfile(); };
+  var sheet = document.createElement('div');
+  sheet.className = 'asheet';
+  sheet.style.cssText = 'transform:translateY(0);padding:8px 24px calc(24px + env(safe-area-inset-bottom,0px))';
+  sheet.onclick = function(e) { e.stopPropagation(); };
+
+  var cityVal = p.city || '';
+  var bioVal = p.bio || '';
+
+  sheet.innerHTML =
+    '<div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px"></div>' +
+    '<div style="font-size:var(--fs-title);font-weight:700;color:var(--text);margin-bottom:var(--sp-xl);letter-spacing:-.3px">Modifica profilo</div>' +
+
+    '<div style="margin-bottom:var(--sp-lg)">' +
+      '<input id="edit-city" value="' + escHtml(cityVal) + '" style="background:transparent;border:none;border-bottom:1px solid var(--border);padding:14px 0;font-size:var(--fs-body);font-weight:500;color:var(--text);width:100%;outline:none;font-family:inherit;-webkit-user-select:text;user-select:text" placeholder="Città" autocorrect="off" autocapitalize="words" maxlength="15" oninput="updateEditCounter(this,15,\'edit-city-count\')">' +
+      '<div id="edit-city-count" style="font-size:var(--fs-micro);color:var(--ghost);text-align:right;margin-top:var(--sp-xs)">' + cityVal.length + '/15</div>' +
+    '</div>' +
+
+    '<div style="margin-bottom:var(--sp-xl)">' +
+      '<input id="edit-bio" value="' + escHtml(bioVal) + '" style="background:transparent;border:none;border-bottom:1px solid var(--border);padding:14px 0;font-size:var(--fs-body);font-weight:500;color:var(--text);width:100%;outline:none;font-family:inherit;-webkit-user-select:text;user-select:text" placeholder="Bio" autocorrect="off" maxlength="30" oninput="updateEditCounter(this,30,\'edit-bio-count\')">' +
+      '<div id="edit-bio-count" style="font-size:var(--fs-micro);color:var(--ghost);text-align:right;margin-top:var(--sp-xs)">' + bioVal.length + '/30</div>' +
+    '</div>' +
+
+    '<button style="background:var(--text);color:var(--bg);border-radius:var(--r-md);padding:17px 16px;font-size:var(--fs-body);font-weight:700;width:100%;border:none;cursor:pointer;font-family:inherit;letter-spacing:-.2px" onclick="saveProfile()">Salva</button>' +
+    '<button class="rsheet-cancel" onclick="closeEditProfile()">Annulla</button>';
+  overlay.appendChild(sheet);
+  document.body.appendChild(overlay);
+
+  // Focus first field
+  setTimeout(function() { var inp = document.getElementById('edit-city'); if(inp) inp.focus(); }, 400);
+}
+
+function updateEditCounter(input, max, counterId) {
+  var el = document.getElementById(counterId);
+  if(el) el.textContent = input.value.length + '/' + max;
+  // City validation: only letters, spaces, apostrophes
+  if(input.id === 'edit-city') {
+    input.value = input.value.replace(/[^a-zA-ZÀ-ÿ\s']/g, '');
+  }
+}
+
+function closeEditProfile() {
+  var overlay = document.getElementById('prof-edit-overlay');
+  if(overlay) overlay.remove();
+}
+
+async function saveProfile() {
+  var bio = document.getElementById('edit-bio') ? document.getElementById('edit-bio').value.trim() : '';
+  var city = document.getElementById('edit-city') ? document.getElementById('edit-city').value.trim() : '';
+  // Validate city: only letters, spaces, apostrophes
+  city = city.replace(/[^a-zA-ZÀ-ÿ\s'\-]/g, '');
+  // Title case: Milano, L'Aquila, New-York
+  city = city.replace(/\S+/g, function(w) {
+    return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+  }).replace(/([\'\-])(\w)/g, function(m, sep, c) {
+    return sep + c.toUpperCase();
+  });
+  var res = await db.patch('players', 'id=eq.' + me.id, {bio: bio, city: city});
+  if(Array.isArray(res) && res[0]) {
+    me = Object.assign({}, me, res[0]);
+    var idx = players.findIndex(function(x) { return x.id === me.id; });
+    if(idx >= 0) players[idx] = me;
+    updateTopbar();
+    closeEditProfile();
+    toast('Salvato');
+    await openProfile(me.id, 'home');
+    profileStack = [];
+  }
+}
+
+function renderEloSection(player) {
+  var total = player.wins + player.losses + player.draws;
+  var winRate = total > 0 ? Math.round((player.wins / total) * 100) : 0;
+  var streak = player.win_streak || 0;
+  var bestStreak = player.best_streak || 0;
+
+  var whiteWins = 0, whiteLosses = 0, whiteDraws = 0;
+  var blackWins = 0, blackLosses = 0, blackDraws = 0;
+  currentProfileMatches.forEach(function(m) {
+    if(m.result === 'cancelled') return;
+    var isP1 = m.p1 === player.id;
+    var playsWhite = m.white_player_id === player.id;
+    var won = m.result === 'p1' ? isP1 : m.result === 'p2' ? !isP1 : null;
+    if(playsWhite) {
+      if(won === true) whiteWins++; else if(won === false) whiteLosses++; else whiteDraws++;
+    } else if(m.white_player_id) {
+      if(won === true) blackWins++; else if(won === false) blackLosses++; else blackDraws++;
+    }
+  });
+  var whiteTotal = whiteWins + whiteLosses + whiteDraws;
+  var blackTotal = blackWins + blackLosses + blackDraws;
+  var whiteRate = whiteTotal > 0 ? Math.round((whiteWins / whiteTotal) * 100) : null;
+  var blackRate = blackTotal > 0 ? Math.round((blackWins / blackTotal) * 100) : null;
+
+  var trendDelta = 0;
+  var recentMatches = currentProfileMatches.filter(function(m) { return m.result !== 'cancelled'; }).slice(0, 12);
+  if(recentMatches.length >= 3) {
+    recentMatches.forEach(function(m) {
+      var key = m.id + '_' + player.id;
+      var eh = globalEloCache[key];
+      if(eh) trendDelta += (eh.elo_after - eh.elo_before);
+    });
+  }
+
+  // Build stats rows
+  var rows = '';
+  rows += '<div class="ds-stats-row"><div class="ds-stats-row-label">Partite totali</div><div class="ds-stats-row-value">' + total + '</div></div>';
+  if(total > 0) rows += '<div class="ds-stats-row"><div class="ds-stats-row-label">Win rate</div><div class="ds-stats-row-value">' + winRate + '%</div></div>';
+  if(whiteRate !== null) rows += '<div class="ds-stats-row"><div class="ds-stats-row-label">Win rate bianco</div><div class="ds-stats-row-value">' + whiteRate + '%</div></div>';
+  if(blackRate !== null) rows += '<div class="ds-stats-row"><div class="ds-stats-row-label">Win rate nero</div><div class="ds-stats-row-value">' + blackRate + '%</div></div>';
+  if(recentMatches.length >= 3 && trendDelta !== 0) {
+    var trendCls = trendDelta > 0 ? ' style="color:var(--green)"' : ' style="color:var(--red)"';
+    rows += '<div class="ds-stats-row"><div class="ds-stats-row-label">Ultime ' + recentMatches.length + '</div><div class="ds-stats-row-value"' + trendCls + '>' + (trendDelta > 0 ? '+' : '') + trendDelta + '</div></div>';
+  }
+  if(bestStreak >= 3) rows += '<div class="ds-stats-row"><div class="ds-stats-row-label">Streak migliore</div><div class="ds-stats-row-value">' + bestStreak + '</div></div>';
+  if(streak >= 2) rows += '<div class="ds-stats-row"><div class="ds-stats-row-label">Streak attuale</div><div class="ds-stats-row-value" style="color:var(--green)">' + streak + '</div></div>';
+
+  $("prof-elo-section").innerHTML =
+    '<div class="ds-stats">' +
+      '<div class="ds-stats-header" onclick="toggleProfileStats(this)">' +
+        '<div class="ds-stats-label">Statistiche</div>' +
+        '<div class="ds-wld"><span class="ds-wl w">' + player.wins + '</span><span class="ds-wl l">' + player.losses + '</span><span class="ds-wl d">' + player.draws + '</span></div>' +
+      '</div>' +
+      '<div class="ds-stats-detail" id="prof-stats-detail">' +
+        '<div class="ds-stats-inner">' + rows + '</div>' +
+      '</div>' +
+    '</div>';
+}
+
+
+
+function renderH2H(playerId, matchH) {
+  const h2hMatches = matchH.filter(m =>
+    (m.p1 === me.id && m.p2 === playerId) || (m.p1 === playerId && m.p2 === me.id)
+  );
+  const oppName = getP(playerId)?.nickname || '?';
+  if(h2hMatches.length === 0) {
+    $("prof-h2h").innerHTML = `
+      <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r-md);padding:var(--sp-md) var(--sp-lg);margin-bottom:var(--sp-md)">
+        <div style="font-size:var(--fs-label);color:var(--ghost);text-align:center">Non avete ancora giocato insieme</div>
+      </div>`;
+    return;
+  }
+  let myWins = 0, myLosses = 0, draws = 0;
+  h2hMatches.forEach(m => {
+    if(m.result === 'draw') { draws++; return; }
+    const winnerId = m.result === 'p1' ? m.p1 : m.p2;
+    if(winnerId === me.id) myWins++;
+    else myLosses++;
+  });
+  $("prof-h2h").innerHTML = `
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r-md);padding:var(--sp-md) var(--sp-lg);margin-bottom:var(--sp-md)">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:var(--fs-label);color:var(--dim)">Le tue partite contro <b style="font-weight:600;color:var(--text)">${escHtml(oppName)}</b></div>
+        <div class="ds-wld"><span class="ds-wl w">${myWins}</span><span class="ds-wl l">${myLosses}</span><span class="ds-wl d">${draws}</span></div>
+      </div>
+    </div>`;
+}
+
+function renderBestWins(playerId, matchH) {
+  var wins = matchH.filter(function(m) {
+    if(m.result === 'cancelled' || m.result === 'draw') return false;
+    var isP1 = m.p1 === playerId;
+    return m.result === 'p1' ? isP1 : !isP1;
+  });
+
+  var rated = wins.map(function(m) {
+    var isP1 = m.p1 === playerId;
+    var oppId = isP1 ? m.p2 : m.p1;
+    var oppEloKey = m.id + '_' + oppId;
+    var oppEh = globalEloCache[oppEloKey];
+    var oppElo = oppEh ? oppEh.elo_before : (getP(oppId) ? Math.round(getP(oppId).elo) : 0);
+    return {matchId: m.id, oppId: oppId, oppElo: oppElo, date: m.created_at};
+  });
+
+  rated.sort(function(a, b) { return b.oppElo - a.oppElo; });
+  var top3 = rated.slice(0, 3);
+
+  if(top3.length === 0) { $("prof-best-wins").innerHTML = ''; return; }
+
+  var rows = top3.map(function(w) {
+    var opp = getP(w.oppId);
+    var d = new Date(w.date);
+    var monthNames = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+    var dateStr = d.getDate() + ' ' + monthNames[d.getMonth()];
+    return '<div class="ds-cell" onclick="openProfile(\'' + w.oppId + '\',\'profile\')">' +
+      '<div class="ds-cell-left"><div class="ds-cell-name">' + (opp ? escHtml(opp.nickname) : '?') + '</div><div class="ds-cell-meta">' + dateStr + '</div></div>' +
+      '<div style="font-size:var(--fs-caption);font-weight:700;color:var(--green)">' + w.oppElo + '</div>' +
+    '</div>';
+  }).join('');
+
+  $("prof-best-wins").innerHTML =
+    '<div class="ds-section">Best wins</div>' +
+    '<div class="ds-group">' + rows + '</div>';
+}
+
+function renderRivals(playerId, matchH) {
+  const rivalMap = {};
+  matchH.forEach(m => {
+    const oppId = m.p1 === playerId ? m.p2 : m.p1;
+    if(!rivalMap[oppId]) rivalMap[oppId] = {wins: 0, losses: 0, draws: 0, total: 0};
+    rivalMap[oppId].total++;
+    if(m.result === 'draw') { rivalMap[oppId].draws++; return; }
+    const winnerId = m.result === 'p1' ? m.p1 : m.p2;
+    if(winnerId === playerId) rivalMap[oppId].wins++;
+    else rivalMap[oppId].losses++;
+  });
+
+  const rivals = Object.entries(rivalMap)
+    .map(([id, r]) => ({id, ...r}))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 5);
+
+  if(rivals.length === 0) {
+    $("prof-rivals").innerHTML = '';
+    return;
+  }
+
+  const rows = rivals.map(r => {
+    const opp = getP(r.id);
+    return `<div class="ds-cell" onclick="openProfile('${r.id}','profile')">
+      <div class="ds-cell-name">${opp ? escHtml(opp.nickname) : '?'}</div>
+      <div class="ds-wld"><span class="ds-wl w">${r.wins}</span><span class="ds-wl l">${r.losses}</span><span class="ds-wl d">${r.draws}</span></div>
+    </div>`;
+  }).join('');
+
+  $("prof-rivals").innerHTML = `
+    <div class="ds-section">Rivali</div>
+    <div class="ds-group">${rows}</div>`;
+}
+
+
+
+function renderProfileCTA(player) {
+  // turko is in-person — no challenge button on profiles
+  $("prof-cta-wrap").innerHTML = '';
+}
+
+function renderDayGroups(matchH, eloMap, playerId) {
+  if(!matchH.length) {
+    $("prof-day-groups").innerHTML = '<div class="empty" style="margin-top:24px">Nessuna partita ancora</div>';
+    return;
+  }
+
+  var byDay = {};
+  var dayOrder = [];
+  matchH.forEach(function(m) {
+    var day = new Date(m.created_at).toLocaleDateString('it-IT', {day:'2-digit', month:'short'});
+    if(!byDay[day]) { byDay[day] = []; dayOrder.push(day); }
+    byDay[day].push(m);
+  });
+
+  var html = '<div class="ds-section">Storico</div><div class="ds-group">';
+
+  dayOrder.forEach(function(day, dayIdx) {
+    var ms = byDay[day];
+    var validMs = ms.filter(function(m) { return m.result !== 'cancelled'; });
+    var wins = 0, losses = 0, draws = 0;
+    validMs.forEach(function(m) {
+      var isP1 = m.p1 === playerId;
+      if(m.result === 'draw') draws++;
+      else if((m.result === 'p1' && isP1) || (m.result === 'p2' && !isP1)) wins++;
+      else losses++;
+    });
+
+    var dayElos = validMs.map(function(m) { return eloMap[m.id]; }).filter(Boolean).sort(function(a, b) {
+      return new Date(a.created_at) - new Date(b.created_at);
+    });
+    var eloStart = dayElos.length ? dayElos[0].elo_before : null;
+    var eloEnd = dayElos.length ? dayElos[dayElos.length - 1].elo_after : null;
+    var totalDelta = dayElos.length ? eloEnd - eloStart : 0;
+    var deltaColor = totalDelta > 0 ? 'var(--green)' : totalDelta < 0 ? 'var(--red)' : 'var(--dim)';
+    var deltaStr = totalDelta !== 0 ? ' <span style="color:' + deltaColor + '">' + (totalDelta > 0 ? '+' : '') + totalDelta + '</span>' : '';
+
+    var eloRange = eloStart !== null ? eloStart + '→' + eloEnd + deltaStr : '';
+    var groupId = 'prof-day-' + dayIdx;
+
+    var wldHtml = '<div class="ds-wld"><span class="ds-wl w">' + wins + '</span><span class="ds-wl l">' + losses + '</span><span class="ds-wl d">' + draws + '</span></div>';
+
+    html += '<div class="ds-cell" onclick="toggleDayGroup(&quot;' + groupId + '&quot;)">' +
+      '<div class="ds-cell-left">' +
+        '<div style="font-size:var(--fs-caption);font-weight:600;color:var(--text)">' + day + '</div>' +
+        (eloRange ? '<div class="ds-cell-meta">' + eloRange + '</div>' : '') +
+      '</div>' +
+      '<div class="ds-cell-right">' + wldHtml + '</div>' +
+    '</div>';
+
+    html += '<div class="ds-acc" id="' + groupId + '">';
+    validMs.forEach(function(m) {
+      var isP1 = m.p1 === playerId;
+      var oppId = isP1 ? m.p2 : m.p1;
+      var opp = getP(oppId);
+      var won = m.result === 'p1' ? isP1 : m.result === 'p2' ? !isP1 : null;
+      var elo = eloMap[m.id];
+      var delta = elo ? (elo.elo_after - elo.elo_before) : null;
+      var dColor = delta !== null ? (delta >= 0 ? 'var(--green)' : 'var(--red)') : 'var(--dim)';
+      var deltaHtml = delta !== null ? '<div style="font-size:var(--fs-caption);font-weight:700;color:' + dColor + '">' + (delta >= 0 ? '+' : '') + delta + '</div>' : '';
+
+      html += '<div class="ds-cell nested" onclick="event.stopPropagation();openProfile(&apos;' + oppId + '&apos;,&apos;profile&apos;)">' +
+        '<div class="ds-cell-left">' +
+          '<div class="ds-cell-name">' + (opp ? escHtml(opp.nickname) : '?') + '</div>' +
+          '<div class="ds-cell-meta">' + timeAgo(m.created_at) + '</div>' +
+        '</div>' +
+        '<div class="ds-cell-right">' + deltaHtml + '</div>' +
+      '</div>';
+    });
+    html += '</div>';
+  });
+
+  html += '</div>';
+  $("prof-day-groups").innerHTML = html;
+}
+
+function toggleDayGroup(id) {
+  var el = document.getElementById(id);
+  if(!el) return;
+  // Close all others
+  document.querySelectorAll('.ds-acc[id^="prof-day-"]').forEach(function(a) {
+    if(a.id !== id) a.style.maxHeight = '0px';
+  });
+  if(el.style.maxHeight && el.style.maxHeight !== '0px') {
+    el.style.maxHeight = '0px';
+  } else {
+    el.style.maxHeight = el.scrollHeight + 'px';
+  }
+}
+
+// ── Swipe-back profilo ──
+(function() {
+  var scrollEl = $('prof-scroll');
+  if(!scrollEl) return;
+  var startX = 0, startY = 0, swiping = false;
+
+  scrollEl.addEventListener('touchstart', function(e) {
+    var touch = e.touches[0];
+    if(touch.clientX > 25) return;
+    startX = touch.clientX;
+    startY = touch.clientY;
+    swiping = true;
+  }, {passive: true});
+
+  scrollEl.addEventListener('touchmove', function(e) {
+    if(!swiping) return;
+    var dx = e.touches[0].clientX - startX;
+    var dy = Math.abs(e.touches[0].clientY - startY);
+    if(dy > Math.abs(dx)) { swiping = false; }
+  }, {passive: true});
+
+  scrollEl.addEventListener('touchend', function(e) {
+    if(!swiping) return;
+    swiping = false;
+    var dx = e.changedTouches[0].clientX - startX;
+    if(dx > 80) {
+      var profPage = $('page-profile');
+      if(profPage) {
+        profPage.style.transition = 'transform .25s ease, opacity .25s ease';
+        profPage.style.transform = 'translateX(100%)';
+        profPage.style.opacity = '0';
+        setTimeout(function() {
+          profPage.style.transition = '';
+          profPage.style.transform = '';
+          profPage.style.opacity = '';
+          var backBtn = $('profile-back');
+          if(backBtn) backBtn.click();
+        }, 260);
+      }
+    }
+  }, {passive: true});
+})();
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function timeAgo(iso) {
+  const now = new Date();
+  const date = new Date(iso);
+  const diff = Math.floor((now - date) / 1000);
+  if(diff < 60) return 'adesso';
+  if(diff < 3600) { const m=Math.floor(diff/60); return m===1?'1 min fa':`${m} min fa`; }
+  if(diff < 86400) { const h=Math.floor(diff/3600); return h===1?'1 ora fa':`${h} ore fa`; }
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dateDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const dayDiff = Math.round((today - dateDay) / 86400000);
+  if(dayDiff === 1) return 'ieri';
+  if(dayDiff < 7) return `${dayDiff} giorni fa`;
+  if(dayDiff < 14) return '1 settimana fa';
+  if(dayDiff < 21) return '2 settimane fa';
+  if(dayDiff < 28) return '3 settimane fa';
+  if(dayDiff < 60) return '1 mese fa';
+  if(dayDiff < 365) { const mo=Math.floor(dayDiff/30); return `${mo} mesi fa`; }
+  return fmtDate(iso);
+}
+
+// ── ELO Chart (SVG, style B — Apple Health + chips) ──
+var _eloChartAllData = [];
+var _eloChartCurrentElo = 1500;
+
+function drawEloChart(eloH, currentElo) {
+  var container = $('elo-chart-container');
+  var wrap = $('prof-chart-wrap');
+  if(!container || !wrap) return;
+
+  _eloChartCurrentElo = currentElo;
+
+  if(!Array.isArray(eloH) || eloH.length === 0) {
+    container.innerHTML = '';
+    _eloChartAllData = [];
+    return;
+  }
+
+  // Prepare all data points
+  _eloChartAllData = [{value: eloH[0].elo_before, date: eloH[0].created_at}];
+  eloH.forEach(function(e) { _eloChartAllData.push({value: e.elo_after, date: e.created_at}); });
+
+  // Reset chips to "Tutto"
+  var chips = document.querySelectorAll('.prof-chart-chip');
+  chips.forEach(function(c) { c.classList.toggle('active', c.getAttribute('data-range') === '0'); });
+
+  renderEloSvg(_eloChartAllData);
+}
+
+function switchEloRange(days, btn) {
+  btn.parentElement.querySelectorAll('.prof-chart-chip').forEach(function(c) { c.classList.remove('active'); });
+  btn.classList.add('active');
+
+  var data;
+  if(days === 0 || _eloChartAllData.length < 2) {
+    data = _eloChartAllData;
+  } else {
+    var lastDate = new Date(_eloChartAllData[_eloChartAllData.length - 1].date).getTime();
+    var cutoff = lastDate - days * 86400000;
+    data = _eloChartAllData.filter(function(p) { return new Date(p.date).getTime() >= cutoff; });
+    if(data.length < 2) data = _eloChartAllData.slice(-2);
+  }
+  renderEloSvg(data);
+}
+
+function renderEloSvg(data) {
+  var container = $('elo-chart-container');
+  var wrap = $('prof-chart-wrap');
+  if(!container || !wrap) return;
+
+  var valEl = $('prof-chart-val');
+  var dateEl = $('prof-chart-date');
+  if(valEl) { valEl.textContent = ''; valEl.classList.add('empty'); }
+  if(dateEl) dateEl.textContent = '';
+
+  container.innerHTML = '';
+  if(data.length < 2) return;
+
+  var n = data.length;
+  var w = wrap.clientWidth;
+  var h = 150;
+  var padTop = 8, padBot = 20, padL = 2, padR = 2;
+  var plotW = w - padL - padR;
+  var plotH = h - padTop - padBot;
+
+  var values = data.map(function(p) { return p.value; });
+  var vMin = Math.min.apply(null, values);
+  var vMax = Math.max.apply(null, values);
+  var vRange = vMax - vMin || 1;
+  vMin -= vRange * 0.08;
+  vMax += vRange * 0.08;
+  vRange = vMax - vMin;
+
+  var peakIdx = values.indexOf(Math.max.apply(null, values));
+
+  var coords = data.map(function(p, i) {
+    return {
+      x: padL + (i / Math.max(n - 1, 1)) * plotW,
+      y: padTop + plotH - ((p.value - vMin) / vRange) * plotH,
+      value: p.value,
+      date: p.date
+    };
+  });
+
+  var linePath = _eloMonotonePath(coords);
+  var fillPath = linePath + 'L' + coords[n-1].x.toFixed(1) + ',' + h + 'L' + coords[0].x.toFixed(1) + ',' + h + 'Z';
+
+  // Date labels
+  var monthNames = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+  var labelCount = Math.min(4, n);
+  var labelIndices = [];
+  for(var i = 0; i < labelCount; i++) labelIndices.push(Math.round(i * (n-1) / Math.max(labelCount-1, 1)));
+  var dateLabels = labelIndices.map(function(idx) {
+    var d = new Date(data[idx].date);
+    var txt = d.getDate() + ' ' + monthNames[d.getMonth()];
+    return '<text x="' + coords[idx].x.toFixed(1) + '" y="' + (h - 4) + '" fill="#504a45" font-size="10" text-anchor="middle" font-family="Inter,system-ui,sans-serif">' + txt + '</text>';
+  }).join('');
+
+  var svg = '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" style="display:block">' +
+    '<defs><linearGradient id="eloGradB" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0%" stop-color="#e8e6e3" stop-opacity="0.12"/>' +
+    '<stop offset="60%" stop-color="#e8e6e3" stop-opacity="0.03"/>' +
+    '<stop offset="100%" stop-color="#e8e6e3" stop-opacity="0"/>' +
+    '</linearGradient></defs>' +
+    '<path d="' + fillPath + '" fill="url(#eloGradB)"/>' +
+    '<path d="' + linePath + '" fill="none" stroke="#e8e6e3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<circle cx="' + coords[peakIdx].x.toFixed(1) + '" cy="' + coords[peakIdx].y.toFixed(1) + '" r="4" fill="#7ab535" stroke="#1d1a16" stroke-width="2"/>' +
+    dateLabels +
+    '<line class="elo-touch-line" x1="0" y1="0" x2="0" y2="' + h + '" stroke="#6a6560" stroke-width="0.5" opacity="0"/>' +
+    '<circle class="elo-touch-dot" cx="0" cy="0" r="5" fill="#e8e6e3" stroke="#161512" stroke-width="2" opacity="0"/>' +
+    '</svg>';
+
+  container.innerHTML = svg;
+
+  // Touch handler
+  var svgEl = container.querySelector('svg');
+  var touchLine = svgEl.querySelector('.elo-touch-line');
+  var touchDot = svgEl.querySelector('.elo-touch-dot');
+  var active = false;
+
+  function findNearest(clientX) {
+    var rect = svgEl.getBoundingClientRect();
+    var x = clientX - rect.left;
+    var best = 0, bestDist = Infinity;
+    for(var i = 0; i < coords.length; i++) {
+      var dist = Math.abs(coords[i].x - x);
+      if(dist < bestDist) { bestDist = dist; best = i; }
+    }
+    return best;
+  }
+
+  function showTip(idx) {
+    var c = coords[idx];
+    touchLine.setAttribute('x1', c.x); touchLine.setAttribute('x2', c.x); touchLine.setAttribute('opacity', '1');
+    touchDot.setAttribute('cx', c.x); touchDot.setAttribute('cy', c.y); touchDot.setAttribute('opacity', '1');
+    if(valEl) { valEl.textContent = data[idx].value; valEl.classList.remove('empty'); }
+    if(dateEl) {
+      var d = new Date(data[idx].date);
+      dateEl.textContent = d.getDate() + ' ' + monthNames[d.getMonth()];
+    }
+  }
+
+  function hideTip() {
+    touchLine.setAttribute('opacity', '0');
+    touchDot.setAttribute('opacity', '0');
+    if(valEl) { valEl.textContent = ''; valEl.classList.add('empty'); }
+    if(dateEl) dateEl.textContent = '';
+  }
+
+  svgEl.addEventListener('touchstart', function(e) { e.preventDefault(); active = true; showTip(findNearest(e.touches[0].clientX)); }, {passive: false});
+  svgEl.addEventListener('touchmove', function(e) { if(!active) return; e.preventDefault(); showTip(findNearest(e.touches[0].clientX)); }, {passive: false});
+  svgEl.addEventListener('touchend', function() { active = false; hideTip(); }, {passive: true});
+  svgEl.addEventListener('touchcancel', function() { active = false; hideTip(); }, {passive: true});
+}
+
+// Monotone cubic spline (Fritsch-Carlson)
+function _eloMonotonePath(pts) {
+  var len = pts.length;
+  if(len < 2) return '';
+  if(len === 2) return 'M' + pts[0].x.toFixed(1) + ',' + pts[0].y.toFixed(1) + 'L' + pts[1].x.toFixed(1) + ',' + pts[1].y.toFixed(1);
+  var dx = [], dy = [], m = [], t = [];
+  for(var i = 0; i < len-1; i++) { dx[i] = pts[i+1].x - pts[i].x; dy[i] = pts[i+1].y - pts[i].y; m[i] = dx[i] === 0 ? 0 : dy[i] / dx[i]; }
+  t[0] = m[0];
+  for(var i = 1; i < len-1; i++) { if(m[i-1] * m[i] <= 0) t[i] = 0; else t[i] = (m[i-1] + m[i]) / 2; }
+  t[len-1] = m[len-2];
+  for(var i = 0; i < len-1; i++) {
+    if(m[i] === 0) { t[i] = 0; t[i+1] = 0; continue; }
+    var a = t[i] / m[i], b = t[i+1] / m[i], s = a * a + b * b;
+    if(s > 9) { var tau = 3 / Math.sqrt(s); t[i] = tau * a * m[i]; t[i+1] = tau * b * m[i]; }
+  }
+  var path = 'M' + pts[0].x.toFixed(1) + ',' + pts[0].y.toFixed(1);
+  for(var i = 0; i < len-1; i++) {
+    var d0 = dx[i] / 3;
+    path += 'C' + (pts[i].x + d0).toFixed(1) + ',' + (pts[i].y + d0 * t[i]).toFixed(1) + ',' + (pts[i+1].x - d0).toFixed(1) + ',' + (pts[i+1].y - d0 * t[i+1]).toFixed(1) + ',' + pts[i+1].x.toFixed(1) + ',' + pts[i+1].y.toFixed(1);
+  }
+  return path;
+}
+
+$("profile-back").onclick = () => {
+  const current = profileStack.pop();
+  const from = current ? current.from : 'home';
+  if(from === 'profile') {
+    const prev = profileStack[profileStack.length - 1];
+    if(prev) { openProfile(prev.id, prev.from, true); return; }
+  }
+  currentProfileId = null;
+  profileStack = [];
+  showPage(from);
+};
+
+// --- NAV ---
+const pageMap = {home:"page-home", profile:"page-profile", "profile-me":"page-profile"};
+
+function showPage(name) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nbtn").forEach(b => b.classList.remove("on"));
+  const pageEl = $(pageMap[name]);
+  if(pageEl) pageEl.classList.add("active");
+  const navBtn = document.querySelector(`.nbtn[data-page="${name}"]`) || document.querySelector('.nbtn[data-page="profile-me"]');
+  if(navBtn) navBtn.classList.add("on");
+  setCabVisibility(name === 'profile-me' ? 'profile' : name);
+  if(name==="profile-me") { openProfile(me.id, "home"); }
+}
+
+document.querySelectorAll(".nbtn").forEach(btn => {
+  btn.onclick = () => showPage(btn.dataset.page);
+});
+
+function toggleEloTooltip(e) {
+  e.stopPropagation();
+  const tooltip = $('elo-tooltip-prof');
+  tooltip.classList.toggle('visible');
+  const close = () => { tooltip.classList.remove('visible'); document.removeEventListener('click', close); };
+  if(tooltip.classList.contains('visible')) setTimeout(() => document.addEventListener('click', close), 0);
+}
+
+// STEP 2: chiudi CAB search al tap fuori
+document.addEventListener('touchstart', (e) => {
+  if(_cabState !== 'search') return;
+  const cab = $('cab');
+  if(!cab.contains(e.target)) closeCABSearch();
+}, {passive: true});
+
+// STEP 2: chiudi CAB search allo scroll della home
+document.querySelector('.home-feed').addEventListener('scroll', () => {
+  if(_cabState === 'search') closeCABSearch();
+}, {passive: true});
+</script>
+
+<!-- ACTION SHEET RISULTATO -->
+<div class="asheet-overlay" id="result-sheet-overlay" onclick="closeResultSheet()">
+  <div class="asheet" onclick="event.stopPropagation()">
+    <div class="asheet-eyebrow" id="rsheet-eyebrow"></div>
+    <div class="rsheet-context" id="rsheet-context"></div>
+    <div class="ds-group" style="margin-bottom:0">
+      <button class="rsheet-btn" id="rsheet-win" onclick="confirmResultSheet('win')">Ho vinto</button>
+      <button class="rsheet-btn" id="rsheet-draw" onclick="confirmResultSheet('draw')">Patta</button>
+      <button class="rsheet-btn" id="rsheet-loss" onclick="confirmResultSheet('loss')">Ho perso</button>
+    </div>
+    <div id="rsheet-dispute-warn" class="hidden" style="font-size:var(--fs-label);color:var(--muted);text-align:center;padding:var(--sp-sm) var(--sp-sm) var(--sp-xs);line-height:1.5">Se non concordate di nuovo, la partita verrà annullata.</div>
+    <button class="rsheet-cancel" onclick="closeResultSheet()">Annulla</button>
+  </div>
+</div>
+
+<!-- CHALLENGE SHEET (Uber-style 2-step) -->
+<div class="asheet-overlay" id="challenge-sheet-overlay2" onclick="if(event.target===this)closeNewChallengeSheet()">
+  <div class="asheet" onclick="event.stopPropagation()" style="padding:8px 24px calc(24px + env(safe-area-inset-bottom,0px))">
+    <div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px"></div>
+
+    <!-- Step 1: Player list -->
+    <div id="ch-step1">
+      <div style="font-size:var(--fs-title);font-weight:800;color:var(--text);margin-bottom:var(--sp-lg);letter-spacing:-.5px">Chi sfidi?</div>
+      <input id="ch-search" style="background:transparent;border:none;border-bottom:1px solid var(--border);padding:12px 0;font-size:var(--fs-body);font-weight:500;color:var(--text);width:100%;outline:none;font-family:inherit;-webkit-user-select:text;user-select:text" placeholder="Cerca..." oninput="filterChallengePlayers(this.value)" autocorrect="off" autocapitalize="none" spellcheck="false">
+      <div id="ch-player-list" style="height:280px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-top:var(--sp-sm)"></div>
+    </div>
+
+    <!-- Step 2: Config -->
+    <div id="ch-step2" style="display:none">
+      <div style="text-align:center;margin-bottom:var(--sp-lg)">
+        <div style="font-size:var(--fs-title);font-weight:700;color:var(--text)" id="ch-opp-name"></div>
+        <div style="font-size:var(--fs-caption);color:var(--dim);margin-top:2px" id="ch-opp-elo"></div>
+      </div>
+
+      <div style="font-size:var(--fs-label);color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:var(--sp-sm)">Tempo</div>
+      <div style="display:flex;gap:var(--sp-sm);margin-bottom:var(--sp-lg)" id="ch-time-row">
+        <button class="ch-time-chip" onclick="pickChallengeTime(this)" data-time="blitz">Blitz</button>
+        <button class="ch-time-chip on" onclick="pickChallengeTime(this)" data-time="rapid">Rapid</button>
+        <button class="ch-time-chip" onclick="pickChallengeTime(this)" data-time="classic">Classic</button>
+      </div>
+
+      <div style="font-size:var(--fs-label);color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:var(--sp-sm)">Gioca con</div>
+      <div style="display:flex;gap:var(--sp-sm)" id="ch-color-row">
+        <button class="ch-color-btn ch-color-white" onclick="pickChallengeColor('white')"><span>Bianco</span></button>
+        <button class="ch-color-btn ch-color-black" onclick="pickChallengeColor('black')"><span>Nero</span></button>
+      </div>
+      <div style="font-size:var(--fs-label);color:var(--ghost);text-align:center;margin-top:var(--sp-md)">Scegli il colore per sfidare</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
