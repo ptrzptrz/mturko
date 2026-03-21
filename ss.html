@@ -152,7 +152,7 @@ function springBack(el, ms) {
 
 function slideOut(el, cb) {
   var w = el.offsetWidth;
-  el.style.transition = '-webkit-transform 350ms cubic-bezier(.32,0,.24,1), transform 350ms cubic-bezier(.32,0,.24,1)';
+  el.style.transition = '-webkit-transform 450ms cubic-bezier(.32,0,.24,1), transform 450ms cubic-bezier(.32,0,.24,1)';
   tx(el, -(w + 20));
   el.addEventListener('transitionend', function h() {
     el.removeEventListener('transitionend', h);
@@ -160,11 +160,11 @@ function slideOut(el, cb) {
     setTimeout(function() {
       tx(el, 40);
       el.offsetHeight;
-      el.style.transition = '-webkit-transform 500ms cubic-bezier(.34,1.3,.64,1), transform 500ms cubic-bezier(.34,1.3,.64,1)';
+      el.style.transition = '-webkit-transform 600ms cubic-bezier(.34,1.56,.64,1), transform 600ms cubic-bezier(.34,1.56,.64,1)';
       tx(el, 0);
       el.addEventListener('transitionend', function h2() { el.style.transition = ''; el.removeEventListener('transitionend', h2); });
       if(cb) cb();
-    }, 350);
+    }, 450);
   });
 }
 
