@@ -1976,7 +1976,6 @@ function initFeedSwipe(container) {
         } else {
           reveal.classList.remove('armed');
           _swipeShake(cell);
-          toast(ev.label, 'err');
         }
       } else {
         _swipeSpringBack(cell);
@@ -2735,18 +2734,10 @@ let sheetColorChoice = 'me';
 function openNewChallengeSheetForPlayer(oppId) {
   const opp = getP(oppId);
   if(!opp) return;
-  sheetOppId = oppId;
-  sheetColorChoice = 'me';
-  $('asheet-label-white').textContent = me.nickname;
-  $('asheet-label-black').textContent = opp.nickname;
-  $('asheet-btn-white').classList.add('selected');
-  $('asheet-btn-black').classList.remove('selected');
-  const overlay = $('color-sheet-overlay');
-  overlay.style.display = 'flex';
-  document.body.classList.add('sheet-open');
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    overlay.classList.add('visible');
-  }));
+  // Open the challenge sheet
+  openNewChallengeSheet();
+  // Skip to step 2 with this opponent
+  setTimeout(function() { selectChallengePlayer(oppId); }, 50);
 }
 
 function closeColorSheet() {
