@@ -215,8 +215,6 @@ body.sheet-open #sa-cover{background:#000000}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 @keyframes cardEnter{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 .card-enter{animation:cardEnter .35s cubic-bezier(.2,0,.2,1) both}
-@keyframes swipeHint{0%{transform:translateX(0)}40%{transform:translateX(-9px)}60%{transform:translateX(-9px)}100%{transform:translateX(0)}}
-.hrow-swipe-hint{animation:swipeHint .7s cubic-bezier(.25,0,.25,1) 1.4s both}
 
 /* ── Storico — archivio, non UI primaria ── */
 
@@ -993,9 +991,6 @@ function isRelativeDate(iso) {
   const dateDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
   return Math.round((today - dateDay) / 86400000) <= 7;
 }
-function memberSince(iso) {
-  return isRelativeDate(iso) ? `da ${fmtDate(iso, true)}` : `dal ${fmtDate(iso)}`;
-}
 function fmtDate(iso, relative=false) {
   const now = new Date();
   const d = new Date(iso);
@@ -1718,16 +1713,6 @@ function matchLabel(m) {
   return `${white?.nickname||"?"} — ${black?.nickname||"?"}`;
 }
 
-function matchLabelShort(m, myId) {
-  if(!m.white_player_id) {
-    const opp = getP(m.p1===myId ? m.p2 : m.p1);
-    return opp?.nickname||"?";
-  }
-  const white = getP(m.white_player_id);
-  const blackId = m.p1 === m.white_player_id ? m.p2 : m.p1;
-  const black = getP(blackId);
-  return `${white?.nickname||"?"} — ${black?.nickname||"?"}`;
-}
 
 // ── Factory functions card ──
 // ── renderActiveCards: unico entry point per card attive ──
@@ -1873,19 +1858,7 @@ function _swipeShake(el) {
   next();
 }
 
-function _swipeArm(el, armed) {
-  var reveal = el.closest('.swipe-wrap');
-  if(!reveal) return;
-  reveal = reveal.querySelector('.swipe-reveal');
-  if(!reveal) return;
-  if(armed && !reveal.classList.contains('armed')) reveal.classList.add('armed');
-  else if(!armed && reveal.classList.contains('armed')) reveal.classList.remove('armed');
-}
 
-function _swipeClearArm(el) {
-  var w = el.closest('.swipe-wrap');
-  if(w) { var r = w.querySelector('.swipe-reveal'); if(r) r.classList.remove('armed'); }
-}
 
 // Evaluate swipe state for an opponent
 function _swipeEval(oppId) {
@@ -2044,128 +2017,6 @@ function renderHome() {
   if(activeView === 'ranking') renderHomeRanking();
 }
 
-// ── Swipe-to-challenge su hrow ──
-const SNAP_THRESH = 90;
-
-function initHrowSwipe(container) {
-  container.addEventListener('touchstart', onSwipeStart, {passive: true});
-  container.addEventListener('touchmove', onSwipeMove, {passive: false});
-  container.addEventListener('touchend', onSwipeEnd, {passive: true});
-}
-
-let _sw = null;
-
-function _swipeOffset(rawDx) {
-  if(rawDx <= 0) return 0;
-  const linear = Math.min(rawDx, 80);
-  const extra = rawDx > 80 ? Math.sqrt(rawDx - 80) * 10 : 0;
-  return linear + extra;
-}
-
-function _evalGuards(oppId) {
-  // Sono bloccato solo se ho partite dove NON ho ancora inserito il mio risultato,
-  // oppure ho sfide incoming senza risposta.
-  // "waiting" (ho già inserito) e "disputed" (ho già reinserito) NON bloccano.
-  // Sent challenges NON bloccano — ho già fatto la mia parte.
-  const isBusy = isPlayerBusy(me.id);
-
-  const opp = getP(oppId);
-  const oppOnline = opp?.last_seen_at && (Date.now() - new Date(opp.last_seen_at).getTime()) < ONLINE_MS;
-  const oppBusy = isPlayerBusy(oppId);
-
-  if(!isBusy && oppOnline && !oppBusy) return { ok: true, label: 'Gioca' };
-  const msg = isBusy ? 'Prima registra il risultato' : !oppOnline ? 'Offline' : 'In partita';
-  return { ok: false, label: msg };
-}
-
-function onSwipeStart(e) {
-  const wrap = e.target.closest('.hrow-wrap');
-  if(!wrap) return;
-  const t = e.touches[0];
-  const oppId = wrap.dataset.opp;
-  const guard = _evalGuards(oppId);
-  const reveal = wrap.querySelector('.hrow-reveal');
-  const label = wrap.querySelector('.hrow-reveal-label');
-  reveal.classList.remove('state-ok', 'state-err');
-  reveal.classList.add(guard.ok ? 'state-ok' : 'state-err');
-  label.textContent = guard.label;
-  _sw = {
-    wrap, hrow: wrap.querySelector('.hrow'), reveal, label,
-    cardW: wrap.offsetWidth, startX: t.clientX, startY: t.clientY,
-    locked: null, lastX: t.clientX, lastT: Date.now(), vx: 0, guard
-  };
-}
-
-function onSwipeMove(e) {
-  if(!_sw) return;
-  const t = e.touches[0];
-  const rawDx = _sw.startX - t.clientX;
-  const dy = Math.abs(t.clientY - _sw.startY);
-  if(!_sw.locked) {
-    if(Math.abs(rawDx) < 4 && dy < 4) return;
-    _sw.locked = dy > Math.abs(rawDx) ? 'scroll' : 'swipe';
-  }
-  if(_sw.locked === 'scroll') return;
-  e.preventDefault();
-  const now = Date.now();
-  const dt = now - _sw.lastT || 1;
-  _sw.vx = (rawDx - (_sw.startX - _sw.lastX)) / dt;
-  _sw.lastX = t.clientX;
-  _sw.lastT = now;
-  const offset = _swipeOffset(rawDx);
-  const snapW = _sw.cardW - 24;
-  _sw.hrow.style.transition = 'none';
-  _sw.hrow.style.transform = `translateX(-${Math.min(offset, snapW)}px)`;
-  _sw.reveal.style.width = Math.min(offset, snapW) + 'px';
-}
-
-function onSwipeEnd(e) {
-  if(!_sw || _sw.locked !== 'swipe') {
-    if(_sw) { _sw.reveal.style.width = '0'; _sw.reveal.classList.remove('state-ok','state-err'); }
-    _sw = null;
-    return;
-  }
-  const {wrap, hrow, reveal, label, cardW, guard} = _sw;
-  const oppId = wrap.dataset.opp;
-  const rawDx = _sw.startX - _sw.lastX;
-  const offset = _swipeOffset(rawDx);
-  const vx = _sw.vx;
-  const snapW = cardW - 24;
-  const triggered = offset >= SNAP_THRESH || (vx > 0.5 && rawDx > 30);
-
-  function springBack(delay) {
-    setTimeout(() => {
-      hrow.style.transition = 'transform .45s cubic-bezier(.34,1.3,.64,1)';
-      hrow.style.transform = 'translateX(0)';
-      reveal.style.transition = 'width .45s cubic-bezier(.34,1.3,.64,1)';
-      reveal.style.width = '0';
-      setTimeout(() => { reveal.style.transition = ''; reveal.classList.remove('state-ok', 'state-err'); }, 460);
-    }, delay);
-  }
-
-  if(!triggered) { springBack(0); _sw = null; return; }
-
-  hrow.style.transition = 'transform .3s cubic-bezier(.2,.8,.3,1)';
-  hrow.style.transform = `translateX(-${snapW}px)`;
-  reveal.style.transition = 'width .3s cubic-bezier(.2,.8,.3,1)';
-  reveal.style.width = snapW + 'px';
-
-  if(guard.ok) {
-    const fresh = _evalGuards(oppId);
-    if(fresh.ok) {
-      setTimeout(() => { springBack(0); openNewChallengeSheetForPlayer(oppId); }, 160);
-    } else {
-      label.textContent = fresh.label;
-      reveal.classList.remove('state-ok');
-      reveal.classList.add('state-err');
-      springBack(800);
-    }
-  } else {
-    springBack(800);
-  }
-  _sw = null;
-}
-
 // ── STEP 2: Contextual Action Bar ──
 
 let _cabState = 'idle'; // idle | action | incoming | waiting | search
@@ -2180,24 +2031,6 @@ function updateCAB() {
   if (bar) bar.classList.add('hidden');
 }
 
-function _setCABState(state, bar, label, labelSub, icon, arrow) {
-  _cabState = state;
-  bar.className = 'cab-bar';
-  labelSub.classList.add('hidden');
-  labelSub.textContent = '';
-  // Rimuovi timer bar se presente (usata solo in stato incoming)
-  const existingTimer = document.getElementById('cab-timer-bar');
-  if(existingTimer && state !== 'incoming') existingTimer.remove();
-
-  if(state === 'idle') {
-    bar.classList.add('cab-idle');
-    arrow.classList.remove('hidden');
-  } else if(state === 'waiting') {
-    bar.classList.add('cab-waiting', 'cab-inactive');
-    icon.classList.add('hidden');
-    arrow.classList.add('hidden');
-  }
-}
 
 // Tap sulla CAB in stato idle — apre search
 function switchHomeChip(btn, view) {
@@ -2637,42 +2470,10 @@ function closeCABSearch() {
   updateCAB();
 }
 
-function maybeShowSwipeHint() {
-  // Mostra solo una volta — dopo che l'utente ha almeno 1 partita nello storico
-  if(localStorage.getItem('turko_swipe_seen')) return;
-  const firstHrow = document.querySelector('#home-history .hrow-wrap .hrow');
-  if(!firstHrow) return;
-  firstHrow.classList.add('hrow-swipe-hint');
-  firstHrow.addEventListener('animationend', () => {
-    firstHrow.classList.remove('hrow-swipe-hint');
-  }, { once: true });
-  localStorage.setItem('turko_swipe_seen', '1');
-}
-
-function toggleHistoryExpand() {
-  const listEl = $('home-history-list');
-  const isCollapsed = listEl.classList.contains('collapsed');
-  if(isCollapsed) {
-    listEl.dataset.manualExpand = '1';
-    listEl.style.maxHeight = listEl.scrollHeight + 'px';
-    listEl.classList.remove('collapsed');
-  } else {
-    delete listEl.dataset.manualExpand;
-    listEl.style.maxHeight = listEl.scrollHeight + 'px';
-    requestAnimationFrame(() => {
-      listEl.style.maxHeight = '0';
-      listEl.classList.add('collapsed');
-    });
-  }
-}
-
 // ── Challenge sheet — sfida ricevuta, accetta/declina ──
 let _challengeSheetMatchId = null;
 
 // N partite live — mini sheet con lista
-function openMultiResultSheet(liveCards) {
-  openResultSheet(liveCards[0].m.id);
-}
 
 // Feedback "Risultato inviato" → cross-fade → "Gioca" dopo 2s
 if($('cab-search-input')) $('cab-search-input').addEventListener('input', renderCABSearch);
@@ -2694,7 +2495,6 @@ function renderCABSearch() {
   const now = Date.now();
   results.innerHTML = filtered.map(p => {
     const isOnline = p.last_seen_at && (now - new Date(p.last_seen_at).getTime()) < ONLINE_MS;
-    // usa funzione unificata — coerente con _evalGuards e swipe
     const isBusy = isPlayerBusy(p.id);
     const onlineDot = `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${isOnline?'#7ab535':'#2a2724'};flex-shrink:0;margin-top:1px"></span>`;
     const statusLabel = isBusy ? 'in partita' : !isOnline ? 'offline' : '';
@@ -2740,91 +2540,12 @@ function openNewChallengeSheetForPlayer(oppId) {
   setTimeout(function() { selectChallengePlayer(oppId); }, 50);
 }
 
-function closeColorSheet() {
-  const overlay = $('color-sheet-overlay');
-  overlay.classList.remove('visible');
-  document.body.classList.remove('sheet-open');
-  setTimeout(() => { overlay.style.display = 'none'; sheetOppId = null; }, 320);
-}
 
-function selectSheetColor(choice) {
-  // Toggle: se clicchi su quello già selezionato, inverti
-  if(sheetColorChoice === choice) {
-    choice = choice === 'me' ? 'opp' : 'me';
-  }
-  sheetColorChoice = choice;
-  const opp = getP(sheetOppId);
-  if(choice === 'me') {
-    $('asheet-label-white').textContent = me.nickname;
-    $('asheet-label-black').textContent = opp?.nickname || '?';
-    $('asheet-btn-white').classList.add('selected');
-    $('asheet-btn-black').classList.remove('selected');
-  } else {
-    $('asheet-label-white').textContent = opp?.nickname || '?';
-    $('asheet-label-black').textContent = me.nickname;
-    $('asheet-btn-black').classList.add('selected');
-    $('asheet-btn-white').classList.remove('selected');
-  }
-  const chosen = choice === 'me' ? $('asheet-btn-white') : $('asheet-btn-black');
-  chosen.style.transform = 'scale(1.05)';
-  setTimeout(() => { chosen.style.transform = ''; }, 180);
-}
 
-async function confirmColorSheet() {
-  const oppId = sheetOppId;
-  closeColorSheet();
-  const whiteId = sheetColorChoice === 'me' ? me.id : oppId;
-  const res = await db.rpc("create_challenge", {opponent_id: oppId, white_player_id: whiteId});
-  if(res?.error) return toast(res.error, "err");
-  if(Array.isArray(res) && res[0]?.error) return toast(res[0].error, "err");
-  closeHomeSearch();
-  await fetchAll();
-}
 
-async function challengeFromHome(oppId, btn) {
-  openNewChallengeSheetForPlayer(oppId);
-}
 
 // --- SEARCH (legacy — page removed, kept for compatibility) ---
 const ONLINE_MS = 30 * 1000;
-if($("search-input")) $("search-input").addEventListener("input", renderSearch);
-
-function renderSearch() {
-  if(!$("search-input")) return;
-  const q = $("search-input").value.toLowerCase();
-  const filtered = players.filter(p => p.id!==me.id && p.nickname.toLowerCase().includes(q));
-  if(!q) { $("search-results").innerHTML = ""; return; }
-  if(!filtered.length) { $("search-results").innerHTML = `<div class="empty">Nessuno trovato.</div>`; return; }
-  const now = Date.now();
-  $("search-results").innerHTML = filtered.map(p => {
-    const isOnline = p.last_seen_at && (now - new Date(p.last_seen_at).getTime()) < ONLINE_MS;
-    const isBusy = isPlayerBusy(p.id); // funzione unificata
-    const dot = isOnline
-      ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#7ab535;margin-right:4px;vertical-align:middle"></span>`
-      : `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#2a2724;margin-right:4px;vertical-align:middle"></span>`;
-    const statusLabel = isBusy
-      ? `<span style="font-size:11px;color:#8a8580">in partita</span>`
-      : !isOnline ? `<span style="font-size:11px;color:#2a2724">offline</span>` : '';
-    const canChallenge = isOnline && !isBusy;
-    return `<div class="prow" onclick="openProfile('${p.id}', 'search')" style="cursor:pointer">
-      <div style="flex:1;min-width:0">
-        <div class="pname" style="display:flex;align-items:center;gap:4px">${dot}${p.nickname} ${statusLabel}</div>
-        <div class="pelo">ELO ${p.elo} · ${p.wins}V ${p.losses}P ${p.draws}=</div>
-      </div>
-      ${canChallenge ? `<button class="btn-sm" onclick="event.stopPropagation();challenge('${p.id}', this)">Sfida</button>` : ''}
-    </div>`;
-  }).join("");
-}
-
-async function challenge(oppId, btn) {
-  if(btn) { btn.disabled = true; btn.textContent = "..."; }
-  const res = await db.rpc("create_challenge", {opponent_id: oppId, white_player_id: null});
-  if(btn) { btn.disabled = false; btn.textContent = "Sfida"; }
-  if(res?.error) return toast(res.error, "err");
-  if(Array.isArray(res) && res[0]?.error) return toast(res[0].error, "err");
-  await fetchAll();
-  showPage("home");
-}
 
 async function acceptChallenge(matchId) {
   await db.patch("matches", `id=eq.${matchId}`, {status: "active"});
@@ -2904,28 +2625,7 @@ async function cleanupExpired() {
   if(matches.length !== before) renderHome();
 }
 
-function countdownStr(createdAt, expireMs) {
-  const remaining = expireMs - (Date.now() - new Date(createdAt).getTime());
-  if(remaining <= 0) return "scaduta";
-  const secs = Math.ceil(remaining / 1000);
-  const col = secs < 60 ? '#c33' : 'inherit';
-  return `<span style="color:${col};font-weight:${secs<60?'600':'400'}">${secs}s</span>`;
-}
 
-function setupLongPress(el, onComplete, ms=800) {
-  let timer = null;
-  const start = () => {
-    el.classList.add('pressing');
-    timer = setTimeout(() => { el.classList.remove('pressing'); onComplete(); }, ms);
-  };
-  const cancel = () => { clearTimeout(timer); el.classList.remove('pressing'); };
-  el.addEventListener('mousedown', start);
-  el.addEventListener('touchstart', e => { e.preventDefault(); start(); }, {passive:false});
-  el.addEventListener('mouseup', cancel);
-  el.addEventListener('mouseleave', cancel);
-  el.addEventListener('touchend', cancel);
-  el.addEventListener('touchcancel', cancel);
-}
 
 // --- RISULTATO: via openResultSheet ---
 
@@ -3002,18 +2702,6 @@ async function confirmResultSheet(choice) {
   await fetchAll();
 }
 
-async function submitResultInline(matchId, myResult, btn) {
-  if(btn) { btn.disabled=true; btn.style.opacity='0.6'; }
-  const m = matches.find(x => x.id===matchId);
-  if(!m) return;
-  const isP1 = m.p1 === me.id;
-  const field = isP1 ? "result_p1" : "result_p2";
-  await db.patch("matches", `id=eq.${matchId}`, {[field]: myResult});
-  activeMatch = null;
-  const cardEl = $("card-live-" + matchId);
-  if(cardEl) { cardEl.style.transition = "opacity .3s"; cardEl.style.opacity = "0.4"; }
-  await fetchAll();
-}
 
 // --- LEADERBOARD ---
 function getDailyDelta(playerId, currentElo) {
@@ -3028,397 +2716,6 @@ function getRankChange(playerId, currentRank) {
   const stored = sessionStorage.getItem(key);
   if(!stored) { sessionStorage.setItem(key, String(currentRank)); return 0; }
   return parseInt(stored) - currentRank; // positivo = salito
-}
-
-let _lbCurrentView = 'classifica';
-let _lbFeedOffset = 30;
-let _lbFeedLoading = false;
-let _lbFeedAllLoaded = false;
-
-function switchLbView(view, btn) {
-  _lbCurrentView = view;
-  if(view === 'live') {
-    _lbFeedOffset = 30;
-    _lbFeedAllLoaded = false;
-  }
-  document.querySelectorAll('.lb-chip').forEach(c => c.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.lb-view').forEach(v => v.classList.remove('active'));
-  const target = $('lb-view-' + view);
-  if(target) target.classList.add('active');
-  const sticky = $('lb-me-sticky');
-  if(view !== 'classifica') sticky.classList.add('hidden');
-  else renderLeaderboard();
-}
-
-// ── Feed: label divider temporale ──
-function dateToDividerLabel(d) {
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-  if(d.toDateString() === today.toDateString()) return 'Oggi';
-  if(d.toDateString() === yesterday.toDateString()) return 'Ieri';
-  const diffDays = Math.floor((today.getTime() - d.getTime()) / 86400000);
-  if(diffDays === 2) return '2 giorni fa';
-  if(diffDays === 3) return '3 giorni fa';
-  if(diffDays === 4) return '4 giorni fa';
-  if(diffDays === 5) return '5 giorni fa';
-  if(diffDays === 6) return '6 giorni fa';
-  if(diffDays < 14) return 'Una settimana fa';
-  if(diffDays < 21) return '2 settimane fa';
-  if(diffDays < 28) return '3 settimane fa';
-  if(diffDays < 60) return 'Un mese fa';
-  if(diffDays < 90) return '2 mesi fa';
-  if(diffDays < 120) return '3 mesi fa';
-  return d.toLocaleDateString('it-IT', {day:'numeric', month:'long'});
-}
-
-function generateFeedEvents() {
-  const events = [];
-
-  // ── EVENTI DAL DB ──
-  (globalEvents || []).forEach(ev => {
-    if(ev.type === 'peak') return;
-    const time = new Date(ev.created_at).getTime();
-    const data = ev.data || {};
-    const player = getP(ev.player_id);
-    const target = getP(ev.target_id);
-    const timeStr = timeAgo(ev.created_at);
-    const playerName = player?.nickname || data.nickname || '?';
-    const targetName = target?.nickname || data.overtaken_name || '?';
-
-    let text = '';
-    let rowClass = 'lb-feed-row lb-feed-event';
-
-    switch(ev.type) {
-      case 'overtake':
-        if(ev.target_id === me.id) {
-          text = `<strong class="ev-overtake-neg">${playerName}</strong> ti ha superato`;
-        } else if(ev.player_id === me.id) {
-          text = `Hai superato <strong class="ev-overtake-pos">${targetName}</strong>`;
-        }
-        // Sorpassi tra altri: non mostrare (text resta vuoto → riga non generata)
-        break;
-      case 'upset':
-        text = `<strong class="ev-upset">${playerName}</strong> ha battuto ${targetName} !`;
-        break;
-      case 'milestone':
-        text = `<strong class="ev-milestone">${playerName}</strong> ha raggiunto ${data.milestone || data.elo}`;
-        break;
-      case 'streak':
-        text = `<strong class="ev-streak">${playerName}</strong> ${data.streak} vittorie di fila`;
-        break;
-      case 'new_player':
-        text = `<strong class="ev-newplayer">${data.nickname || playerName}</strong> si è unito`;
-        break;
-    }
-
-    if(text) {
-      events.push({
-        type: ev.type,
-        time: time,
-        html: `<div class="${rowClass}" onclick="openProfile('${ev.player_id || ''}','leaderboard')">
-          <div class="lb-feed-left">
-            <div class="lb-feed-name">${text}</div>
-          </div>
-        </div>`
-      });
-    }
-  });
-
-  // ── PARTITE ──
-  const allMatches = (globalMatches || []).filter(m =>
-    m.status === 'done' && m.result && m.result !== 'cancelled'
-  ).slice(0, 30);
-
-  allMatches.forEach(m => {
-    const isDraw = m.result === 'draw';
-    const isMyMatch = m.p1 === me.id || m.p2 === me.id;
-    const winnerId = m.result === 'p1' ? m.p1 : m.result === 'p2' ? m.p2 : m.p1;
-    const loserId = isDraw ? m.p2 : (m.result === 'p1' ? m.p2 : m.p1);
-    const winner = getP(winnerId);
-    const loser = getP(loserId);
-    const p1 = getP(m.p1);
-    const p2 = getP(m.p2);
-
-    let nameText;
-    if(isDraw) {
-      if(m.p1 === me.id) nameText = `Patta con ${p2?.nickname || '?'}`;
-      else if(m.p2 === me.id) nameText = `Patta con ${p1?.nickname || '?'}`;
-      else nameText = `${p1?.nickname || '?'} patta con ${p2?.nickname || '?'}`;
-    } else if(winnerId === me.id) {
-      nameText = `Hai vinto contro ${loser?.nickname || '?'}`;
-    } else if(loserId === me.id) {
-      nameText = `${winner?.nickname || '?'} ti ha battuto`;
-    } else {
-      nameText = `<strong>${winner?.nickname || '?'}</strong> ha vinto contro ${loser?.nickname || '?'}`;
-    }
-
-    const winElo = globalEloCache[m.id + '_' + winnerId];
-    const winDelta = winElo ? (winElo.elo_after - winElo.elo_before) : null;
-    const displayDeltaClass = isDraw ? 'draw' : (winDelta !== null && winDelta >= 0 ? 'pos' : 'neg');
-
-    const deltaStr = winDelta !== null
-      ? `<div class="lb-feed-delta ${displayDeltaClass}">${winDelta >= 0 ? '+' : ''}${winDelta}</div>`
-      : '';
-
-    events.push({
-      type: 'match',
-      time: new Date(m.updated_at).getTime(),
-      html: `<div class="lb-feed-row" onclick="openProfile('${isDraw ? m.p1 : winnerId}','leaderboard')">
-        <div class="lb-feed-left">
-          <div class="lb-feed-name">${nameText}</div>
-        </div>
-        <div class="lb-feed-right">
-          ${deltaStr}
-        </div>
-      </div>`
-    });
-  });
-
-  events.sort((a, b) => b.time - a.time);
-
-  // ── Raggruppa per giorno ──
-  const byDay = [];
-  let currentDay = '';
-  let dayRows = [];
-
-  function flushDay() {
-    if(!currentDay) return;
-    byDay.push(`<div class="feed-divider">${currentDay}</div>`);
-    if(dayRows.length > 0) byDay.push(`<div class="lb-group">${dayRows.join('')}</div>`);
-    dayRows = [];
-  }
-
-  events.forEach(ev => {
-    const dateStr = dateToDividerLabel(new Date(ev.time));
-    if(dateStr !== currentDay) { flushDay(); currentDay = dateStr; }
-    dayRows.push(ev.html);
-  });
-  flushDay();
-
-  return byDay;
-}
-
-function renderLeaderboard() {
-  const sorted = [...players].sort((a, b) => b.elo - a.elo);
-  const myRank = sorted.findIndex(p => p.id === me.id);
-
-  // ══════════════════════════════════════
-  // VISTA: Classifica
-  // ══════════════════════════════════════
-  const rankList = $('lb-rank-list');
-  if(sorted.length === 0) {
-    rankList.innerHTML = '<div style="color:#504a45;text-align:center;margin-top:48px;font-size:14px">Nessun giocatore</div>';
-  } else {
-    const leader = sorted[0];
-    const leaderIsMe = leader.id === me.id;
-    const leaderDelta = getDailyDelta(leader.id, leader.elo);
-    const leaderDeltaHtml = leaderDelta !== 0
-      ? `<div class="lb-row-daily ${leaderDelta>0?'pos':'neg'}">${leaderDelta>0?'+':''}${leaderDelta}</div>`
-      : '';
-
-    const leaderHtml = `<div class="lb-leader${leaderIsMe?' me':''}" onclick="openProfile('${leader.id}','leaderboard')">
-      <div class="lb-leader-rank">1</div>
-      <div class="lb-row-info">
-        <div class="lb-leader-name">${leader.nickname}${(() => { const isOnlineL = leader.last_seen_at && (Date.now() - new Date(leader.last_seen_at).getTime()) < 30000; return leader.is_playing ? '<span class="lb-dot playing"></span>' : isOnlineL ? '<span class="lb-dot"></span>' : ''; })()}</div>
-        ${leader.is_playing ? '<div class="lb-status">In partita</div>' : ''}
-      </div>
-      <div class="lb-row-elo-wrap">
-        <div class="lb-leader-elo">${leader.elo}</div>
-        ${leaderDeltaHtml}
-      </div>
-    </div>`;
-
-    const restHtml = sorted.slice(1).map((p, i) => {
-      const rank = i + 2;
-      const isMe = p.id === me.id;
-      const delta = getDailyDelta(p.id, p.elo);
-      const rankChange = getRankChange(p.id, rank);
-      const trendHtml = rankChange > 0
-        ? '<span class="lb-row-trend up">▲</span>'
-        : rankChange < 0 ? '<span class="lb-row-trend down">▼</span>' : '';
-      const deltaHtml = delta !== 0
-        ? `<div class="lb-row-daily ${delta>0?'pos':'neg'}">${delta>0?'+':''}${delta}</div>`
-        : '';
-      const totalGames = p.wins + p.losses + p.draws;
-      let subLabel = totalGames === 0 ? '<div class="lb-row-sub">Nuovo</div>' : '';
-      if(isMe && rank > 1) {
-        const playerAbove = sorted[rank - 2];
-        subLabel = `<div class="lb-row-sub">${playerAbove.elo - p.elo} punti da ${playerAbove.nickname}</div>`;
-      }
-
-      return `<div class="lb-row${isMe?' me':''}" onclick="openProfile('${p.id}','leaderboard')">
-        <div class="lb-row-rank">${rank}${trendHtml}</div>
-        <div class="lb-row-info">
-          <div class="lb-row-name">${p.nickname}${(() => { const isOnlineP = p.last_seen_at && (Date.now() - new Date(p.last_seen_at).getTime()) < 30000; return p.is_playing ? '<span class="lb-dot playing"></span>' : isOnlineP ? '<span class="lb-dot"></span>' : ''; })()}${isMe?'<span class="lb-row-me-tag">tu</span>':''}</div>
-          ${p.is_playing ? '<div class="lb-status">In partita</div>' : subLabel}
-        </div>
-        <div class="lb-row-elo-wrap">
-          <div class="lb-row-elo">${p.elo}</div>
-          ${deltaHtml}
-        </div>
-      </div>`;
-    }).join('');
-
-    rankList.innerHTML = leaderHtml + (restHtml ? `<div class="lb-group">${restHtml}</div>` : '');
-  }
-
-  // Sticky
-  const sticky = $('lb-me-sticky');
-  if(_lbCurrentView === 'classifica' && sorted.length > 12 && myRank >= 12) {
-    sticky.classList.remove('hidden');
-    const above = myRank > 0 ? sorted[myRank - 1] : null;
-    const distanceHtml = above
-      ? `<div style="font-size:11px;color:#6a6560;margin-top:4px;padding-left:36px">${above.elo - me.elo} punti da <strong style="color:#8a8580">${above.nickname}</strong></div>`
-      : '';
-    sticky.innerHTML = `<div class="lb-me-sticky-inner" onclick="openProfile('${me.id}','leaderboard')">
-      <div class="lb-row-rank" style="color:#e8e6e3;font-weight:600">${myRank + 1}</div>
-      <div class="lb-row-info">
-        <div class="lb-row-name">${me.nickname} <span class="lb-row-me-tag">tu</span></div>
-      </div>
-      <div class="lb-row-elo-wrap">
-        <div class="lb-row-elo" style="font-size:16px">${me.elo}</div>
-      </div>
-    </div>${distanceHtml}`;
-  } else {
-    sticky.classList.add('hidden');
-    sticky.innerHTML = '';
-  }
-
-  // ══════════════════════════════════════
-  // VISTA: Live (feed)
-  // ══════════════════════════════════════
-  const feedContainer = $('lb-feed');
-  const feedEmpty = $('lb-feed-empty');
-
-  // Contatore partite oggi
-  const todayStart = new Date();
-  todayStart.setHours(0,0,0,0);
-  const todayMatches = (globalMatches || []).filter(m =>
-    m.status === 'done' && m.result && m.result !== 'cancelled' &&
-    new Date(m.updated_at).getTime() > todayStart.getTime()
-  ).length;
-  const counterHtml = todayMatches > 0
-    ? `<div class="feed-counter">${todayMatches} ${todayMatches === 1 ? 'partita' : 'partite'} oggi</div>`
-    : '';
-
-  const feedEvents = generateFeedEvents();
-
-  if(feedEvents.length === 0) {
-    feedContainer.innerHTML = counterHtml;
-    feedEmpty.classList.remove('hidden');
-  } else {
-    feedEmpty.classList.add('hidden');
-    feedContainer.innerHTML = counterHtml + feedEvents.join('');
-  }
-  initLbFeedScroll();
-}
-
-function initLbFeedScroll() {
-  const view = $('lb-view-live');
-  if(!view || view._scrollInit) return;
-  view._scrollInit = true;
-  view.addEventListener('scroll', () => {
-    if(_lbCurrentView !== 'live') return;
-    if(_lbFeedLoading || _lbFeedAllLoaded) return;
-    if(view.scrollTop + view.clientHeight >= view.scrollHeight - 100) {
-      loadMoreFeed();
-    }
-  }, {passive: true});
-}
-
-async function loadMoreFeed() {
-  _lbFeedLoading = true;
-  const loader = $('lb-feed-loader');
-  if(loader) loader.classList.remove('hidden');
-
-  const more = await db.get("matches", `status=eq.done&result=not.is.null&result=not.eq.cancelled&order=updated_at.desc&limit=30&offset=${_lbFeedOffset}&select=*`);
-
-  if(loader) loader.classList.add('hidden');
-  _lbFeedLoading = false;
-
-  if(!Array.isArray(more) || more.length === 0) {
-    _lbFeedAllLoaded = true;
-    return;
-  }
-
-  _lbFeedOffset += more.length;
-  if(more.length < 30) _lbFeedAllLoaded = true;
-
-  const feedContainer = $('lb-feed');
-  const rows = more.filter(m => m.result !== 'cancelled').map(m => {
-    const isDraw = m.result === 'draw';
-    const isMyMatch = m.p1 === me.id || m.p2 === me.id;
-    const winnerId = m.result === 'p1' ? m.p1 : m.result === 'p2' ? m.p2 : m.p1;
-    const loserId = isDraw ? m.p2 : (m.result === 'p1' ? m.p2 : m.p1);
-    const winner = getP(winnerId);
-    const loser = getP(loserId);
-    const p1 = getP(m.p1);
-    const p2 = getP(m.p2);
-    let nameText;
-    if(isDraw) {
-      if(m.p1 === me.id) nameText = `Patta con ${p2?.nickname || '?'}`;
-      else if(m.p2 === me.id) nameText = `Patta con ${p1?.nickname || '?'}`;
-      else nameText = `${p1?.nickname || '?'} patta con ${p2?.nickname || '?'}`;
-    } else if(winnerId === me.id) {
-      nameText = `Hai vinto contro ${loser?.nickname || '?'}`;
-    } else if(loserId === me.id) {
-      nameText = `${winner?.nickname || '?'} ti ha battuto`;
-    } else {
-      nameText = `<strong>${winner?.nickname || '?'}</strong> ha vinto contro ${loser?.nickname || '?'}`;
-    }
-    const winElo = globalEloCache[m.id + '_' + winnerId];
-    const winDelta = winElo ? (winElo.elo_after - winElo.elo_before) : null;
-    const displayDeltaClass = isDraw ? 'draw' : (winDelta !== null && winDelta >= 0 ? 'pos' : 'neg');
-    const deltaStr = winDelta !== null
-      ? `<div class="lb-feed-delta ${displayDeltaClass}">${winDelta >= 0 ? '+' : ''}${winDelta}</div>`
-      : '';
-    return {
-      time: new Date(m.updated_at).getTime(),
-      html: `<div class="lb-feed-row" onclick="openProfile('${isDraw ? m.p1 : winnerId}','leaderboard')">
-        <div class="lb-feed-left"><div class="lb-feed-name">${nameText}</div></div>
-        <div class="lb-feed-right">${deltaStr}</div>
-      </div>`
-    };
-  });
-
-  const allDividers = feedContainer.querySelectorAll('.feed-divider');
-  const lastExistingDivider = allDividers.length > 0 ? allDividers[allDividers.length - 1].textContent.trim() : '';
-  let currentDay = lastExistingDivider;
-  let newHtml = '';
-  let currentGroupRows = '';
-
-  rows.forEach(row => {
-    const dateStr = dateToDividerLabel(new Date(row.time));
-    if(dateStr !== currentDay) {
-      if(currentGroupRows) {
-        if(currentDay === lastExistingDivider && !newHtml) {
-          const lastGroup = feedContainer.querySelector('.lb-group:last-of-type');
-          if(lastGroup) { lastGroup.insertAdjacentHTML('beforeend', currentGroupRows); currentGroupRows = ''; }
-          else { newHtml += `<div class="lb-group">${currentGroupRows}</div>`; currentGroupRows = ''; }
-        } else {
-          newHtml += `<div class="lb-group">${currentGroupRows}</div>`;
-          currentGroupRows = '';
-        }
-      }
-      currentDay = dateStr;
-      newHtml += `<div class="feed-divider">${dateStr}</div>`;
-    }
-    currentGroupRows += row.html;
-  });
-
-  if(currentGroupRows) {
-    if(!newHtml && currentDay === lastExistingDivider) {
-      const lastGroup = feedContainer.querySelector('.lb-group:last-of-type');
-      if(lastGroup) { lastGroup.insertAdjacentHTML('beforeend', currentGroupRows); }
-      else { newHtml += `<div class="lb-group">${currentGroupRows}</div>`; }
-    } else {
-      newHtml += `<div class="lb-group">${currentGroupRows}</div>`;
-    }
-  }
-
-  if(newHtml) feedContainer.insertAdjacentHTML('beforeend', newHtml);
 }
 
 
@@ -3493,13 +2790,6 @@ function skelProfileContent() {
   return skelChart() + skelSection('', 3) + skelSection('', 4);
 }
 
-function skelLeaderboard() {
-  var html = '<div class="skel" style="width:100%;height:80px;border-radius:14px;margin-bottom:12px"></div><div class="lb-group">';
-  for(var i = 0; i < 6; i++) {
-    html += '<div class="skel-row"><div style="display:flex;align-items:center;gap:10px"><div class="skel" style="width:20px;height:16px"></div><div class="skel" style="width:' + (60 + Math.round(Math.random() * 50)) + 'px;height:14px"></div></div><div class="skel" style="width:40px;height:16px"></div></div>';
-  }
-  return html + '</div>';
-}
 
 function renderProfileHeader(player) {
   var isMe = player.id === me.id;
@@ -4182,13 +3472,6 @@ document.querySelectorAll(".nbtn").forEach(btn => {
   btn.onclick = () => showPage(btn.dataset.page);
 });
 
-function toggleEloTooltip(e) {
-  e.stopPropagation();
-  const tooltip = $('elo-tooltip-prof');
-  tooltip.classList.toggle('visible');
-  const close = () => { tooltip.classList.remove('visible'); document.removeEventListener('click', close); };
-  if(tooltip.classList.contains('visible')) setTimeout(() => document.addEventListener('click', close), 0);
-}
 
 // STEP 2: chiudi CAB search al tap fuori
 document.addEventListener('touchstart', (e) => {
