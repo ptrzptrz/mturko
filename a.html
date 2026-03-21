@@ -147,19 +147,9 @@ function springBack(el, ms) {
   ms = ms || 250;
   el.style.transition = '-webkit-transform ' + ms + 'ms cubic-bezier(.25,.46,.45,.94), transform ' + ms + 'ms cubic-bezier(.25,.46,.45,.94)';
   tx(el, 0);
-  el.addEventListener('transitionend', function h() { el.style.transition = ''; el.removeEventListener('transitionend', h); });
-}
-
-function slideOut(el) {
-  var wrap = el.closest('.swipe-wrap');
-  if(!wrap) return;
-  var w = el.offsetWidth;
-  el.style.transition = '-webkit-transform 450ms cubic-bezier(.32,0,.24,1), transform 450ms cubic-bezier(.32,0,.24,1)';
-  tx(el, -(w + 20));
-  el.addEventListener('transitionend', function h() {
-    el.removeEventListener('transitionend', h);
-    el.style.transition = '';
-    wrap.remove();
+  el.addEventListener('transitionend', function h() { 
+    el.style.transition = ''; 
+    el.removeEventListener('transitionend', h); 
   });
 }
 
@@ -177,20 +167,14 @@ function shake(el) {
 }
 
 function arm(el, armed) {
-  var reveal = el.closest('.swipe-wrap');
+  var reveal = el.closest('.swipe-wrap')?.querySelector('.swipe-reveal');
   if(!reveal) return;
-  reveal = reveal.querySelector('.swipe-reveal');
-  if(!reveal) return;
-  if(armed && !reveal.classList.contains('armed')) {
-    reveal.classList.add('armed');
-  } else if(!armed && reveal.classList.contains('armed')) {
-    reveal.classList.remove('armed');
-  }
+  armed ? reveal.classList.add('armed') : reveal.classList.remove('armed');
 }
 
 function clearArm(el) {
-  var reveal = el.closest('.swipe-wrap');
-  if(reveal) { reveal = reveal.querySelector('.swipe-reveal'); if(reveal) reveal.classList.remove('armed'); }
+  var reveal = el.closest('.swipe-wrap')?.querySelector('.swipe-reveal');
+  if(reveal) reveal.classList.remove('armed');
 }
 
 document.addEventListener('touchstart', function(e) {
@@ -214,19 +198,25 @@ document.addEventListener('touchmove', function(e) {
   var touch = e.touches[0];
   var dx = touch.clientX - active.x0;
   var dy = touch.clientY - active.y0;
+
   if(!active.locked) {
     if(Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8) { active = null; return; }
-    if(Math.abs(dx) > 8) { active.locked = true; if(dx > 0) { active = null; return; } }
+    if(Math.abs(dx) > 8) { 
+      active.locked = true; 
+      if(dx > 0) { active = null; return; } 
+    }
     return;
   }
+
   e.preventDefault();
   if(dx > 0) dx = 0;
   var offset = getOffset(dx);
   tx(active.el, -offset);
+
   var armed = offset >= SNAP;
   arm(active.el, armed);
 
-  // VELOCITY (cuore del nuovo feeling)
+  // velocity per swipe veloce
   var now = Date.now();
   var deltaX = touch.clientX - active.lastX;
   var deltaT = now - active.lastTime || 16;
@@ -247,22 +237,33 @@ document.addEventListener('touchend', function(e) {
   var state = active.state;
   var armed = offset >= SNAP;
   var vel = active.velocity || 0;
-  var fastSwipe = vel < -0.9;           // ← tweak questo valore se vuoi più/meno sensibile
+  var fastSwipe = vel < -0.9;
   var shouldCommit = armed || fastSwipe;
 
   if(shouldCommit && state === 'ok') {
     log.textContent = '✓ Sfida ' + el.dataset.opp;
     log.style.color = 'var(--green)';
-    slideOut(el);
-    setTimeout(function() { log.style.color = ''; log.textContent = 'Swipa verso sinistra per sfidare'; }, 1400);
-  } else if(shouldCommit && state === 'blocked') {
-    var lbl = el.closest('.swipe-wrap').querySelector('.swipe-reveal-label');
+    
+    springBack(el);      // ← torna indietro
+    clearArm(el);
+    
+    setTimeout(function() { 
+      log.style.color = ''; 
+      log.textContent = 'Swipa verso sinistra per sfidare'; 
+    }, 1400);
+  } 
+  else if(shouldCommit && state === 'blocked') {
+    var lbl = el.closest('.swipe-wrap')?.querySelector('.swipe-reveal-label');
     log.textContent = lbl ? lbl.textContent : 'Non disponibile';
     log.style.color = 'var(--red)';
     clearArm(el);
     shake(el);
-    setTimeout(function() { log.style.color = ''; log.textContent = 'Swipa verso sinistra per sfidare'; }, 1200);
-  } else {
+    setTimeout(function() { 
+      log.style.color = ''; 
+      log.textContent = 'Swipa verso sinistra per sfidare'; 
+    }, 1200);
+  } 
+  else {
     springBack(el);
     clearArm(el);
   }
@@ -273,7 +274,10 @@ document.addEventListener('touchstart', function(e) {
   if(e.target.closest('.swipe-cell')) return;
   document.querySelectorAll('.swipe-cell').forEach(function(c) {
     var t = c.style.transform || c.style.webkitTransform;
-    if(t && t.indexOf('0px') === -1 && t.indexOf('0,') === -1) { springBack(c); clearArm(c); }
+    if(t && !t.includes('0px') && !t.includes('0,')) { 
+      springBack(c); 
+      clearArm(c); 
+    }
   });
 }, {passive: true});
 </script>
