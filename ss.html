@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<title>turko — Swipe v2</title>
+<style>
+:root{
+  --bg:#161512;--surface:#1d1a16;--border:#2a2724;
+  --text:#e8e6e3;--muted:#8a8580;--dim:#6a6560;--ghost:#504a45;
+  --green:#7ab535;--red:#d45454;
+  --fs-body:16px;--fs-caption:13px;--fs-label:12px;--fs-micro:10px;
+  --sp-xs:4px;--sp-sm:8px;--sp-md:12px;--sp-lg:16px;--sp-xl:24px;
+  --r-md:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:var(--text);min-height:100dvh}
+.content{padding:var(--sp-lg);padding-top:calc(env(safe-area-inset-top,20px) + 16px);padding-bottom:120px}
+.variant-label{font-size:var(--fs-label);color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-top:32px;margin-bottom:var(--sp-sm);padding:0 4px}
+.variant-label:first-child{margin-top:0}
+.sub-label{font-size:var(--fs-micro);color:var(--ghost);margin-bottom:var(--sp-md);padding:0 4px;line-height:1.5}
+
+.ds-group{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r-md);overflow:hidden;margin-bottom:var(--sp-md)}
+.ds-cell{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--sp-lg);border-bottom:0.5px solid var(--border);min-height:48px}
+.ds-cell:last-child{border-bottom:none}
+.ds-cell-left{flex:1;min-width:0}
+.ds-cell-name{font-size:var(--fs-body);font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ds-cell-meta{font-size:var(--fs-label);color:var(--ghost);margin-top:1px}
+.ds-cell-right{flex-shrink:0;text-align:right;margin-left:var(--sp-md)}
+.ds-cell-value{font-size:var(--fs-body);font-weight:700;line-height:1.2}
+
+/* Swipe */
+.swipe-wrap{position:relative;overflow:hidden}
+.swipe-reveal{position:absolute;top:0;right:0;bottom:0;width:100%;display:flex;align-items:center;justify-content:flex-end;padding-right:var(--sp-xl);transition:background 150ms}
+.swipe-reveal-label{font-size:var(--fs-caption);font-weight:700;letter-spacing:-.1px;white-space:nowrap;transition:transform 150ms, opacity 150ms}
+.swipe-reveal.ok{background:var(--surface)}
+.swipe-reveal.ok .swipe-reveal-label{color:var(--ghost)}
+.swipe-reveal.ok.armed{background:var(--text)}
+.swipe-reveal.ok.armed .swipe-reveal-label{color:var(--bg);transform:scale(1.05)}
+.swipe-reveal.blocked{background:var(--border)}
+.swipe-reveal.blocked .swipe-reveal-label{color:var(--ghost)}
+.swipe-cell{position:relative;z-index:1;background:var(--surface);will-change:transform}
+
+.status-log{position:fixed;bottom:20px;left:var(--sp-lg);right:var(--sp-lg);background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:var(--sp-md);font-size:var(--fs-label);color:var(--muted);text-align:center;z-index:100}
+</style>
+</head>
+<body>
+<div class="content">
+
+<!-- ══════════════════════════════════ -->
+<!-- C ORIGINALE — con rubber band -->
+<!-- ══════════════════════════════════ -->
+
+<div class="variant-label">C — Originale (rubber band dopo 110px)</div>
+<div class="sub-label">Lo swipe rallenta dopo il threshold. Muro morbido.</div>
+<div class="ds-group">
+  <div class="swipe-wrap">
+    <div class="swipe-reveal ok"><span class="swipe-reveal-label">Sfida</span></div>
+    <div class="swipe-cell ds-cell" data-config="c" data-state="ok" data-opp="tizio">
+      <div class="ds-cell-left"><div class="ds-cell-name">Hai vinto contro tizio</div><div class="ds-cell-meta">2 ore fa · 1520</div></div>
+      <div class="ds-cell-right"><div class="ds-cell-value" style="color:var(--green)">+12</div></div>
+    </div>
+  </div>
+  <div class="swipe-wrap">
+    <div class="swipe-reveal blocked"><span class="swipe-reveal-label">Offline</span></div>
+    <div class="swipe-cell ds-cell" data-config="c" data-state="blocked" data-opp="caio">
+      <div class="ds-cell-left"><div class="ds-cell-name">caio ha vinto contro ppp</div><div class="ds-cell-meta">4 ore fa</div></div>
+    </div>
+  </div>
+  <div class="swipe-wrap">
+    <div class="swipe-reveal ok"><span class="swipe-reveal-label">Sfida</span></div>
+    <div class="swipe-cell ds-cell" data-config="c" data-state="ok" data-opp="ppp">
+      <div class="ds-cell-left"><div class="ds-cell-name">Patta con ppp</div><div class="ds-cell-meta">ieri · 1496</div></div>
+      <div class="ds-cell-right"><div class="ds-cell-value" style="color:var(--dim)">0</div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════ -->
+<!-- D — Apple Mail: lineare, niente muro, reveal si arma -->
+<!-- ══════════════════════════════════ -->
+
+<div class="variant-label">D — Apple Mail (lineare, niente muro)</div>
+<div class="sub-label">Segue il dito 1:1. Dopo 110px il reveal diventa bianco (armato). Rilascio = azione.</div>
+<div class="ds-group">
+  <div class="swipe-wrap">
+    <div class="swipe-reveal ok"><span class="swipe-reveal-label">Sfida</span></div>
+    <div class="swipe-cell ds-cell" data-config="d" data-state="ok" data-opp="tizio">
+      <div class="ds-cell-left"><div class="ds-cell-name">Hai vinto contro tizio</div><div class="ds-cell-meta">2 ore fa · 1520</div></div>
+      <div class="ds-cell-right"><div class="ds-cell-value" style="color:var(--green)">+12</div></div>
+    </div>
+  </div>
+  <div class="swipe-wrap">
+    <div class="swipe-reveal blocked"><span class="swipe-reveal-label">Offline</span></div>
+    <div class="swipe-cell ds-cell" data-config="d" data-state="blocked" data-opp="caio">
+      <div class="ds-cell-left"><div class="ds-cell-name">caio ha vinto contro ppp</div><div class="ds-cell-meta">4 ore fa</div></div>
+    </div>
+  </div>
+  <div class="swipe-wrap">
+    <div class="swipe-reveal blocked"><span class="swipe-reveal-label">In partita</span></div>
+    <div class="swipe-cell ds-cell" data-config="d" data-state="blocked" data-opp="sss">
+      <div class="ds-cell-left"><div class="ds-cell-name">Hai perso contro sss</div><div class="ds-cell-meta">5 ore fa · 1529</div></div>
+      <div class="ds-cell-right"><div class="ds-cell-value" style="color:var(--red)">-8</div></div>
+    </div>
+  </div>
+  <div class="swipe-wrap">
+    <div class="swipe-reveal ok"><span class="swipe-reveal-label">Sfida</span></div>
+    <div class="swipe-cell ds-cell" data-config="d" data-state="ok" data-opp="ppp">
+      <div class="ds-cell-left"><div class="ds-cell-name">Patta con ppp</div><div class="ds-cell-meta">ieri · 1496</div></div>
+      <div class="ds-cell-right"><div class="ds-cell-value" style="color:var(--dim)">0</div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════ -->
+<!-- E — Ibrido: lineare + leggera resistenza dopo threshold -->
+<!-- ══════════════════════════════════ -->
+
+<div class="variant-label">E — Ibrido (lineare + leggera resistenza)</div>
+<div class="sub-label">1:1 fino a 110px, poi rallenta leggermente (0.6x). Non un muro, solo inerzia.</div>
+<div class="ds-group">
+  <div class="swipe-wrap">
+    <div class="swipe-reveal ok"><span class="swipe-reveal-label">Sfida</span></div>
+    <div class="swipe-cell ds-cell" data-config="e" data-state="ok" data-opp="tizio">
+      <div class="ds-cell-left"><div class="ds-cell-name">Hai vinto contro tizio</div><div class="ds-cell-meta">2 ore fa · 1520</div></div>
+      <div class="ds-cell-right"><div class="ds-cell-value" style="color:var(--green)">+12</div></div>
+    </div>
+  </div>
+  <div class="swipe-wrap">
+    <div class="swipe-reveal blocked"><span class="swipe-reveal-label">Offline</span></div>
+    <div class="swipe-cell ds-cell" data-config="e" data-state="blocked" data-opp="caio">
+      <div class="ds-cell-left"><div class="ds-cell-name">caio ha vinto contro ppp</div><div class="ds-cell-meta">4 ore fa</div></div>
+    </div>
+  </div>
+  <div class="swipe-wrap">
+    <div class="swipe-reveal ok"><span class="swipe-reveal-label">Sfida</span></div>
+    <div class="swipe-cell ds-cell" data-config="e" data-state="ok" data-opp="ppp">
+      <div class="ds-cell-left"><div class="ds-cell-name">Patta con ppp</div><div class="ds-cell-meta">ieri · 1496</div></div>
+      <div class="ds-cell-right"><div class="ds-cell-value" style="color:var(--dim)">0</div></div>
+    </div>
+  </div>
+  <div class="swipe-wrap">
+    <div class="swipe-reveal blocked"><span class="swipe-reveal-label">In partita</span></div>
+    <div class="swipe-cell ds-cell" data-config="e" data-state="blocked" data-opp="sss">
+      <div class="ds-cell-left"><div class="ds-cell-name">Hai perso contro sss</div><div class="ds-cell-meta">5 ore fa · 1529</div></div>
+      <div class="ds-cell-right"><div class="ds-cell-value" style="color:var(--red)">-8</div></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="status-log" id="log">Swipa una riga verso sinistra</div>
+
+<script>
+var configs = {
+  c: { snap: 110, mode: 'rubber', rubberK: 16, maxDrag: 160, springMs: 350, damping: 'cubic-bezier(.42,0,.58,1)' },
+  d: { snap: 110, mode: 'linear', springMs: 300, damping: 'cubic-bezier(.32,0,.24,1)' },
+  e: { snap: 110, mode: 'resist', resistRatio: 0.6, springMs: 320, damping: 'cubic-bezier(.36,0,.24,1)' }
+};
+
+var active = null;
+var log = document.getElementById('log');
+
+function getOffset(rawDx, cfg) {
+  var dx = Math.abs(rawDx);
+  if(cfg.mode === 'linear') return dx;
+  if(cfg.mode === 'resist') {
+    if(dx <= cfg.snap) return dx;
+    return cfg.snap + (dx - cfg.snap) * cfg.resistRatio;
+  }
+  // rubber
+  if(dx <= cfg.snap) return dx;
+  var over = dx - cfg.snap;
+  return Math.min(cfg.snap + Math.sqrt(over) * cfg.rubberK, cfg.maxDrag);
+}
+
+function springBack(el, cfg) {
+  el.style.transition = 'transform ' + cfg.springMs + 'ms ' + cfg.damping;
+  el.style.transform = 'translateX(0)';
+  setTimeout(function() { el.style.transition = ''; }, cfg.springMs);
+}
+
+function slideOut(el, cfg) {
+  var w = el.offsetWidth;
+  el.style.transition = 'transform 250ms cubic-bezier(.32,0,.24,1)';
+  el.style.transform = 'translateX(-' + (w + 20) + 'px)';
+  setTimeout(function() {
+    el.style.transition = '';
+    // Reset after action
+    setTimeout(function() {
+      el.style.transition = 'transform 300ms cubic-bezier(.32,0,.24,1)';
+      el.style.transform = 'translateX(0)';
+      setTimeout(function() { el.style.transition = ''; }, 300);
+    }, 600);
+  }, 250);
+}
+
+function updateArmed(el, offset, cfg) {
+  var reveal = el.closest('.swipe-wrap').querySelector('.swipe-reveal');
+  if(!reveal) return;
+  if(offset >= cfg.snap) {
+    reveal.classList.add('armed');
+  } else {
+    reveal.classList.remove('armed');
+  }
+}
+
+document.addEventListener('touchstart', function(e) {
+  var cell = e.target.closest('.swipe-cell');
+  if(!cell) return;
+  var touch = e.touches[0];
+  active = {
+    el: cell,
+    startX: touch.clientX,
+    startY: touch.clientY,
+    config: configs[cell.dataset.config],
+    state: cell.dataset.state,
+    locked: false
+  };
+}, {passive: true});
+
+document.addEventListener('touchmove', function(e) {
+  if(!active) return;
+  var touch = e.touches[0];
+  var dx = touch.clientX - active.startX;
+  var dy = touch.clientY - active.startY;
+
+  if(!active.locked) {
+    if(Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8) { active = null; return; }
+    if(Math.abs(dx) > 8) {
+      active.locked = true;
+      if(dx > 0) { active = null; return; }
+    }
+    return;
+  }
+
+  e.preventDefault();
+  if(dx > 0) dx = 0;
+  var offset = getOffset(dx, active.config);
+  active.el.style.transform = 'translateX(-' + offset + 'px)';
+  updateArmed(active.el, offset, active.config);
+
+  var armed = offset >= active.config.snap ? ' ✓ ARMED' : '';
+  log.textContent = active.el.dataset.config.toUpperCase() + ': ' + Math.round(offset) + 'px' + armed;
+}, {passive: false});
+
+document.addEventListener('touchend', function(e) {
+  if(!active) return;
+  var touch = e.changedTouches[0];
+  var dx = touch.clientX - active.startX;
+  var offset = getOffset(dx, active.config);
+  var el = active.el;
+  var cfg = active.config;
+  var state = active.state;
+  var reveal = el.closest('.swipe-wrap').querySelector('.swipe-reveal');
+
+  if(offset >= cfg.snap && state === 'ok') {
+    log.textContent = '✓ Sfida ' + el.dataset.opp + '!';
+    log.style.color = 'var(--green)';
+    slideOut(el, cfg);
+    setTimeout(function() {
+      if(reveal) reveal.classList.remove('armed');
+      log.style.color = 'var(--muted)';
+    }, 1200);
+  } else if(offset >= cfg.snap && state === 'blocked') {
+    var label = reveal.querySelector('.swipe-reveal-label').textContent;
+    log.textContent = label;
+    log.style.color = 'var(--ghost)';
+    springBack(el, cfg);
+    if(reveal) reveal.classList.remove('armed');
+    setTimeout(function() { log.style.color = 'var(--muted)'; }, 1000);
+  } else {
+    springBack(el, cfg);
+    if(reveal) reveal.classList.remove('armed');
+  }
+
+  active = null;
+}, {passive: true});
+
+document.addEventListener('touchstart', function(e) {
+  if(e.target.closest('.swipe-cell')) return;
+  document.querySelectorAll('.swipe-cell').forEach(function(cell) {
+    if(cell.style.transform && cell.style.transform !== 'translateX(0px)' && cell.style.transform !== 'translateX(0)') {
+      springBack(cell, configs[cell.dataset.config]);
+      var reveal = cell.closest('.swipe-wrap').querySelector('.swipe-reveal');
+      if(reveal) reveal.classList.remove('armed');
+    }
+  });
+}, {passive: true});
+</script>
+</body>
+</html>
