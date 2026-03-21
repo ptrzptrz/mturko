@@ -131,6 +131,9 @@ document.addEventListener('touchmove', function(e) {
     if(Math.abs(dx) > 8) {
       active.locked = true;
       if(dx > 0) { active = null; log.textContent = 'cancelled: right swipe'; return; }
+      // Disable scroll on the feed container
+      var feed = document.getElementById('feed');
+      if(feed) feed.style.overflowY = 'hidden';
       log.textContent = 'LOCKED horizontal';
     }
     return;
@@ -148,6 +151,9 @@ document.addEventListener('touchend', function(e) {
   var el = active.el;
   spring(el);
   arm(el, false);
+  // Re-enable scroll
+  var feed = document.getElementById('feed');
+  if(feed) feed.style.overflowY = '';
   log.textContent = 'released — spring back';
   active = null;
 }, {passive: true});
