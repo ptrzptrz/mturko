@@ -1909,56 +1909,56 @@ function _swipeEval(oppId) {
 function initFeedSwipe(container) {
   if(!container || container._swipeInit) return;
   container._swipeInit = true;
-  alert('initFeedSwipe: found ' + container.querySelectorAll('.swipe-cell').length + ' swipe cells');
-
-  container.addEventListener('touchstart', function(e) {
-    var cell = e.target.closest('.swipe-cell');
-    if(!cell) return;
-    _swipeActive = { el: cell, x0: e.touches[0].clientX, y0: e.touches[0].clientY, locked: false };
-    _swipePrevArmed = false;
-  }, {passive: true});
-
-  container.addEventListener('touchmove', function(e) {
-    if(!_swipeActive) return;
-    var dx = e.touches[0].clientX - _swipeActive.x0;
-    var dy = e.touches[0].clientY - _swipeActive.y0;
-    if(!_swipeActive.locked) {
-      if(Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8) { _swipeActive = null; return; }
-      if(Math.abs(dx) > 8) { _swipeActive.locked = true; if(dx > 0) { _swipeActive = null; return; } }
-      return;
-    }
-    e.preventDefault();
-    if(dx > 0) dx = 0;
-    var offset = _swipeOffset(dx);
-    _swipeTx(_swipeActive.el, -offset);
-    _swipeArm(_swipeActive.el, offset >= SWIPE_SNAP);
-  }, {passive: false});
-
-  container.addEventListener('touchend', function(e) {
-    if(!_swipeActive) return;
-    var dx = e.changedTouches[0].clientX - _swipeActive.x0;
-    var offset = _swipeOffset(dx);
-    var el = _swipeActive.el;
-    var armed = offset >= SWIPE_SNAP;
-    var oppId = el.dataset.opp;
-
-    if(armed && oppId) {
-      var eval = _swipeEval(oppId);
-      if(eval.ok) {
-        _swipeSlideOut(el, function() { _swipeClearArm(el); });
-        setTimeout(function() { openNewChallengeSheetForPlayer(oppId); }, 500);
-      } else {
-        _swipeClearArm(el);
-        _swipeShake(el);
-        toast(eval.label, 'err');
-      }
-    } else {
-      _swipeSpringBack(el);
-      _swipeClearArm(el);
-    }
-    _swipeActive = null;
-  }, {passive: true});
 }
+
+// Global swipe handlers — like the working test file
+document.addEventListener('touchstart', function(e) {
+  var cell = e.target.closest('.swipe-cell');
+  if(!cell) return;
+  _swipeActive = { el: cell, x0: e.touches[0].clientX, y0: e.touches[0].clientY, locked: false };
+  _swipePrevArmed = false;
+}, {passive: true});
+
+document.addEventListener('touchmove', function(e) {
+  if(!_swipeActive) return;
+  var dx = e.touches[0].clientX - _swipeActive.x0;
+  var dy = e.touches[0].clientY - _swipeActive.y0;
+  if(!_swipeActive.locked) {
+    if(Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8) { _swipeActive = null; return; }
+    if(Math.abs(dx) > 8) { _swipeActive.locked = true; if(dx > 0) { _swipeActive = null; return; } }
+    return;
+  }
+  e.preventDefault();
+  if(dx > 0) dx = 0;
+  var offset = _swipeOffset(dx);
+  _swipeTx(_swipeActive.el, -offset);
+  _swipeArm(_swipeActive.el, offset >= SWIPE_SNAP);
+}, {passive: false});
+
+document.addEventListener('touchend', function(e) {
+  if(!_swipeActive) return;
+  var dx = e.changedTouches[0].clientX - _swipeActive.x0;
+  var offset = _swipeOffset(dx);
+  var el = _swipeActive.el;
+  var armed = offset >= SWIPE_SNAP;
+  var oppId = el.dataset.opp;
+
+  if(armed && oppId) {
+    var ev = _swipeEval(oppId);
+    if(ev.ok) {
+      _swipeSlideOut(el, function() { _swipeClearArm(el); });
+      setTimeout(function() { openNewChallengeSheetForPlayer(oppId); }, 500);
+    } else {
+      _swipeClearArm(el);
+      _swipeShake(el);
+      toast(ev.label, 'err');
+    }
+  } else {
+    _swipeSpringBack(el);
+    _swipeClearArm(el);
+  }
+  _swipeActive = null;
+}, {passive: true});
 
 async function fetchMatchStakes() {
   if(!me) return;
