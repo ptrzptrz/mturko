@@ -2196,7 +2196,7 @@ function renderHomeRanking() {
       const gap = Math.round(above.elo) - elo;
       if(gap > 0) metaHtml = '<div class="ds-cell-meta" style="color:var(--dim)">a ' + gap + ' punti da #' + ranks[i-1] + '</div>';
     } else if(myIdx >= 0 && i === myIdx + 1) {
-      const gap = Math.round(me.elo) - elo;
+      const gap = Math.round(sorted[myIdx].elo) - elo;
       if(gap > 0) metaHtml = '<div class="ds-cell-meta" style="color:var(--dim)">a ' + gap + ' punti da te</div>';
     }
 
