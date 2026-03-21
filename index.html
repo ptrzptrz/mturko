@@ -501,6 +501,16 @@ body.sheet-open #sa-cover{background:#000000}
 .nav-plus-wrap{flex:1;display:flex;align-items:center;justify-content:center;min-height:52px}
 .nav-plus{width:32px;height:32px;border-radius:50%;background:var(--text);color:var(--bg);font-size:22px;font-weight:300;display:flex;align-items:center;justify-content:center;line-height:1;cursor:pointer;border:none;font-family:inherit;transition:transform var(--dur-fast) var(--ease-spring),opacity var(--dur-fast)}
 .nav-plus:active{transform:scale(.9);opacity:.8}
+
+/* ── Swipe-to-challenge ── */
+.swipe-wrap{position:relative;overflow:hidden;touch-action:pan-y}
+.swipe-reveal{position:absolute;top:0;right:0;bottom:0;width:100%;display:flex;align-items:center;justify-content:flex-end;padding-right:var(--sp-xl);background:var(--border)}
+.swipe-reveal-label{font-size:var(--fs-caption);font-weight:700;letter-spacing:-.1px;white-space:nowrap;color:var(--ghost);transition:color 100ms,transform 100ms;transform-origin:center right}
+.swipe-reveal.armed{background:var(--text);transition:background 100ms}
+.swipe-reveal.armed .swipe-reveal-label{color:var(--bg);transform:scale(1.08)}
+.swipe-reveal.blocked.armed{background:var(--border)}
+.swipe-cell{position:relative;z-index:1;background:var(--surface);transform:translate3d(0,0,0);-webkit-transform:translate3d(0,0,0);touch-action:pan-y}
+.home-feed.swipe-active{overflow-y:hidden!important}
 </style>
 </head>
 <body>
@@ -1815,6 +1825,155 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
   container.innerHTML = cards.join('');
 }
 
+// ── Swipe-to-challenge system ──
+var _swipeActive = null;
+var _swipePrevArmed = false;
+var SWIPE_SNAP = 130;
+var SWIPE_RESIST = 0.25;
+
+function _swipeTx(el, x) {
+  el.style.webkitTransform = 'translate3d(' + x + 'px,0,0)';
+  el.style.transform = 'translate3d(' + x + 'px,0,0)';
+}
+
+function _swipeOffset(dx) {
+  var d = Math.abs(dx);
+  if(d <= SWIPE_SNAP) return d;
+  return SWIPE_SNAP + (d - SWIPE_SNAP) * SWIPE_RESIST;
+}
+
+function _swipeSpringBack(el) {
+  el.style.transition = '-webkit-transform 250ms cubic-bezier(.25,.46,.45,.94), transform 250ms cubic-bezier(.25,.46,.45,.94)';
+  _swipeTx(el, 0);
+  el.addEventListener('transitionend', function h() { el.style.transition = ''; el.removeEventListener('transitionend', h); });
+}
+
+function _swipeSlideOut(el, cb) {
+  var w = el.offsetWidth;
+  el.style.transition = '-webkit-transform 450ms cubic-bezier(.32,0,.24,1), transform 450ms cubic-bezier(.32,0,.24,1)';
+  _swipeTx(el, -(w + 20));
+  el.addEventListener('transitionend', function h() {
+    el.removeEventListener('transitionend', h);
+    el.style.transition = '';
+    setTimeout(function() {
+      _swipeTx(el, 40);
+      el.offsetHeight;
+      el.style.transition = '-webkit-transform 600ms cubic-bezier(.34,1.56,.64,1), transform 600ms cubic-bezier(.34,1.56,.64,1)';
+      _swipeTx(el, 0);
+      el.addEventListener('transitionend', function h2() { el.style.transition = ''; el.removeEventListener('transitionend', h2); });
+      if(cb) cb();
+    }, 450);
+  });
+}
+
+function _swipeShake(el) {
+  var steps = [8, -6, 4, -2, 0];
+  var i = 0;
+  function next() { if(i >= steps.length) return; _swipeTx(el, steps[i]); i++; setTimeout(next, 50); }
+  next();
+}
+
+function _swipeArm(el, armed) {
+  var reveal = el.closest('.swipe-wrap');
+  if(!reveal) return;
+  reveal = reveal.querySelector('.swipe-reveal');
+  if(!reveal) return;
+  if(armed && !reveal.classList.contains('armed')) reveal.classList.add('armed');
+  else if(!armed && reveal.classList.contains('armed')) reveal.classList.remove('armed');
+}
+
+function _swipeClearArm(el) {
+  var w = el.closest('.swipe-wrap');
+  if(w) { var r = w.querySelector('.swipe-reveal'); if(r) r.classList.remove('armed'); }
+}
+
+// Evaluate swipe state for an opponent
+function _swipeEval(oppId) {
+  // Am I busy?
+  if(isPlayerBusy(me.id)) return { ok: false, label: 'Hai una partita' };
+  // Do I have incoming challenge?
+  var incoming = (matches||[]).some(function(m) { return m.status === 'pending_challenge' && m.p2 === me.id; });
+  if(incoming) return { ok: false, label: 'Sfida in arrivo' };
+  // Already have pending with this opp?
+  var pending = (matches||[]).some(function(m) { return m.status === 'pending_challenge' && ((m.p1===me.id && m.p2===oppId) || (m.p1===oppId && m.p2===me.id)); });
+  if(pending) return { ok: false, label: 'Sfida già inviata' };
+  // Is opp online?
+  var opp = getP(oppId);
+  if(!opp) return { ok: false, label: 'Non trovato' };
+  var online = opp.last_seen_at && (Date.now() - new Date(opp.last_seen_at).getTime()) < 30000;
+  if(!online) return { ok: false, label: 'Offline' };
+  // Is opp busy?
+  if(isPlayerBusy(oppId)) return { ok: false, label: 'In partita' };
+  return { ok: true, label: 'Sfida' };
+}
+
+function initFeedSwipe(container) {
+  if(!container) return;
+  container.querySelectorAll('.swipe-wrap').forEach(function(wrap) {
+    if(wrap._swipeInit) return;
+    wrap._swipeInit = true;
+    var _sw = null;
+
+    wrap.addEventListener('touchstart', function(e) {
+      var cell = wrap.querySelector('.swipe-cell');
+      if(!cell) return;
+      _sw = { el: cell, x0: e.touches[0].clientX, y0: e.touches[0].clientY, locked: false };
+      _swipeActive = _sw;
+    }, {passive: true});
+
+    wrap.addEventListener('touchmove', function(e) {
+      if(!_sw) return;
+      var dx = e.touches[0].clientX - _sw.x0;
+      var dy = e.touches[0].clientY - _sw.y0;
+      if(!_sw.locked) {
+        if(Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8) { _sw = null; _swipeActive = null; return; }
+        if(Math.abs(dx) > 8) {
+          _sw.locked = true;
+          if(dx > 0) { _sw = null; _swipeActive = null; return; }
+          var feed = $('home-feed');
+          if(feed) feed.classList.add('swipe-active');
+        }
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      if(dx > 0) dx = 0;
+      var offset = _swipeOffset(dx);
+      _swipeTx(_sw.el, -offset);
+      _swipeArm(_sw.el, offset >= SWIPE_SNAP);
+    }, {passive: false});
+
+    wrap.addEventListener('touchend', function(e) {
+      if(!_sw) return;
+      var dx = e.changedTouches[0].clientX - _sw.x0;
+      var offset = _swipeOffset(dx);
+      var el = _sw.el;
+      var armed = offset >= SWIPE_SNAP;
+      var oppId = el.dataset.opp;
+
+      var feed = $('home-feed');
+      if(feed) feed.classList.remove('swipe-active');
+
+      if(armed && oppId) {
+        var ev = _swipeEval(oppId);
+        if(ev.ok) {
+          _swipeSlideOut(el, function() { _swipeClearArm(el); });
+          setTimeout(function() { openNewChallengeSheetForPlayer(oppId); }, 500);
+        } else {
+          _swipeClearArm(el);
+          _swipeShake(el);
+          toast(ev.label, 'err');
+        }
+      } else {
+        _swipeSpringBack(el);
+        _swipeClearArm(el);
+      }
+      _sw = null;
+      _swipeActive = null;
+    }, {passive: true});
+  });
+}
+
 async function fetchMatchStakes() {
   if(!me) return;
   const relevant = (matches || []).filter(m =>
@@ -2046,10 +2205,12 @@ function renderHomeFeedAll() {
   const container = $('home-history');
   if(!container) return;
   const feedItems = [];
+  const myJoinedAt = me.created_at ? new Date(me.created_at).getTime() : 0;
 
   // Events from DB — filtered
   (globalEvents || []).forEach(ev => {
     if(ev.type === 'peak') return;
+    if(new Date(ev.created_at).getTime() < myJoinedAt) return;
     const data = ev.data || {};
     const player = getP(ev.player_id);
     const target = getP(ev.target_id);
@@ -2080,8 +2241,13 @@ function renderHomeFeedAll() {
     if(text) feedItems.push({ type: 'event', time: new Date(ev.created_at).getTime(), text, deltaStr, playerId: ev.player_id });
   });
 
-  // All done matches (everyone's)
-  const allDone = (globalMatches || []).filter(m => m.status === 'done' && m.result && m.result !== 'cancelled').slice(0, 30);
+  // All done matches (everyone's — others only after my join date)
+  const allDone = (globalMatches || []).filter(m => {
+    if(m.status !== 'done' || !m.result || m.result === 'cancelled') return false;
+    const isMyMatch = m.p1 === me.id || m.p2 === me.id;
+    if(!isMyMatch && new Date(m.updated_at || m.created_at).getTime() < myJoinedAt) return false;
+    return true;
+  }).slice(0, 30);
   allDone.forEach(m => {
     const isDraw = m.result === 'draw';
     const winnerId = m.result === 'p1' ? m.p1 : m.result === 'p2' ? m.p2 : m.p1;
@@ -2133,21 +2299,42 @@ function renderHomeFeedAll() {
     }
 
     const onclick = isEvent ? '' : ' onclick="openProfile(\'' + (item.profileId || item.playerId || '') + '\',\'home\')"';
-    return '<div class="ds-cell' + (isEvent ? ' static' : '') + '"' + onclick + '><div class="ds-cell-left"><div class="ds-cell-name">' + item.text + '</div><div class="ds-cell-meta">' + timeAgo(new Date(item.time).toISOString()) + '</div></div>' + rightHtml + '</div>';
+    const innerHtml = '<div class="ds-cell-left"><div class="ds-cell-name">' + item.text + '</div><div class="ds-cell-meta">' + timeAgo(new Date(item.time).toISOString()) + '</div></div>' + rightHtml;
+
+    // Wrap my matches in swipe container
+    if(item.type === 'match' && item.isMyMatch && item.profileId) {
+      var ev = _swipeEval(item.profileId);
+      var revealClass = ev.ok ? 'swipe-reveal ok' : 'swipe-reveal blocked';
+      return '<div class="swipe-wrap"><div class="' + revealClass + '"><span class="swipe-reveal-label">' + ev.label + '</span></div><div class="swipe-cell ds-cell" data-opp="' + item.profileId + '"' + onclick + '>' + innerHtml + '</div></div>';
+    }
+    return '<div class="ds-cell' + (isEvent ? ' static' : '') + '"' + onclick + '>' + innerHtml + '</div>';
   }).join('') + '</div>';
+
+  initFeedSwipe(container.querySelector('.ds-group'));
 }
 
 function renderHomeRanking() {
   const list = $('home-ranking-list');
   if(!list || !players.length) return;
   const sorted = [...players].sort((a, b) => b.elo - a.elo);
-  const myIdx = sorted.findIndex(p => p.id === me.id);
   const now = Date.now();
+
+  // Dense ranking: same ELO = same rank, no skips
+  const ranks = [];
+  let currentRank = 1;
+  sorted.forEach((p, i) => {
+    if(i > 0 && Math.round(p.elo) < Math.round(sorted[i-1].elo)) currentRank++;
+    ranks.push(currentRank);
+  });
+
+  const myIdx = sorted.findIndex(p => p.id === me.id);
+  const myRank = myIdx >= 0 ? ranks[myIdx] : -1;
 
   let html = '';
   sorted.forEach((p, i) => {
     const isMe = p.id === me.id;
     const elo = Math.round(p.elo);
+    const rank = ranks[i];
     const online = p.last_seen_at && (now - new Date(p.last_seen_at).getTime()) < 30000;
     const dotHtml = online ? ' <span class="ds-dot"></span>' : '';
 
@@ -2157,19 +2344,19 @@ function renderHomeRanking() {
     if(dailyDelta > 0) deltaHtml = '<div class="ds-cell-sub" style="color:var(--green);font-weight:600">+' + dailyDelta + '</div>';
     else if(dailyDelta < 0) deltaHtml = '<div class="ds-cell-sub" style="color:var(--red);font-weight:600">' + dailyDelta + '</div>';
 
-    // Gap hint — only for me and the one below me
+    // Gap hint — only for me and the one below me, skip ties
     let metaHtml = '';
     if(isMe && i > 0) {
       const above = sorted[i - 1];
       const gap = Math.round(above.elo) - elo;
-      metaHtml = '<div class="ds-cell-meta" style="color:var(--dim)">a ' + gap + ' punti da #' + i + '</div>';
+      if(gap > 0) metaHtml = '<div class="ds-cell-meta" style="color:var(--dim)">a ' + gap + ' punti da #' + ranks[i-1] + '</div>';
     } else if(myIdx >= 0 && i === myIdx + 1) {
       const gap = Math.round(me.elo) - elo;
-      metaHtml = '<div class="ds-cell-meta" style="color:var(--dim)">a ' + gap + ' punti da te</div>';
+      if(gap > 0) metaHtml = '<div class="ds-cell-meta" style="color:var(--dim)">a ' + gap + ' punti da te</div>';
     }
 
     html += '<div class="ds-cell' + (isMe ? ' is-me' : '') + '" onclick="openProfile(\'' + p.id + '\',\'home\')">' +
-      '<div style="font-size:var(--fs-caption);font-weight:700;color:' + (isMe ? 'var(--text)' : 'var(--ghost)') + ';min-width:24px;text-align:center;flex-shrink:0;margin-right:var(--sp-md)">' + (i + 1) + '</div>' +
+      '<div style="font-size:var(--fs-caption);font-weight:700;color:' + (isMe ? 'var(--text)' : 'var(--ghost)') + ';min-width:24px;text-align:center;flex-shrink:0;margin-right:var(--sp-md)">' + rank + '</div>' +
       '<div class="ds-cell-left">' +
         '<div class="ds-cell-name">' + escHtml(p.nickname) + (isMe ? ' <span style="font-size:var(--fs-micro);color:var(--dim);font-weight:400">tu</span>' : '') + dotHtml + '</div>' +
         metaHtml +
@@ -2181,7 +2368,6 @@ function renderHomeRanking() {
     '</div>';
   });
 
-  // Add is-me CSS if not already present
   list.innerHTML = '<div class="ds-group">' + html + '</div>';
 }
 
@@ -2210,21 +2396,28 @@ function renderHomeMine() {
       deltaStr = d > 0 ? '+' + d : '' + d;
       deltaColor = isDraw ? 'var(--dim)' : d > 0 ? 'var(--green)' : 'var(--red)';
     }
-    html += `<div class="ds-cell" onclick="openProfile('${oppId}','home')">
-      <div class="ds-cell-left"><div class="ds-cell-name">${text}</div><div class="ds-cell-meta">${timeAgo(m.created_at)}${opp ? ' · ' + Math.round(opp.elo) : ''}</div></div>
-      <div class="ds-cell-right"><div class="ds-cell-value" style="color:${deltaColor}">${deltaStr}</div></div>
-    </div>`;
+
+    const ev = _swipeEval(oppId);
+    const revealClass = ev.ok ? 'swipe-reveal ok' : 'swipe-reveal blocked';
+    html += '<div class="swipe-wrap"><div class="' + revealClass + '"><span class="swipe-reveal-label">' + ev.label + '</span></div>' +
+      '<div class="swipe-cell ds-cell" data-opp="' + oppId + '" onclick="openProfile(\'' + oppId + '\',\'home\')">' +
+        '<div class="ds-cell-left"><div class="ds-cell-name">' + text + '</div><div class="ds-cell-meta">' + timeAgo(m.created_at) + (opp ? ' · ' + Math.round(opp.elo) : '') + '</div></div>' +
+        '<div class="ds-cell-right"><div class="ds-cell-value" style="color:' + deltaColor + '">' + deltaStr + '</div></div>' +
+      '</div></div>';
   });
-  list.innerHTML = `<div class="ds-group">${html}</div>`;
+  list.innerHTML = '<div class="ds-group">' + html + '</div>';
+  initFeedSwipe(list.querySelector('.ds-group'));
 }
 
 function renderHomeEvents() {
   const list = $('home-events-list');
   if(!list) return;
   const items = [];
+  const myJoinedAt = me.created_at ? new Date(me.created_at).getTime() : 0;
 
   (globalEvents || []).forEach(ev => {
     if(ev.type === 'peak') return;
+    if(new Date(ev.created_at).getTime() < myJoinedAt) return;
     const data = ev.data || {};
     const player = getP(ev.player_id);
     const target = getP(ev.target_id);
@@ -2405,11 +2598,6 @@ async function pickChallengeColor(color) {
 }
 
 // Open challenge sheet directly at step 2 for a specific player (from swipe, search, etc.)
-function openNewChallengeSheetForPlayer(oppId) {
-  openNewChallengeSheet();
-  setTimeout(() => selectChallengePlayer(oppId), 50);
-}
-
 function onCABTap() {
   if(_cabState !== 'idle') return;
   openCABSearch();
@@ -3360,13 +3548,20 @@ function toggleProfileStats(el) {
 function showProfileMenu() {
   var overlay = document.createElement('div');
   overlay.id = 'prof-menu-overlay';
-  overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:flex-end;justify-content:center';
+  overlay.className = 'asheet-overlay visible';
+  overlay.style.display = 'flex';
   overlay.onclick = function(e) { if(e.target === overlay) closeProfileMenu(); };
   var sheet = document.createElement('div');
-  sheet.style.cssText = 'background:#1d1a16;border-radius:14px 14px 0 0;width:100%;max-width:500px;padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px))';
+  sheet.className = 'asheet';
+  sheet.style.transform = 'translateY(0)';
+  sheet.onclick = function(e) { e.stopPropagation(); };
   sheet.innerHTML =
-    '<button style="width:100%;padding:16px 20px;border:none;background:transparent;color:#e8e6e3;font-size:16px;font-weight:500;text-align:left;cursor:pointer;font-family:inherit;border-bottom:0.5px solid #252220" onclick="closeProfileMenu();showEditProfile()">Modifica profilo</button>' +
-    '<button style="width:100%;padding:16px 20px;border:none;background:transparent;color:#d45454;font-size:16px;font-weight:500;text-align:left;cursor:pointer;font-family:inherit" onclick="closeProfileMenu();doLogout()">Esci</button>';
+    '<div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px"></div>' +
+    '<div class="ds-group" style="margin-bottom:0">' +
+      '<button style="width:100%;padding:var(--sp-lg);border:none;background:transparent;color:var(--text);font-size:var(--fs-body);font-weight:500;text-align:center;cursor:pointer;font-family:inherit;border-bottom:0.5px solid var(--border)" onclick="closeProfileMenu();showEditProfile()">Modifica profilo</button>' +
+      '<button style="width:100%;padding:var(--sp-lg);border:none;background:transparent;color:var(--red);font-size:var(--fs-body);font-weight:500;text-align:center;cursor:pointer;font-family:inherit" onclick="closeProfileMenu();doLogout()">Esci</button>' +
+    '</div>' +
+    '<button class="rsheet-cancel" onclick="closeProfileMenu()">Annulla</button>';
   overlay.appendChild(sheet);
   document.body.appendChild(overlay);
 }
@@ -3377,27 +3572,76 @@ function closeProfileMenu() {
 }
 
 function showEditProfile() {
-  const p = players.find(x => x.id===me.id) || me;
-  $("prof-edit-wrap").innerHTML = `
-    <div class="prof-edit-form">
-      <div class="box-label">Modifica profilo</div>
-      <textarea id="edit-bio" rows="2" placeholder="Bio (max 50 caratteri)" maxlength="50">${p.bio||''}</textarea>
-      <input id="edit-city" value="${p.city||''}" placeholder="Città" autocorrect="off" maxlength="30">
-      <div id="edit-err" class="err"></div>
-      <button class="btn-g" onclick="saveProfile()">Salva</button>
-      <button class="btn-o" onclick="$('prof-edit-wrap').innerHTML=''">Annulla</button>
-    </div>`;
+  var p = players.find(function(x) { return x.id === me.id; }) || me;
+  var overlay = document.createElement('div');
+  overlay.id = 'prof-edit-overlay';
+  overlay.className = 'asheet-overlay visible';
+  overlay.style.display = 'flex';
+  overlay.onclick = function(e) { if(e.target === overlay) closeEditProfile(); };
+  var sheet = document.createElement('div');
+  sheet.className = 'asheet';
+  sheet.style.cssText = 'transform:translateY(0);padding:8px 24px calc(24px + env(safe-area-inset-bottom,0px))';
+  sheet.onclick = function(e) { e.stopPropagation(); };
+
+  var cityVal = p.city || '';
+  var bioVal = p.bio || '';
+
+  sheet.innerHTML =
+    '<div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px"></div>' +
+    '<div style="font-size:var(--fs-title);font-weight:700;color:var(--text);margin-bottom:var(--sp-xl);letter-spacing:-.3px">Modifica profilo</div>' +
+
+    '<div style="margin-bottom:var(--sp-lg)">' +
+      '<input id="edit-city" value="' + escHtml(cityVal) + '" style="background:transparent;border:none;border-bottom:1px solid var(--border);padding:14px 0;font-size:var(--fs-body);font-weight:500;color:var(--text);width:100%;outline:none;font-family:inherit;-webkit-user-select:text;user-select:text" placeholder="Città" autocorrect="off" autocapitalize="words" maxlength="15" oninput="updateEditCounter(this,15,\'edit-city-count\')">' +
+      '<div id="edit-city-count" style="font-size:var(--fs-micro);color:var(--ghost);text-align:right;margin-top:var(--sp-xs)">' + cityVal.length + '/15</div>' +
+    '</div>' +
+
+    '<div style="margin-bottom:var(--sp-xl)">' +
+      '<input id="edit-bio" value="' + escHtml(bioVal) + '" style="background:transparent;border:none;border-bottom:1px solid var(--border);padding:14px 0;font-size:var(--fs-body);font-weight:500;color:var(--text);width:100%;outline:none;font-family:inherit;-webkit-user-select:text;user-select:text" placeholder="Bio" autocorrect="off" maxlength="30" oninput="updateEditCounter(this,30,\'edit-bio-count\')">' +
+      '<div id="edit-bio-count" style="font-size:var(--fs-micro);color:var(--ghost);text-align:right;margin-top:var(--sp-xs)">' + bioVal.length + '/30</div>' +
+    '</div>' +
+
+    '<button style="background:var(--text);color:var(--bg);border-radius:var(--r-md);padding:17px 16px;font-size:var(--fs-body);font-weight:700;width:100%;border:none;cursor:pointer;font-family:inherit;letter-spacing:-.2px" onclick="saveProfile()">Salva</button>' +
+    '<button class="rsheet-cancel" onclick="closeEditProfile()">Annulla</button>';
+  overlay.appendChild(sheet);
+  document.body.appendChild(overlay);
+
+  // Focus first field
+  setTimeout(function() { var inp = document.getElementById('edit-city'); if(inp) inp.focus(); }, 400);
+}
+
+function updateEditCounter(input, max, counterId) {
+  var el = document.getElementById(counterId);
+  if(el) el.textContent = input.value.length + '/' + max;
+  // City validation: only letters, spaces, apostrophes
+  if(input.id === 'edit-city') {
+    input.value = input.value.replace(/[^a-zA-ZÀ-ÿ\s']/g, '');
+  }
+}
+
+function closeEditProfile() {
+  var overlay = document.getElementById('prof-edit-overlay');
+  if(overlay) overlay.remove();
 }
 
 async function saveProfile() {
-  const bio = $("edit-bio")?.value.trim() || '';
-  const city = $("edit-city")?.value.trim() || '';
-  const res = await db.patch("players", `id=eq.${me.id}`, {bio, city});
+  var bio = document.getElementById('edit-bio') ? document.getElementById('edit-bio').value.trim() : '';
+  var city = document.getElementById('edit-city') ? document.getElementById('edit-city').value.trim() : '';
+  // Validate city: only letters, spaces, apostrophes
+  city = city.replace(/[^a-zA-ZÀ-ÿ\s'\-]/g, '');
+  // Title case: Milano, L'Aquila, New-York
+  city = city.replace(/\S+/g, function(w) {
+    return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+  }).replace(/([\'\-])(\w)/g, function(m, sep, c) {
+    return sep + c.toUpperCase();
+  });
+  var res = await db.patch('players', 'id=eq.' + me.id, {bio: bio, city: city});
   if(Array.isArray(res) && res[0]) {
-    me = {...me, ...res[0]};
-    const idx = players.findIndex(x => x.id===me.id);
-    if(idx>=0) players[idx] = me;
+    me = Object.assign({}, me, res[0]);
+    var idx = players.findIndex(function(x) { return x.id === me.id; });
+    if(idx >= 0) players[idx] = me;
     updateTopbar();
+    closeEditProfile();
+    toast('Salvato');
     await openProfile(me.id, 'home');
     profileStack = [];
   }
