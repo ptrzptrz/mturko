@@ -31,6 +31,13 @@
   --red-bg:#2a1010;
   --gold:#b8a04a;
   --white-piece:#c8c4be;
+  /* Feed juice tokens */
+  --win-tint:rgba(122,181,53,.018);
+  --lose-tint:rgba(212,84,84,.015);
+  --red-muted:#8a4040;
+  --feed-title:15px;
+  --feed-body:14px;
+  --feed-micro:12px;
   /* Typography scale */
   --fs-hero:48px;
   --fs-hero-sm:32px;
@@ -53,9 +60,11 @@
   /* Animation */
   --ease-out:cubic-bezier(.2,0,.2,1);
   --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --ease-bounce:cubic-bezier(.25,1.3,.5,1);
   --dur-fast:150ms;
   --dur-normal:250ms;
   --dur-slow:400ms;
+  --dur-bounce:280ms;
 }
 
 /* ── Reset & Base ── */
@@ -190,7 +199,7 @@ body.sheet-open #sa-cover{background:#000000}
 /* ── Action sheet colore ── */
 .asheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:10001;display:flex;align-items:flex-end;pointer-events:none}
 .asheet-overlay.visible{background:rgba(0,0,0,.75);pointer-events:all}
-.asheet{background:#161512;border-radius:24px 24px 0 0;padding:24px 16px 40px;width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,0,.24,1)}
+.asheet{background:#161512;border-radius:24px 24px 0 0;padding:24px 16px 40px;width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .38s cubic-bezier(.34,1.56,.64,1)}
 .asheet-overlay.visible .asheet{transform:translateY(0)}
 .asheet-eyebrow{font-size:11px;color:#8a8580;text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
 .asheet-cta{width:100%;background:#e8e6e3;border:none;border-radius:14px;padding:16px;color:#161512;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .15s,transform .12s;margin-bottom:8px}
@@ -359,14 +368,14 @@ body.sheet-open #sa-cover{background:#000000}
 .ds-divider::before,.ds-divider::after{content:'';flex:1;height:0.5px;background:var(--border)}
 
 /* ── Challenge sheet (Uber-style) ── */
-.ch-time-chip{flex:1;padding:var(--sp-md) 0;border:1px solid var(--border);border-radius:var(--r-sm);background:transparent;color:var(--dim);font-size:var(--fs-caption);font-weight:600;font-family:inherit;cursor:pointer;text-align:center;transition:border-color var(--dur-fast),color var(--dur-fast),background var(--dur-fast)}
+.ch-time-chip{flex:1;padding:var(--sp-md) 0;border:1px solid var(--border);border-radius:var(--r-sm);background:transparent;color:var(--dim);font-size:var(--fs-caption);font-weight:600;font-family:inherit;cursor:pointer;text-align:center;transition:border-color var(--dur-fast),color var(--dur-fast),background var(--dur-fast),transform var(--dur-bounce) var(--ease-bounce)}
 .ch-time-chip:active{opacity:.6}
 .ch-time-chip.on{border-color:var(--text);color:var(--text);background:var(--surface)}
-.ch-color-btn{flex:1;border:none;border-radius:var(--r-lg);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;height:80px;transition:transform var(--dur-normal) var(--ease-spring),opacity var(--dur-fast);opacity:.5}
-.ch-color-btn:active{transform:scale(.92);opacity:1}
+.ch-color-btn{flex:1;border:none;border-radius:var(--r-md);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;height:80px;transition:transform var(--dur-bounce) var(--ease-bounce),opacity var(--dur-fast)}
+.ch-color-btn:active{transform:scale(.92)}
 .ch-color-white{background:var(--text)}
 .ch-color-white span{font-size:var(--fs-body);font-weight:700;color:var(--bg);letter-spacing:-.2px}
-.ch-color-black{background:var(--bg);box-shadow:inset 0 0 0 1px var(--border)}
+.ch-color-black{background:#2a2724;border:1px solid var(--border)}
 .ch-color-black span{font-size:var(--fs-body);font-weight:700;color:var(--text);letter-spacing:-.2px}
 .ch-player-row{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) 0;border-bottom:0.5px solid var(--border);cursor:pointer;transition:opacity var(--dur-fast)}
 .ch-player-row:last-child{border-bottom:none}
@@ -387,7 +396,63 @@ body.sheet-open #sa-cover{background:#000000}
 .swipe-reveal.blocked.armed{background:var(--border)}
 .swipe-cell{position:relative;z-index:1;background:var(--surface);transform:translate3d(0,0,0);-webkit-transform:translate3d(0,0,0);touch-action:pan-y}
 .swipe-cell.ds-cell{border-bottom:none}
+.swipe-cell.fr{border-bottom:none;background:var(--surface)}
+.swipe-cell.fr.w{background:#1e1c15}
+.swipe-cell.fr.l{background:#1e1a17}
+.swipe-cell.fr.p{background:var(--surface)}
 .home-feed.swipe-active{overflow-y:hidden!important}
+
+/* ── Feed juice: rows ── */
+.fr{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--sp-lg);min-height:46px;border-bottom:0.5px solid var(--border)}
+.fr:last-child{border-bottom:none}
+.fr-l{flex:1;min-width:0}
+.fr-n{font-size:var(--feed-title);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.fr-m{font-size:var(--feed-micro);margin-top:2px}
+.fr-r{flex-shrink:0;text-align:right;margin-left:var(--sp-md)}
+.fr-d{font-size:var(--feed-title);line-height:1.2}
+.fr.w{background:var(--win-tint)}
+.fr.w .fr-n{color:var(--text);font-weight:700}
+.fr.w .fr-m{color:var(--ghost)}
+.fr.w .fr-d{color:var(--green);font-weight:800}
+.fr.l{background:var(--lose-tint)}
+.fr.l .fr-n{color:var(--dim);font-weight:500}
+.fr.l .fr-m{color:var(--ghost)}
+.fr.l .fr-d{color:var(--red-muted);font-weight:500}
+.fr.p .fr-n{color:var(--dim);font-weight:500}
+.fr.p .fr-m{color:var(--ghost)}
+.fr.p .fr-d{color:var(--ghost);font-weight:500}
+.fr.o .fr-n{color:var(--dim);font-weight:400;font-size:var(--feed-body)}
+.fr.o .fr-m{color:var(--ghost)}
+
+/* ── Feed juice: events ── */
+.fe{display:flex;align-items:center;gap:var(--sp-md);padding:var(--sp-lg);border-bottom:0.5px solid var(--border);background:rgba(255,255,255,.012)}
+.fe:last-child{border-bottom:none}
+.fe-b{flex:1;min-width:0}
+.fe-t{font-size:var(--feed-title);font-weight:600;color:var(--text);line-height:1.3}
+.fe-m{font-size:var(--feed-micro);color:var(--ghost);margin-top:2px}
+.fe-r{flex-shrink:0;text-align:right;margin-left:var(--sp-md)}
+.fe-d{font-size:var(--feed-title);font-weight:700;color:var(--green)}
+
+/* ── Feed juice: batch ── */
+.batch{border-bottom:0.5px solid var(--border);padding:var(--sp-md) var(--sp-lg) var(--sp-sm)}
+.batch:last-child{border-bottom:none}
+.batch-head{display:flex;align-items:center;gap:var(--sp-sm);margin-bottom:var(--sp-sm)}
+.batch-info{display:flex;align-items:baseline;gap:var(--sp-xs)}
+.batch-name{font-size:var(--feed-title);font-weight:600;color:var(--muted)}
+.batch-count{font-size:var(--feed-micro);color:var(--ghost)}
+.batch-rows{margin-left:40px;padding-bottom:var(--sp-xs)}
+.batch-row{display:flex;align-items:center;justify-content:space-between;padding:3px 0}
+.batch-text{font-size:var(--feed-body);color:var(--dim);font-weight:500}
+.batch-delta{font-size:var(--feed-body);font-weight:600;margin-left:var(--sp-md);flex-shrink:0}
+
+/* ── Feed juice: time divider ── */
+.time-div{padding:var(--sp-xl) var(--sp-lg) var(--sp-sm);font-size:var(--feed-micro);font-weight:600;color:var(--ghost);text-transform:uppercase;letter-spacing:1.2px}
+.time-div:first-child{padding-top:var(--sp-md)}
+
+/* ── Feed juice: stagger ── */
+.stagger{opacity:0;transform:translate3d(0,12px,0)}
+.stagger.in{animation:staggerIn .4s cubic-bezier(.25,.46,.45,.94) forwards}
+@keyframes staggerIn{to{opacity:1;transform:translate3d(0,0,0)}}
 </style>
 </head>
 <body>
@@ -479,8 +544,7 @@ body.sheet-open #sa-cover{background:#000000}
         </div>
         <div class="home-chips" id="home-chips">
           <button class="ds-chip on" onclick="switchHomeChip(this,'all')">Tutto</button>
-          <button class="ds-chip" onclick="switchHomeChip(this,'mine')">Partite</button>
-          <button class="ds-chip" onclick="switchHomeChip(this,'events')">Attività</button>
+          <button class="ds-chip" onclick="switchHomeChip(this,'mine')">Tu</button>
           <button class="ds-chip" onclick="switchHomeChip(this,'ranking')">Classifica</button>
         </div>
       </div>
@@ -503,11 +567,6 @@ body.sheet-open #sa-cover{background:#000000}
         <!-- Feed: Le mie (hidden) -->
         <div id="home-feed-mine" class="hidden">
           <div id="home-mine-list"></div>
-        </div>
-
-        <!-- Feed: Attività (hidden) -->
-        <div id="home-feed-events" class="hidden">
-          <div id="home-events-list"></div>
         </div>
       </div>
     </div>
@@ -1384,6 +1443,28 @@ setInterval(updateCountdowns, 1000);
 
 function getP(id) { return players.find(p => p.id===id); }
 
+// ── Avatar generativo ──
+const AVATAR_PALETTE = [
+  { bg:'#3d5a3a', fg:'#b8d4b0' },  // smeraldo
+  { bg:'#2e4a5a', fg:'#8ac4d4' },  // zaffiro
+  { bg:'#5c3d3d', fg:'#d4a8a8' },  // bordeaux
+  { bg:'#5c3d5e', fg:'#d4b8d6' },  // melanzana
+  { bg:'#5a4a2e', fg:'#d4c48a' },  // oro
+  { bg:'#2e5a5a', fg:'#8ad4d0' },  // teal
+  { bg:'#5a3e2e', fg:'#d4b08a' },  // terra
+  { bg:'#4a4a5a', fg:'#b0b0d4' },  // ardesia
+  { bg:'#4a5a3a', fg:'#b8d4a0' },  // salvia
+  { bg:'#5a2e4a', fg:'#d48ab8' },  // prugna
+];
+function _hashStr(s) { var h=0; for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h=h&h;} return Math.abs(h); }
+function getAvatarColor(id) { return AVATAR_PALETTE[_hashStr(id) % AVATAR_PALETTE.length]; }
+function getAvatarLetters(nickname) { var n=nickname.trim().toLowerCase(); return n.length<=1 ? n.toUpperCase() : (n[0]+n[1]).toUpperCase(); }
+function avatarHtml(nickname, id) {
+  var c = getAvatarColor(id);
+  var letters = getAvatarLetters(nickname);
+  return '<div style="width:32px;height:32px;font-size:12px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;letter-spacing:-.5px;flex-shrink:0;background:'+c.bg+';color:'+c.fg+'">'+letters+'</div>';
+}
+
 // ── ELO Odometer ──
 let _lastElo = null;
 let _lastDelta = null;
@@ -1843,11 +1924,10 @@ function renderHome() {
   // ── Feed ──
   const activeChip = document.querySelector('.home-chips .ds-chip.on');
   const chipText = activeChip ? activeChip.textContent.trim() : 'Tutto';
-  const activeView = chipText === 'Classifica' ? 'ranking' : chipText === 'Partite' ? 'mine' : chipText === 'Attività' ? 'events' : 'all';
+  const activeView = chipText === 'Classifica' ? 'ranking' : chipText === 'Tu' ? 'mine' : 'all';
 
   if(activeView === 'all') renderHomeFeedAll();
   if(activeView === 'mine') renderHomeMine();
-  if(activeView === 'events') renderHomeEvents();
   if(activeView === 'ranking') renderHomeRanking();
 }
 
@@ -1857,11 +1937,9 @@ function switchHomeChip(btn, view) {
   btn.classList.add('on');
   $('home-feed-all').classList.toggle('hidden', view !== 'all');
   $('home-feed-mine').classList.toggle('hidden', view !== 'mine');
-  $('home-feed-events').classList.toggle('hidden', view !== 'events');
   $('home-feed-ranking').classList.toggle('hidden', view !== 'ranking');
   if(view === 'all') renderHomeFeedAll();
   if(view === 'mine') renderHomeMine();
-  if(view === 'events') renderHomeEvents();
   if(view === 'ranking') renderHomeRanking();
 }
 
@@ -1902,16 +1980,17 @@ function renderHomeFeedAll() {
         text = (data.nickname || pName) + ' si è unito a turko';
         break;
     }
-    if(text) feedItems.push({ type: 'event', time: new Date(ev.created_at).getTime(), text, deltaStr, playerId: ev.player_id });
+    if(text) feedItems.push({ type: 'event', time: new Date(ev.created_at).getTime(), text, deltaStr, playerId: ev.player_id, playerNick: pName });
   });
 
-  // All done matches (everyone's — others only after my join date)
+  // All done matches
   const allDone = (globalMatches || []).filter(m => {
     if(m.status !== 'done' || !m.result || m.result === 'cancelled') return false;
     const isMyMatch = m.p1 === me.id || m.p2 === me.id;
     if(!isMyMatch && new Date(m.updated_at || m.created_at).getTime() < myJoinedAt) return false;
     return true;
-  }).slice(0, 30);
+  }).slice(0, 50);
+
   allDone.forEach(m => {
     const isDraw = m.result === 'draw';
     const winnerId = m.result === 'p1' ? m.p1 : m.result === 'p2' ? m.p2 : m.p1;
@@ -1919,30 +1998,40 @@ function renderHomeFeedAll() {
     const winner = getP(winnerId), loser = getP(loserId);
     const isMyMatch = m.p1 === me.id || m.p2 === me.id;
     const p1 = getP(m.p1), p2 = getP(m.p2);
+    const oppId = isMyMatch ? (m.p1 === me.id ? m.p2 : m.p1) : null;
+    const opp = oppId ? getP(oppId) : null;
 
-    let text;
+    let text, matchType;
     if(isMyMatch) {
-      const oppName = (m.p1 === me.id ? p2 : p1)?.nickname || '?';
-      if(isDraw) text = 'Patta con ' + oppName;
-      else if(winnerId === me.id) text = 'Hai vinto contro ' + oppName;
-      else text = 'Hai perso contro ' + oppName;
+      const oppName = opp?.nickname || '?';
+      if(isDraw) { text = 'Patta con ' + oppName; matchType = 'draw'; }
+      else if(winnerId === me.id) { text = 'Hai vinto contro ' + oppName; matchType = 'win'; }
+      else { text = 'Hai perso contro ' + oppName; matchType = 'loss'; }
     } else {
       if(isDraw) text = (p1?.nickname||'?') + ' patta con ' + (p2?.nickname||'?');
       else text = (winner?.nickname||'?') + ' ha vinto contro ' + (loser?.nickname||'?');
+      matchType = 'others';
     }
 
-    let deltaStr = '', deltaColor = 'var(--dim)';
+    let deltaNum = 0, deltaStr = '';
     if(isMyMatch) {
       const elo = eloCache[m.id];
       if(elo) {
-        const d = elo.elo_after - elo.elo_before;
-        deltaStr = d > 0 ? '+' + d : '' + d;
-        deltaColor = isDraw ? 'var(--dim)' : d > 0 ? 'var(--green)' : 'var(--red)';
+        deltaNum = elo.elo_after - elo.elo_before;
+        deltaStr = deltaNum > 0 ? '+' + deltaNum : '' + deltaNum;
       }
     }
 
-    const oppId = isMyMatch ? (m.p1 === me.id ? m.p2 : m.p1) : winnerId;
-    feedItems.push({ type: 'match', time: new Date(m.updated_at || m.created_at).getTime(), text, deltaStr, deltaColor, isMyMatch, profileId: oppId });
+    // Opponent ELO for meta
+    const oppElo = opp ? Math.round(opp.elo) : null;
+    // For others' matches: who did the action (for batching)
+    const actorId = isMyMatch ? null : winnerId;
+    const actorNick = isMyMatch ? null : (winner?.nickname || '?');
+
+    feedItems.push({
+      type: 'match', matchType, time: new Date(m.updated_at || m.created_at).getTime(),
+      text, deltaStr, deltaNum, isMyMatch, oppId, oppElo, actorId, actorNick, matchId: m.id
+    });
   });
 
   feedItems.sort((a, b) => b.time - a.time);
@@ -1952,28 +2041,129 @@ function renderHomeFeedAll() {
     return;
   }
 
-  // All rows same style — chip filters, doesn't change design
-  container.innerHTML = '<div class="ds-group">' + feedItems.map(item => {
-    let rightHtml = '';
-    const isEvent = item.type === 'event';
+  // ── Time divider logic ──
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const yesterdayStart = todayStart - 86400000;
+  const weekStart = todayStart - 6 * 86400000;
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
 
-    if(item.deltaStr) {
-      const dColor = (item.type === 'match' && item.isMyMatch) ? item.deltaColor : 'var(--green)';
-      rightHtml = '<div class="ds-cell-right"><div class="ds-cell-value" style="color:' + dColor + '">' + item.deltaStr + '</div></div>';
+  function getTimeBucket(ts) {
+    if(ts >= todayStart) return 'Oggi';
+    if(ts >= yesterdayStart) return 'Ieri';
+    if(ts >= weekStart) return 'Questa settimana';
+    if(ts >= monthStart) return 'Questo mese';
+    var d = new Date(ts);
+    var months = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+    return months[d.getMonth()] + ' ' + d.getFullYear();
+  }
+
+  // ── Batching logic: group consecutive others' matches by same actor within same time bucket ──
+  const processed = [];
+  var i = 0;
+  while(i < feedItems.length) {
+    var item = feedItems[i];
+    // Only batch others' matches (not mine, not events)
+    if(item.type === 'match' && item.matchType === 'others' && item.actorId) {
+      var bucket = getTimeBucket(item.time);
+      var batchItems = [item];
+      var j = i + 1;
+      while(j < feedItems.length) {
+        var next = feedItems[j];
+        if(next.type === 'match' && next.matchType === 'others' && next.actorId === item.actorId && getTimeBucket(next.time) === bucket) {
+          batchItems.push(next);
+          j++;
+        } else break;
+      }
+      if(batchItems.length >= 2) {
+        processed.push({ type: 'batch', time: item.time, actorId: item.actorId, actorNick: item.actorNick, items: batchItems });
+        i = j;
+      } else {
+        processed.push(item);
+        i++;
+      }
+    } else {
+      processed.push(item);
+      i++;
+    }
+  }
+
+  // ── Render ──
+  var html = '';
+  var lastBucket = '';
+
+  processed.forEach(function(item) {
+    var bucket = getTimeBucket(item.time);
+    if(bucket !== lastBucket) {
+      html += '<div class="time-div">' + bucket + '</div>';
+      lastBucket = bucket;
     }
 
-    const onclick = isEvent ? '' : ' onclick="openProfile(\'' + (item.profileId || item.playerId || '') + '\',\'home\')"';
-    const innerHtml = '<div class="ds-cell-left"><div class="ds-cell-name">' + item.text + '</div><div class="ds-cell-meta">' + timeAgo(new Date(item.time).toISOString()) + '</div></div>' + rightHtml;
+    if(item.type === 'event') {
+      // L5: event with avatar
+      var c = getAvatarColor(item.playerId || '');
+      var letters = getAvatarLetters(item.playerNick || '?');
+      var deltaHtml = item.deltaStr ? '<div class="fe-r"><div class="fe-d">' + item.deltaStr + '</div></div>' : '';
+      html += '<div class="fe">' + avatarHtml(item.playerNick || '?', item.playerId || '') + '<div class="fe-b"><div class="fe-t">' + item.text + '</div></div>' + deltaHtml + '</div>';
 
-    // Wrap my matches in swipe container
-    if(item.type === 'match' && item.isMyMatch && item.profileId) {
-      var ev = _swipeEval(item.profileId);
-      var revealClass = ev.ok ? 'swipe-reveal ok' : 'swipe-reveal blocked';
-      return '<div class="swipe-wrap"><div class="' + revealClass + '"><span class="swipe-reveal-label">' + ev.label + '</span></div><div class="swipe-cell ds-cell" data-opp="' + item.profileId + '"' + onclick + '>' + innerHtml + '</div></div>';
+    } else if(item.type === 'batch') {
+      // Batch: avatar presenter + sub-rows
+      var rows = '';
+      item.items.forEach(function(sub) {
+        // Extract opponent name from text (after "ha vinto contro " or "patta con ")
+        var oppName = '?';
+        var vIdx = sub.text.indexOf(' ha vinto contro ');
+        var pIdx = sub.text.indexOf(' patta con ');
+        if(vIdx !== -1) oppName = sub.text.substring(vIdx + 17);
+        else if(pIdx !== -1) oppName = sub.text.substring(pIdx + 11);
+        var dColor = sub.deltaNum > 0 ? 'var(--green)' : sub.deltaNum < 0 ? 'var(--red-muted)' : 'var(--ghost)';
+        var dStr = sub.deltaStr || '';
+        // Others' matches don't have deltaStr in current implementation — show nothing
+        rows += '<div class="batch-row"><div class="batch-text">' + escHtml(oppName) + '</div></div>';
+      });
+      html += '<div class="batch"><div class="batch-head">' + avatarHtml(item.actorNick, item.actorId) + '<div class="batch-info"><div class="batch-name">' + escHtml(item.actorNick) + '</div><div class="batch-count">· ' + item.items.length + ' partite</div></div></div><div class="batch-rows">' + rows + '</div></div>';
+
+    } else if(item.type === 'match') {
+      // Matches: 4 levels
+      var cls, deltaHtml = '';
+
+      if(item.matchType === 'win') {
+        cls = 'fr w';
+        deltaHtml = '<div class="fr-r"><div class="fr-d">' + item.deltaStr + '</div></div>';
+      } else if(item.matchType === 'loss') {
+        cls = 'fr l';
+        deltaHtml = '<div class="fr-r"><div class="fr-d">' + item.deltaStr + '</div></div>';
+      } else if(item.matchType === 'draw') {
+        cls = 'fr p';
+        deltaHtml = '<div class="fr-r"><div class="fr-d">' + (item.deltaStr || '0') + '</div></div>';
+      } else {
+        cls = 'fr o';
+      }
+
+      // Meta: time within "Oggi", ELO for my matches
+      var meta = '';
+      if(bucket === 'Oggi') meta = timeAgo(new Date(item.time).toISOString());
+      if(item.isMyMatch && item.oppElo) {
+        meta = meta ? meta + ' · ' + item.oppElo : '' + item.oppElo;
+      }
+      var metaHtml = meta ? '<div class="fr-m">' + meta + '</div>' : '';
+
+      var onclick = item.isMyMatch && item.oppId ? ' onclick="openProfile(\'' + item.oppId + '\',\'home\')"' : '';
+
+      var innerHtml = '<div class="fr-l"><div class="fr-n">' + item.text + '</div>' + metaHtml + '</div>' + deltaHtml;
+
+      // Wrap my matches in swipe container
+      if(item.isMyMatch && item.oppId) {
+        var ev = _swipeEval(item.oppId);
+        var revealClass = ev.ok ? 'swipe-reveal ok' : 'swipe-reveal blocked';
+        html += '<div class="swipe-wrap"><div class="' + revealClass + '"><span class="swipe-reveal-label">' + ev.label + '</span></div><div class="swipe-cell ' + cls + '" data-opp="' + item.oppId + '"' + onclick + '>' + innerHtml + '</div></div>';
+      } else {
+        html += '<div class="' + cls + '"' + onclick + '>' + innerHtml + '</div>';
+      }
     }
-    return '<div class="ds-cell' + (isEvent ? ' static' : '') + '"' + onclick + '>' + innerHtml + '</div>';
-  }).join('') + '</div>';
+  });
 
+  container.innerHTML = '<div class="ds-group">' + html + '</div>';
   initFeedSwipe(container.querySelector('.ds-group'));
 }
 
@@ -2053,77 +2243,29 @@ function renderHomeMine() {
     else if(won) text = 'Hai vinto contro ' + oppName;
     else text = 'Hai perso contro ' + oppName;
 
-    let deltaStr = '0', deltaColor = 'var(--dim)';
+    let deltaStr = '0';
     const elo = eloCache[m.id];
     if(elo) {
       const d = elo.elo_after - elo.elo_before;
       deltaStr = d > 0 ? '+' + d : '' + d;
-      deltaColor = isDraw ? 'var(--dim)' : d > 0 ? 'var(--green)' : 'var(--red)';
     }
+
+    const cls = isDraw ? 'fr p' : won ? 'fr w' : 'fr l';
+    const oppElo = opp ? Math.round(opp.elo) : '';
+    const meta = timeAgo(m.created_at) + (oppElo ? ' · ' + oppElo : '');
 
     const ev = _swipeEval(oppId);
     const revealClass = ev.ok ? 'swipe-reveal ok' : 'swipe-reveal blocked';
     html += '<div class="swipe-wrap"><div class="' + revealClass + '"><span class="swipe-reveal-label">' + ev.label + '</span></div>' +
-      '<div class="swipe-cell ds-cell" data-opp="' + oppId + '" onclick="openProfile(\'' + oppId + '\',\'home\')">' +
-        '<div class="ds-cell-left"><div class="ds-cell-name">' + text + '</div><div class="ds-cell-meta">' + timeAgo(m.created_at) + (opp ? ' · ' + Math.round(opp.elo) : '') + '</div></div>' +
-        '<div class="ds-cell-right"><div class="ds-cell-value" style="color:' + deltaColor + '">' + deltaStr + '</div></div>' +
+      '<div class="swipe-cell ' + cls + '" data-opp="' + oppId + '" onclick="openProfile(\'' + oppId + '\',\'home\')">' +
+        '<div class="fr-l"><div class="fr-n">' + text + '</div><div class="fr-m">' + meta + '</div></div>' +
+        '<div class="fr-r"><div class="fr-d">' + deltaStr + '</div></div>' +
       '</div></div>';
   });
   list.innerHTML = '<div class="ds-group">' + html + '</div>';
   initFeedSwipe(list.querySelector('.ds-group'));
 }
 
-function renderHomeEvents() {
-  const list = $('home-events-list');
-  if(!list) return;
-  const items = [];
-  const myJoinedAt = me.created_at ? new Date(me.created_at).getTime() : 0;
-
-  (globalEvents || []).forEach(ev => {
-    if(ev.type === 'peak') return;
-    if(new Date(ev.created_at).getTime() < myJoinedAt) return;
-    const data = ev.data || {};
-    const player = getP(ev.player_id);
-    const target = getP(ev.target_id);
-    const pName = player?.nickname || data.nickname || '?';
-    const tName = target?.nickname || data.overtaken_name || '?';
-    let text = '', deltaStr = '';
-
-    switch(ev.type) {
-      case 'overtake':
-        if(ev.target_id === me.id) text = pName + ' ti ha superato';
-        else if(ev.player_id === me.id) text = 'Hai superato ' + tName;
-        break;
-      case 'upset':
-        var eloDiff = data.elo_diff || 0;
-        if(eloDiff >= 100) { text = pName + ' ha battuto ' + tName; deltaStr = '+' + eloDiff; }
-        break;
-      case 'milestone':
-        var ms = data.milestone || data.elo;
-        if(ms && ms % 100 === 0) text = pName + ' ha raggiunto quota ' + ms;
-        break;
-      case 'streak':
-        if(data.streak >= 5) { text = pName + ', ' + data.streak + ' vittorie di fila!'; if(data.elo_gain) deltaStr = '+' + data.elo_gain; }
-        break;
-      case 'new_player':
-        text = (data.nickname || pName) + ' si è unito a turko';
-        break;
-    }
-    if(text) items.push({ time: new Date(ev.created_at).getTime(), text, deltaStr, playerId: ev.player_id });
-  });
-
-  items.sort((a, b) => b.time - a.time);
-
-  if(!items.length) {
-    list.innerHTML = '<div style="text-align:center;padding:48px;color:var(--ghost);font-size:var(--fs-label)">Nessuna attività ancora</div>';
-    return;
-  }
-
-  list.innerHTML = '<div class="ds-group">' + items.map(item => {
-    const rightHtml = item.deltaStr ? '<div class="ds-cell-right"><div class="ds-cell-value" style="color:var(--green)">' + item.deltaStr + '</div></div>' : '';
-    return '<div class="ds-cell static"><div class="ds-cell-left"><div class="ds-cell-name">' + item.text + '</div><div class="ds-cell-meta">' + timeAgo(new Date(item.time).toISOString()) + '</div></div>' + rightHtml + '</div>';
-  }).join('') + '</div>';
-}
 
 function onPlusTap() {
   // If there's an active match needing result, open result sheet
@@ -2225,7 +2367,7 @@ function selectChallengePlayer(oppId) {
   $('ch-step1').style.display = 'none';
   $('ch-step2').style.display = 'block';
   $('ch-opp-name').textContent = opp.nickname;
-  $('ch-opp-elo').textContent = Math.round(opp.elo) + ' ELO';
+  $('ch-opp-elo').textContent = Math.round(opp.elo);
 
   // Reset time to Rapid
   document.querySelectorAll('.ch-time-chip').forEach(c => c.classList.remove('on'));
@@ -2234,7 +2376,16 @@ function selectChallengePlayer(oppId) {
 
 function pickChallengeTime(btn) {
   document.querySelectorAll('.ch-time-chip').forEach(c => c.classList.remove('on'));
+  // Bounce: shrink then spring back via CSS transition
+  btn.style.transition = 'none';
+  btn.style.transform = 'scale(0.94) translateY(2px)';
   btn.classList.add('on');
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      btn.style.transition = 'transform var(--dur-bounce) var(--ease-bounce)';
+      btn.style.transform = '';
+    });
+  });
 }
 
 async function pickChallengeColor(color) {
@@ -3232,9 +3383,9 @@ document.querySelectorAll(".nbtn").forEach(btn => {
 
     <!-- Step 2: Config -->
     <div id="ch-step2" style="display:none">
-      <div style="text-align:center;margin-bottom:var(--sp-lg)">
-        <div style="font-size:var(--fs-title);font-weight:700;color:var(--text)" id="ch-opp-name"></div>
-        <div style="font-size:var(--fs-caption);color:var(--dim);margin-top:2px" id="ch-opp-elo"></div>
+      <div style="margin-bottom:var(--sp-xl)">
+        <span style="font-size:var(--fs-title);font-weight:700;color:var(--text)" id="ch-opp-name"></span>
+        <span style="font-size:var(--fs-caption);color:var(--dim);font-weight:400" id="ch-opp-elo"></span>
       </div>
 
       <div style="font-size:var(--fs-label);color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:var(--sp-sm)">Tempo</div>
