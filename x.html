@@ -6,16 +6,23 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-<title>turko — Feed completo</title>
+<title>turko — Feed v2</title>
 <style>
 :root{
   --bg:#161512;--surface:#1d1a16;--border:#2a2724;
   --text:#e8e6e3;--muted:#8a8580;--dim:#6a6560;--ghost:#504a45;
   --green:#7ab535;--red:#d45454;
-  --win-tint:rgba(122,181,53,.025);
-  --lose-tint:rgba(212,84,84,.02);
+
+  /* Juice tokens — refined */
+  --win-tint:rgba(122,181,53,.018);
+  --lose-tint:rgba(212,84,84,.015);
   --red-muted:#8a4040;
-  --delta-win-size:17px;--delta-lose-size:13px;
+
+  /* 3 type sizes only */
+  --feed-title:15px;
+  --feed-body:14px;
+  --feed-micro:12px;
+
   --fs-hero:48px;--fs-title:22px;--fs-body:16px;--fs-caption:13px;--fs-label:12px;--fs-micro:10px;
   --sp-xs:4px;--sp-sm:8px;--sp-md:12px;--sp-lg:16px;--sp-xl:24px;
   --r-md:14px;
@@ -33,60 +40,74 @@ html,body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:va
 .chip{padding:var(--sp-sm) var(--sp-lg);border-radius:20px;font-size:var(--fs-caption);font-weight:600;font-family:inherit;border:1px solid var(--border);background:transparent;color:var(--dim);white-space:nowrap}
 .chip.on{background:var(--text);color:var(--bg);border-color:var(--text)}
 
-.ds-group{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r-md);overflow:hidden;margin-bottom:var(--sp-md)}
+.ds-group{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r-md);overflow:hidden}
 
-/* ── Feed rows ── */
-.fr{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--sp-lg);min-height:48px;border-bottom:0.5px solid var(--border)}
+/* ═══════════════════════════════════ */
+/* FEED ROWS — 3 sizes, weight = signal */
+/* ═══════════════════════════════════ */
+
+.fr{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--sp-lg);min-height:46px;border-bottom:0.5px solid var(--border)}
 .fr:last-child{border-bottom:none}
 .fr-l{flex:1;min-width:0}
-.fr-n{font-size:var(--fs-body);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
-.fr-m{font-size:var(--fs-label);margin-top:1px}
+.fr-n{font-size:var(--feed-title);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.fr-m{font-size:var(--feed-micro);margin-top:2px}
 .fr-r{flex-shrink:0;text-align:right;margin-left:var(--sp-md)}
-.fr-d{font-weight:700;line-height:1.2}
+/* Delta: SAME size for all, weight+color = signal */
+.fr-d{font-size:var(--feed-title);line-height:1.2}
 
-/* L1: vittoria */
+/* L1: vittoria — accesa ma non neon */
 .fr.w{background:var(--win-tint)}
-.fr.w .fr-n{color:var(--text);font-weight:600}
+.fr.w .fr-n{color:var(--text);font-weight:700}
 .fr.w .fr-m{color:var(--ghost)}
-.fr.w .fr-d{color:var(--green);font-size:var(--delta-win-size);font-weight:800}
+.fr.w .fr-d{color:var(--green);font-weight:800}
 
-/* L2: sconfitta */
+/* L2: sconfitta — spenta */
 .fr.l{background:var(--lose-tint)}
 .fr.l .fr-n{color:var(--dim);font-weight:500}
 .fr.l .fr-m{color:var(--ghost)}
-.fr.l .fr-d{color:var(--red-muted);font-size:var(--delta-lose-size);font-weight:600}
+.fr.l .fr-d{color:var(--red-muted);font-weight:500}
 
-/* L3: patta */
-.fr.p .fr-n{color:var(--ghost);font-weight:500}
+/* L3: patta — neutra ma leggibile */
+.fr.p .fr-n{color:var(--dim);font-weight:500}
 .fr.p .fr-m{color:var(--ghost)}
-.fr.p .fr-d{color:var(--ghost);font-size:var(--delta-lose-size);font-weight:500}
+.fr.p .fr-d{color:var(--ghost);font-weight:500}
 
-/* L4: altrui */
-.fr.o .fr-n{color:var(--dim);font-weight:400}
+/* L4: altrui — contesto */
+.fr.o .fr-n{color:var(--dim);font-weight:400;font-size:var(--feed-body)}
 .fr.o .fr-m{color:var(--ghost)}
 
-/* L5: evento */
-.fe{display:flex;align-items:center;gap:var(--sp-md);padding:var(--sp-lg);border-bottom:0.5px solid var(--border);background:rgba(255,255,255,.015)}
+/* ═══════════════════════════════════ */
+/* L5: EVENTO — card con avatar       */
+/* ═══════════════════════════════════ */
+
+.fe{display:flex;align-items:center;gap:var(--sp-md);padding:var(--sp-lg);border-bottom:0.5px solid var(--border);background:rgba(255,255,255,.012)}
 .fe:last-child{border-bottom:none}
 .fe-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:var(--fs-caption);font-weight:700;flex-shrink:0;letter-spacing:-.5px}
 .fe-b{flex:1;min-width:0}
-.fe-t{font-size:var(--fs-body);font-weight:600;color:var(--text);line-height:1.3}
-.fe-m{font-size:var(--fs-label);color:var(--ghost);margin-top:1px}
+.fe-t{font-size:var(--feed-title);font-weight:600;color:var(--text);line-height:1.3}
+.fe-m{font-size:var(--feed-micro);color:var(--ghost);margin-top:2px}
 .fe-r{flex-shrink:0;text-align:right;margin-left:var(--sp-md)}
-.fe-d{font-size:var(--fs-caption);font-weight:700;color:var(--green)}
+.fe-d{font-size:var(--feed-title);font-weight:700;color:var(--green)}
 
-/* ── Batch ── */
-.batch{border-bottom:0.5px solid var(--border)}
+/* ═══════════════════════════════════ */
+/* BATCH — avatar as anchor            */
+/* ═══════════════════════════════════ */
+
+.batch{border-bottom:0.5px solid var(--border);padding:var(--sp-md) var(--sp-lg)}
 .batch:last-child{border-bottom:none}
-.batch-header{display:flex;align-items:center;gap:var(--sp-md);padding:var(--sp-md) var(--sp-lg) var(--sp-xs)}
+
+.batch-head{display:flex;align-items:center;gap:var(--sp-sm);margin-bottom:var(--sp-sm)}
 .batch-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;letter-spacing:-.3px}
-.batch-name{font-size:var(--fs-caption);font-weight:600;color:var(--muted)}
-.batch-count{font-size:var(--fs-micro);color:var(--ghost);font-weight:500}
-.batch-rows{padding-left:52px}
-.batch-row{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-xs) var(--sp-lg) var(--sp-xs) 0;min-height:32px}
-.batch-row:last-child{padding-bottom:var(--sp-md)}
-.batch-text{font-size:var(--fs-caption);color:var(--dim);font-weight:400;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.batch-delta{font-size:var(--fs-label);font-weight:600;margin-left:var(--sp-md);flex-shrink:0}
+.batch-info{display:flex;align-items:baseline;gap:var(--sp-xs)}
+.batch-name{font-size:var(--feed-title);font-weight:600;color:var(--muted)}
+.batch-count{font-size:var(--feed-micro);color:var(--ghost)}
+
+/* Sub-rows: aligned to where name starts (28px avatar + 8px gap = 36px) */
+.batch-rows{margin-left:36px}
+.batch-row{display:flex;align-items:center;justify-content:space-between;padding:3px 0}
+.batch-text{font-size:var(--feed-body);color:var(--dim);font-weight:400;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Delta in batch: same size as everywhere, weight+color = signal */
+.batch-delta{font-size:var(--feed-body);font-weight:600;margin-left:var(--sp-md);flex-shrink:0}
 </style>
 </head>
 <body>
@@ -104,10 +125,6 @@ html,body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:va
   <div class="chip">Attività</div>
   <div class="chip">Classifica</div>
 </div>
-
-<!-- ═══════════════════════════════════════ -->
-<!-- FEED COMPLETO — luminanza + avatar + batch -->
-<!-- ═══════════════════════════════════════ -->
 
 <div class="ds-group">
 
@@ -129,12 +146,14 @@ html,body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:va
     <div class="fr-r"><div class="fr-d">0</div></div>
   </div>
 
-  <!-- BATCH: caio ha giocato 3 partite ravvicinate -->
+  <!-- BATCH: caio 3 partite -->
   <div class="batch">
-    <div class="batch-header">
+    <div class="batch-head">
       <div class="batch-av" style="background:#5c3d5e;color:#d4b8d6">ca</div>
-      <div class="batch-name">caio</div>
-      <div class="batch-count">· 3 partite</div>
+      <div class="batch-info">
+        <div class="batch-name">caio</div>
+        <div class="batch-count">· 3 partite</div>
+      </div>
     </div>
     <div class="batch-rows">
       <div class="batch-row">
@@ -170,7 +189,7 @@ html,body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:va
     <div class="fr-r"><div class="fr-d">+18</div></div>
   </div>
 
-  <!-- L4: partita altrui singola (non batchata) -->
+  <!-- L4: altrui singola -->
   <div class="fr o">
     <div class="fr-l"><div class="fr-n">uffa ha vinto contro ppp</div><div class="fr-m">2 giorni fa</div></div>
   </div>
@@ -199,12 +218,14 @@ html,body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:va
     <div class="fr-r"><div class="fr-d">-18</div></div>
   </div>
 
-  <!-- BATCH: mario ha giocato 2 partite -->
+  <!-- BATCH: mario 2 partite -->
   <div class="batch">
-    <div class="batch-header">
+    <div class="batch-head">
       <div class="batch-av" style="background:#5a4a2e;color:#d4c48a">ma</div>
-      <div class="batch-name">mario</div>
-      <div class="batch-count">· 2 partite</div>
+      <div class="batch-info">
+        <div class="batch-name">mario</div>
+        <div class="batch-count">· 2 partite</div>
+      </div>
     </div>
     <div class="batch-rows">
       <div class="batch-row">
