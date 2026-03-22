@@ -91,13 +91,17 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 body.sheet-open #sa-cover{background:#000000}
 
 /* ── Navbar ── */
-.navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;display:flex;padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg);z-index:100}
-.navbar-frost{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:calc(80px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top, var(--bg) 60%, transparent 100%);pointer-events:none;z-index:99}
-.nbtn{flex:1;min-height:52px;padding:10px 0;background:none;border:none;color:#6a6560;font-size:10px;text-transform:uppercase;letter-spacing:.8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative;transition:color .2s ease}
-.nbtn.on{color:#e8e6e3}
+.navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(var(--nav-y,0));width:100%;max-width:480px;display:flex;padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg);z-index:100;will-change:transform}
+.navbar-frost{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(var(--nav-y,0));width:100%;max-width:480px;height:calc(80px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top, var(--bg) 60%, transparent 100%);pointer-events:none;z-index:99;will-change:transform}
+.nbtn{flex:1;min-height:48px;padding:12px 0;background:none;border:none;color:var(--ghost);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:color .2s}
+.nbtn.on{color:var(--text)}
 .nbtn:active{opacity:.6}
-.nicon{width:22px;height:22px;display:block}
-.badge{position:absolute;top:8px;right:calc(50% - 20px);background:#d45454;color:#fff;border-radius:8px;padding:0 5px;font-size:9px;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center}
+.nbtn .ico-outline{display:block}
+.nbtn .ico-filled{display:none}
+.nbtn.on .ico-outline{display:none}
+.nbtn.on .ico-filled{display:block}
+.nicon{width:24px;height:24px;display:block}
+.badge{position:absolute;top:6px;right:calc(50% - 20px);background:var(--green);width:6px;height:6px;border-radius:50%}
 
 /* ── Auth ── */
 #auth{min-height:100dvh;display:flex;flex-direction:column;background:#161512;position:relative}
@@ -382,9 +386,10 @@ body.sheet-open #sa-cover{background:#000000}
 .ch-player-row:active{opacity:.5}
 
 /* ── Nav Plus button ── */
-.nav-plus-wrap{flex:1;display:flex;align-items:center;justify-content:center;min-height:52px}
-.nav-plus{width:32px;height:32px;border-radius:50%;background:var(--text);color:var(--bg);font-size:22px;font-weight:300;display:flex;align-items:center;justify-content:center;line-height:1;cursor:pointer;border:none;font-family:inherit;transition:transform var(--dur-fast) var(--ease-spring),opacity var(--dur-fast)}
-.nav-plus:active{transform:scale(.9);opacity:.8}
+.nav-plus-wrap{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px}
+.nav-plus{background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform var(--dur-bounce) var(--ease-bounce)}
+.nav-plus:active{transform:scale(.85)}
+.nav-plus svg{width:28px;height:28px}
 
 /* ── Swipe-to-challenge ── */
 .swipe-wrap{position:relative;overflow:hidden;touch-action:pan-y;border-bottom:0.5px solid var(--border)}
@@ -607,15 +612,22 @@ body.sheet-open #sa-cover{background:#000000}
   <div class="navbar-frost"></div>
   <div class="navbar">
     <button class="nbtn on" data-page="home">
-      <svg class="nicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
-      <span>Home</span><span id="badge" class="badge hidden"></span>
+      <svg class="nicon ico-outline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+      <svg class="nicon ico-filled" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M11.3 3.3a1 1 0 011.4 0l8.5 6.2a1 1 0 01.4.8V20a2 2 0 01-2 2h-4v-8a1 1 0 00-1-1h-5a1 1 0 00-1 1v8H4.4a2 2 0 01-2-2V10.3a1 1 0 01.4-.8l8.5-6.2z"/></svg>
+      <span id="badge" class="badge hidden"></span>
     </button>
     <div class="nav-plus-wrap">
-      <button class="nav-plus" id="nav-plus-btn" onclick="onPlusTap()">+</button>
+      <button class="nav-plus" id="nav-plus-btn" onclick="onPlusTap()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9.5"/>
+          <line x1="12" y1="8" x2="12" y2="16"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>
+      </button>
     </div>
     <button class="nbtn" data-page="profile-me">
-      <svg class="nicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-      <span>Profilo</span>
+      <svg class="nicon ico-outline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <svg class="nicon ico-filled" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="8" r="4.5"/><path d="M3.5 20.5c0-4.4 3.8-7.5 8.5-7.5s8.5 3.1 8.5 7.5"/></svg>
     </button>
   </div>
 </div>
@@ -3351,6 +3363,48 @@ function showPage(name) {
 document.querySelectorAll(".nbtn").forEach(btn => {
   btn.onclick = () => showPage(btn.dataset.page);
 });
+
+// ── Navbar: fluid hide on scroll (home feed only) ──
+(function() {
+  var navbar = document.querySelector('.navbar');
+  var frost = document.querySelector('.navbar-frost');
+  var feed = document.querySelector('.home-feed');
+  if(!feed || !navbar || !frost) return;
+
+  var navH = 80; // approx navbar height + safe area
+  var offset = 0; // current hide offset in px (0 = visible, navH = hidden)
+  var lastY = 0;
+  var ticking = false;
+
+  function applyOffset() {
+    var clamped = Math.max(0, Math.min(navH, offset));
+    var pct = clamped / navH * 100;
+    navbar.style.setProperty('--nav-y', pct + '%');
+    frost.style.setProperty('--nav-y', pct + '%');
+  }
+
+  feed.addEventListener('scroll', function() {
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(function() {
+      var y = feed.scrollTop;
+      var dy = y - lastY;
+      lastY = y;
+
+      // Near top: always show
+      if(y < 60) {
+        offset = 0;
+      } else {
+        // Accumulate offset following the finger
+        offset += dy;
+        offset = Math.max(0, Math.min(navH, offset));
+      }
+
+      applyOffset();
+      ticking = false;
+    });
+  }, {passive: true});
+})();
 
 </script>
 
