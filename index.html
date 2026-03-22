@@ -184,14 +184,6 @@ body.sheet-open #sa-cover{background:#000000}
 
 /* ── CAB (legacy — hidden) ── */
 #cab{display:none}
-.cab-search-bar{height:52px;background:#1d1a16;border:1px solid #504a45;border-radius:16px;display:none;align-items:center;padding:0 14px 0 18px;gap:10px;flex-shrink:0}
-.cab-search-bar.open{display:flex}
-.cab-search-input{flex:1;background:transparent;border:none;border-radius:0;padding:0;font-size:16px;font-weight:500;color:#e8e6e3;outline:none;height:100%}
-.cab-search-input::placeholder{color:#6a6560;font-weight:400;font-size:15px}
-.cab-close-btn{background:none;border:none;color:#8a8580;font-size:20px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0}
-.cab-results{position:absolute;top:calc(100% + 4px);left:16px;right:16px;background:#161512;border:1px solid #2a2724;border-radius:16px;overflow:hidden;max-height:300px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;box-shadow:0 8px 32px rgba(0,0,0,.6);display:none;z-index:10}
-.cab-results.open{display:block}
-.cab-feedback{display:none}
 
 
 
@@ -493,26 +485,6 @@ body.sheet-open #sa-cover{background:#000000}
         </div>
       </div>
 
-      <!-- CAB (legacy — hidden, kept for JS compatibility) -->
-      <div id="cab" style="display:none">
-        <div class="cab-bar cab-idle hidden" id="cab-bar" onclick="onCABTap()">
-          <span class="cab-icon" id="cab-icon">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </span>
-          <div class="cab-label-wrap">
-            <span class="cab-label" id="cab-label">Gioca</span>
-            <span class="cab-label-sub hidden" id="cab-label-sub"></span>
-          </div>
-          <span class="cab-arrow hidden" id="cab-arrow">›</span>
-          <div class="cab-feedback" id="cab-feedback">Inviato</div>
-        </div>
-        <div class="cab-search-bar" id="cab-search-bar">
-          <input id="cab-search-input" class="cab-search-input" placeholder="cerca avversario" autocorrect="off" autocapitalize="none" spellcheck="false">
-          <button class="cab-close-btn" onclick="closeCABSearch()">✕</button>
-        </div>
-        <div class="cab-results" id="cab-results"></div>
-      </div>
-
       <!-- Active cards — pinned above scroll, always visible -->
       <div id="home-active" style="padding:0 var(--sp-lg);flex-shrink:0"></div>
 
@@ -703,7 +675,6 @@ function startRealtime() {
         if(idx !== -1) players[idx] = {...players[idx], ...payload.new};
         else players.push(payload.new);
         if(payload.new.id === me.id) me = {...me, ...payload.new};
-        if(_cabState === 'search') renderCABSearch();
       }
     })
     .subscribe((status) => {
@@ -828,14 +799,6 @@ function _toastFlush() {
   el.getBoundingClientRect();
   el.style.opacity = "1";
   el.style.transform = showTransform;
-
-  // Cancella cab feedback se result arriva durante
-  if(isResult) {
-    clearTimeout(_cabFeedbackTimer);
-    const feedback = $('cab-feedback');
-    if(feedback) { feedback.classList.remove('show'); feedback.classList.remove('hide'); }
-    _cabState = 'idle';
-  }
 
   const duration = isResult ? 3500 : 2400;
   clearTimeout(el._t);
@@ -1189,8 +1152,6 @@ async function enterApp(player) {
   startPolling();
   startRealtime();
   startHeartbeat();
-  // STEP 2: mostra CAB all'entrata
-  setCabVisibility('home');
 }
 
 async function generateMatchEvents(m) {
@@ -1343,7 +1304,6 @@ async function fetchAll() {
     players = ps;
     const upd = ps.find(p => p.id===me.id);
     if(upd) me = upd;
-    if(_cabState === 'search') renderCABSearch();
   }
   if(Array.isArray(ms) && Array.isArray(done)) matches = [...ms, ...done];
   else if(Array.isArray(ms)) matches = ms;
@@ -1880,9 +1840,6 @@ function renderHome() {
   // Active cards — zona fissa tra CAB e storico
   renderActiveCards(activeCards, sentChallenges, incomingChallenges);
 
-  // Contextual Action Bar
-  updateCAB();
-
   // ── Feed ──
   const activeChip = document.querySelector('.home-chips .ds-chip.on');
   const chipText = activeChip ? activeChip.textContent.trim() : 'Tutto';
@@ -1893,21 +1850,6 @@ function renderHome() {
   if(activeView === 'events') renderHomeEvents();
   if(activeView === 'ranking') renderHomeRanking();
 }
-
-// ── STEP 2: Contextual Action Bar ──
-
-let _cabState = 'idle'; // idle | action | incoming | waiting | search
-let _cabFeedbackTimer = null;
-
-// Stato corrente della CAB — calcolato da renderHome
-function updateCAB() {
-  // CAB bar is replaced by nav "+" button.
-  // Keep cab container for search overlay only.
-  // Hide the bar always, search bar shows/hides via openCABSearch/closeCABSearch.
-  const bar = $('cab-bar');
-  if (bar) bar.classList.add('hidden');
-}
-
 
 // Tap sulla CAB in stato idle — apre search
 function switchHomeChip(btn, view) {
@@ -2319,91 +2261,6 @@ async function pickChallengeColor(color) {
   }, 250);
 }
 
-// Open challenge sheet directly at step 2 for a specific player (from swipe, search, etc.)
-function onCABTap() {
-  if(_cabState !== 'idle') return;
-  openCABSearch();
-}
-
-function openCABSearch() {
-  _cabState = 'search';
-  $('cab-bar').style.display = 'none';
-  $('cab-search-bar').classList.add('open');
-  $('cab-search-input').value = '';
-  $('cab-results').innerHTML = '';
-  $('cab-results').classList.remove('open');
-  $('page-home').classList.add('search-open');
-  setTimeout(() => $('cab-search-input').focus(), 80);
-}
-
-function closeCABSearch() {
-  _cabState = 'idle';
-  $('cab-bar').style.display = '';
-  $('cab-search-bar').classList.remove('open');
-  $('cab-search-input').value = '';
-  $('cab-results').innerHTML = '';
-  $('cab-results').classList.remove('open');
-  $('page-home').classList.remove('search-open');
-  updateCAB();
-}
-
-// ── Challenge sheet — sfida ricevuta, accetta/declina ──
-let _challengeSheetMatchId = null;
-
-// N partite live — mini sheet con lista
-
-// Feedback "Risultato inviato" → cross-fade → "Gioca" dopo 2s
-if($('cab-search-input')) $('cab-search-input').addEventListener('input', renderCABSearch);
-
-function renderCABSearch() {
-  const q = $('cab-search-input').value.toLowerCase();
-  const results = $('cab-results');
-  if(!q) {
-    results.classList.remove('open');
-    results.innerHTML = '';
-    return;
-  }
-  const filtered = players.filter(p => p.id!==me.id && p.nickname.toLowerCase().includes(q));
-  if(!filtered.length) {
-    results.innerHTML = `<div style="padding:16px 16px;font-size:13px;color:#6a6560;text-align:center">Nessuno trovato.</div>`;
-    results.classList.add('open');
-    return;
-  }
-  const now = Date.now();
-  results.innerHTML = filtered.map(p => {
-    const isOnline = p.last_seen_at && (now - new Date(p.last_seen_at).getTime()) < ONLINE_MS;
-    const isBusy = isPlayerBusy(p.id);
-    const onlineDot = `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${isOnline?'#7ab535':'#2a2724'};flex-shrink:0;margin-top:1px"></span>`;
-    const statusLabel = isBusy ? 'in partita' : !isOnline ? 'offline' : '';
-    const canChallenge = isOnline && !isBusy;
-    const playBtn = canChallenge
-      ? `<button class="btn-play" style="padding:9px 16px;font-size:14px" onclick="event.stopPropagation();closeCABSearch();openNewChallengeSheetForPlayer('${p.id}')">Gioca</button>`
-      : `<button class="btn-play unavailable" style="padding:9px 14px;font-size:13px" disabled>${isBusy ? 'In partita' : 'Offline'}</button>`;
-    return `<div style="padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #252220;cursor:pointer;-webkit-tap-highlight-color:transparent" onclick="closeCABSearch();openProfile('${p.id}', 'home')">
-      <div style="flex:1;min-width:0">
-        <div style="font-size:15px;font-weight:600;color:#e8e6e3;display:flex;align-items:center;gap:7px">${onlineDot}${p.nickname}</div>
-        <div style="font-size:12px;color:#6a6560;margin-top:2px">${p.elo}${statusLabel ? ` · ${statusLabel}` : ''}</div>
-      </div>
-      ${playBtn}
-    </div>`;
-  }).join('');
-  // Rimuovi border sull'ultimo elemento
-  const lastRow = results.lastElementChild;
-  if(lastRow) lastRow.style.borderBottom = 'none';
-  results.classList.add('open');
-}
-
-// Visibilità CAB: solo su home
-// CAB è inline in #page-home — visibilità automatica con la pagina.
-// Questa funzione ora serve solo a chiudere la search se aperta al cambio pagina.
-function setCabVisibility(pageName) {
-  if(pageName !== 'home' && _cabState === 'search') closeCABSearch();
-}
-
-// Legacy — openHomeSearch/closeHomeSearch ora delegano alla CAB
-function openHomeSearch() { openCABSearch(); }
-function closeHomeSearch() { closeCABSearch(); }
-
 // ── Action sheet colore ──
 let sheetOppId = null;
 let sheetColorChoice = 'me';
@@ -2419,10 +2276,6 @@ function openNewChallengeSheetForPlayer(oppId) {
 
 
 
-
-
-// --- SEARCH (legacy — page removed, kept for compatibility) ---
-const ONLINE_MS = 30 * 1000;
 
 async function acceptChallenge(matchId) {
   await db.patch("matches", `id=eq.${matchId}`, {status: "active"});
@@ -3341,7 +3194,6 @@ function showPage(name) {
   if(pageEl) pageEl.classList.add("active");
   const navBtn = document.querySelector(`.nbtn[data-page="${name}"]`) || document.querySelector('.nbtn[data-page="profile-me"]');
   if(navBtn) navBtn.classList.add("on");
-  setCabVisibility(name === 'profile-me' ? 'profile' : name);
   if(name==="profile-me") { openProfile(me.id, "home"); }
 }
 
@@ -3349,18 +3201,6 @@ document.querySelectorAll(".nbtn").forEach(btn => {
   btn.onclick = () => showPage(btn.dataset.page);
 });
 
-
-// STEP 2: chiudi CAB search al tap fuori
-document.addEventListener('touchstart', (e) => {
-  if(_cabState !== 'search') return;
-  const cab = $('cab');
-  if(!cab.contains(e.target)) closeCABSearch();
-}, {passive: true});
-
-// STEP 2: chiudi CAB search allo scroll della home
-document.querySelector('.home-feed').addEventListener('scroll', () => {
-  if(_cabState === 'search') closeCABSearch();
-}, {passive: true});
 </script>
 
 <!-- ACTION SHEET RISULTATO -->
@@ -3386,7 +3226,7 @@ document.querySelector('.home-feed').addEventListener('scroll', () => {
     <!-- Step 1: Player list -->
     <div id="ch-step1">
       <div style="font-size:var(--fs-title);font-weight:800;color:var(--text);margin-bottom:var(--sp-lg);letter-spacing:-.5px">Chi sfidi?</div>
-      <input id="ch-search" style="background:transparent;border:none;border-bottom:1px solid var(--border);padding:12px 0;font-size:var(--fs-body);font-weight:500;color:var(--text);width:100%;outline:none;font-family:inherit;-webkit-user-select:text;user-select:text" placeholder="Cerca..." oninput="filterChallengePlayers(this.value)" autocorrect="off" autocapitalize="none" spellcheck="false">
+      <input id="ch-search" style="background:transparent;border:none;border-bottom:1px solid var(--border);border-radius:0;padding:12px 0;font-size:var(--fs-body);font-weight:500;color:var(--text);width:100%;outline:none;font-family:inherit;-webkit-user-select:text;user-select:text" placeholder="Cerca..." oninput="filterChallengePlayers(this.value)" autocorrect="off" autocapitalize="none" spellcheck="false">
       <div id="ch-player-list" style="height:280px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-top:var(--sp-sm)"></div>
     </div>
 
