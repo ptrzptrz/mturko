@@ -448,7 +448,7 @@ body.sheet-open #sa-cover{background:#000000}
 .batch-rows{margin-left:40px;padding-bottom:var(--sp-xs)}
 .batch-row{display:flex;align-items:center;justify-content:space-between;padding:3px 0}
 .batch-text{font-size:var(--feed-body);color:var(--dim);font-weight:500}
-.batch-delta{font-size:var(--feed-body);font-weight:600;margin-left:var(--sp-md);flex-shrink:0}
+.batch-delta{font-size:var(--feed-body);font-weight:600;margin-left:var(--sp-md);flex-shrink:0;color:var(--dim)}
 
 /* ── Feed juice: time divider ── */
 .time-div{padding:var(--sp-xl) var(--sp-lg) var(--sp-sm);font-size:var(--feed-micro);font-weight:600;color:var(--ghost);text-transform:uppercase;letter-spacing:1.2px}
@@ -1943,7 +1943,8 @@ function renderHome() {
   if(activeView === 'ranking') renderHomeRanking();
 }
 
-// Tap sulla CAB in stato idle — apre search
+var _doStagger = true; // only on first load
+
 function switchHomeChip(btn, view) {
   document.querySelectorAll('.home-chips .ds-chip').forEach(c => c.classList.remove('on'));
   btn.classList.add('on');
@@ -1953,6 +1954,21 @@ function switchHomeChip(btn, view) {
   if(view === 'all') renderHomeFeedAll();
   if(view === 'mine') renderHomeMine();
   if(view === 'ranking') renderHomeRanking();
+}
+
+function applyStagger(container) {
+  var items = container.querySelectorAll('.stagger');
+  if(!_doStagger) {
+    // No animation — show immediately
+    items.forEach(function(el) { el.classList.remove('stagger'); });
+    return;
+  }
+  _doStagger = false;
+  items.forEach(function(el, i) {
+    el.style.animationDelay = (i * 60) + 'ms';
+    el.offsetHeight;
+    el.classList.add('in');
+  });
 }
 
 function renderHomeFeedAll() {
@@ -2032,6 +2048,13 @@ function renderHomeFeedAll() {
         deltaNum = elo.elo_after - elo.elo_before;
         deltaStr = deltaNum > 0 ? '+' + deltaNum : '' + deltaNum;
       }
+    } else {
+      // Others' matches: get actor's delta from globalEloCache
+      const actorElo = globalEloCache[m.id + '_' + winnerId];
+      if(actorElo) {
+        deltaNum = actorElo.elo_after - actorElo.elo_before;
+        deltaStr = deltaNum > 0 ? '+' + deltaNum : '' + deltaNum;
+      }
     }
 
     // Opponent ELO for meta
@@ -2039,10 +2062,12 @@ function renderHomeFeedAll() {
     // For others' matches: who did the action (for batching)
     const actorId = isMyMatch ? null : winnerId;
     const actorNick = isMyMatch ? null : (winner?.nickname || '?');
+    const batchOppId = isMyMatch ? null : loserId;
+    const batchOppNick = isMyMatch ? null : (loser?.nickname || '?');
 
     feedItems.push({
       type: 'match', matchType, time: new Date(m.updated_at || m.created_at).getTime(),
-      text, deltaStr, deltaNum, isMyMatch, oppId, oppElo, actorId, actorNick, matchId: m.id
+      text, deltaStr, deltaNum, isMyMatch, oppId, oppElo, actorId, actorNick, batchOppId, batchOppNick, matchId: m.id
     });
   });
 
@@ -2058,12 +2083,14 @@ function renderHomeFeedAll() {
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
   const yesterdayStart = todayStart - 86400000;
   const weekStart = todayStart - 6 * 86400000;
+  const lastWeekStart = todayStart - 13 * 86400000;
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
 
   function getTimeBucket(ts) {
     if(ts >= todayStart) return 'Oggi';
     if(ts >= yesterdayStart) return 'Ieri';
     if(ts >= weekStart) return 'Questa settimana';
+    if(ts >= lastWeekStart) return 'Scorsa settimana';
     if(ts >= monthStart) return 'Questo mese';
     var d = new Date(ts);
     var months = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
@@ -2107,33 +2134,31 @@ function renderHomeFeedAll() {
   processed.forEach(function(item) {
     var bucket = getTimeBucket(item.time);
     if(bucket !== lastBucket) {
-      html += '<div class="time-div">' + bucket + '</div>';
+      html += '<div class="time-div stagger">' + bucket + '</div>';
       lastBucket = bucket;
     }
 
     if(item.type === 'event') {
       // L5: event with avatar
-      var c = getAvatarColor(item.playerId || '');
-      var letters = getAvatarLetters(item.playerNick || '?');
       var deltaHtml = item.deltaStr ? '<div class="fe-r"><div class="fe-d">' + item.deltaStr + '</div></div>' : '';
-      html += '<div class="fe">' + avatarHtml(item.playerNick || '?', item.playerId || '') + '<div class="fe-b"><div class="fe-t">' + item.text + '</div></div>' + deltaHtml + '</div>';
+      var evClick = item.playerId ? ' onclick="openProfile(\'' + item.playerId + '\',\'home\')"' : '';
+      html += '<div class="fe stagger"' + evClick + ' style="cursor:pointer">' + avatarHtml(item.playerNick || '?', item.playerId || '') + '<div class="fe-b"><div class="fe-t">' + item.text + '</div></div>' + deltaHtml + '</div>';
 
     } else if(item.type === 'batch') {
       // Batch: avatar presenter + sub-rows
       var rows = '';
       item.items.forEach(function(sub) {
-        // Extract opponent name from text (after "ha vinto contro " or "patta con ")
-        var oppName = '?';
-        var vIdx = sub.text.indexOf(' ha vinto contro ');
-        var pIdx = sub.text.indexOf(' patta con ');
-        if(vIdx !== -1) oppName = sub.text.substring(vIdx + 17);
-        else if(pIdx !== -1) oppName = sub.text.substring(pIdx + 11);
-        var dColor = sub.deltaNum > 0 ? 'var(--green)' : sub.deltaNum < 0 ? 'var(--red-muted)' : 'var(--ghost)';
-        var dStr = sub.deltaStr || '';
-        // Others' matches don't have deltaStr in current implementation — show nothing
-        rows += '<div class="batch-row"><div class="batch-text">' + escHtml(oppName) + '</div></div>';
+        var oppName = sub.batchOppNick || '?';
+        var oppId = sub.batchOppId || '';
+        var deltaHtml = '';
+        if(sub.deltaStr) {
+          deltaHtml = '<div class="batch-delta">' + sub.deltaStr + '</div>';
+        }
+        var onclick = oppId ? ' onclick="openProfile(\'' + oppId + '\',\'home\')"' : '';
+        rows += '<div class="batch-row"' + onclick + ' style="cursor:pointer"><div class="batch-text">' + escHtml(oppName) + '</div>' + deltaHtml + '</div>';
       });
-      html += '<div class="batch"><div class="batch-head">' + avatarHtml(item.actorNick, item.actorId) + '<div class="batch-info"><div class="batch-name">' + escHtml(item.actorNick) + '</div><div class="batch-count">· ' + item.items.length + ' partite</div></div></div><div class="batch-rows">' + rows + '</div></div>';
+      var headerClick = item.actorId ? ' onclick="openProfile(\'' + item.actorId + '\',\'home\')"' : '';
+      html += '<div class="batch stagger"><div class="batch-head"' + headerClick + ' style="cursor:pointer">' + avatarHtml(item.actorNick, item.actorId) + '<div class="batch-info"><div class="batch-name">' + escHtml(item.actorNick) + '</div><div class="batch-count">· ' + item.items.length + ' partite</div></div></div><div class="batch-rows">' + rows + '</div></div>';
 
     } else if(item.type === 'match') {
       // Matches: 4 levels
@@ -2160,7 +2185,8 @@ function renderHomeFeedAll() {
       }
       var metaHtml = meta ? '<div class="fr-m">' + meta + '</div>' : '';
 
-      var onclick = item.isMyMatch && item.oppId ? ' onclick="openProfile(\'' + item.oppId + '\',\'home\')"' : '';
+      var clickTarget = item.isMyMatch ? item.oppId : (item.actorId || '');
+      var onclick = clickTarget ? ' onclick="openProfile(\'' + clickTarget + '\',\'home\')"' : '';
 
       var innerHtml = '<div class="fr-l"><div class="fr-n">' + item.text + '</div>' + metaHtml + '</div>' + deltaHtml;
 
@@ -2168,15 +2194,16 @@ function renderHomeFeedAll() {
       if(item.isMyMatch && item.oppId) {
         var ev = _swipeEval(item.oppId);
         var revealClass = ev.ok ? 'swipe-reveal ok' : 'swipe-reveal blocked';
-        html += '<div class="swipe-wrap"><div class="' + revealClass + '"><span class="swipe-reveal-label">' + ev.label + '</span></div><div class="swipe-cell ' + cls + '" data-opp="' + item.oppId + '"' + onclick + '>' + innerHtml + '</div></div>';
+        html += '<div class="swipe-wrap stagger"><div class="' + revealClass + '"><span class="swipe-reveal-label">' + ev.label + '</span></div><div class="swipe-cell ' + cls + '" data-opp="' + item.oppId + '"' + onclick + '>' + innerHtml + '</div></div>';
       } else {
-        html += '<div class="' + cls + '"' + onclick + '>' + innerHtml + '</div>';
+        html += '<div class="' + cls + ' stagger"' + onclick + '>' + innerHtml + '</div>';
       }
     }
   });
 
   container.innerHTML = '<div class="ds-group">' + html + '</div>';
   initFeedSwipe(container.querySelector('.ds-group'));
+  applyStagger(container);
 }
 
 function renderHomeRanking() {
@@ -2221,7 +2248,7 @@ function renderHomeRanking() {
       if(gap > 0) metaHtml = '<div class="ds-cell-meta" style="color:var(--dim)">a ' + gap + ' punti da te</div>';
     }
 
-    html += '<div class="ds-cell' + (isMe ? ' is-me' : '') + '" onclick="openProfile(\'' + p.id + '\',\'home\')">' +
+    html += '<div class="ds-cell stagger' + (isMe ? ' is-me' : '') + '" onclick="openProfile(\'' + p.id + '\',\'home\')">' +
       '<div style="font-size:var(--fs-caption);font-weight:700;color:' + (isMe ? 'var(--text)' : 'var(--ghost)') + ';min-width:24px;text-align:center;flex-shrink:0;margin-right:var(--sp-md)">' + rank + '</div>' +
       '<div class="ds-cell-left">' +
         '<div class="ds-cell-name">' + escHtml(p.nickname) + (isMe ? ' <span style="font-size:var(--fs-micro);color:var(--dim);font-weight:400">tu</span>' : '') + dotHtml + '</div>' +
@@ -2235,6 +2262,7 @@ function renderHomeRanking() {
   });
 
   list.innerHTML = '<div class="ds-group">' + html + '</div>';
+  applyStagger(list);
 }
 
 function renderHomeMine() {
@@ -2268,7 +2296,7 @@ function renderHomeMine() {
 
     const ev = _swipeEval(oppId);
     const revealClass = ev.ok ? 'swipe-reveal ok' : 'swipe-reveal blocked';
-    html += '<div class="swipe-wrap"><div class="' + revealClass + '"><span class="swipe-reveal-label">' + ev.label + '</span></div>' +
+    html += '<div class="swipe-wrap stagger"><div class="' + revealClass + '"><span class="swipe-reveal-label">' + ev.label + '</span></div>' +
       '<div class="swipe-cell ' + cls + '" data-opp="' + oppId + '" onclick="openProfile(\'' + oppId + '\',\'home\')">' +
         '<div class="fr-l"><div class="fr-n">' + text + '</div><div class="fr-m">' + meta + '</div></div>' +
         '<div class="fr-r"><div class="fr-d">' + deltaStr + '</div></div>' +
@@ -2276,6 +2304,7 @@ function renderHomeMine() {
   });
   list.innerHTML = '<div class="ds-group">' + html + '</div>';
   initFeedSwipe(list.querySelector('.ds-group'));
+  applyStagger(list);
 }
 
 
@@ -2405,15 +2434,21 @@ async function pickChallengeColor(color) {
   const oppId = _chOppId;
   const whiteId = color === 'white' ? me.id : oppId;
 
-  // Visual feedback — flash the button
+  // Visual feedback — bounce the button
   const btn = color === 'white' ? document.querySelector('.ch-color-white') : document.querySelector('.ch-color-black');
-  btn.style.opacity = '1';
-  btn.style.transform = 'scale(.95)';
+  btn.style.transition = 'none';
+  btn.style.transform = 'scale(0.92)';
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      btn.style.transition = 'transform var(--dur-bounce) var(--ease-bounce)';
+      btn.style.transform = 'scale(1)';
+    });
+  });
 
-  // Close sheet after brief delay
+  // Wait for bounce to land, then close
   setTimeout(async () => {
     closeNewChallengeSheet();
-    btn.style.opacity = '';
+    btn.style.transition = '';
     btn.style.transform = '';
 
     // Send challenge
@@ -2421,7 +2456,7 @@ async function pickChallengeColor(color) {
     if(res?.error) return toast(res.error, "err");
     if(Array.isArray(res) && res[0]?.error) return toast(res[0].error, "err");
     await fetchAll();
-  }, 250);
+  }, 550);
 }
 
 // ── Action sheet colore ──
