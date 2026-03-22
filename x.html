@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<title>turko — Feed completo</title>
+<style>
+:root{
+  --bg:#161512;--surface:#1d1a16;--border:#2a2724;
+  --text:#e8e6e3;--muted:#8a8580;--dim:#6a6560;--ghost:#504a45;
+  --green:#7ab535;--red:#d45454;
+  --win-tint:rgba(122,181,53,.025);
+  --lose-tint:rgba(212,84,84,.02);
+  --red-muted:#8a4040;
+  --delta-win-size:17px;--delta-lose-size:13px;
+  --fs-hero:48px;--fs-title:22px;--fs-body:16px;--fs-caption:13px;--fs-label:12px;--fs-micro:10px;
+  --sp-xs:4px;--sp-sm:8px;--sp-md:12px;--sp-lg:16px;--sp-xl:24px;
+  --r-md:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:var(--text);min-height:100dvh}
+.content{padding:0 var(--sp-lg);padding-top:calc(env(safe-area-inset-top,20px) + 16px);padding-bottom:120px}
+
+.hero{margin-bottom:var(--sp-lg)}
+.hero-nick{font-size:var(--fs-micro);color:var(--ghost);font-weight:600;text-transform:uppercase;letter-spacing:1px}
+.hero-elo{font-size:var(--fs-hero);font-weight:800;letter-spacing:-2px;line-height:1}
+.hero-sub{font-size:var(--fs-label);color:var(--ghost);margin-top:var(--sp-xs)}
+
+.chips{display:flex;gap:var(--sp-sm);margin-bottom:var(--sp-lg)}
+.chip{padding:var(--sp-sm) var(--sp-lg);border-radius:20px;font-size:var(--fs-caption);font-weight:600;font-family:inherit;border:1px solid var(--border);background:transparent;color:var(--dim);white-space:nowrap}
+.chip.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+
+.ds-group{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r-md);overflow:hidden;margin-bottom:var(--sp-md)}
+
+/* ── Feed rows ── */
+.fr{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--sp-lg);min-height:48px;border-bottom:0.5px solid var(--border)}
+.fr:last-child{border-bottom:none}
+.fr-l{flex:1;min-width:0}
+.fr-n{font-size:var(--fs-body);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.fr-m{font-size:var(--fs-label);margin-top:1px}
+.fr-r{flex-shrink:0;text-align:right;margin-left:var(--sp-md)}
+.fr-d{font-weight:700;line-height:1.2}
+
+/* L1: vittoria */
+.fr.w{background:var(--win-tint)}
+.fr.w .fr-n{color:var(--text);font-weight:600}
+.fr.w .fr-m{color:var(--ghost)}
+.fr.w .fr-d{color:var(--green);font-size:var(--delta-win-size);font-weight:800}
+
+/* L2: sconfitta */
+.fr.l{background:var(--lose-tint)}
+.fr.l .fr-n{color:var(--dim);font-weight:500}
+.fr.l .fr-m{color:var(--ghost)}
+.fr.l .fr-d{color:var(--red-muted);font-size:var(--delta-lose-size);font-weight:600}
+
+/* L3: patta */
+.fr.p .fr-n{color:var(--ghost);font-weight:500}
+.fr.p .fr-m{color:var(--ghost)}
+.fr.p .fr-d{color:var(--ghost);font-size:var(--delta-lose-size);font-weight:500}
+
+/* L4: altrui */
+.fr.o .fr-n{color:var(--dim);font-weight:400}
+.fr.o .fr-m{color:var(--ghost)}
+
+/* L5: evento */
+.fe{display:flex;align-items:center;gap:var(--sp-md);padding:var(--sp-lg);border-bottom:0.5px solid var(--border);background:rgba(255,255,255,.015)}
+.fe:last-child{border-bottom:none}
+.fe-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:var(--fs-caption);font-weight:700;flex-shrink:0;letter-spacing:-.5px}
+.fe-b{flex:1;min-width:0}
+.fe-t{font-size:var(--fs-body);font-weight:600;color:var(--text);line-height:1.3}
+.fe-m{font-size:var(--fs-label);color:var(--ghost);margin-top:1px}
+.fe-r{flex-shrink:0;text-align:right;margin-left:var(--sp-md)}
+.fe-d{font-size:var(--fs-caption);font-weight:700;color:var(--green)}
+
+/* ── Batch ── */
+.batch{border-bottom:0.5px solid var(--border)}
+.batch:last-child{border-bottom:none}
+.batch-header{display:flex;align-items:center;gap:var(--sp-md);padding:var(--sp-md) var(--sp-lg) var(--sp-xs)}
+.batch-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;letter-spacing:-.3px}
+.batch-name{font-size:var(--fs-caption);font-weight:600;color:var(--muted)}
+.batch-count{font-size:var(--fs-micro);color:var(--ghost);font-weight:500}
+.batch-rows{padding-left:52px}
+.batch-row{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-xs) var(--sp-lg) var(--sp-xs) 0;min-height:32px}
+.batch-row:last-child{padding-bottom:var(--sp-md)}
+.batch-text{font-size:var(--fs-caption);color:var(--dim);font-weight:400;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.batch-delta{font-size:var(--fs-label);font-weight:600;margin-left:var(--sp-md);flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="content">
+
+<div class="hero">
+  <div class="hero-nick">sss</div>
+  <div><span class="hero-elo">1530</span><span style="font-size:var(--fs-title);font-weight:700;margin-left:var(--sp-sm);color:var(--red)">-1</span></div>
+  <div class="hero-sub">70 pt ai 1600</div>
+</div>
+
+<div class="chips">
+  <div class="chip on">Tutto</div>
+  <div class="chip">Partite</div>
+  <div class="chip">Attività</div>
+  <div class="chip">Classifica</div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- FEED COMPLETO — luminanza + avatar + batch -->
+<!-- ═══════════════════════════════════════ -->
+
+<div class="ds-group">
+
+  <!-- L5: nuovo giocatore -->
+  <div class="fe">
+    <div class="fe-av" style="background:#4a6741;color:#c8e6c0">ul</div>
+    <div class="fe-b"><div class="fe-t">ultimo si è unito a turko</div><div class="fe-m">2 ore fa</div></div>
+  </div>
+
+  <!-- L1: mia vittoria -->
+  <div class="fr w">
+    <div class="fr-l"><div class="fr-n">Hai vinto contro uffa</div><div class="fr-m">8 ore fa</div></div>
+    <div class="fr-r"><div class="fr-d">+16</div></div>
+  </div>
+
+  <!-- L3: mia patta -->
+  <div class="fr p">
+    <div class="fr-l"><div class="fr-n">Patta con uffa</div><div class="fr-m">8 ore fa</div></div>
+    <div class="fr-r"><div class="fr-d">0</div></div>
+  </div>
+
+  <!-- BATCH: caio ha giocato 3 partite ravvicinate -->
+  <div class="batch">
+    <div class="batch-header">
+      <div class="batch-av" style="background:#5c3d5e;color:#d4b8d6">ca</div>
+      <div class="batch-name">caio</div>
+      <div class="batch-count">· 3 partite</div>
+    </div>
+    <div class="batch-rows">
+      <div class="batch-row">
+        <div class="batch-text">ha vinto contro tizio</div>
+        <div class="batch-delta" style="color:var(--green)">+10</div>
+      </div>
+      <div class="batch-row">
+        <div class="batch-text">ha vinto contro ppp</div>
+        <div class="batch-delta" style="color:var(--green)">+8</div>
+      </div>
+      <div class="batch-row">
+        <div class="batch-text">ha perso contro mario</div>
+        <div class="batch-delta" style="color:var(--red-muted)">-15</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- L2: mia sconfitta -->
+  <div class="fr l">
+    <div class="fr-l"><div class="fr-n">Hai perso contro caio</div><div class="fr-m">ieri</div></div>
+    <div class="fr-r"><div class="fr-d">-8</div></div>
+  </div>
+
+  <!-- L5: overtake -->
+  <div class="fe">
+    <div class="fe-av" style="background:#5c3d5e;color:#d4b8d6">ca</div>
+    <div class="fe-b"><div class="fe-t">caio ti ha superato</div><div class="fe-m">ieri</div></div>
+  </div>
+
+  <!-- L1: mia vittoria -->
+  <div class="fr w">
+    <div class="fr-l"><div class="fr-n">Hai vinto contro mario</div><div class="fr-m">2 giorni fa</div></div>
+    <div class="fr-r"><div class="fr-d">+18</div></div>
+  </div>
+
+  <!-- L4: partita altrui singola (non batchata) -->
+  <div class="fr o">
+    <div class="fr-l"><div class="fr-n">uffa ha vinto contro ppp</div><div class="fr-m">2 giorni fa</div></div>
+  </div>
+
+  <!-- L1: mia vittoria -->
+  <div class="fr w">
+    <div class="fr-l"><div class="fr-n">Hai vinto contro ppp</div><div class="fr-m">2 giorni fa</div></div>
+    <div class="fr-r"><div class="fr-d">+12</div></div>
+  </div>
+
+  <!-- L3: mia patta -->
+  <div class="fr p">
+    <div class="fr-l"><div class="fr-n">Patta con mario</div><div class="fr-m">2 giorni fa</div></div>
+    <div class="fr-r"><div class="fr-d">0</div></div>
+  </div>
+
+  <!-- L5: milestone -->
+  <div class="fe">
+    <div class="fe-av" style="background:#5a4a2e;color:#d4c48a">ma</div>
+    <div class="fe-b"><div class="fe-t">mario ha raggiunto quota 1500</div><div class="fe-m">3 giorni fa</div></div>
+  </div>
+
+  <!-- L2: mia sconfitta -->
+  <div class="fr l">
+    <div class="fr-l"><div class="fr-n">Hai perso contro mario</div><div class="fr-m">3 giorni fa</div></div>
+    <div class="fr-r"><div class="fr-d">-18</div></div>
+  </div>
+
+  <!-- BATCH: mario ha giocato 2 partite -->
+  <div class="batch">
+    <div class="batch-header">
+      <div class="batch-av" style="background:#5a4a2e;color:#d4c48a">ma</div>
+      <div class="batch-name">mario</div>
+      <div class="batch-count">· 2 partite</div>
+    </div>
+    <div class="batch-rows">
+      <div class="batch-row">
+        <div class="batch-text">ha vinto contro aaa</div>
+        <div class="batch-delta" style="color:var(--green)">+6</div>
+      </div>
+      <div class="batch-row">
+        <div class="batch-text">ha vinto contro tizio</div>
+        <div class="batch-delta" style="color:var(--green)">+9</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- L1: mia vittoria -->
+  <div class="fr w">
+    <div class="fr-l"><div class="fr-n">Hai vinto contro sss</div><div class="fr-m">4 giorni fa</div></div>
+    <div class="fr-r"><div class="fr-d">+6</div></div>
+  </div>
+
+  <!-- L5: streak -->
+  <div class="fe">
+    <div class="fe-av" style="background:#2e4a5a;color:#8ac4d4">ca</div>
+    <div class="fe-b"><div class="fe-t">caio, 5 vittorie di fila!</div><div class="fe-m">4 giorni fa</div></div>
+    <div class="fe-r"><div class="fe-d">+42</div></div>
+  </div>
+
+  <!-- L2: mia sconfitta -->
+  <div class="fr l">
+    <div class="fr-l"><div class="fr-n">Hai perso contro tizio</div><div class="fr-m">5 giorni fa</div></div>
+    <div class="fr-r"><div class="fr-d">-4</div></div>
+  </div>
+
+  <!-- L4: altrui singola -->
+  <div class="fr o">
+    <div class="fr-l"><div class="fr-n">aaa patta con tizio</div><div class="fr-m">5 giorni fa</div></div>
+  </div>
+
+</div>
+
+</div>
+</body>
+</html>
