@@ -32,12 +32,18 @@
   --gold:#b8a04a;
   --white-piece:#c8c4be;
   /* Feed juice tokens */
-  --win-tint:rgba(122,181,53,.018);
-  --lose-tint:rgba(212,84,84,.015);
+  --win-tint:rgba(52,199,89,.03);
+  --lose-tint:rgba(255,69,58,.02);
   --red-muted:#8a4040;
-  --feed-title:15px;
-  --feed-body:14px;
+  --feed-title:16px;
+  --feed-body:15px;
   --feed-micro:12px;
+  /* Progress bar tokens */
+  --bar-height:3px;
+  --bar-radius:1.5px;
+  --bar-track:rgba(122,181,53,.15);
+  --bar-fill-dur:1s;
+  --bar-fill-ease:cubic-bezier(.25,1,.5,1);
   /* Typography scale */
   --fs-hero:48px;
   --fs-hero-sm:32px;
@@ -52,11 +58,16 @@
   --sp-md:12px;
   --sp-lg:16px;
   --sp-xl:24px;
+  --content-pad:20px;
   /* Radius */
   --r-sm:10px;
-  --r-md:14px;
+  --r-md:16px;
   --r-lg:16px;
   --r-xl:24px;
+  /* Dividers */
+  --divider-color:rgba(255,255,255,.06);
+  --divider-height:0.33px;
+  --divider-inset:16px;
   /* Animation */
   --ease-out:cubic-bezier(.2,0,.2,1);
   --ease-spring:cubic-bezier(.34,1.56,.64,1);
@@ -172,10 +183,10 @@ body.sheet-open #sa-cover{background:#000000}
 /* ── Home hero header ── */
 /* STEP 1: padding compatto — meno spazio sprecato sopra il fold */
 .home-header{flex-shrink:0;background:var(--bg)}
-.home-hero{padding:6px 16px 0;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s}
+.home-hero{padding:6px var(--content-pad) 0;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s}
 .home-hero:active{opacity:.7}
-.home-chips{display:flex;gap:var(--sp-sm);padding:var(--sp-md) 16px}
-.home-feed{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px calc(80px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
+.home-chips{display:flex;gap:var(--sp-sm);padding:var(--sp-md) var(--content-pad)}
+.home-feed{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 var(--content-pad) calc(80px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
 .home-feed::-webkit-scrollbar{display:none}
 .home-hero:active{opacity:.7}
 .home-hero-nick{font-size:11px;font-weight:600;color:#8a8580;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
@@ -184,10 +195,18 @@ body.sheet-open #sa-cover{background:#000000}
 .home-hero-delta{font-size:15px;font-weight:600;letter-spacing:-.3px}
 .home-hero-delta.up{color:#7ab535}
 .home-hero-sub{font-size:11px;color:#504a45;margin-top:0;min-height:0}
-.home-hero-progress{margin-top:6px;margin-bottom:8px;width:140px}
-.h-progress-bar{height:1.5px;background:#252220;border-radius:1px;overflow:hidden}
-.h-progress-fill{height:100%;background:#7ab535;border-radius:1px;transition:width .6s ease}
-.h-progress-label{font-size:10px;color:#504a45;margin-top:3px}
+.home-hero-progress{margin-top:var(--sp-md);margin-bottom:var(--sp-sm);width:100%}
+.h-progress-track{height:var(--bar-height,3px);background:var(--bar-track,rgba(122,181,53,.15));border-radius:var(--bar-radius,1.5px);overflow:hidden;position:relative}
+.h-progress-fill{height:100%;border-radius:var(--bar-radius,1.5px);background:var(--green);transition:width var(--bar-fill-dur,1s) var(--bar-fill-ease,cubic-bezier(.25,1,.5,1)),background .4s ease}
+.h-progress-fill.near{background:linear-gradient(90deg, var(--green), #b8d44a)}
+.h-progress-fill.drop{background:var(--red)}
+.h-progress-flash{position:absolute;inset:0;border-radius:var(--bar-radius,1.5px);opacity:0;pointer-events:none}
+@keyframes barFlashUp{0%{opacity:.8}100%{opacity:0}}
+@keyframes barFlashDown{0%{opacity:.6}100%{opacity:0}}
+.h-progress-flash.up{background:#fff;animation:barFlashUp .5s ease forwards}
+.h-progress-flash.down{background:var(--red);animation:barFlashDown .6s ease forwards}
+.h-progress-label{font-size:var(--fs-micro);color:var(--ghost);margin-top:4px;transition:color .4s ease}
+.h-progress-label.drop{color:var(--red)}
 /* STEP 1: delta down era #c33 — ora coerente con sistema: rosso solo per perdite, non per draw */
 .home-hero-delta.down{color:#d45454}
 
@@ -272,10 +291,12 @@ body.sheet-open #sa-cover{background:#000000}
    ═══════════════════════════════════════════════════════════ */
 
 /* ── Group: rounded container ── */
-.ds-group{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r-md);overflow:hidden;margin-bottom:var(--sp-md)}
+.ds-group{background:var(--surface);border:none;border-radius:var(--r-md);overflow:hidden;margin-bottom:var(--sp-md)}
 
 /* ── Cell: tappable row inside group, 44px min HIG ── */
-.ds-cell{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--sp-lg);min-height:44px;border-bottom:0.5px solid var(--border);cursor:pointer;transition:background var(--dur-fast)}
+.ds-cell{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--sp-lg);min-height:44px;position:relative;cursor:pointer;transition:background var(--dur-fast)}
+.ds-cell::after{content:'';position:absolute;bottom:0;left:var(--divider-inset);right:0;height:var(--divider-height);background:var(--divider-color)}
+.ds-cell:last-child::after{display:none}
 .ds-cell:last-child{border-bottom:none}
 .ds-cell:active{background:var(--border)}
 .ds-cell.static{cursor:default}
@@ -292,7 +313,7 @@ body.sheet-open #sa-cover{background:#000000}
 .ds-cell-rank{font-size:var(--fs-caption);font-weight:600;color:var(--dim);width:24px;text-align:center;flex-shrink:0;margin-right:var(--sp-md)}
 
 /* ── Card A1: active match card with accent bar ── */
-.ds-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r-md);min-height:56px;margin-bottom:var(--sp-sm);display:flex;align-items:center;overflow:hidden}
+.ds-card{background:var(--surface);border:none;border-radius:var(--r-md);min-height:56px;margin-bottom:var(--sp-sm);display:flex;align-items:center;overflow:hidden}
 .ds-card.passive{opacity:.5}
 .ds-card-accent{width:3px;min-width:3px;align-self:stretch;flex-shrink:0}
 .ds-card-accent.green{background:var(--green)}
@@ -328,7 +349,7 @@ body.sheet-open #sa-cover{background:#000000}
 .ds-section{font-size:var(--fs-micro);font-weight:600;color:var(--ghost);text-transform:uppercase;letter-spacing:1.4px;margin-bottom:var(--sp-sm);margin-top:var(--sp-xl)}
 
 /* ── Stats group (collapsible) ── */
-.ds-stats{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r-md);overflow:hidden;margin-bottom:var(--sp-md)}
+.ds-stats{background:var(--surface);border:none;border-radius:var(--r-md);overflow:hidden;margin-bottom:var(--sp-md)}
 .ds-stats-header{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--sp-lg);cursor:pointer;min-height:44px;transition:background var(--dur-fast)}
 .ds-stats-header:active{background:var(--border)}
 .ds-stats-label{font-size:var(--fs-caption);font-weight:600;color:var(--text)}
@@ -392,8 +413,9 @@ body.sheet-open #sa-cover{background:#000000}
 .nav-plus svg{width:28px;height:28px}
 
 /* ── Swipe-to-challenge ── */
-.swipe-wrap{position:relative;overflow:hidden;touch-action:pan-y;border-bottom:0.5px solid var(--border)}
-.swipe-wrap:last-child{border-bottom:none}
+.swipe-wrap{position:relative;overflow:hidden;touch-action:pan-y}
+.swipe-wrap::after{content:'';position:absolute;bottom:0;left:var(--divider-inset);right:0;height:var(--divider-height);background:var(--divider-color);z-index:2}
+.swipe-wrap:last-child::after{display:none}
 .swipe-reveal{position:absolute;top:0;right:0;bottom:0;width:100%;display:flex;align-items:center;justify-content:flex-end;padding-right:var(--sp-xl);background:var(--border)}
 .swipe-reveal-label{font-size:var(--fs-caption);font-weight:700;letter-spacing:-.1px;white-space:nowrap;color:var(--ghost);transition:color 100ms,transform 100ms;transform-origin:center right}
 .swipe-reveal.armed{background:var(--text);transition:background 100ms}
@@ -408,29 +430,30 @@ body.sheet-open #sa-cover{background:#000000}
 .home-feed.swipe-active{overflow-y:hidden!important}
 
 /* ── Feed juice: rows ── */
-.fr{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--sp-lg);min-height:46px;border-bottom:0.5px solid var(--border)}
-.fr:last-child{border-bottom:none}
+.fr{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--sp-lg);min-height:46px;position:relative;-webkit-tap-highlight-color:transparent;cursor:pointer;transition:background var(--dur-fast)}
+.fr:active{background:var(--border)}
+.fr::after{content:'';position:absolute;bottom:0;left:var(--divider-inset);right:0;height:var(--divider-height);background:var(--divider-color)}
+.fr:last-child::after{display:none}
 .fr-l{flex:1;min-width:0}
 .fr-n{font-size:var(--feed-title);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
-.fr-m{font-size:var(--feed-micro);margin-top:2px}
+.fr-m{font-size:var(--feed-micro);margin-top:2px;color:var(--dim)}
 .fr-r{flex-shrink:0;text-align:right;margin-left:var(--sp-md)}
 .fr-d{font-size:var(--feed-title);line-height:1.2}
 .fr.w{background:var(--win-tint)}
 .fr.w .fr-n{color:var(--text);font-weight:700}
-.fr.w .fr-m{color:var(--ghost)}
 .fr.w .fr-d{color:var(--green);font-weight:800}
 .fr.l{background:var(--lose-tint)}
 .fr.l .fr-n{color:var(--dim);font-weight:500}
-.fr.l .fr-m{color:var(--ghost)}
 .fr.l .fr-d{color:var(--red-muted);font-weight:500}
 .fr.p .fr-n{color:var(--dim);font-weight:500}
-.fr.p .fr-m{color:var(--ghost)}
 .fr.p .fr-d{color:var(--ghost);font-weight:500}
 .fr.o .fr-n{color:var(--dim);font-weight:400;font-size:var(--feed-body)}
-.fr.o .fr-m{color:var(--ghost)}
 
 /* ── Feed juice: events ── */
-.fe{display:flex;align-items:center;gap:var(--sp-md);padding:var(--sp-lg);border-bottom:0.5px solid var(--border);background:rgba(255,255,255,.012)}
+.fe{display:flex;align-items:center;gap:var(--sp-md);padding:var(--sp-lg);position:relative;-webkit-tap-highlight-color:transparent;cursor:pointer;transition:background var(--dur-fast)}
+.fe:active{background:var(--border)}
+.fe::after{content:'';position:absolute;bottom:0;left:60px;right:0;height:var(--divider-height);background:var(--divider-color)}
+.fe:last-child::after{display:none}
 .fe:last-child{border-bottom:none}
 .fe-b{flex:1;min-width:0}
 .fe-t{font-size:var(--feed-title);font-weight:600;color:var(--text);line-height:1.3}
@@ -439,14 +462,16 @@ body.sheet-open #sa-cover{background:#000000}
 .fe-d{font-size:var(--feed-title);font-weight:700;color:var(--green)}
 
 /* ── Feed juice: batch ── */
-.batch{border-bottom:0.5px solid var(--border);padding:var(--sp-md) var(--sp-lg) var(--sp-sm)}
-.batch:last-child{border-bottom:none}
+.batch{padding:var(--sp-md) var(--sp-lg) var(--sp-sm);position:relative}
+.batch::after{content:'';position:absolute;bottom:0;left:56px;right:0;height:var(--divider-height);background:var(--divider-color)}
+.batch:last-child::after{display:none}
 .batch-head{display:flex;align-items:center;gap:var(--sp-sm);margin-bottom:var(--sp-sm)}
 .batch-info{display:flex;align-items:baseline;gap:var(--sp-xs)}
 .batch-name{font-size:var(--feed-title);font-weight:600;color:var(--muted)}
 .batch-count{font-size:var(--feed-micro);color:var(--ghost)}
 .batch-rows{margin-left:40px;padding-bottom:var(--sp-xs)}
-.batch-row{display:flex;align-items:center;justify-content:space-between;padding:3px 0}
+.batch-row{display:flex;align-items:center;justify-content:space-between;padding:3px 0;-webkit-tap-highlight-color:transparent;cursor:pointer;transition:opacity var(--dur-fast)}
+.batch-row:active{opacity:.6}
 .batch-text{font-size:var(--feed-body);color:var(--dim);font-weight:500}
 .batch-delta{font-size:var(--feed-body);font-weight:600;margin-left:var(--sp-md);flex-shrink:0;color:var(--dim)}
 
@@ -454,10 +479,11 @@ body.sheet-open #sa-cover{background:#000000}
 .time-div{padding:var(--sp-xl) var(--sp-lg) var(--sp-sm);font-size:var(--feed-micro);font-weight:600;color:var(--ghost);text-transform:uppercase;letter-spacing:1.2px}
 .time-div:first-child{padding-top:var(--sp-md)}
 
-/* ── Feed juice: stagger ── */
-.stagger{opacity:0;transform:translate3d(0,12px,0)}
-.stagger.in{animation:staggerIn .4s cubic-bezier(.25,.46,.45,.94) forwards}
-@keyframes staggerIn{to{opacity:1;transform:translate3d(0,0,0)}}
+/* ── Feed skeleton ── */
+.feed-skel-row{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--sp-lg);min-height:46px;position:relative}
+.feed-skel-row::after{content:'';position:absolute;bottom:0;left:var(--divider-inset);right:0;height:var(--divider-height);background:var(--divider-color)}
+.feed-skel-row:last-child::after{display:none}
+.feed-skel-row:last-child{border-bottom:none}
 </style>
 </head>
 <body>
@@ -543,7 +569,10 @@ body.sheet-open #sa-cover{background:#000000}
           </div>
           <div id="h-sub" class="home-hero-sub"></div>
           <div id="h-progress" class="home-hero-progress hidden">
-            <div class="h-progress-bar"><div class="h-progress-fill" id="h-progress-fill"></div></div>
+            <div class="h-progress-track">
+              <div class="h-progress-fill" id="h-progress-fill"></div>
+              <div class="h-progress-flash" id="h-progress-flash"></div>
+            </div>
             <div class="h-progress-label" id="h-progress-label"></div>
           </div>
         </div>
@@ -555,7 +584,7 @@ body.sheet-open #sa-cover{background:#000000}
       </div>
 
       <!-- Active cards — pinned above scroll, always visible -->
-      <div id="home-active" style="padding:0 var(--sp-lg);flex-shrink:0"></div>
+      <div id="home-active" style="padding:0 var(--content-pad);flex-shrink:0"></div>
 
       <!-- Scrollable feed -->
       <div class="home-feed" id="home-feed">
@@ -1219,6 +1248,7 @@ async function enterApp(player) {
   setTimeout(() => { $("main").style.transition = ""; $("main").style.opacity = ""; }, 300);
   updateTopbar();
   showPage('home');
+  showFeedSkeleton();
   fetchAll();
   startPolling();
   startRealtime();
@@ -1366,7 +1396,7 @@ async function fetchAll() {
     db.get("players", "order=elo.desc"),
     db.get("matches", `or=(p1.eq.${me.id},p2.eq.${me.id})&status=in.(active,pending_challenge)&select=*&order=created_at.desc&limit=50`),
     db.get("matches", `or=(p1.eq.${me.id},p2.eq.${me.id})&status=eq.done&select=*&order=updated_at.desc&limit=30`),
-    db.get("elo_history", `player_id=eq.${me.id}&select=*&order=created_at.desc&limit=20`),
+    db.get("elo_history", `player_id=eq.${me.id}&select=*&order=created_at.desc&limit=50`),
     db.get("matches", "status=eq.done&result=not.is.null&result=not.eq.cancelled&order=updated_at.desc&limit=30&select=*"),
     db.get("elo_history", "order=created_at.desc&limit=120&select=*"),
     db.get("events", "order=created_at.desc&limit=50&select=*")
@@ -1614,15 +1644,66 @@ function updateTopbar() {
   // Progress bar Zeigarnik
   const hProgress = $('h-progress');
   if(hProgress && me.elo) {
-    const nextMilestone = Math.ceil(me.elo / 100) * 100;
+    const elo = Math.round(me.elo);
+    const nextMilestone = Math.ceil(elo / 100) * 100;
     const prevMilestone = nextMilestone - 100;
-    const progress = ((me.elo - prevMilestone) / 100) * 100;
-    const remaining = nextMilestone - me.elo;
+    const progress = ((elo - prevMilestone) / 100) * 100;
+    const remaining = nextMilestone - elo;
+    const near = remaining <= 20;
+    const fill = $('h-progress-fill');
+    const flash = $('h-progress-flash');
+    const label = $('h-progress-label');
+
     if(remaining > 0 && remaining < 100) {
-      $('h-progress-fill').style.width = progress + '%';
-      var milestoneColor = remaining <= 20 ? '#e8e6e3' : '#8a8580';
-      var textColor = remaining <= 20 ? '#6a6560' : '#504a45';
-      $('h-progress-label').innerHTML = '<span style="color:' + textColor + '">' + remaining + ' pt ai </span><span style="color:' + milestoneColor + ';font-weight:600">' + nextMilestone + '</span>';
+      // Check milestone crossing (compare with previous render)
+      var oldMilestone = hProgress.dataset.milestone ? parseInt(hProgress.dataset.milestone) : nextMilestone;
+      var crossedUp = nextMilestone > oldMilestone;
+      var crossedDown = nextMilestone < oldMilestone;
+
+      if(crossedUp) {
+        // Crossed UP: fill to 100%, flash white, reset
+        fill.style.width = '100%';
+        flash.className = 'h-progress-flash';
+        flash.offsetHeight;
+        flash.classList.add('up');
+        setTimeout(function() {
+          fill.style.transition = 'none';
+          fill.style.width = '0%';
+          fill.className = 'h-progress-fill' + (near ? ' near' : '');
+          fill.offsetHeight;
+          fill.style.transition = '';
+          fill.style.width = progress + '%';
+        }, 500);
+      } else if(crossedDown) {
+        // Crossed DOWN: drain to 0%, flash red, reset
+        fill.className = 'h-progress-fill drop';
+        fill.style.width = '0%';
+        flash.className = 'h-progress-flash';
+        flash.offsetHeight;
+        flash.classList.add('down');
+        label.classList.add('drop');
+        setTimeout(function() {
+          fill.style.transition = 'none';
+          fill.style.width = '0%';
+          fill.className = 'h-progress-fill' + (near ? ' near' : '');
+          fill.offsetHeight;
+          fill.style.transition = '';
+          fill.style.width = progress + '%';
+          label.classList.remove('drop');
+        }, 800);
+      } else {
+        // Normal update
+        fill.className = 'h-progress-fill' + (near ? ' near' : '');
+        fill.style.width = progress + '%';
+      }
+
+      // Update label — always "X punti ai YYYY"
+      var labelColor = near ? 'var(--dim)' : 'var(--ghost)';
+      var numColor = near ? 'var(--text)' : 'var(--muted)';
+      label.innerHTML = '<span style="color:' + labelColor + '">' + remaining + ' punti ai </span><span style="color:' + numColor + ';font-weight:600">' + nextMilestone + '</span>';
+
+      // Store milestone for next comparison
+      hProgress.dataset.milestone = nextMilestone;
       hProgress.classList.remove('hidden');
     } else {
       hProgress.classList.add('hidden');
@@ -1943,8 +2024,6 @@ function renderHome() {
   if(activeView === 'ranking') renderHomeRanking();
 }
 
-var _doStagger = true; // only on first load
-
 function switchHomeChip(btn, view) {
   document.querySelectorAll('.home-chips .ds-chip').forEach(c => c.classList.remove('on'));
   btn.classList.add('on');
@@ -1956,19 +2035,22 @@ function switchHomeChip(btn, view) {
   if(view === 'ranking') renderHomeRanking();
 }
 
-function applyStagger(container) {
-  var items = container.querySelectorAll('.stagger');
-  if(!_doStagger) {
-    // No animation — show immediately
-    items.forEach(function(el) { el.classList.remove('stagger'); });
-    return;
+function feedSkeletonHtml(rows) {
+  var html = '';
+  for(var i = 0; i < (rows || 6); i++) {
+    var nw = 100 + Math.round(Math.random() * 80);
+    html += '<div class="feed-skel-row"><div class="skel-left"><div class="skel" style="width:' + nw + 'px;height:14px"></div><div class="skel" style="width:' + Math.round(nw * 0.5) + 'px;height:10px"></div></div><div class="skel" style="width:' + (28 + Math.round(Math.random() * 16)) + 'px;height:14px"></div></div>';
   }
-  _doStagger = false;
-  items.forEach(function(el, i) {
-    el.style.animationDelay = (i * 60) + 'ms';
-    el.offsetHeight;
-    el.classList.add('in');
-  });
+  return '<div class="ds-group">' + html + '</div>';
+}
+
+function showFeedSkeleton() {
+  var c = $('home-history');
+  if(c) c.innerHTML = feedSkeletonHtml(15);
+  var m = $('home-mine-list');
+  if(m) m.innerHTML = feedSkeletonHtml(15);
+  var r = $('home-ranking-list');
+  if(r) r.innerHTML = feedSkeletonHtml(15);
 }
 
 function renderHomeFeedAll() {
@@ -1977,10 +2059,15 @@ function renderHomeFeedAll() {
   const feedItems = [];
   const myJoinedAt = me.created_at ? new Date(me.created_at).getTime() : 0;
 
-  // Events from DB — filtered
+  // Events from DB — filtered + deduped
+  const _seenEvents = new Set();
   (globalEvents || []).forEach(ev => {
     if(ev.type === 'peak') return;
     if(new Date(ev.created_at).getTime() < myJoinedAt) return;
+    // Dedup: same type + player + target + match = duplicate
+    const evKey = ev.type + '_' + (ev.player_id||'') + '_' + (ev.target_id||'') + '_' + (ev.match_id||'');
+    if(_seenEvents.has(evKey)) return;
+    _seenEvents.add(evKey);
     const data = ev.data || {};
     const player = getP(ev.player_id);
     const target = getP(ev.target_id);
@@ -2041,12 +2128,14 @@ function renderHomeFeedAll() {
       matchType = 'others';
     }
 
-    let deltaNum = 0, deltaStr = '';
+    let deltaNum = 0, deltaStr = '', eloBefore = null, eloAfter = null;
     if(isMyMatch) {
       const elo = eloCache[m.id];
       if(elo) {
         deltaNum = elo.elo_after - elo.elo_before;
         deltaStr = deltaNum > 0 ? '+' + deltaNum : '' + deltaNum;
+        eloBefore = Math.round(elo.elo_before);
+        eloAfter = Math.round(elo.elo_after);
       }
     } else {
       // Others' matches: get actor's delta from globalEloCache
@@ -2067,7 +2156,7 @@ function renderHomeFeedAll() {
 
     feedItems.push({
       type: 'match', matchType, time: new Date(m.updated_at || m.created_at).getTime(),
-      text, deltaStr, deltaNum, isMyMatch, oppId, oppElo, actorId, actorNick, batchOppId, batchOppNick, matchId: m.id
+      text, deltaStr, deltaNum, isMyMatch, oppId, oppElo, actorId, actorNick, batchOppId, batchOppNick, matchId: m.id, eloBefore, eloAfter
     });
   });
 
@@ -2134,7 +2223,7 @@ function renderHomeFeedAll() {
   processed.forEach(function(item) {
     var bucket = getTimeBucket(item.time);
     if(bucket !== lastBucket) {
-      html += '<div class="time-div stagger">' + bucket + '</div>';
+      html += '<div class="time-div">' + bucket + '</div>';
       lastBucket = bucket;
     }
 
@@ -2142,7 +2231,7 @@ function renderHomeFeedAll() {
       // L5: event with avatar
       var deltaHtml = item.deltaStr ? '<div class="fe-r"><div class="fe-d">' + item.deltaStr + '</div></div>' : '';
       var evClick = item.playerId ? ' onclick="openProfile(\'' + item.playerId + '\',\'home\')"' : '';
-      html += '<div class="fe stagger"' + evClick + ' style="cursor:pointer">' + avatarHtml(item.playerNick || '?', item.playerId || '') + '<div class="fe-b"><div class="fe-t">' + item.text + '</div></div>' + deltaHtml + '</div>';
+      html += '<div class="fe"' + evClick + ' style="cursor:pointer">' + avatarHtml(item.playerNick || '?', item.playerId || '') + '<div class="fe-b"><div class="fe-t">' + item.text + '</div></div>' + deltaHtml + '</div>';
 
     } else if(item.type === 'batch') {
       // Batch: avatar presenter + sub-rows
@@ -2158,7 +2247,7 @@ function renderHomeFeedAll() {
         rows += '<div class="batch-row"' + onclick + ' style="cursor:pointer"><div class="batch-text">' + escHtml(oppName) + '</div>' + deltaHtml + '</div>';
       });
       var headerClick = item.actorId ? ' onclick="openProfile(\'' + item.actorId + '\',\'home\')"' : '';
-      html += '<div class="batch stagger"><div class="batch-head"' + headerClick + ' style="cursor:pointer">' + avatarHtml(item.actorNick, item.actorId) + '<div class="batch-info"><div class="batch-name">' + escHtml(item.actorNick) + '</div><div class="batch-count">· ' + item.items.length + ' partite</div></div></div><div class="batch-rows">' + rows + '</div></div>';
+      html += '<div class="batch"><div class="batch-head"' + headerClick + ' style="cursor:pointer">' + avatarHtml(item.actorNick, item.actorId) + '<div class="batch-info"><div class="batch-name">' + escHtml(item.actorNick) + '</div><div class="batch-count">· ' + item.items.length + ' partite</div></div></div><div class="batch-rows">' + rows + '</div></div>';
 
     } else if(item.type === 'match') {
       // Matches: 4 levels
@@ -2177,11 +2266,12 @@ function renderHomeFeedAll() {
         cls = 'fr o';
       }
 
-      // Meta: time within "Oggi", ELO for my matches
+      // Meta: time + ELO snapshot for my matches
       var meta = '';
       if(bucket === 'Oggi') meta = timeAgo(new Date(item.time).toISOString());
-      if(item.isMyMatch && item.oppElo) {
-        meta = meta ? meta + ' · ' + item.oppElo : '' + item.oppElo;
+      if(item.isMyMatch && item.eloBefore !== null && item.eloAfter !== null) {
+        var snap = item.eloBefore + ' → ' + item.eloAfter;
+        meta = meta ? meta + ' · ' + snap : snap;
       }
       var metaHtml = meta ? '<div class="fr-m">' + meta + '</div>' : '';
 
@@ -2194,16 +2284,15 @@ function renderHomeFeedAll() {
       if(item.isMyMatch && item.oppId) {
         var ev = _swipeEval(item.oppId);
         var revealClass = ev.ok ? 'swipe-reveal ok' : 'swipe-reveal blocked';
-        html += '<div class="swipe-wrap stagger"><div class="' + revealClass + '"><span class="swipe-reveal-label">' + ev.label + '</span></div><div class="swipe-cell ' + cls + '" data-opp="' + item.oppId + '"' + onclick + '>' + innerHtml + '</div></div>';
+        html += '<div class="swipe-wrap"><div class="' + revealClass + '"><span class="swipe-reveal-label">' + ev.label + '</span></div><div class="swipe-cell ' + cls + '" data-opp="' + item.oppId + '"' + onclick + '>' + innerHtml + '</div></div>';
       } else {
-        html += '<div class="' + cls + ' stagger"' + onclick + '>' + innerHtml + '</div>';
+        html += '<div class="' + cls + '"' + onclick + '>' + innerHtml + '</div>';
       }
     }
   });
 
   container.innerHTML = '<div class="ds-group">' + html + '</div>';
   initFeedSwipe(container.querySelector('.ds-group'));
-  applyStagger(container);
 }
 
 function renderHomeRanking() {
@@ -2248,7 +2337,7 @@ function renderHomeRanking() {
       if(gap > 0) metaHtml = '<div class="ds-cell-meta" style="color:var(--dim)">a ' + gap + ' punti da te</div>';
     }
 
-    html += '<div class="ds-cell stagger' + (isMe ? ' is-me' : '') + '" onclick="openProfile(\'' + p.id + '\',\'home\')">' +
+    html += '<div class="ds-cell' + (isMe ? ' is-me' : '') + '" onclick="openProfile(\'' + p.id + '\',\'home\')">' +
       '<div style="font-size:var(--fs-caption);font-weight:700;color:' + (isMe ? 'var(--text)' : 'var(--ghost)') + ';min-width:24px;text-align:center;flex-shrink:0;margin-right:var(--sp-md)">' + rank + '</div>' +
       '<div class="ds-cell-left">' +
         '<div class="ds-cell-name">' + escHtml(p.nickname) + (isMe ? ' <span style="font-size:var(--fs-micro);color:var(--dim);font-weight:400">tu</span>' : '') + dotHtml + '</div>' +
@@ -2262,7 +2351,6 @@ function renderHomeRanking() {
   });
 
   list.innerHTML = '<div class="ds-group">' + html + '</div>';
-  applyStagger(list);
 }
 
 function renderHomeMine() {
@@ -2291,12 +2379,14 @@ function renderHomeMine() {
     }
 
     const cls = isDraw ? 'fr p' : won ? 'fr w' : 'fr l';
-    const oppElo = opp ? Math.round(opp.elo) : '';
-    const meta = timeAgo(m.created_at) + (oppElo ? ' · ' + oppElo : '');
+    var meta = timeAgo(m.created_at);
+    if(elo) {
+      meta += ' · ' + Math.round(elo.elo_before) + ' → ' + Math.round(elo.elo_after);
+    }
 
     const ev = _swipeEval(oppId);
     const revealClass = ev.ok ? 'swipe-reveal ok' : 'swipe-reveal blocked';
-    html += '<div class="swipe-wrap stagger"><div class="' + revealClass + '"><span class="swipe-reveal-label">' + ev.label + '</span></div>' +
+    html += '<div class="swipe-wrap"><div class="' + revealClass + '"><span class="swipe-reveal-label">' + ev.label + '</span></div>' +
       '<div class="swipe-cell ' + cls + '" data-opp="' + oppId + '" onclick="openProfile(\'' + oppId + '\',\'home\')">' +
         '<div class="fr-l"><div class="fr-n">' + text + '</div><div class="fr-m">' + meta + '</div></div>' +
         '<div class="fr-r"><div class="fr-d">' + deltaStr + '</div></div>' +
@@ -2304,7 +2394,6 @@ function renderHomeMine() {
   });
   list.innerHTML = '<div class="ds-group">' + html + '</div>';
   initFeedSwipe(list.querySelector('.ds-group'));
-  applyStagger(list);
 }
 
 
