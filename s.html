@@ -316,8 +316,8 @@ body.sheet-open #sa-cover{background:#000000}
 .ds-card-btn.danger{background:rgba(212,84,84,.15);color:var(--red)}
 
 /* ── Chip: filter pills ── */
-.ds-chip{display:inline-block;padding:var(--sp-sm) var(--sp-lg);border-radius:20px;font-size:var(--fs-caption);font-weight:600;font-family:inherit;cursor:pointer;border:none;background:var(--border);color:var(--dim);white-space:nowrap;transition:background var(--dur-fast),color var(--dur-fast),transform var(--dur-bounce) var(--ease-bounce)}
-.ds-chip:active{transform:scale(.92)}
+.ds-chip{display:inline-block;padding:var(--sp-sm) var(--sp-lg);border-radius:20px;font-size:var(--fs-caption);font-weight:600;font-family:inherit;cursor:pointer;border:none;background:var(--border);color:var(--dim);white-space:nowrap;transition:background var(--dur-fast),color var(--dur-fast),transform .15s var(--ease-bounce)}
+.ds-chip.tapped{transform:scale(.92)}
 .ds-chip.on{background:var(--text);color:var(--bg)}
 .ds-chip-sm{display:inline-block;padding:4px 10px;border-radius:20px;font-size:var(--fs-label);font-weight:600;font-family:inherit;cursor:pointer;border:none;background:var(--border);color:var(--dim);transition:background var(--dur-fast),color var(--dur-fast)}
 .ds-chip-sm:active{opacity:.6}
@@ -414,8 +414,8 @@ body.sheet-open #sa-cover{background:#000000}
 .home-feed.swipe-active{overflow-y:hidden!important}
 
 /* ── Feed juice: rows ── */
-.fr{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--sp-lg);min-height:46px;border-bottom:0.5px solid var(--border);cursor:pointer;transition:opacity var(--dur-fast),transform .1s}
-.fr:active{opacity:.6;transform:scale(.985)}
+.fr{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--sp-lg);min-height:46px;border-bottom:0.5px solid var(--border);cursor:pointer;transition:opacity .12s,transform .12s}
+.fr.tapped{opacity:.55;transform:scale(.985)}
 .fr:last-child{border-bottom:none}
 .fr-l{flex:1;min-width:0}
 .fr-n{font-size:var(--feed-title);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
@@ -439,8 +439,8 @@ body.sheet-open #sa-cover{background:#000000}
 .fr.o .fr-m{color:var(--ghost)}
 
 /* ── Feed juice: events ── */
-.fe{display:flex;align-items:center;gap:var(--sp-md);padding:var(--sp-lg);border-bottom:0.5px solid var(--border);background:rgba(255,255,255,.012);cursor:pointer;transition:opacity var(--dur-fast),transform .1s}
-.fe:active{opacity:.6;transform:scale(.985)}
+.fe{display:flex;align-items:center;gap:var(--sp-md);padding:var(--sp-lg);border-bottom:0.5px solid var(--border);background:rgba(255,255,255,.012);cursor:pointer;transition:opacity .12s,transform .12s}
+.fe.tapped{opacity:.55;transform:scale(.985)}
 .fe:last-child{border-bottom:none}
 .fe-b{flex:1;min-width:0}
 .fe-t{font-size:var(--feed-title);font-weight:600;color:var(--text);line-height:1.3}
@@ -3526,6 +3526,28 @@ document.querySelectorAll(".nbtn").forEach(btn => {
       applyOffset();
       ticking = false;
     });
+  }, {passive: true});
+})();
+
+// ── Touch tap feedback (iOS Safari doesn't fire :active on quick taps) ──
+(function() {
+  var _tapEl = null;
+  var _tapTimer = null;
+  document.addEventListener('touchstart', function(e) {
+    var t = e.target.closest('.fr, .fe, .ds-chip, .batch-head');
+    if(!t) return;
+    if(_tapEl) _tapEl.classList.remove('tapped');
+    _tapEl = t;
+    _tapEl.classList.add('tapped');
+  }, {passive: true});
+  document.addEventListener('touchend', function() {
+    if(!_tapEl) return;
+    var el = _tapEl;
+    _tapTimer = setTimeout(function() { el.classList.remove('tapped'); }, 120);
+    _tapEl = null;
+  }, {passive: true});
+  document.addEventListener('touchcancel', function() {
+    if(_tapEl) { _tapEl.classList.remove('tapped'); _tapEl = null; }
   }, {passive: true});
 })();
 
