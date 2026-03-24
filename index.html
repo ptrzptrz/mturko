@@ -466,7 +466,12 @@ body.sheet-open #sa-cover{background:#000000}
 /* ── Feed: others compressed ── */
 .fr.oc{min-height:38px;padding:var(--sp-sm) var(--sp-lg)}
 .fr.oc .fr-n{font-size:var(--fs-caption);color:var(--ghost);font-weight:400}
-.fr.oc .fr-m{font-size:10px}
+.fr.oc .fr-m{font-size:var(--fs-micro)}
+.fr.oc-more{cursor:pointer}
+.fr.oc-more:active{background:var(--border)}
+.fr.oc-more .fr-n{color:var(--dim);font-weight:500}
+.oc-hidden{display:none}
+.oc-hidden.expanded{display:flex}
 
 /* ── Feed: my moments (icon/number in box) — SF Symbols gradient ── */
 .mi{display:flex;align-items:center;gap:var(--sp-md);padding:calc(var(--sp-lg) + 4px) var(--sp-lg) var(--sp-lg);position:relative;-webkit-tap-highlight-color:transparent;cursor:pointer;transition:background var(--dur-fast)}
@@ -485,14 +490,14 @@ body.sheet-open #sa-cover{background:#000000}
 .mi-title{font-size:var(--feed-title);font-weight:700;color:var(--text);line-height:1.3}
 .mi-sub{font-size:var(--feed-micro);color:var(--dim);margin-top:2px}
 
-/* ── Feed: others' moments (typography-only) ── */
-.mt{padding:calc(var(--sp-lg) + 4px) var(--sp-lg) var(--sp-md);position:relative;-webkit-tap-highlight-color:transparent;cursor:pointer;transition:background var(--dur-fast)}
+/* ── Feed: others' moments (same level as compressed matches) ── */
+.mt{padding:var(--sp-sm) var(--sp-lg);position:relative;min-height:38px;-webkit-tap-highlight-color:transparent;cursor:pointer;transition:background var(--dur-fast)}
 .mt:active{background:var(--border)}
 .mt::after{content:'';position:absolute;bottom:0;left:var(--divider-inset);right:0;height:var(--divider-height);background:var(--divider-color)}
 .mt:last-child::after{display:none}
-.mt-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;color:var(--dim)}
-.mt-title{font-size:var(--feed-title);font-weight:600;color:var(--muted);line-height:1.3}
-.mt-sub{font-size:var(--feed-micro);color:var(--ghost);margin-top:2px}
+.mt-label{font-size:var(--fs-micro);font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--ghost);display:inline}
+.mt-title{font-size:var(--fs-caption);font-weight:400;color:var(--ghost);line-height:1.3;display:inline}
+.mt-sub{font-size:var(--fs-micro);color:var(--ghost);margin-top:2px}
 
 /* ── Feed juice: events ── */
 .fe{display:flex;align-items:center;gap:var(--sp-md);padding:var(--sp-lg);position:relative;-webkit-tap-highlight-color:transparent;cursor:pointer;transition:background var(--dur-fast)}
@@ -505,20 +510,6 @@ body.sheet-open #sa-cover{background:#000000}
 .fe-m{font-size:var(--feed-micro);color:var(--ghost);margin-top:2px}
 .fe-r{flex-shrink:0;text-align:right;margin-left:var(--sp-md)}
 .fe-d{font-size:var(--feed-title);font-weight:700;color:var(--green)}
-
-/* ── Feed juice: batch ── */
-.batch{padding:var(--sp-md) var(--sp-lg) var(--sp-sm);position:relative}
-.batch::after{content:'';position:absolute;bottom:0;left:56px;right:0;height:var(--divider-height);background:var(--divider-color)}
-.batch:last-child::after{display:none}
-.batch-head{display:flex;align-items:center;gap:var(--sp-sm);margin-bottom:var(--sp-sm)}
-.batch-info{display:flex;align-items:baseline;gap:var(--sp-xs)}
-.batch-name{font-size:var(--feed-title);font-weight:600;color:var(--muted)}
-.batch-count{font-size:var(--feed-micro);color:var(--ghost)}
-.batch-rows{margin-left:40px;padding-bottom:var(--sp-xs)}
-.batch-row{display:flex;align-items:center;justify-content:space-between;padding:3px 0;-webkit-tap-highlight-color:transparent;cursor:pointer;transition:opacity var(--dur-fast)}
-.batch-row:active{opacity:.6}
-.batch-text{font-size:var(--feed-body);color:var(--dim);font-weight:500}
-.batch-delta{font-size:var(--feed-body);font-weight:600;margin-left:var(--sp-md);flex-shrink:0;color:var(--dim)}
 
 /* ── Feed juice: time divider ── */
 .time-div{padding:var(--sp-xl) var(--sp-lg) var(--sp-sm);font-size:var(--feed-micro);font-weight:600;color:var(--ghost);text-transform:uppercase;letter-spacing:1.2px}
@@ -2347,12 +2338,10 @@ function renderHomeFeedAll() {
     // For others' matches: who did the action (for batching)
     const actorId = isMyMatch ? null : winnerId;
     const actorNick = isMyMatch ? null : (winner?.nickname || '?');
-    const batchOppId = isMyMatch ? null : loserId;
-    const batchOppNick = isMyMatch ? null : (loser?.nickname || '?');
 
     feedItems.push({
       type: 'match', matchType, time: new Date(m.updated_at || m.created_at).getTime(),
-      text, deltaStr, deltaNum, isMyMatch, oppId, oppElo, actorId, actorNick, batchOppId, batchOppNick, matchId: m.id, eloBefore, eloAfter, matchTc
+      text, deltaStr, deltaNum, isMyMatch, oppId, oppElo, actorId, actorNick, matchId: m.id, eloBefore, eloAfter, matchTc
     });
   });
 
@@ -2382,33 +2371,43 @@ function renderHomeFeedAll() {
     return months[d.getMonth()] + ' ' + d.getFullYear();
   }
 
-  // ── Batching logic: group consecutive others' matches by same actor within same time bucket ──
+  // ── Collapse: group 3+ others' matches by same actor in same bucket ──
+  // First pass: collect all others' matches per actor per bucket
+  const _actorMatches = {}; // key: "actorId|bucket" → [items]
+  for(var ci = 0; ci < feedItems.length; ci++) {
+    var fi = feedItems[ci];
+    if(fi.type === 'match' && fi.matchType === 'others' && fi.actorId) {
+      var ck = fi.actorId + '|' + getTimeBucket(fi.time);
+      if(!_actorMatches[ck]) _actorMatches[ck] = [];
+      _actorMatches[ck].push(fi);
+    }
+  }
+  // Second pass: emit items, replacing 3rd+ match with collapse
   const processed = [];
-  var i = 0;
-  while(i < feedItems.length) {
-    var item = feedItems[i];
-    // Only batch others' matches (not mine, not events)
-    if(item.type === 'match' && item.matchType === 'others' && item.actorId) {
-      var bucket = getTimeBucket(item.time);
-      var batchItems = [item];
-      var j = i + 1;
-      while(j < feedItems.length) {
-        var next = feedItems[j];
-        if(next.type === 'match' && next.matchType === 'others' && next.actorId === item.actorId && getTimeBucket(next.time) === bucket) {
-          batchItems.push(next);
-          j++;
-        } else break;
+  const _actorEmitted = {}; // key → count emitted
+  for(var ci = 0; ci < feedItems.length; ci++) {
+    var fi = feedItems[ci];
+    if(fi.type === 'match' && fi.matchType === 'others' && fi.actorId) {
+      var ck = fi.actorId + '|' + getTimeBucket(fi.time);
+      var total = _actorMatches[ck].length;
+      _actorEmitted[ck] = (_actorEmitted[ck] || 0) + 1;
+      var n = _actorEmitted[ck];
+      if(total < 3) {
+        // No collapse needed
+        processed.push(fi);
+      } else if(n <= 2) {
+        // Show first 2
+        processed.push(fi);
+        if(n === 2) {
+          // Immediately insert collapse for remaining
+          var remaining = _actorMatches[ck].slice(2);
+          var word = remaining.length === 1 ? 'altra partita' : 'altre ' + remaining.length + ' partite';
+          processed.push({ type: 'collapse', time: fi.time, actorNick: fi.actorNick, label: word + ' di ' + fi.actorNick, count: remaining.length, items: remaining });
+        }
       }
-      if(batchItems.length >= 2) {
-        processed.push({ type: 'batch', time: item.time, actorId: item.actorId, actorNick: item.actorNick, items: batchItems });
-        i = j;
-      } else {
-        processed.push(item);
-        i++;
-      }
+      // else: n > 2, skip (already in collapse)
     } else {
-      processed.push(item);
-      i++;
+      processed.push(fi);
     }
   }
 
@@ -2427,8 +2426,11 @@ function renderHomeFeedAll() {
       var evClick = item.playerId ? ' onclick="openProfile(\'' + item.playerId + '\',\'home\')"' : '';
 
       if(item.evType === 'new_player') {
-        // New player: keep avatar format
-        html += '<div class="fe"' + evClick + '>' + avatarHtml(item.playerNick || '?', item.playerId || '') + '<div class="fe-b"><div class="fe-t">' + item.text + '</div></div></div>';
+        // New player: compressed with small avatar
+        var avC = getAvatarColor(item.playerId || '');
+        var avL = getAvatarLetters(item.playerNick || '?');
+        var miniAv = '<div style="width:20px;height:20px;border-radius:50%;background:' + avC.bg + ';color:' + avC.fg + ';font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + avL + '</div>';
+        html += '<div class="fr oc" style="gap:8px;display:flex;align-items:center"' + evClick + '>' + miniAv + '<div class="fr-l"><div class="fr-n">' + item.text + '</div></div></div>';
 
       } else if(item.isMine) {
         // MY moments: icon/number in box (K3)
@@ -2448,34 +2450,31 @@ function renderHomeFeedAll() {
         html += '<div class="mi"' + evClick + '>' + boxHtml + '<div class="mi-body"><div class="mi-title">' + item.text + '</div>' + subHtml + '</div></div>';
 
       } else {
-        // OTHERS' moments: typography-only (K3)
+        // OTHERS' moments: same density as compressed matches
         var label = '';
-        if(item.evType === 'upset') label = 'Impresa';
-        else if(item.evType === 'overtake' || item.evType === 'overtake_multi') label = 'Sorpasso';
-        else if(item.evType === 'streak') label = 'Serie';
-        else if(item.evType === 'milestone') label = 'Traguardo';
-        else if(item.evType === 'peak') label = 'Record';
-        var labelHtml = label ? '<div class="mt-label">' + label + '</div>' : '';
+        if(item.evType === 'upset') label = 'impresa · ';
+        else if(item.evType === 'overtake' || item.evType === 'overtake_multi') label = 'sorpasso · ';
+        else if(item.evType === 'streak') label = 'serie · ';
+        else if(item.evType === 'milestone') label = 'traguardo · ';
+        else if(item.evType === 'peak') label = 'record · ';
+        var labelHtml = label ? '<span class="mt-label">' + label + '</span>' : '';
         var isFmtSub = item.subtext === 'rapid' || item.subtext === 'blitz' || item.subtext === 'classic';
         var subHtml = item.subtext ? '<div class="mt-sub">' + (isFmtSub ? '<span class="fmt">' + item.subtext + '</span>' : item.subtext) + '</div>' : '';
-        html += '<div class="mt"' + evClick + '>' + labelHtml + '<div class="mt-title">' + item.text + '</div>' + subHtml + '</div>';
+        html += '<div class="mt"' + evClick + '><div class="fr-l"><div class="fr-n" style="white-space:normal">' + labelHtml + '<span class="mt-title">' + item.text + '</span></div>' + subHtml + '</div></div>';
       }
 
-    } else if(item.type === 'batch') {
-      // Batch: avatar presenter + sub-rows
-      var rows = '';
+    } else if(item.type === 'collapse') {
+      // Collapsable "altre N partite di X"
+      var collapseId = 'oc-c-' + Math.random().toString(36).substr(2,6);
+      html += '<div class="fr oc oc-more" onclick="expandCollapse(this,\'' + collapseId + '\')"><div class="fr-l"><div class="fr-n">' + escHtml(item.label) + '</div></div></div>';
       item.items.forEach(function(sub) {
-        var oppName = sub.batchOppNick || '?';
-        var oppId = sub.batchOppId || '';
-        var deltaHtml = '';
-        if(sub.deltaStr) {
-          deltaHtml = '<div class="batch-delta">' + sub.deltaStr + '</div>';
-        }
-        var onclick = oppId ? ' onclick="openProfile(\'' + oppId + '\',\'home\')"' : '';
-        rows += '<div class="batch-row"' + onclick + ' style="cursor:pointer"><div class="batch-text">' + escHtml(oppName) + '</div>' + deltaHtml + '</div>';
+        var meta = '';
+        if(bucket === 'Oggi') meta = timeAgo(new Date(sub.time).toISOString());
+        if(sub.matchTc) meta += (meta ? ' ' : '') + '<span class="fmt">' + sub.matchTc + '</span>';
+        var metaHtml = meta ? '<div class="fr-m">' + meta + '</div>' : '';
+        var onclick = sub.actorId ? ' onclick="openProfile(\'' + sub.actorId + '\',\'home\')"' : '';
+        html += '<div class="fr oc oc-hidden" data-collapse="' + collapseId + '"' + onclick + '><div class="fr-l"><div class="fr-n">' + sub.text + '</div>' + metaHtml + '</div></div>';
       });
-      var headerClick = item.actorId ? ' onclick="openProfile(\'' + item.actorId + '\',\'home\')"' : '';
-      html += '<div class="batch"><div class="batch-head"' + headerClick + ' style="cursor:pointer">' + avatarHtml(item.actorNick, item.actorId) + '<div class="batch-info"><div class="batch-name">' + escHtml(item.actorNick) + '</div><div class="batch-count">· ' + item.items.length + ' partite</div></div></div><div class="batch-rows">' + rows + '</div></div>';
 
     } else if(item.type === 'match') {
       // Matches: 4 levels
@@ -3466,6 +3465,13 @@ function toggleDayGroup(id) {
     }
   }, {passive: true});
 })();
+
+function expandCollapse(btn, id) {
+  document.querySelectorAll('[data-collapse="' + id + '"]').forEach(function(el) {
+    el.classList.add('expanded');
+  });
+  btn.style.display = 'none';
+}
 
 function escHtml(str) {
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
