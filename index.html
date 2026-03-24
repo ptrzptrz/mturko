@@ -38,7 +38,7 @@
   --red-muted:rgba(255,69,58,.6);
   --feed-title:17px;
   --feed-body:15px;
-  --feed-micro:12px;
+  --feed-micro:11px;
   /* Progress bar tokens */
   --bar-height:3px;
   --bar-radius:1.5px;
@@ -103,7 +103,7 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 body.sheet-open #sa-cover{background:#000000}
 
 /* ── Navbar ── */
-.navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(var(--nav-y,0));width:100%;max-width:480px;display:flex;padding-bottom:env(safe-area-inset-bottom,0px);background:rgba(10,10,10,.85);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-top:0.33px solid rgba(255,255,255,.08);z-index:100;will-change:transform}
+.navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(var(--nav-y,0));width:100%;max-width:480px;display:flex;padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg);border-top:0.33px solid rgba(255,255,255,.06);z-index:100;will-change:transform}
 .navbar-frost{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(var(--nav-y,0));width:100%;max-width:480px;height:calc(80px + env(safe-area-inset-bottom,0px));pointer-events:none;z-index:99;will-change:transform;display:none}
 .nbtn{flex:1;min-height:48px;padding:12px 0;background:none;border:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:color .2s}
 .nbtn.on{color:var(--green)}
@@ -187,6 +187,12 @@ body.sheet-open #sa-cover{background:#000000}
 .home-hero{padding:6px var(--content-pad) 0;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s}
 .home-hero:active{opacity:.7}
 .home-chips{display:flex;gap:var(--sp-sm);padding:var(--sp-md) var(--content-pad)}
+
+/* ── Segmented control (iOS native pattern) ── */
+.home-seg{position:relative;display:flex;margin:0 var(--content-pad) var(--sp-lg);background:rgba(255,255,255,.06);border-radius:9px;padding:2px}
+.home-seg .seg-pill{position:absolute;top:2px;bottom:2px;left:2px;width:calc(50% - 2px);border-radius:7px;background:rgba(255,255,255,.12);box-shadow:0 1px 4px rgba(0,0,0,.4);transition:left .3s cubic-bezier(.25,.1,.25,1);pointer-events:none}
+.home-seg .seg-btn{flex:1;padding:6px 0;border-radius:7px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;border:none;background:transparent;color:var(--muted);text-align:center;position:relative;z-index:1;transition:color .2s ease}
+.home-seg .seg-btn.on{color:var(--text)}
 .home-feed{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 var(--content-pad) calc(80px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
 .home-feed::-webkit-scrollbar{display:none}
 .home-hero:active{opacity:.7}
@@ -611,18 +617,13 @@ body.sheet-open #sa-cover{background:#000000}
   <div class="pages">
     <!-- HOME -->
     <div id="page-home" class="page active">
-      <!-- Sticky header: hero + chips -->
+      <!-- Sticky header: hero + segmented -->
       <div class="home-header" id="home-header">
         <div class="home-hero" id="home-hero" onclick="openMyProfile()">
           <div class="home-hero-nick" id="h-nick"></div>
           <div class="home-hero-elo-row">
-            <span class="home-hero-elo" id="h-elo"></span>
+            <span class="home-hero-elo" id="h-elo" onclick="event.stopPropagation();cycleHeroFormat()"></span>
             <span class="home-hero-delta hidden" id="h-delta"></span>
-          </div>
-          <div class="elo-chips" id="h-format-chips">
-            <button class="elo-chip on" onclick="event.stopPropagation();switchHeroFormat('rapid')" data-fmt="rapid">Rapid</button>
-            <button class="elo-chip" onclick="event.stopPropagation();switchHeroFormat('blitz')" data-fmt="blitz">Blitz</button>
-            <button class="elo-chip" onclick="event.stopPropagation();switchHeroFormat('classic')" data-fmt="classic">Classic</button>
           </div>
           <div id="h-sub" class="home-hero-sub"></div>
           <div id="h-progress" class="home-hero-progress hidden">
@@ -630,12 +631,12 @@ body.sheet-open #sa-cover{background:#000000}
               <div class="h-progress-fill" id="h-progress-fill"></div>
               <div class="h-progress-flash" id="h-progress-flash"></div>
             </div>
-            <div class="h-progress-label" id="h-progress-label"></div>
           </div>
         </div>
-        <div class="home-chips" id="home-chips">
-          <button class="ds-chip on" onclick="switchHomeChip(this,'all')">Tutto</button>
-          <button class="ds-chip" onclick="switchHomeChip(this,'ranking')">Classifica</button>
+        <div class="home-seg" id="home-seg">
+          <div class="seg-pill" id="home-seg-pill"></div>
+          <button class="seg-btn on" onclick="switchHomeView(this,0,'all')">Feed</button>
+          <button class="seg-btn" onclick="switchHomeView(this,1,'ranking')">Classifica</button>
         </div>
       </div>
 
@@ -794,11 +795,11 @@ function getSelectedChallengeFormat() {
   return sel ? sel.getAttribute('data-time') : 'rapid';
 }
 
-function switchHeroFormat(fmt) {
-  _activeFormat = fmt;
-  document.querySelectorAll('#h-format-chips .elo-chip').forEach(function(c) {
-    c.classList.toggle('on', c.getAttribute('data-fmt') === fmt);
-  });
+var _heroFormats = ['rapid', 'blitz', 'classic'];
+
+function cycleHeroFormat() {
+  var idx = _heroFormats.indexOf(_activeFormat);
+  _activeFormat = _heroFormats[(idx + 1) % 3];
   _formatSwitching = true;
   updateTopbar();
   _formatSwitching = false;
@@ -1755,11 +1756,7 @@ function updateTopbar() {
   const hNick = $("h-nick");
   const hElo = $("h-elo");
   const hDelta = $("h-delta");
-  if(hNick) hNick.textContent = me.nickname;
-  // Sync format chips
-  document.querySelectorAll('#h-format-chips .elo-chip').forEach(function(c) {
-    c.classList.toggle('on', c.getAttribute('data-fmt') === _activeFormat);
-  });
+  if(hNick) hNick.textContent = _activeFormat.toUpperCase();
   var _heroEloObj = getPlayerElo(me, _activeFormat);
   if(hElo) animateElo(hElo, _heroEloObj.elo);
   if(hDelta) {
@@ -1812,7 +1809,6 @@ function updateTopbar() {
     const near = remaining <= 20;
     const fill = $('h-progress-fill');
     const flash = $('h-progress-flash');
-    const label = $('h-progress-label');
 
     if(remaining >= 0 && remaining <= 100) {
       // Format switch: instant set, no animation or milestone comparison
@@ -1823,7 +1819,6 @@ function updateTopbar() {
         fill.offsetHeight; // force reflow
         fill.style.transition = '';
         flash.className = 'h-progress-flash';
-        label.classList.remove('drop');
       } else {
       // Check milestone crossing (compare with previous render)
       var oldMilestone = hProgress.dataset.milestone ? parseInt(hProgress.dataset.milestone) : nextMilestone;
@@ -1851,7 +1846,6 @@ function updateTopbar() {
         flash.className = 'h-progress-flash';
         flash.offsetHeight;
         flash.classList.add('down');
-        label.classList.add('drop');
         setTimeout(function() {
           fill.style.transition = 'none';
           fill.style.width = '0%';
@@ -1859,7 +1853,6 @@ function updateTopbar() {
           fill.offsetHeight;
           fill.style.transition = '';
           fill.style.width = progress + '%';
-          label.classList.remove('drop');
         }, 800);
       } else {
         // Normal update
@@ -1867,11 +1860,6 @@ function updateTopbar() {
         fill.style.width = progress + '%';
       }
       } // end else (not format switching)
-
-      // Update label — always "X punti ai YYYY"
-      var labelColor = near ? 'var(--dim)' : 'var(--ghost)';
-      var numColor = near ? 'var(--text)' : 'var(--muted)';
-      label.innerHTML = '<span style="color:' + labelColor + '">' + remaining + ' punti ai </span><span style="color:' + numColor + ';font-weight:600">' + nextMilestone + '</span>';
 
       // Store milestone for next comparison
       hProgress.dataset.milestone = nextMilestone;
@@ -2191,17 +2179,19 @@ function renderHome() {
   renderActiveCards(activeCards, sentChallenges, incomingChallenges);
 
   // ── Feed ──
-  const activeChip = document.querySelector('.home-chips .ds-chip.on');
-  const chipText = activeChip ? activeChip.textContent.trim() : 'Tutto';
-  const activeView = chipText === 'Classifica' ? 'ranking' : 'all';
+  const activeBtn = document.querySelector('.home-seg .seg-btn.on');
+  const activeView = activeBtn && activeBtn.textContent.trim() === 'Classifica' ? 'ranking' : 'all';
 
   if(activeView === 'all') renderHomeFeedAll();
   if(activeView === 'ranking') renderHomeRanking();
 }
 
-function switchHomeChip(btn, view) {
-  document.querySelectorAll('.home-chips .ds-chip').forEach(c => c.classList.remove('on'));
+function switchHomeView(btn, idx, view) {
+  var seg = $('home-seg');
+  var pill = $('home-seg-pill');
+  seg.querySelectorAll('.seg-btn').forEach(function(b) { b.classList.remove('on'); });
   btn.classList.add('on');
+  pill.style.left = idx === 0 ? '2px' : '50%';
   $('home-feed-all').classList.toggle('hidden', view !== 'all');
   $('home-feed-ranking').classList.toggle('hidden', view !== 'ranking');
   if(view === 'all') renderHomeFeedAll();
@@ -2258,10 +2248,9 @@ function renderHomeFeedAll() {
         if(isMine) {
           text = 'Hai superato ' + data.count + ' giocatori';
         } else if(data.is_reverse) {
-          // "Sei stato superato da 3 giocatori" or "X è stato superato da 3 giocatori"
-          var targetName = data.loser_name || pName;
-          if(ev.player_id === me.id) text = 'Sei stato superato da ' + data.count + ' giocatori';
-          else text = targetName + ' superato da ' + data.count + ' giocatori';
+          // Skip reverse multi-overtakes for others — redundant
+          if(ev.player_id === me.id) text = 'Superato da ' + data.count + ' giocatori';
+          // else: don't show "X superato da N giocatori" — noise
         } else {
           text = pName + ' ha superato ' + data.count + ' giocatori';
         }
@@ -2467,7 +2456,8 @@ function renderHomeFeedAll() {
         else if(item.evType === 'milestone') label = 'Traguardo';
         else if(item.evType === 'peak') label = 'Record';
         var labelHtml = label ? '<div class="mt-label">' + label + '</div>' : '';
-        var subHtml = item.subtext ? '<div class="mt-sub">' + item.subtext + '</div>' : '';
+        var isFmtSub = item.subtext === 'rapid' || item.subtext === 'blitz' || item.subtext === 'classic';
+        var subHtml = item.subtext ? '<div class="mt-sub">' + (isFmtSub ? '<span class="fmt">' + item.subtext + '</span>' : item.subtext) + '</div>' : '';
         html += '<div class="mt"' + evClick + '>' + labelHtml + '<div class="mt-title">' + item.text + '</div>' + subHtml + '</div>';
       }
 
