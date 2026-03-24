@@ -7,51 +7,52 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="turko">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#161512">
+<meta name="theme-color" content="#0A0A0A">
 <title>turko</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <style>
-/* ── Design System Tokens ── */
+/* ── Design System Tokens — Palette C: iOS native ── */
 :root{
-  /* Palette B — WCAG AA accessible */
-  --bg:#161512;
-  --surface:#1d1a16;
-  --border:#2a2724;
-  --border-light:#252220;
-  --text:#e8e6e3;
-  --muted:#8a8580;
-  --dim:#6a6560;
-  --ghost:#504a45;
-  --green:#7ab535;
-  --green-dark:#3d6b1a;
-  --red:#d45454;
-  --red-bg:#2a1010;
-  --gold:#b8a04a;
-  --white-piece:#c8c4be;
-  /* Feed juice tokens */
-  --win-tint:rgba(52,199,89,.03);
-  --lose-tint:rgba(255,69,58,.02);
-  --red-muted:#8a4040;
-  --feed-title:16px;
+  /* iOS dark mode neutral palette */
+  --bg:#0A0A0A;
+  --surface:#1C1C1E;
+  --border:#38383A;
+  --border-light:#2C2C2E;
+  --text:#F2F2F7;
+  --muted:#8E8E93;
+  --dim:#636366;
+  --ghost:#48484A;
+  /* iOS system accent colors (dark default) */
+  --green:#30D158;
+  --green-dark:#248A3D;
+  --red:#FF453A;
+  --red-bg:#1A0A0A;
+  --gold:#FFD60A;
+  --white-piece:#E5E5EA;
+  /* Feed tokens */
+  --win-tint:rgba(48,209,88,.03);
+  --lose-tint:transparent;
+  --red-muted:rgba(255,69,58,.6);
+  --feed-title:17px;
   --feed-body:15px;
   --feed-micro:12px;
   /* Progress bar tokens */
   --bar-height:3px;
   --bar-radius:1.5px;
-  --bar-track:rgba(122,181,53,.15);
+  --bar-track:rgba(48,209,88,.15);
   --bar-fill-dur:1s;
   --bar-fill-ease:cubic-bezier(.25,1,.5,1);
-  /* Typography scale */
+  /* Typography scale — aligned to iOS text styles */
   --fs-hero:48px;
-  --fs-hero-sm:32px;
+  --fs-hero-sm:34px;
   --fs-title:22px;
-  --fs-body:16px;
+  --fs-body:17px;
   --fs-caption:13px;
   --fs-label:12px;
-  --fs-micro:10px;
+  --fs-micro:11px;
   /* Spacing (4px scale) */
   --sp-xs:4px;
   --sp-sm:8px;
@@ -84,8 +85,8 @@ html{background:var(--bg);overscroll-behavior:none}
 body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:var(--text);max-width:480px;margin:0 auto;height:100dvh;overflow:hidden;overscroll-behavior:none}
 input,select,textarea{background:var(--border);border:1px solid var(--ghost);border-radius:var(--r-sm);color:var(--text);padding:13px 14px;font-size:var(--fs-body);font-family:inherit;width:100%;outline:none;display:block;-webkit-user-select:text;user-select:text}
 input:focus,select:focus,textarea:focus{border-color:var(--dim)}
-input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0px 1000px #161512 inset;-webkit-text-fill-color:#e8e6e3}
-input::placeholder,textarea::placeholder{color:#6a6560}
+input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0px 1000px #0A0A0A inset;-webkit-text-fill-color:#F2F2F7}
+input::placeholder,textarea::placeholder{color:#636366}
 button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-color:transparent;outline:none}
 .hidden{display:none!important}
 
@@ -102,51 +103,51 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 body.sheet-open #sa-cover{background:#000000}
 
 /* ── Navbar ── */
-.navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(var(--nav-y,0));width:100%;max-width:480px;display:flex;padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg);z-index:100;will-change:transform}
-.navbar-frost{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(var(--nav-y,0));width:100%;max-width:480px;height:calc(80px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top, var(--bg) 60%, transparent 100%);pointer-events:none;z-index:99;will-change:transform}
-.nbtn{flex:1;min-height:48px;padding:12px 0;background:none;border:none;color:var(--ghost);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:color .2s}
-.nbtn.on{color:var(--text)}
+.navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(var(--nav-y,0));width:100%;max-width:480px;display:flex;padding-bottom:env(safe-area-inset-bottom,0px);background:rgba(10,10,10,.85);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-top:0.33px solid rgba(255,255,255,.08);z-index:100;will-change:transform}
+.navbar-frost{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(var(--nav-y,0));width:100%;max-width:480px;height:calc(80px + env(safe-area-inset-bottom,0px));pointer-events:none;z-index:99;will-change:transform;display:none}
+.nbtn{flex:1;min-height:48px;padding:12px 0;background:none;border:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:color .2s}
+.nbtn.on{color:var(--green)}
 .nbtn:active{opacity:.6}
 .nbtn .ico-outline{display:block}
 .nbtn .ico-filled{display:none}
 .nbtn.on .ico-outline{display:none}
 .nbtn.on .ico-filled{display:block}
-.nicon{width:24px;height:24px;display:block}
+.nicon{width:26px;height:26px;display:block}
 .badge{position:absolute;top:6px;right:calc(50% - 20px);background:var(--green);width:6px;height:6px;border-radius:50%}
 
 /* ── Auth ── */
-#auth{min-height:100dvh;display:flex;flex-direction:column;background:#161512;position:relative}
+#auth{min-height:100dvh;display:flex;flex-direction:column;background:#0A0A0A;position:relative}
 #auth-splash{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 24px;padding-bottom:20vh}
 .auth-wordmark{text-align:center}
-.auth-name{font-size:64px;font-weight:800;color:#e8e6e3;letter-spacing:-3px;line-height:1;display:block;animation:authFadeIn .6s ease}
-.auth-tagline{font-size:12px;color:#504a45;letter-spacing:2px;text-transform:uppercase;margin-top:8px;display:block;animation:authFadeIn .6s ease .15s both}
+.auth-name{font-size:64px;font-weight:800;color:#F2F2F7;letter-spacing:-3px;line-height:1;display:block;animation:authFadeIn .6s ease}
+.auth-tagline{font-size:12px;color:#48484A;letter-spacing:2px;text-transform:uppercase;margin-top:8px;display:block;animation:authFadeIn .6s ease .15s both}
 .auth-actions{margin-top:48px;width:100%;max-width:320px;animation:authFadeIn .6s ease .3s both}
 @keyframes authFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
 /* Auth sheets */
 .auth-sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:10001;display:flex;align-items:flex-end;pointer-events:none;transition:background .35s ease}
 .auth-sheet-overlay.visible{background:rgba(0,0,0,.6);pointer-events:all}
-.auth-sheet{background:#161512;border-radius:24px 24px 0 0;padding:8px 24px calc(24px + env(safe-area-inset-bottom,0px));width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .4s cubic-bezier(.32,0,.24,1)}
+.auth-sheet{background:#0A0A0A;border-radius:24px 24px 0 0;padding:8px 24px calc(24px + env(safe-area-inset-bottom,0px));width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .4s cubic-bezier(.32,0,.24,1)}
 .auth-sheet-overlay.visible .auth-sheet{transform:translateY(0)}
-.auth-sheet-handle{width:36px;height:4px;background:#2a2724;border-radius:2px;margin:0 auto 20px}
-.auth-sheet-title{font-size:22px;font-weight:800;color:#e8e6e3;margin-bottom:24px;letter-spacing:-.5px}
+.auth-sheet-handle{width:36px;height:4px;background:#38383A;border-radius:2px;margin:0 auto 20px}
+.auth-sheet-title{font-size:22px;font-weight:800;color:#F2F2F7;margin-bottom:24px;letter-spacing:-.5px}
 .auth-sheet .frow{margin-bottom:4px}
 .auth-sheet .btn-g{margin-top:20px}
-.auth-sheet-footer{font-size:11px;color:#504a45;text-align:center;margin-top:16px}
+.auth-sheet-footer{font-size:11px;color:#48484A;text-align:center;margin-top:16px}
 
 /* Field status indicators */
 .auth-field{position:relative;margin-bottom:var(--sp-xs)}
-.auth-input.valid{border-bottom-color:#7ab535}
-.auth-input.invalid{border-bottom-color:#d45454}
-.auth-input{background:transparent;border:none;border-bottom:1px solid #2a2724;border-radius:0;padding:14px 40px 14px 0;font-size:var(--fs-body);font-weight:500;color:#e8e6e3;width:100%;outline:none;display:block;transition:border-color .2s ease;font-family:inherit;-webkit-user-select:text;user-select:text}
-.auth-input:focus{border-bottom-color:#e8e6e3}
-.auth-input::placeholder{color:#504a45;font-weight:400}
+.auth-input.valid{border-bottom-color:#30D158}
+.auth-input.invalid{border-bottom-color:#FF453A}
+.auth-input{background:transparent;border:none;border-bottom:1px solid #38383A;border-radius:0;padding:14px 40px 14px 0;font-size:var(--fs-body);font-weight:500;color:#F2F2F7;width:100%;outline:none;display:block;transition:border-color .2s ease;font-family:inherit;-webkit-user-select:text;user-select:text}
+.auth-input:focus{border-bottom-color:#F2F2F7}
+.auth-input::placeholder{color:#48484A;font-weight:400}
 .auth-eye{position:absolute;right:0;top:50%;transform:translateY(-50%);background:none;border:none;padding:10px;cursor:pointer;color:var(--ghost);transition:color var(--dur-fast)}
 .auth-eye:active{color:var(--muted)}
 .auth-eye svg{width:20px;height:20px;display:block}
-.auth-field-hint{font-size:var(--fs-label);color:#504a45;margin-top:2px;margin-bottom:var(--sp-md);min-height:16px;transition:color .2s;display:flex;align-items:center;gap:6px}
-.auth-field-hint.ok{color:#7ab535}
-.auth-field-hint.err{color:#d45454;opacity:1}
+.auth-field-hint{font-size:var(--fs-label);color:#48484A;margin-top:2px;margin-bottom:var(--sp-md);min-height:16px;transition:color .2s;display:flex;align-items:center;gap:6px}
+.auth-field-hint.ok{color:#30D158}
+.auth-field-hint.err{color:#FF453A;opacity:1}
 /* Inline check in hint (14px) — no stroke-dash animation for Safari transform compat */
 .check-sm{width:14px;height:14px;flex-shrink:0;display:inline-block}
 .check-sm svg{display:block;width:14px;height:14px}
@@ -154,30 +155,30 @@ body.sheet-open #sa-cover{background:#000000}
 .check-sm .mark{fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke:var(--ghost)}
 .check-sm.ok .circle,.check-sm.ok .mark{stroke:var(--green)}
 .check-sm.err .circle,.check-sm.err .mark{stroke:var(--red)}
-.btn-g{background:#e8e6e3;color:#161512;border-radius:12px;padding:17px 16px;font-size:16px;font-weight:700;width:100%;margin-top:12px;display:block;transition:transform .15s cubic-bezier(.34,1.56,.64,1),opacity .15s ease;letter-spacing:-.2px}
+.btn-g{background:#F2F2F7;color:#0A0A0A;border-radius:12px;padding:17px 16px;font-size:16px;font-weight:700;width:100%;margin-top:12px;display:block;transition:transform .15s cubic-bezier(.34,1.56,.64,1),opacity .15s ease;letter-spacing:-.2px}
 .box .btn-g{margin-top:32px}
 .btn-g:active{transform:scale(0.97);opacity:.9}
-.btn-g:disabled{background:#252220;color:#504a45;cursor:not-allowed;transform:none}
-.btn-o{background:transparent;color:#6a6560;border:none;padding:16px;font-size:14px;width:100%;margin-top:4px;display:block;transition:color .15s ease}
-.btn-o:active{color:#e8e6e3}
-.err{color:#d45454;font-size:13px;margin-top:12px;min-height:18px;opacity:0;transition:opacity .2s ease}
+.btn-g:disabled{background:#2C2C2E;color:#48484A;cursor:not-allowed;transform:none}
+.btn-o{background:transparent;color:#636366;border:none;padding:16px;font-size:14px;width:100%;margin-top:4px;display:block;transition:color .15s ease}
+.btn-o:active{color:#F2F2F7}
+.err{color:#FF453A;font-size:13px;margin-top:12px;min-height:18px;opacity:0;transition:opacity .2s ease}
 .err.visible{opacity:1}
 
 /* ── Common ── */
-.empty{color:#504a45;text-align:center;margin-top:48px;font-size:14px}
-.slabel{font-size:11px;font-weight:600;color:#6a6560;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px}
-.divider{display:flex;align-items:center;gap:10px;font-size:10px;font-weight:600;color:#504a45;margin:16px 0 8px;text-transform:uppercase;letter-spacing:1.2px}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:#252220}
+.empty{color:#48484A;text-align:center;margin-top:48px;font-size:14px}
+.slabel{font-size:11px;font-weight:600;color:#636366;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px}
+.divider{display:flex;align-items:center;gap:10px;font-size:10px;font-weight:600;color:#48484A;margin:16px 0 8px;text-transform:uppercase;letter-spacing:1.2px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:#2C2C2E}
 
 /* ── Notif ── */
-.notif{position:fixed;top:calc(env(safe-area-inset-top,20px) + 20px);left:50%;transform:translateX(-50%) translateY(-4px);background:#e8e6e3;color:#161512;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;max-width:90vw;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5);opacity:0;transition:opacity .2s,transform .2s}
-.notif.err{background:#2a1010;color:#e87070;border:1px solid rgba(200,50,50,.2)}
-@keyframes glowWin{0%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0px rgba(98,153,36,0)}50%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 30px rgba(98,153,36,.12)}100%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0px rgba(98,153,36,0)}}
+.notif{position:fixed;top:calc(env(safe-area-inset-top,20px) + 20px);left:50%;transform:translateX(-50%) translateY(-4px);background:#F2F2F7;color:#0A0A0A;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;max-width:90vw;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5);opacity:0;transition:opacity .2s,transform .2s}
+.notif.err{background:#1A0A0A;color:#FF6961;border:1px solid rgba(255,69,58,.2)}
+@keyframes glowWin{0%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0px rgba(48,209,88,0)}50%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 30px rgba(48,209,88,.12)}100%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0px rgba(48,209,88,0)}}
 .notif.result{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 120px);left:50%;font-size:16px;font-weight:700;padding:14px 28px;border-radius:16px;letter-spacing:-.2px;box-shadow:0 4px 24px rgba(0,0,0,.5)}
-.notif.result-win{background:#1a2a10;color:#8cbf4a;border:1px solid rgba(98,153,36,.15);box-shadow:0 4px 24px rgba(0,0,0,.5);animation:glowWin .6s ease .3s both}
-.notif.result-loss{background:#252220;color:#e8e6e3;border:none;box-shadow:0 4px 24px rgba(0,0,0,.5)}
-.notif.result-draw{background:#252220;color:#8a8580;border:none;box-shadow:0 4px 24px rgba(0,0,0,.5)}
-.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.2);border-top-color:#161512;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+.notif.result-win{background:#0A1A0A;color:#30D158;border:1px solid rgba(48,209,88,.15);box-shadow:0 4px 24px rgba(0,0,0,.5);animation:glowWin .6s ease .3s both}
+.notif.result-loss{background:#2C2C2E;color:#F2F2F7;border:none;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.notif.result-draw{background:#2C2C2E;color:#8E8E93;border:none;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.2);border-top-color:#0A0A0A;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── Home hero header ── */
@@ -189,16 +190,16 @@ body.sheet-open #sa-cover{background:#000000}
 .home-feed{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 var(--content-pad) calc(80px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
 .home-feed::-webkit-scrollbar{display:none}
 .home-hero:active{opacity:.7}
-.home-hero-nick{font-size:11px;font-weight:600;color:#8a8580;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.home-hero-nick{font-size:11px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .home-hero-elo-row{display:flex;align-items:baseline;gap:10px}
-.home-hero-elo{font-size:48px;font-weight:800;color:#e8e6e3;letter-spacing:-2px;line-height:1}
+.home-hero-elo{font-size:48px;font-weight:800;color:#F2F2F7;letter-spacing:-2px;line-height:1}
 .home-hero-delta{font-size:15px;font-weight:600;letter-spacing:-.3px}
-.home-hero-delta.up{color:#7ab535}
-.home-hero-sub{font-size:11px;color:#504a45;margin-top:0;min-height:0}
+.home-hero-delta.up{color:#30D158}
+.home-hero-sub{font-size:11px;color:#48484A;margin-top:0;min-height:0}
 .home-hero-progress{margin-top:var(--sp-md);margin-bottom:var(--sp-sm);width:100%}
-.h-progress-track{height:var(--bar-height,3px);background:var(--bar-track,rgba(122,181,53,.15));border-radius:var(--bar-radius,1.5px);overflow:hidden;position:relative}
+.h-progress-track{height:var(--bar-height,3px);background:var(--bar-track,rgba(48,209,88,.15));border-radius:var(--bar-radius,1.5px);overflow:hidden;position:relative}
 .h-progress-fill{height:100%;border-radius:var(--bar-radius,1.5px);background:var(--green);transition:width var(--bar-fill-dur,1s) var(--bar-fill-ease,cubic-bezier(.25,1,.5,1)),background .4s ease}
-.h-progress-fill.near{background:linear-gradient(90deg, var(--green), #b8d44a)}
+.h-progress-fill.near{background:linear-gradient(90deg, var(--green), #FFD60A)}
 .h-progress-fill.drop{background:var(--red)}
 .h-progress-flash{position:absolute;inset:0;border-radius:var(--bar-radius,1.5px);opacity:0;pointer-events:none}
 @keyframes barFlashUp{0%{opacity:.8}100%{opacity:0}}
@@ -208,7 +209,7 @@ body.sheet-open #sa-cover{background:#000000}
 .h-progress-label{font-size:var(--fs-micro);color:var(--ghost);margin-top:4px;transition:color .4s ease}
 .h-progress-label.drop{color:var(--red)}
 /* STEP 1: delta down era #c33 — ora coerente con sistema: rosso solo per perdite, non per draw */
-.home-hero-delta.down{color:#d45454}
+.home-hero-delta.down{color:#FF453A}
 
 /* ── Home active section ── */
 #home-active{flex-shrink:0}
@@ -222,12 +223,12 @@ body.sheet-open #sa-cover{background:#000000}
 /* ── Action sheet colore ── */
 .asheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:10001;display:flex;align-items:flex-end;pointer-events:none}
 .asheet-overlay.visible{background:rgba(0,0,0,.75);pointer-events:all}
-.asheet{background:#161512;border-radius:24px 24px 0 0;padding:24px 16px 40px;width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .38s cubic-bezier(.34,1.56,.64,1)}
+.asheet{background:#0A0A0A;border-radius:24px 24px 0 0;padding:24px 16px 40px;width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .38s cubic-bezier(.34,1.56,.64,1)}
 .asheet-overlay.visible .asheet{transform:translateY(0)}
-.asheet-eyebrow{font-size:11px;color:#8a8580;text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
-.asheet-cta{width:100%;background:#e8e6e3;border:none;border-radius:14px;padding:16px;color:#161512;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .15s,transform .12s;margin-bottom:8px}
+.asheet-eyebrow{font-size:11px;color:#8E8E93;text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
+.asheet-cta{width:100%;background:#F2F2F7;border:none;border-radius:14px;padding:16px;color:#0A0A0A;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .15s,transform .12s;margin-bottom:8px}
 .asheet-cta:active{opacity:.85;transform:scale(.99)}
-.asheet-cta:disabled{background:#252220;color:#504a45;cursor:not-allowed}
+.asheet-cta:disabled{background:#2C2C2E;color:#48484A;cursor:not-allowed}
 
 /* Animazioni */
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
@@ -238,7 +239,7 @@ body.sheet-open #sa-cover{background:#000000}
 
 /* Action sheet risultato */
 .rsheet-context{font-size:var(--fs-caption);color:var(--muted);text-align:center;margin-bottom:var(--sp-lg);font-weight:500}
-.rsheet-btns{background:#252220;border-radius:14px;overflow:hidden;margin-bottom:8px}
+.rsheet-btns{background:#2C2C2E;border-radius:14px;overflow:hidden;margin-bottom:8px}
 .rsheet-btn{width:100%;padding:var(--sp-lg);border-radius:0;font-size:var(--fs-body);font-weight:600;text-align:center;cursor:pointer;transition:opacity var(--dur-fast),background .1s;border:none;border-bottom:0.5px solid var(--border);font-family:inherit;letter-spacing:-.2px;background:transparent;color:var(--text)}
 .rsheet-btn:last-child{border-bottom:none}
 .rsheet-btn:active{background:var(--border);opacity:.8}
@@ -246,41 +247,41 @@ body.sheet-open #sa-cover{background:#000000}
 .rsheet-cancel:active{opacity:.5}
 
 /* ── Profile ── */
-.prof-sticky{flex-shrink:0;background:#161512;padding:0 16px}
+.prof-sticky{flex-shrink:0;background:#0A0A0A;padding:0 16px}
 .prof-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px calc(80px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
 .prof-scroll::-webkit-scrollbar{display:none}
 .prof-header{padding:8px 0 4px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .prof-header-left{flex:1;min-width:0}
 .prof-header-right{flex-shrink:0;text-align:right}
-.prof-nick{font-size:20px;font-weight:700;color:#e8e6e3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.prof-rank-meta{font-size:11px;color:#6a6560;margin-top:2px}
-.prof-bio{font-size:12px;color:#8a8580;margin-top:3px;max-width:200px;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.prof-city{font-size:11px;color:#504a45;margin-top:2px}
-.prof-elo-num{font-size:32px;font-weight:800;color:#e8e6e3;line-height:1}
-.prof-elo-peak{font-size:11px;color:#6a6560;margin-top:3px}
-.prof-elo-peak strong{color:#8a8580;font-weight:600}
-.prof-elo-gap{font-size:11px;color:#d45454;margin-top:1px}
+.prof-nick{font-size:20px;font-weight:700;color:#F2F2F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prof-rank-meta{font-size:11px;color:#636366;margin-top:2px}
+.prof-bio{font-size:12px;color:#8E8E93;margin-top:3px;max-width:200px;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.prof-city{font-size:11px;color:#48484A;margin-top:2px}
+.prof-elo-num{font-size:32px;font-weight:800;color:#F2F2F7;line-height:1}
+.prof-elo-peak{font-size:11px;color:#636366;margin-top:3px}
+.prof-elo-peak strong{color:#8E8E93;font-weight:600}
+.prof-elo-gap{font-size:11px;color:#FF453A;margin-top:1px}
 .prof-chart-wrap{margin-bottom:14px;position:relative}
 .prof-chart-header{display:flex;align-items:baseline;justify-content:space-between;padding:0 0 8px}
-.prof-chart-val{font-size:20px;font-weight:800;color:#e8e6e3;transition:opacity .12s;min-width:50px}
+.prof-chart-val{font-size:20px;font-weight:800;color:#F2F2F7;transition:opacity .12s;min-width:50px}
 .prof-chart-val.empty{opacity:0}
-.prof-chart-date{font-size:11px;color:#6a6560;margin-left:6px;transition:opacity .12s}
+.prof-chart-date{font-size:11px;color:#636366;margin-left:6px;transition:opacity .12s}
 .prof-chart-chips{display:flex;gap:4px}
-.prof-chart-chip{background:transparent;border:none;color:#6a6560;font-size:11px;font-weight:600;padding:4px 10px;border-radius:8px;cursor:pointer;font-family:inherit;transition:color .15s,background .15s;-webkit-tap-highlight-color:transparent}
-.prof-chart-chip.active{background:#252220;color:#e8e6e3}
+.prof-chart-chip{background:transparent;border:none;color:#636366;font-size:11px;font-weight:600;padding:4px 10px;border-radius:8px;cursor:pointer;font-family:inherit;transition:color .15s,background .15s;-webkit-tap-highlight-color:transparent}
+.prof-chart-chip.active{background:#2C2C2E;color:#F2F2F7}
 .prof-chart-chip:active{opacity:.6}
-.prof-kebab{background:none;border:none;color:#504a45;font-size:20px;cursor:pointer;padding:4px 0 4px 8px;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.prof-kebab:active{color:#8a8580}
+.prof-kebab{background:none;border:none;color:#48484A;font-size:20px;cursor:pointer;padding:4px 0 4px 8px;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.prof-kebab:active{color:#8E8E93}
 .prof-footer{padding:24px 0 16px;text-align:center}
-.prof-footer-link{background:none;border:none;color:#6a6560;font-size:13px;font-weight:500;cursor:pointer;padding:10px 16px;display:block;width:100%;-webkit-tap-highlight-color:transparent}
-.prof-footer-link:active{color:#8a8580}
-.back-btn{background:none;border:none;color:#6a6560;font-size:13px;padding:0;margin-bottom:12px;display:flex;align-items:center;gap:6px;cursor:pointer}
+.prof-footer-link{background:none;border:none;color:#636366;font-size:13px;font-weight:500;cursor:pointer;padding:10px 16px;display:block;width:100%;-webkit-tap-highlight-color:transparent}
+.prof-footer-link:active{color:#8E8E93}
+.back-btn{background:none;border:none;color:#636366;font-size:13px;padding:0;margin-bottom:12px;display:flex;align-items:center;gap:6px;cursor:pointer}
 .back-btn:active{opacity:.7}
 /* ── Skeleton loading ── */
-.skel{border-radius:6px;background:#252220;position:relative;overflow:hidden}
+.skel{border-radius:6px;background:#2C2C2E;position:relative;overflow:hidden}
 .skel::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.03),transparent);animation:skel-shimmer 1.5s ease infinite}
 @keyframes skel-shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-.skel-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:0.5px solid #252220}
+.skel-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:0.5px solid #2C2C2E}
 .skel-row:last-child{border-bottom:none}
 .skel-left{display:flex;flex-direction:column;gap:6px}
 .skel-chart{margin-bottom:14px}
@@ -301,9 +302,9 @@ body.sheet-open #sa-cover{background:#000000}
 .ds-cell:active{background:var(--border)}
 .ds-cell.static{cursor:default}
 .ds-cell.static:active{background:transparent}
-.ds-cell.is-me{background:#242018}
-.ds-cell.nested{padding-left:var(--sp-xl);background:#242018;cursor:default}
-.ds-cell.nested:active{background:#242018}
+.ds-cell.is-me{background:#2C2C2E}
+.ds-cell.nested{padding-left:var(--sp-xl);background:#2C2C2E;cursor:default}
+.ds-cell.nested:active{background:#2C2C2E}
 .ds-cell-left{flex:1;min-width:0}
 .ds-cell-right{flex-shrink:0;text-align:right}
 .ds-cell-name{font-size:var(--fs-body);font-weight:600;color:var(--text)}
@@ -341,7 +342,7 @@ body.sheet-open #sa-cover{background:#000000}
 /* ── W-L-D pills ── */
 .ds-wld{display:flex;align-items:center;gap:4px}
 .ds-wl{font-size:var(--fs-label);font-weight:700;min-width:24px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;padding:0 6px}
-.ds-wl.w{background:rgba(122,181,53,.12);color:var(--green)}
+.ds-wl.w{background:rgba(48,209,88,.12);color:var(--green)}
 .ds-wl.l{background:rgba(212,84,84,.12);color:var(--red)}
 .ds-wl.d{background:rgba(138,133,128,.1);color:var(--dim)}
 
@@ -392,6 +393,13 @@ body.sheet-open #sa-cover{background:#000000}
 .ds-divider{display:flex;align-items:center;gap:10px;font-size:var(--fs-micro);font-weight:600;color:var(--ghost);margin:var(--sp-lg) 0 var(--sp-sm);text-transform:uppercase;letter-spacing:1.2px}
 .ds-divider::before,.ds-divider::after{content:'';flex:1;height:0.5px;background:var(--border)}
 
+/* ── ELO format chips (hero + profile) ── */
+.elo-chips{display:flex;gap:var(--sp-xs);margin-top:var(--sp-md)}
+.elo-chip{padding:4px 10px;border-radius:8px;font-size:var(--fs-micro);font-weight:600;color:var(--ghost);background:transparent;border:none;font-family:inherit;cursor:pointer;transition:color var(--dur-fast),background var(--dur-fast)}
+.elo-chip.on{color:var(--text);background:var(--border)}
+/* ── Format tag in feed meta ── */
+.fmt{font-size:var(--fs-micro);font-weight:600;color:var(--ghost);text-transform:uppercase;letter-spacing:.5px}
+
 /* ── Challenge sheet (Uber-style) ── */
 .ch-time-chip{flex:1;padding:var(--sp-md) 0;border:1px solid var(--border);border-radius:var(--r-sm);background:transparent;color:var(--dim);font-size:var(--fs-caption);font-weight:600;font-family:inherit;cursor:pointer;text-align:center;transition:border-color var(--dur-fast),color var(--dur-fast),background var(--dur-fast),transform var(--dur-bounce) var(--ease-bounce)}
 .ch-time-chip:active{opacity:.6}
@@ -400,7 +408,7 @@ body.sheet-open #sa-cover{background:#000000}
 .ch-color-btn:active{transform:scale(.92)}
 .ch-color-white{background:var(--text)}
 .ch-color-white span{font-size:var(--fs-body);font-weight:700;color:var(--bg);letter-spacing:-.2px}
-.ch-color-black{background:#2a2724;border:1px solid var(--border)}
+.ch-color-black{background:#38383A;border:1px solid var(--border)}
 .ch-color-black span{font-size:var(--fs-body);font-weight:700;color:var(--text);letter-spacing:-.2px}
 .ch-player-row{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) 0;border-bottom:0.5px solid var(--border);cursor:pointer;transition:opacity var(--dur-fast)}
 .ch-player-row:last-child{border-bottom:none}
@@ -424,8 +432,8 @@ body.sheet-open #sa-cover{background:#000000}
 .swipe-cell{position:relative;z-index:1;background:var(--surface);transform:translate3d(0,0,0);-webkit-transform:translate3d(0,0,0);touch-action:pan-y}
 .swipe-cell.ds-cell{border-bottom:none}
 .swipe-cell.fr{border-bottom:none;background:var(--surface)}
-.swipe-cell.fr.w{background:#1e1c15}
-.swipe-cell.fr.l{background:#1e1a17}
+.swipe-cell.fr.w{background:#1D2420}
+.swipe-cell.fr.l{background:var(--surface)}
 .swipe-cell.fr.p{background:var(--surface)}
 .home-feed.swipe-active{overflow-y:hidden!important}
 
@@ -448,6 +456,37 @@ body.sheet-open #sa-cover{background:#000000}
 .fr.p .fr-n{color:var(--dim);font-weight:500}
 .fr.p .fr-d{color:var(--ghost);font-weight:500}
 .fr.o .fr-n{color:var(--dim);font-weight:400;font-size:var(--feed-body)}
+
+/* ── Feed: others compressed ── */
+.fr.oc{min-height:38px;padding:var(--sp-sm) var(--sp-lg)}
+.fr.oc .fr-n{font-size:var(--fs-caption);color:var(--ghost);font-weight:400}
+.fr.oc .fr-m{font-size:10px}
+
+/* ── Feed: my moments (icon/number in box) — SF Symbols gradient ── */
+.mi{display:flex;align-items:center;gap:var(--sp-md);padding:calc(var(--sp-lg) + 4px) var(--sp-lg) var(--sp-lg);position:relative;-webkit-tap-highlight-color:transparent;cursor:pointer;transition:background var(--dur-fast)}
+.mi:active{background:var(--border)}
+.mi::after{content:'';position:absolute;bottom:0;left:52px;right:0;height:var(--divider-height);background:var(--divider-color)}
+.mi:last-child::after{display:none}
+.mi-box{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mi-box svg{width:18px;height:18px}
+.mi-box.green{background:linear-gradient(180deg, rgba(48,209,88,.18) 0%, rgba(30,140,50,.12) 100%)}
+.mi-box.gold{background:linear-gradient(180deg, rgba(255,214,10,.16) 0%, rgba(180,150,10,.1) 100%)}
+.mi-box.num{font-weight:800;font-size:15px;font-family:inherit}
+.mi-box.num.green{color:var(--green)}
+.mi-box.glyph{font-weight:700;font-size:18px;font-family:inherit}
+.mi-box.glyph.green{color:var(--green)}
+.mi-body{flex:1;min-width:0}
+.mi-title{font-size:var(--feed-title);font-weight:700;color:var(--text);line-height:1.3}
+.mi-sub{font-size:var(--feed-micro);color:var(--dim);margin-top:2px}
+
+/* ── Feed: others' moments (typography-only) ── */
+.mt{padding:calc(var(--sp-lg) + 4px) var(--sp-lg) var(--sp-md);position:relative;-webkit-tap-highlight-color:transparent;cursor:pointer;transition:background var(--dur-fast)}
+.mt:active{background:var(--border)}
+.mt::after{content:'';position:absolute;bottom:0;left:var(--divider-inset);right:0;height:var(--divider-height);background:var(--divider-color)}
+.mt:last-child::after{display:none}
+.mt-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;color:var(--dim)}
+.mt-title{font-size:var(--feed-title);font-weight:600;color:var(--muted);line-height:1.3}
+.mt-sub{font-size:var(--feed-micro);color:var(--ghost);margin-top:2px}
 
 /* ── Feed juice: events ── */
 .fe{display:flex;align-items:center;gap:var(--sp-md);padding:var(--sp-lg);position:relative;-webkit-tap-highlight-color:transparent;cursor:pointer;transition:background var(--dur-fast)}
@@ -487,7 +526,20 @@ body.sheet-open #sa-cover{background:#000000}
 </style>
 </head>
 <body>
-<div id="sa-cover" style="position:fixed;top:0;left:0;right:0;height:calc(env(safe-area-inset-top,20px) + 12px);background:#161512;z-index:9999;pointer-events:none;transition:background .35s"></div>
+<!-- SVG gradient definitions for moment icons (SF Symbols style) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="mi-grad-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5AE87A"/>
+      <stop offset="100%" stop-color="#20A040"/>
+    </linearGradient>
+    <linearGradient id="mi-grad-gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFE44A"/>
+      <stop offset="100%" stop-color="#C8A000"/>
+    </linearGradient>
+  </defs>
+</svg>
+<div id="sa-cover" style="position:fixed;top:0;left:0;right:0;height:calc(env(safe-area-inset-top,20px) + 12px);background:#0A0A0A;z-index:9999;pointer-events:none;transition:background .35s"></div>
 <div id="notif" class="notif"></div>
 
 <!-- AUTH -->
@@ -567,6 +619,11 @@ body.sheet-open #sa-cover{background:#000000}
             <span class="home-hero-elo" id="h-elo"></span>
             <span class="home-hero-delta hidden" id="h-delta"></span>
           </div>
+          <div class="elo-chips" id="h-format-chips">
+            <button class="elo-chip on" onclick="event.stopPropagation();switchHeroFormat('rapid')" data-fmt="rapid">Rapid</button>
+            <button class="elo-chip" onclick="event.stopPropagation();switchHeroFormat('blitz')" data-fmt="blitz">Blitz</button>
+            <button class="elo-chip" onclick="event.stopPropagation();switchHeroFormat('classic')" data-fmt="classic">Classic</button>
+          </div>
           <div id="h-sub" class="home-hero-sub"></div>
           <div id="h-progress" class="home-hero-progress hidden">
             <div class="h-progress-track">
@@ -578,7 +635,6 @@ body.sheet-open #sa-cover{background:#000000}
         </div>
         <div class="home-chips" id="home-chips">
           <button class="ds-chip on" onclick="switchHomeChip(this,'all')">Tutto</button>
-          <button class="ds-chip" onclick="switchHomeChip(this,'mine')">Tu</button>
           <button class="ds-chip" onclick="switchHomeChip(this,'ranking')">Classifica</button>
         </div>
       </div>
@@ -595,13 +651,14 @@ body.sheet-open #sa-cover{background:#000000}
 
         <!-- Feed: Classifica (hidden) -->
         <div id="home-feed-ranking" class="hidden">
+          <div class="elo-chips" id="ranking-format-chips" style="padding:var(--sp-sm) var(--content-pad) var(--sp-md)">
+            <button class="elo-chip on" onclick="switchRankingFormat('rapid')" data-fmt="rapid">Rapid</button>
+            <button class="elo-chip" onclick="switchRankingFormat('blitz')" data-fmt="blitz">Blitz</button>
+            <button class="elo-chip" onclick="switchRankingFormat('classic')" data-fmt="classic">Classic</button>
+          </div>
           <div id="home-ranking-list"></div>
         </div>
 
-        <!-- Feed: Le mie (hidden) -->
-        <div id="home-feed-mine" class="hidden">
-          <div id="home-mine-list"></div>
-        </div>
       </div>
     </div>
 
@@ -671,8 +728,8 @@ body.sheet-open #sa-cover{background:#000000}
     description: 'built for over-the-board chess',
     start_url: '/',
     display: 'standalone',
-    background_color: '#161512',
-    theme_color: '#161512',
+    background_color: '#0A0A0A',
+    theme_color: '#0A0A0A',
     orientation: 'portrait',
     icons: [{
       src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23161512'/><text y='78' x='12' font-size='75'>♟</text></svg>",
@@ -699,6 +756,74 @@ let globalMatches = [];
 let globalEloCache = {};
 let globalEvents = [];
 let matchStakes = {}; // Cache: matchId -> {win_delta, loss_delta, draw_delta}
+var _activeFormat = 'rapid'; // Current format shown in home hero
+var _activeFormatInitialized = false;
+var _formatSwitching = false;
+var _profileFormat = 'rapid'; // Current format shown in profile
+var _rankingFormat = 'rapid'; // Current format shown in ranking (independent)
+var _currentProfileEloHistory = null; // Stored for profile format switching
+
+// ── Multi-ELO helpers ──
+function getPlayerElo(player, format) {
+  if(!player) return { elo: 1500, rd: 100, vol: 0.06, peak: 1500 };
+  var f = format || _activeFormat || 'rapid';
+  if(f === 'blitz') return { elo: player.elo_blitz || 1500, rd: player.rd_blitz || 100, vol: player.vol_blitz || 0.06, peak: player.elo_peak_blitz || 1500 };
+  if(f === 'classic') return { elo: player.elo_classic || 1500, rd: player.rd_classic || 100, vol: player.vol_classic || 0.06, peak: player.elo_peak_classic || 1500 };
+  return { elo: player.elo_rapid || 1500, rd: player.rd_rapid || 100, vol: player.vol_rapid || 0.06, peak: player.elo_peak_rapid || 1500 };
+}
+
+function getMostPlayedFormat(playerId) {
+  var counts = { rapid: 0, blitz: 0, classic: 0 };
+  (matches || []).forEach(function(m) {
+    if(m.status === 'done' && m.result !== 'cancelled' && (m.p1 === playerId || m.p2 === playerId)) {
+      counts[m.time_control || 'rapid']++;
+    }
+  });
+  (globalMatches || []).forEach(function(m) {
+    if(m.result !== 'cancelled' && (m.p1 === playerId || m.p2 === playerId)) {
+      counts[m.time_control || 'rapid']++;
+    }
+  });
+  if(counts.blitz > counts.rapid && counts.blitz >= counts.classic) return 'blitz';
+  if(counts.classic > counts.rapid && counts.classic > counts.blitz) return 'classic';
+  return 'rapid';
+}
+
+function getSelectedChallengeFormat() {
+  var sel = document.querySelector('.ch-time-chip.on');
+  return sel ? sel.getAttribute('data-time') : 'rapid';
+}
+
+function switchHeroFormat(fmt) {
+  _activeFormat = fmt;
+  document.querySelectorAll('#h-format-chips .elo-chip').forEach(function(c) {
+    c.classList.toggle('on', c.getAttribute('data-fmt') === fmt);
+  });
+  _formatSwitching = true;
+  updateTopbar();
+  _formatSwitching = false;
+}
+
+function switchRankingFormat(fmt) {
+  _rankingFormat = fmt;
+  document.querySelectorAll('#ranking-format-chips .elo-chip').forEach(function(c) {
+    c.classList.toggle('on', c.getAttribute('data-fmt') === fmt);
+  });
+  renderHomeRanking();
+}
+
+function switchProfileFormat(fmt) {
+  _profileFormat = fmt;
+  var player = currentProfileId ? getP(currentProfileId) : me;
+  if(!player) return;
+  renderProfileHeader(player);
+  renderEloSection(player);
+  var eloH = _currentProfileEloHistory;
+  if(eloH) {
+    var filtered = eloH.filter(function(e) { return (e.time_control || 'rapid') === fmt; });
+    drawEloChart(filtered, getPlayerElo(player, fmt).elo);
+  }
+}
 
 // ── Auto-login: restore session on PWA reopen ──
 (async function autoLogin() {
@@ -991,7 +1116,7 @@ var _nickCheckTimer = null;
 var _nickAvailable = false;
 
 function makeCheckSvg(ok) {
-  var c = ok ? '#7ab535' : '#d45454';
+  var c = ok ? '#30D158' : '#FF453A';
   if(ok) return '<span style="display:inline-block;width:14px;height:14px;flex-shrink:0"><svg viewBox="0 0 14 14" width="14" height="14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="'+c+'" stroke-width="1.5"/><polyline points="4,7.5 6,9.5 10,5" stroke="'+c+'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>';
   return '<span style="display:inline-block;width:14px;height:14px;flex-shrink:0"><svg viewBox="0 0 14 14" width="14" height="14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="'+c+'" stroke-width="1.5"/><line x1="5" y1="5" x2="9" y2="9" stroke="'+c+'" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="5" x2="5" y2="9" stroke="'+c+'" stroke-width="1.5" stroke-linecap="round"/></svg></span>';
 }
@@ -1275,7 +1400,7 @@ async function generateMatchEvents(m) {
 
   const eventsToInsert = [];
 
-  // Sorpasso diretto
+  // Sorpasso diretto (vincitore supera perdente) — sempre singolo
   if(loseOldElo !== null && loseNewElo !== null) {
     if(winOldElo < loseOldElo && winNewElo > loseNewElo) {
       eventsToInsert.push({
@@ -1285,28 +1410,49 @@ async function generateMatchEvents(m) {
     }
   }
 
-  // Sorpassi indiretti (vincitore scavalca terzi)
+  // Sorpassi indiretti (vincitore scavalca terzi) — consolidati se 2+
+  const evFmt = m.time_control || 'rapid';
+  var indirectOvertakes = [];
   players.forEach(p => {
     if(p.id === winnerId || p.id === loserId) return;
-    if(p.elo >= winOldElo && p.elo < winNewElo) {
-      eventsToInsert.push({
-        type: 'overtake', player_id: winnerId, target_id: p.id, match_id: m.id,
-        data: { winner_name: winner.nickname, overtaken_name: p.nickname, new_elo: winNewElo, overtaken_elo: p.elo }
-      });
+    var pElo = getPlayerElo(p, evFmt).elo;
+    if(pElo >= winOldElo && pElo < winNewElo) {
+      indirectOvertakes.push({ id: p.id, nickname: p.nickname, elo: pElo });
     }
   });
+  if(indirectOvertakes.length === 1) {
+    eventsToInsert.push({
+      type: 'overtake', player_id: winnerId, target_id: indirectOvertakes[0].id, match_id: m.id,
+      data: { winner_name: winner.nickname, overtaken_name: indirectOvertakes[0].nickname, new_elo: winNewElo, overtaken_elo: indirectOvertakes[0].elo }
+    });
+  } else if(indirectOvertakes.length > 1) {
+    eventsToInsert.push({
+      type: 'overtake_multi', player_id: winnerId, match_id: m.id,
+      data: { winner_name: winner.nickname, count: indirectOvertakes.length, new_elo: winNewElo, names: indirectOvertakes.map(function(o) { return o.nickname; }) }
+    });
+  }
 
-  // Sorpassi inversi (terzi superano il perdente)
+  // Sorpassi inversi (terzi superano il perdente) — consolidati se 2+
   if(loseOldElo !== null && loseNewElo !== null) {
+    var reverseOvertakes = [];
     players.forEach(p => {
       if(p.id === winnerId || p.id === loserId) return;
-      if(p.elo <= loseOldElo && p.elo > loseNewElo) {
-        eventsToInsert.push({
-          type: 'overtake', player_id: p.id, target_id: loserId, match_id: m.id,
-          data: { winner_name: p.nickname, overtaken_name: loser.nickname, new_elo: p.elo, overtaken_elo: loseNewElo }
-        });
+      var pElo = getPlayerElo(p, evFmt).elo;
+      if(pElo <= loseOldElo && pElo > loseNewElo) {
+        reverseOvertakes.push({ id: p.id, nickname: p.nickname, elo: pElo });
       }
     });
+    if(reverseOvertakes.length === 1) {
+      eventsToInsert.push({
+        type: 'overtake', player_id: reverseOvertakes[0].id, target_id: loserId, match_id: m.id,
+        data: { winner_name: reverseOvertakes[0].nickname, overtaken_name: loser.nickname, new_elo: reverseOvertakes[0].elo, overtaken_elo: loseNewElo }
+      });
+    } else if(reverseOvertakes.length > 1) {
+      eventsToInsert.push({
+        type: 'overtake_multi', player_id: loserId, match_id: m.id,
+        data: { loser_name: loser.nickname, count: reverseOvertakes.length, new_elo: loseNewElo, names: reverseOvertakes.map(function(o) { return o.nickname; }), is_reverse: true }
+      });
+    }
   }
 
   // Upset
@@ -1336,7 +1482,7 @@ async function generateMatchEvents(m) {
 
   // Peak (non milestone)
   if(winNewElo > winOldElo && winNewElo > 1500 && Math.floor(winNewElo / 100) === Math.floor(winOldElo / 100)) {
-    if(winNewElo >= (winner.elo_peak || 1500)) {
+    if(winNewElo >= (getPlayerElo(winner, evFmt).peak || 1500)) {
       eventsToInsert.push({
         type: 'peak', player_id: winnerId, match_id: m.id,
         data: { nickname: winner.nickname, elo: winNewElo }
@@ -1344,8 +1490,10 @@ async function generateMatchEvents(m) {
     }
   }
 
-  // Inserisci (fire and forget)
+  // Inserisci (fire and forget) — include time_control in data
+  const evTc = m.time_control || 'rapid';
   for(const ev of eventsToInsert) {
+    ev.data.time_control = evTc;
     try { await db.post('events', ev); } catch(e) { console.log('Event insert failed:', e); }
   }
 }
@@ -1393,7 +1541,7 @@ async function fetchAll() {
   if(!me) return;
   const prevMatches = [...matches];
   const [ps, ms, done, eloH, globalDone, globalEloH, dbEvents] = await Promise.all([
-    db.get("players", "order=elo.desc"),
+    db.get("players", "select=*"),
     db.get("matches", `or=(p1.eq.${me.id},p2.eq.${me.id})&status=in.(active,pending_challenge)&select=*&order=created_at.desc&limit=50`),
     db.get("matches", `or=(p1.eq.${me.id},p2.eq.${me.id})&status=eq.done&select=*&order=updated_at.desc&limit=30`),
     db.get("elo_history", `player_id=eq.${me.id}&select=*&order=created_at.desc&limit=50`),
@@ -1412,6 +1560,13 @@ async function fetchAll() {
   if(Array.isArray(globalDone)) globalMatches = globalDone;
   if(Array.isArray(globalEloH)) globalEloH.forEach(e => globalEloCache[e.match_id + '_' + e.player_id] = e);
   if(Array.isArray(dbEvents)) globalEvents = dbEvents;
+
+  // Set active format only on first load (not on poll refreshes)
+  if(!_activeFormatInitialized) {
+    _activeFormat = getMostPlayedFormat(me.id);
+    _rankingFormat = _activeFormat;
+    _activeFormatInitialized = true;
+  }
 
   updateTopbar();
   await cleanupExpired();
@@ -1601,9 +1756,14 @@ function updateTopbar() {
   const hElo = $("h-elo");
   const hDelta = $("h-delta");
   if(hNick) hNick.textContent = me.nickname;
-  if(hElo) animateElo(hElo, me.elo);
+  // Sync format chips
+  document.querySelectorAll('#h-format-chips .elo-chip').forEach(function(c) {
+    c.classList.toggle('on', c.getAttribute('data-fmt') === _activeFormat);
+  });
+  var _heroEloObj = getPlayerElo(me, _activeFormat);
+  if(hElo) animateElo(hElo, _heroEloObj.elo);
   if(hDelta) {
-    const myMatches = matches.filter(m => m.status === "done" && (m.p1===me.id||m.p2===me.id));
+    const myMatches = matches.filter(m => m.status === "done" && (m.p1===me.id||m.p2===me.id) && (m.time_control || 'rapid') === _activeFormat);
     const last = myMatches[0];
     const elo = last ? eloCache[last.id] : null;
     const delta = elo ? (elo.elo_after - elo.elo_before) : null;
@@ -1643,8 +1803,8 @@ function updateTopbar() {
 
   // Progress bar Zeigarnik
   const hProgress = $('h-progress');
-  if(hProgress && me.elo) {
-    const elo = Math.round(me.elo);
+  if(hProgress && _heroEloObj.elo) {
+    const elo = Math.round(_heroEloObj.elo);
     const nextMilestone = Math.ceil(elo / 100) * 100;
     const prevMilestone = nextMilestone - 100;
     const progress = ((elo - prevMilestone) / 100) * 100;
@@ -1654,7 +1814,17 @@ function updateTopbar() {
     const flash = $('h-progress-flash');
     const label = $('h-progress-label');
 
-    if(remaining > 0 && remaining < 100) {
+    if(remaining >= 0 && remaining <= 100) {
+      // Format switch: instant set, no animation or milestone comparison
+      if(_formatSwitching) {
+        fill.style.transition = 'none';
+        fill.className = 'h-progress-fill' + (near ? ' near' : '');
+        fill.style.width = progress + '%';
+        fill.offsetHeight; // force reflow
+        fill.style.transition = '';
+        flash.className = 'h-progress-flash';
+        label.classList.remove('drop');
+      } else {
       // Check milestone crossing (compare with previous render)
       var oldMilestone = hProgress.dataset.milestone ? parseInt(hProgress.dataset.milestone) : nextMilestone;
       var crossedUp = nextMilestone > oldMilestone;
@@ -1696,6 +1866,7 @@ function updateTopbar() {
         fill.className = 'h-progress-fill' + (near ? ' near' : '');
         fill.style.width = progress + '%';
       }
+      } // end else (not format switching)
 
       // Update label — always "X punti ai YYYY"
       var labelColor = near ? 'var(--dim)' : 'var(--ghost)';
@@ -1757,7 +1928,8 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
   incomingChallenges.forEach(m => {
     const opp = getP(m.p1);
     const oppName = opp?.nickname || '?';
-    const eloStr = opp?.elo ? String(Math.round(opp.elo)) : '';
+    const cardFmt = m.time_control || 'rapid';
+    const eloStr = opp ? String(Math.round(getPlayerElo(opp, cardFmt).elo)) : '';
     let statusParts = ['ti sfida'];
     if(m.time_control) statusParts.push(m.time_control.charAt(0).toUpperCase() + m.time_control.slice(1));
     if(m.white_player_id) {
@@ -1774,7 +1946,8 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
   activeCards.filter(c => c.type === 'disputed').forEach(({ m }) => {
     const oppId = m.p1 === me.id ? m.p2 : m.p1;
     const opp = getP(oppId);
-    cards.push(mkCard('red', opp?.nickname||'?', opp?.elo ? String(Math.round(opp.elo)) : '',
+    const dFmt = m.time_control || 'rapid';
+    cards.push(mkCard('red', opp?.nickname||'?', opp ? String(Math.round(getPlayerElo(opp, dFmt).elo)) : '',
       'Risultati non coincidono · reinserisci',
       `<button class="ds-card-btn danger" onclick="openResultSheet('${m.id}')">Reinserisci</button>`
     ));
@@ -1784,7 +1957,8 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
   activeCards.filter(c => c.type === 'live').forEach(({ m }) => {
     const oppId = m.p1 === me.id ? m.p2 : m.p1;
     const opp = getP(oppId);
-    cards.push(mkCard('green', opp?.nickname||'?', opp?.elo ? String(Math.round(opp.elo)) : '',
+    const lFmt = m.time_control || 'rapid';
+    cards.push(mkCard('green', opp?.nickname||'?', opp ? String(Math.round(getPlayerElo(opp, lFmt).elo)) : '',
       'Com\'è andata?',
       `<button class="ds-card-btn primary" onclick="openResultSheet('${m.id}')">Risultato</button>`
     ));
@@ -1804,6 +1978,7 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
   // 5. Sent challenges — waiting for acceptance
   sentChallenges.forEach(m => {
     const opp = getP(m.p2);
+    const sFmt = m.time_control || 'rapid';
     let statusParts = ['Sfida inviata'];
     if(m.time_control) statusParts.push(m.time_control.charAt(0).toUpperCase() + m.time_control.slice(1));
     if(m.white_player_id) {
@@ -1811,7 +1986,7 @@ function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
       statusParts.push('giochi con il ' + (amIWhite ? 'bianco' : 'nero'));
     }
     const stakes = stakesHtml(m.id);
-    cards.push(mkCard('gray', opp?.nickname||'?', opp?.elo ? String(Math.round(opp.elo)) : '',
+    cards.push(mkCard('gray', opp?.nickname||'?', opp ? String(Math.round(getPlayerElo(opp, sFmt).elo)) : '',
       statusParts.join(' · ') + stakes,
       `<button class="ds-card-btn ghost" onclick="cancelChallenge('${m.id}')">Annulla</button>`,
       true
@@ -1980,7 +2155,8 @@ async function fetchMatchStakes() {
     if(matchStakes[m.id]) continue;
     const oppId = m.p1 === me.id ? m.p2 : m.p1;
     try {
-      const res = await db.rpc('estimate_match_delta', { p1_id: me.id, p2_id: oppId });
+      const tc = m.time_control || 'rapid';
+      const res = await db.rpc('estimate_match_delta', { p1_id: me.id, p2_id: oppId, tc: tc });
       if(res && !res.error && res.win_delta !== undefined) {
         matchStakes[m.id] = res;
       }
@@ -2017,10 +2193,9 @@ function renderHome() {
   // ── Feed ──
   const activeChip = document.querySelector('.home-chips .ds-chip.on');
   const chipText = activeChip ? activeChip.textContent.trim() : 'Tutto';
-  const activeView = chipText === 'Classifica' ? 'ranking' : chipText === 'Tu' ? 'mine' : 'all';
+  const activeView = chipText === 'Classifica' ? 'ranking' : 'all';
 
   if(activeView === 'all') renderHomeFeedAll();
-  if(activeView === 'mine') renderHomeMine();
   if(activeView === 'ranking') renderHomeRanking();
 }
 
@@ -2028,10 +2203,8 @@ function switchHomeChip(btn, view) {
   document.querySelectorAll('.home-chips .ds-chip').forEach(c => c.classList.remove('on'));
   btn.classList.add('on');
   $('home-feed-all').classList.toggle('hidden', view !== 'all');
-  $('home-feed-mine').classList.toggle('hidden', view !== 'mine');
   $('home-feed-ranking').classList.toggle('hidden', view !== 'ranking');
   if(view === 'all') renderHomeFeedAll();
-  if(view === 'mine') renderHomeMine();
   if(view === 'ranking') renderHomeRanking();
 }
 
@@ -2047,8 +2220,6 @@ function feedSkeletonHtml(rows) {
 function showFeedSkeleton() {
   var c = $('home-history');
   if(c) c.innerHTML = feedSkeletonHtml(15);
-  var m = $('home-mine-list');
-  if(m) m.innerHTML = feedSkeletonHtml(15);
   var r = $('home-ranking-list');
   if(r) r.innerHTML = feedSkeletonHtml(15);
 }
@@ -2062,7 +2233,6 @@ function renderHomeFeedAll() {
   // Events from DB — filtered + deduped
   const _seenEvents = new Set();
   (globalEvents || []).forEach(ev => {
-    if(ev.type === 'peak') return;
     if(new Date(ev.created_at).getTime() < myJoinedAt) return;
     // Dedup: same type + player + target + match = duplicate
     const evKey = ev.type + '_' + (ev.player_id||'') + '_' + (ev.target_id||'') + '_' + (ev.match_id||'');
@@ -2073,29 +2243,65 @@ function renderHomeFeedAll() {
     const target = getP(ev.target_id);
     const pName = player?.nickname || data.nickname || '?';
     const tName = target?.nickname || data.overtaken_name || '?';
-    let text = '', deltaStr = '';
+    const isMine = ev.player_id === me.id;
+    const evTc = data.time_control || 'rapid';
+    let text = '', subtext = '', evType = ev.type, evData = data;
 
     switch(ev.type) {
       case 'overtake':
         if(ev.target_id === me.id) text = pName + ' ti ha superato';
-        else if(ev.player_id === me.id) text = 'Hai superato ' + tName;
+        else if(isMine) text = 'Hai superato ' + tName;
+        else text = pName + ' ha superato ' + tName;
+        subtext = evTc;
+        break;
+      case 'overtake_multi':
+        if(isMine) {
+          text = 'Hai superato ' + data.count + ' giocatori';
+        } else if(data.is_reverse) {
+          // "Sei stato superato da 3 giocatori" or "X è stato superato da 3 giocatori"
+          var targetName = data.loser_name || pName;
+          if(ev.player_id === me.id) text = 'Sei stato superato da ' + data.count + ' giocatori';
+          else text = targetName + ' superato da ' + data.count + ' giocatori';
+        } else {
+          text = pName + ' ha superato ' + data.count + ' giocatori';
+        }
+        subtext = evTc;
         break;
       case 'upset':
-        var eloDiff = data.elo_diff || 0;
-        if(eloDiff >= 100) { text = pName + ' ha battuto ' + tName; deltaStr = '+' + eloDiff; }
+        var eloDiff = data.diff || data.elo_diff || 0;
+        if(eloDiff >= 50) {
+          text = (isMine ? 'Hai battuto ' + (data.loser_name || tName) : pName + ' ha battuto ' + (data.loser_name || tName));
+          subtext = eloDiff + ' punti di differenza';
+        }
         break;
       case 'milestone':
         var ms = data.milestone || data.elo;
-        if(ms && ms % 100 === 0) text = pName + ' ha raggiunto quota ' + ms;
+        if(ms && ms % 100 === 0) {
+          text = isMine ? 'Hai raggiunto ' + ms : pName + ' ha raggiunto ' + ms;
+          subtext = evTc;
+        }
         break;
       case 'streak':
-        if(data.streak >= 5) { text = pName + ', ' + data.streak + ' vittorie di fila!'; if(data.elo_gain) deltaStr = '+' + data.elo_gain; }
+        if(data.streak >= 3) {
+          text = isMine ? data.streak + ' vittorie di fila' : pName + ', ' + data.streak + ' vittorie di fila';
+          subtext = evTc;
+        }
+        break;
+      case 'peak':
+        var peakElo = data.elo;
+        if(peakElo) {
+          text = isMine ? 'Record personale: ' + peakElo : pName + ': record ' + peakElo;
+          subtext = evTc;
+        }
         break;
       case 'new_player':
         text = (data.nickname || pName) + ' si è unito a turko';
         break;
     }
-    if(text) feedItems.push({ type: 'event', time: new Date(ev.created_at).getTime(), text, deltaStr, playerId: ev.player_id, playerNick: pName });
+    if(text) feedItems.push({
+      type: 'event', evType: ev.type, time: new Date(ev.created_at).getTime(),
+      text, subtext, isMine, playerId: ev.player_id, playerNick: pName, evData: data
+    });
   });
 
   // All done matches
@@ -2147,7 +2353,8 @@ function renderHomeFeedAll() {
     }
 
     // Opponent ELO for meta
-    const oppElo = opp ? Math.round(opp.elo) : null;
+    const oppElo = opp ? Math.round(getPlayerElo(opp, m.time_control || 'rapid').elo) : null;
+    const matchTc = m.time_control || 'rapid';
     // For others' matches: who did the action (for batching)
     const actorId = isMyMatch ? null : winnerId;
     const actorNick = isMyMatch ? null : (winner?.nickname || '?');
@@ -2156,7 +2363,7 @@ function renderHomeFeedAll() {
 
     feedItems.push({
       type: 'match', matchType, time: new Date(m.updated_at || m.created_at).getTime(),
-      text, deltaStr, deltaNum, isMyMatch, oppId, oppElo, actorId, actorNick, batchOppId, batchOppNick, matchId: m.id, eloBefore, eloAfter
+      text, deltaStr, deltaNum, isMyMatch, oppId, oppElo, actorId, actorNick, batchOppId, batchOppNick, matchId: m.id, eloBefore, eloAfter, matchTc
     });
   });
 
@@ -2228,10 +2435,41 @@ function renderHomeFeedAll() {
     }
 
     if(item.type === 'event') {
-      // L5: event with avatar
-      var deltaHtml = item.deltaStr ? '<div class="fe-r"><div class="fe-d">' + item.deltaStr + '</div></div>' : '';
       var evClick = item.playerId ? ' onclick="openProfile(\'' + item.playerId + '\',\'home\')"' : '';
-      html += '<div class="fe"' + evClick + ' style="cursor:pointer">' + avatarHtml(item.playerNick || '?', item.playerId || '') + '<div class="fe-b"><div class="fe-t">' + item.text + '</div></div>' + deltaHtml + '</div>';
+
+      if(item.evType === 'new_player') {
+        // New player: keep avatar format
+        html += '<div class="fe"' + evClick + '>' + avatarHtml(item.playerNick || '?', item.playerId || '') + '<div class="fe-b"><div class="fe-t">' + item.text + '</div></div></div>';
+
+      } else if(item.isMine) {
+        // MY moments: icon/number in box (K3)
+        var boxHtml = '';
+        if(item.evType === 'overtake' || item.evType === 'overtake_multi') {
+          boxHtml = '<div class="mi-box glyph green">↑</div>';
+        } else if(item.evType === 'streak') {
+          boxHtml = '<div class="mi-box num green">' + (item.evData.streak || '3') + '</div>';
+        } else if(item.evType === 'milestone') {
+          boxHtml = '<div class="mi-box gold"><svg viewBox="0 0 24 24" fill="none" stroke="url(#mi-grad-gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>';
+        } else if(item.evType === 'peak') {
+          boxHtml = '<div class="mi-box green"><svg viewBox="0 0 24 24" fill="none" stroke="url(#mi-grad-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg></div>';
+        } else if(item.evType === 'upset') {
+          boxHtml = '<div class="mi-box glyph green">↑</div>';
+        }
+        var subHtml = item.subtext ? '<div class="mi-sub"><span class="fmt">' + item.subtext + '</span></div>' : '';
+        html += '<div class="mi"' + evClick + '>' + boxHtml + '<div class="mi-body"><div class="mi-title">' + item.text + '</div>' + subHtml + '</div></div>';
+
+      } else {
+        // OTHERS' moments: typography-only (K3)
+        var label = '';
+        if(item.evType === 'upset') label = 'Impresa';
+        else if(item.evType === 'overtake' || item.evType === 'overtake_multi') label = 'Sorpasso';
+        else if(item.evType === 'streak') label = 'Serie';
+        else if(item.evType === 'milestone') label = 'Traguardo';
+        else if(item.evType === 'peak') label = 'Record';
+        var labelHtml = label ? '<div class="mt-label">' + label + '</div>' : '';
+        var subHtml = item.subtext ? '<div class="mt-sub">' + item.subtext + '</div>' : '';
+        html += '<div class="mt"' + evClick + '>' + labelHtml + '<div class="mt-title">' + item.text + '</div>' + subHtml + '</div>';
+      }
 
     } else if(item.type === 'batch') {
       // Batch: avatar presenter + sub-rows
@@ -2263,7 +2501,7 @@ function renderHomeFeedAll() {
         cls = 'fr p';
         deltaHtml = '<div class="fr-r"><div class="fr-d">' + (item.deltaStr || '0') + '</div></div>';
       } else {
-        cls = 'fr o';
+        cls = 'fr oc';
       }
 
       // Meta: time + ELO snapshot for my matches
@@ -2273,6 +2511,7 @@ function renderHomeFeedAll() {
         var snap = item.eloBefore + ' → ' + item.eloAfter;
         meta = meta ? meta + ' · ' + snap : snap;
       }
+      if(item.matchTc) meta += ' <span class="fmt">' + item.matchTc + '</span>';
       var metaHtml = meta ? '<div class="fr-m">' + meta + '</div>' : '';
 
       var clickTarget = item.isMyMatch ? item.oppId : (item.actorId || '');
@@ -2298,14 +2537,14 @@ function renderHomeFeedAll() {
 function renderHomeRanking() {
   const list = $('home-ranking-list');
   if(!list || !players.length) return;
-  const sorted = [...players].sort((a, b) => b.elo - a.elo);
+  const sorted = [...players].sort((a, b) => getPlayerElo(b, _rankingFormat).elo - getPlayerElo(a, _rankingFormat).elo);
   const now = Date.now();
 
   // Dense ranking: same ELO = same rank, no skips
   const ranks = [];
   let currentRank = 1;
   sorted.forEach((p, i) => {
-    if(i > 0 && Math.round(p.elo) < Math.round(sorted[i-1].elo)) currentRank++;
+    if(i > 0 && Math.round(getPlayerElo(p, _rankingFormat).elo) < Math.round(getPlayerElo(sorted[i-1], _rankingFormat).elo)) currentRank++;
     ranks.push(currentRank);
   });
 
@@ -2315,7 +2554,7 @@ function renderHomeRanking() {
   let html = '';
   sorted.forEach((p, i) => {
     const isMe = p.id === me.id;
-    const elo = Math.round(p.elo);
+    const elo = Math.round(getPlayerElo(p, _rankingFormat).elo);
     const rank = ranks[i];
     const online = p.last_seen_at && (now - new Date(p.last_seen_at).getTime()) < 30000;
     const dotHtml = online ? ' <span class="ds-dot"></span>' : '';
@@ -2330,10 +2569,10 @@ function renderHomeRanking() {
     let metaHtml = '';
     if(isMe && i > 0) {
       const above = sorted[i - 1];
-      const gap = Math.round(above.elo) - elo;
+      const gap = Math.round(getPlayerElo(above, _rankingFormat).elo) - elo;
       if(gap > 0) metaHtml = '<div class="ds-cell-meta" style="color:var(--dim)">a ' + gap + ' punti da #' + ranks[i-1] + '</div>';
     } else if(myIdx >= 0 && i === myIdx + 1) {
-      const gap = Math.round(sorted[myIdx].elo) - elo;
+      const gap = Math.round(getPlayerElo(sorted[myIdx], _rankingFormat).elo) - elo;
       if(gap > 0) metaHtml = '<div class="ds-cell-meta" style="color:var(--dim)">a ' + gap + ' punti da te</div>';
     }
 
@@ -2353,48 +2592,6 @@ function renderHomeRanking() {
   list.innerHTML = '<div class="ds-group">' + html + '</div>';
 }
 
-function renderHomeMine() {
-  const list = $('home-mine-list');
-  if(!list) return;
-  const myDone = matches.filter(m => m.status === 'done' && m.result !== 'cancelled' && (m.p1 === me.id || m.p2 === me.id)).slice(0, 20);
-  if(!myDone.length) { list.innerHTML = '<div style="text-align:center;padding:48px;color:var(--ghost);font-size:var(--fs-label)">Nessuna partita ancora</div>'; return; }
-  let html = '';
-  myDone.forEach(m => {
-    const isP1 = m.p1 === me.id;
-    const oppId = isP1 ? m.p2 : m.p1;
-    const opp = getP(oppId);
-    const isDraw = m.result === 'draw';
-    const won = m.result === 'p1' ? isP1 : m.result === 'p2' ? !isP1 : null;
-    const oppName = opp ? escHtml(opp.nickname) : '?';
-    let text;
-    if(isDraw) text = 'Patta con ' + oppName;
-    else if(won) text = 'Hai vinto contro ' + oppName;
-    else text = 'Hai perso contro ' + oppName;
-
-    let deltaStr = '0';
-    const elo = eloCache[m.id];
-    if(elo) {
-      const d = elo.elo_after - elo.elo_before;
-      deltaStr = d > 0 ? '+' + d : '' + d;
-    }
-
-    const cls = isDraw ? 'fr p' : won ? 'fr w' : 'fr l';
-    var meta = timeAgo(m.created_at);
-    if(elo) {
-      meta += ' · ' + Math.round(elo.elo_before) + ' → ' + Math.round(elo.elo_after);
-    }
-
-    const ev = _swipeEval(oppId);
-    const revealClass = ev.ok ? 'swipe-reveal ok' : 'swipe-reveal blocked';
-    html += '<div class="swipe-wrap"><div class="' + revealClass + '"><span class="swipe-reveal-label">' + ev.label + '</span></div>' +
-      '<div class="swipe-cell ' + cls + '" data-opp="' + oppId + '" onclick="openProfile(\'' + oppId + '\',\'home\')">' +
-        '<div class="fr-l"><div class="fr-n">' + text + '</div><div class="fr-m">' + meta + '</div></div>' +
-        '<div class="fr-r"><div class="fr-d">' + deltaStr + '</div></div>' +
-      '</div></div>';
-  });
-  list.innerHTML = '<div class="ds-group">' + html + '</div>';
-  initFeedSwipe(list.querySelector('.ds-group'));
-}
 
 
 function onPlusTap() {
@@ -2453,14 +2650,15 @@ function renderChallengePlayers(query) {
   const list = $('ch-player-list');
   if(!list) return;
   const q = query.toLowerCase();
+  const selFmt = getSelectedChallengeFormat();
   const eligible = players.filter(p => p.id !== me.id && (!q || p.nickname.toLowerCase().includes(q)));
-  // Sort: online first, then by elo
+  // Sort: online first, then by elo for selected format
   const now = Date.now();
   eligible.sort((a, b) => {
     const aOnline = a.last_seen_at && (now - new Date(a.last_seen_at).getTime()) < 30000 ? 1 : 0;
     const bOnline = b.last_seen_at && (now - new Date(b.last_seen_at).getTime()) < 30000 ? 1 : 0;
     if(aOnline !== bOnline) return bOnline - aOnline;
-    return b.elo - a.elo;
+    return getPlayerElo(b, selFmt).elo - getPlayerElo(a, selFmt).elo;
   });
   if(!eligible.length) {
     list.innerHTML = '<div style="padding:var(--sp-xl) 0;text-align:center;color:var(--ghost);font-size:var(--fs-label)">Nessun giocatore trovato</div>';
@@ -2470,16 +2668,17 @@ function renderChallengePlayers(query) {
     const online = p.last_seen_at && (now - new Date(p.last_seen_at).getTime()) < 30000;
     const busy = isPlayerBusy(p.id);
     const canChallenge = online && !busy;
+    const pElo = Math.round(getPlayerElo(p, selFmt).elo);
     if(!canChallenge) {
       const reason = busy ? 'in partita' : 'offline';
       return `<div class="ch-player-row" style="opacity:.4;pointer-events:none">
         <span style="font-size:var(--fs-body);font-weight:500;color:var(--dim);display:flex;align-items:center;gap:6px">${escHtml(p.nickname)} <span style="font-size:var(--fs-micro);color:var(--ghost)">${reason}</span></span>
-        <span style="font-size:var(--fs-caption);color:var(--ghost)">${Math.round(p.elo)}</span>
+        <span style="font-size:var(--fs-caption);color:var(--ghost)">${pElo}</span>
       </div>`;
     }
     return `<div class="ch-player-row" onclick="selectChallengePlayer('${p.id}')">
       <span style="font-size:var(--fs-body);font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px">${escHtml(p.nickname)} <span class="ds-dot"></span></span>
-      <span style="font-size:var(--fs-caption);color:var(--dim)">${Math.round(p.elo)}</span>
+      <span style="font-size:var(--fs-caption);color:var(--dim)">${pElo}</span>
     </div>`;
   }).join('');
 }
@@ -2497,7 +2696,7 @@ function selectChallengePlayer(oppId) {
   $('ch-step1').style.display = 'none';
   $('ch-step2').style.display = 'block';
   $('ch-opp-name').textContent = opp.nickname;
-  $('ch-opp-elo').textContent = Math.round(opp.elo);
+  $('ch-opp-elo').textContent = Math.round(getPlayerElo(opp, 'rapid').elo);
 
   // Reset time to Rapid
   document.querySelectorAll('.ch-time-chip').forEach(c => c.classList.remove('on'));
@@ -2516,6 +2715,12 @@ function pickChallengeTime(btn) {
       btn.style.transform = '';
     });
   });
+  // Update displayed ELO for selected opponent
+  if(_chOppId) {
+    var opp = getP(_chOppId);
+    var selFmt = btn.getAttribute('data-time');
+    if(opp) $('ch-opp-elo').textContent = Math.round(getPlayerElo(opp, selFmt).elo);
+  }
 }
 
 async function pickChallengeColor(color) {
@@ -2541,7 +2746,8 @@ async function pickChallengeColor(color) {
     btn.style.transform = '';
 
     // Send challenge
-    const res = await db.rpc("create_challenge", {opponent_id: oppId, white_player_id: whiteId});
+    var selFmt = getSelectedChallengeFormat();
+    const res = await db.rpc("create_challenge", {opponent_id: oppId, white_player_id: whiteId, tc: selFmt});
     if(res?.error) return toast(res.error, "err");
     if(Array.isArray(res) && res[0]?.error) return toast(res[0].error, "err");
     await fetchAll();
@@ -2674,10 +2880,12 @@ function openResultSheet(matchId) {
       : `<div style="font-size:var(--fs-caption);color:var(--muted)">${oppName} non è d'accordo</div>`;
     $('rsheet-dispute-warn').classList.remove('hidden');
   } else if(white && black) {
-    $('rsheet-context').innerHTML = `<div style="font-size:var(--fs-caption);color:var(--muted)">${white.nickname} (${Math.round(white.elo)}) — ${black.nickname} (${Math.round(black.elo)})</div>`;
+    var rsFmt = m.time_control || 'rapid';
+    $('rsheet-context').innerHTML = `<div style="font-size:var(--fs-caption);color:var(--muted)">${white.nickname} (${Math.round(getPlayerElo(white, rsFmt).elo)}) — ${black.nickname} (${Math.round(getPlayerElo(black, rsFmt).elo)})</div>`;
     $('rsheet-dispute-warn').classList.add('hidden');
   } else {
-    $('rsheet-context').innerHTML = `<div style="font-size:var(--fs-caption);color:var(--muted)">${me.nickname} (${Math.round(me.elo)}) — ${oppName} (${opp ? Math.round(opp.elo) : '?'})</div>`;
+    var rsFmt2 = m.time_control || 'rapid';
+    $('rsheet-context').innerHTML = `<div style="font-size:var(--fs-caption);color:var(--muted)">${me.nickname} (${Math.round(getPlayerElo(me, rsFmt2).elo)}) — ${oppName} (${opp ? Math.round(getPlayerElo(opp, rsFmt2).elo) : '?'})</div>`;
     $('rsheet-dispute-warn').classList.add('hidden');
   }
 
@@ -2754,6 +2962,7 @@ async function openProfile(playerId, fromPage, noPush) {
   if(playerId === me.id) me = player;
 
   var isMe = playerId === me.id;
+  _profileFormat = getMostPlayedFormat(playerId);
 
   renderProfileHeader(player);
   renderEloSection(player);
@@ -2771,12 +2980,14 @@ async function openProfile(playerId, fromPage, noPush) {
   var eloH = await db.get("elo_history", "player_id=eq." + playerId + "&order=created_at.asc&select=*");
   var matchH = await db.get("matches", "or=(p1.eq." + playerId + ",p2.eq." + playerId + ")&status=eq.done&order=created_at.desc&limit=50");
 
+  _currentProfileEloHistory = Array.isArray(eloH) ? eloH : [];
   currentProfileMatches = Array.isArray(matchH) ? matchH : [];
   renderEloSection(player); // Re-render con match data per win rate bianco/nero
   var eloMap = {};
   if(Array.isArray(eloH)) eloH.forEach(function(e) { eloMap[e.match_id] = e; });
 
-  drawEloChart(eloH, player.elo);
+  var filteredEloH = _currentProfileEloHistory.filter(function(e) { return (e.time_control || 'rapid') === _profileFormat; });
+  drawEloChart(filteredEloH, getPlayerElo(player, _profileFormat).elo);
 
   if(!isMe) renderH2H(playerId, currentProfileMatches);
   renderBestWins(playerId, currentProfileMatches);
@@ -2811,7 +3022,7 @@ function skelProfileContent() {
 function renderProfileHeader(player) {
   var isMe = player.id === me.id;
 
-  var sorted = players.slice().sort(function(a, b) { return b.elo - a.elo; });
+  var sorted = players.slice().sort(function(a, b) { return getPlayerElo(b, _profileFormat).elo - getPlayerElo(a, _profileFormat).elo; });
   var rank = -1;
   for(var i = 0; i < sorted.length; i++) { if(sorted[i].id === player.id) { rank = i + 1; break; } }
   var totalPlayers = sorted.length;
@@ -2824,12 +3035,19 @@ function renderProfileHeader(player) {
   var bioHtml = player.bio ? '<div style="font-size:var(--fs-caption);color:var(--muted);margin-top:var(--sp-xs);line-height:1.45">' + escHtml(player.bio) + '</div>' : '';
   var sinceHtml = '<div style="font-size:var(--fs-micro);color:var(--ghost);margin-top:var(--sp-xs)">' + sinceStr + '</div>';
 
-  var peak = player.elo_peak || Math.round(player.elo);
-  var elo = Math.round(player.elo);
+  var pe = getPlayerElo(player, _profileFormat);
+  var peak = pe.peak || Math.round(pe.elo);
+  var elo = Math.round(pe.elo);
   var gap = peak - elo;
   var peakHtml = '<div style="font-size:var(--fs-label);color:var(--dim)">Peak <span style="font-weight:600;color:var(--muted)">' + peak + '</span></div>';
   var deltaHtml = gap > 0 ? '<div style="font-size:var(--fs-label);font-weight:600;color:var(--red)">−' + gap + '</div>' : '';
   var rankHtml = rank > 0 ? '<div style="font-size:var(--fs-label);color:var(--ghost);margin-top:2px">#' + rank + ' di ' + totalPlayers + '</div>' : '';
+
+  var formatChipsHtml = '<div class="elo-chips" id="prof-format-chips" style="margin-bottom:var(--sp-sm)">' +
+    '<button class="elo-chip' + (_profileFormat === 'rapid' ? ' on' : '') + '" onclick="switchProfileFormat(\'rapid\')" data-fmt="rapid">Rapid</button>' +
+    '<button class="elo-chip' + (_profileFormat === 'blitz' ? ' on' : '') + '" onclick="switchProfileFormat(\'blitz\')" data-fmt="blitz">Blitz</button>' +
+    '<button class="elo-chip' + (_profileFormat === 'classic' ? ' on' : '') + '" onclick="switchProfileFormat(\'classic\')" data-fmt="classic">Classic</button>' +
+  '</div>';
 
   $("prof-header-wrap").innerHTML =
     '<div style="padding:var(--sp-sm) 0 var(--sp-md)">' +
@@ -2841,6 +3059,7 @@ function renderProfileHeader(player) {
     '</div>' +
     '<div style="padding-bottom:var(--sp-lg)">' +
       '<div style="font-size:var(--fs-hero-sm);font-weight:800;color:var(--text);letter-spacing:-1.5px;line-height:1">' + elo + '</div>' +
+      formatChipsHtml +
       '<div style="display:flex;align-items:center;gap:var(--sp-md);margin-top:var(--sp-xs)">' + peakHtml + deltaHtml + '</div>' +
       rankHtml +
     '</div>' +
@@ -3059,7 +3278,7 @@ function renderBestWins(playerId, matchH) {
     var oppId = isP1 ? m.p2 : m.p1;
     var oppEloKey = m.id + '_' + oppId;
     var oppEh = globalEloCache[oppEloKey];
-    var oppElo = oppEh ? oppEh.elo_before : (getP(oppId) ? Math.round(getP(oppId).elo) : 0);
+    var oppElo = oppEh ? oppEh.elo_before : (getP(oppId) ? Math.round(getPlayerElo(getP(oppId), m.time_control || 'rapid').elo) : 0);
     return {matchId: m.id, oppId: oppId, oppElo: oppElo, date: m.created_at};
   });
 
@@ -3376,21 +3595,21 @@ function renderEloSvg(data) {
   var dateLabels = labelIndices.map(function(idx) {
     var d = new Date(data[idx].date);
     var txt = d.getDate() + ' ' + monthNames[d.getMonth()];
-    return '<text x="' + coords[idx].x.toFixed(1) + '" y="' + (h - 4) + '" fill="#504a45" font-size="10" text-anchor="middle" font-family="Inter,system-ui,sans-serif">' + txt + '</text>';
+    return '<text x="' + coords[idx].x.toFixed(1) + '" y="' + (h - 4) + '" fill="#48484A" font-size="10" text-anchor="middle" font-family="Inter,system-ui,sans-serif">' + txt + '</text>';
   }).join('');
 
   var svg = '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" style="display:block">' +
     '<defs><linearGradient id="eloGradB" x1="0" y1="0" x2="0" y2="1">' +
-    '<stop offset="0%" stop-color="#e8e6e3" stop-opacity="0.12"/>' +
-    '<stop offset="60%" stop-color="#e8e6e3" stop-opacity="0.03"/>' +
-    '<stop offset="100%" stop-color="#e8e6e3" stop-opacity="0"/>' +
+    '<stop offset="0%" stop-color="#F2F2F7" stop-opacity="0.12"/>' +
+    '<stop offset="60%" stop-color="#F2F2F7" stop-opacity="0.03"/>' +
+    '<stop offset="100%" stop-color="#F2F2F7" stop-opacity="0"/>' +
     '</linearGradient></defs>' +
     '<path d="' + fillPath + '" fill="url(#eloGradB)"/>' +
-    '<path d="' + linePath + '" fill="none" stroke="#e8e6e3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
-    '<circle cx="' + coords[peakIdx].x.toFixed(1) + '" cy="' + coords[peakIdx].y.toFixed(1) + '" r="4" fill="#7ab535" stroke="#1d1a16" stroke-width="2"/>' +
+    '<path d="' + linePath + '" fill="none" stroke="#F2F2F7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<circle cx="' + coords[peakIdx].x.toFixed(1) + '" cy="' + coords[peakIdx].y.toFixed(1) + '" r="4" fill="#30D158" stroke="#1C1C1E" stroke-width="2"/>' +
     dateLabels +
-    '<line class="elo-touch-line" x1="0" y1="0" x2="0" y2="' + h + '" stroke="#6a6560" stroke-width="0.5" opacity="0"/>' +
-    '<circle class="elo-touch-dot" cx="0" cy="0" r="5" fill="#e8e6e3" stroke="#161512" stroke-width="2" opacity="0"/>' +
+    '<line class="elo-touch-line" x1="0" y1="0" x2="0" y2="' + h + '" stroke="#636366" stroke-width="0.5" opacity="0"/>' +
+    '<circle class="elo-touch-dot" cx="0" cy="0" r="5" fill="#F2F2F7" stroke="#0A0A0A" stroke-width="2" opacity="0"/>' +
     '</svg>';
 
   container.innerHTML = svg;
