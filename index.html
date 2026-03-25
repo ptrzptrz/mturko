@@ -48,6 +48,7 @@
   /* Typography scale — aligned to iOS text styles */
   --fs-hero:48px;
   --fs-hero-sm:34px;
+  --fs-title-lg:28px;
   --fs-title:22px;
   --fs-body:17px;
   --fs-caption:13px;
@@ -232,7 +233,7 @@ body.sheet-open .navbar{transform:translateX(-50%) translateY(100%)}
 /* ── Action sheet colore ── */
 .asheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:10001;display:flex;align-items:flex-end;pointer-events:none;transition:background .3s ease}
 .asheet-overlay.visible{background:rgba(0,0,0,.35);pointer-events:all}
-.asheet{background:var(--surface);border-radius:20px 20px 0 0;padding:0 20px calc(16px + env(safe-area-inset-bottom,0px));width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .38s cubic-bezier(.34,1.56,.64,1);will-change:transform}
+.asheet{background:var(--surface);border-radius:20px 20px 0 0;padding:0 0 calc(12px + env(safe-area-inset-bottom,0px));width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .38s cubic-bezier(.34,1.56,.64,1);will-change:transform}
 .asheet-overlay.visible .asheet{transform:translateY(0)}
 .asheet.dismissing{transition:transform .25s cubic-bezier(.32,0,.24,1)}
 .asheet-eyebrow{font-size:11px;color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;padding-top:24px}
@@ -412,7 +413,7 @@ body.sheet-open .navbar{transform:translateX(-50%) translateY(100%)}
 
 /* ── Challenge sheet ── */
 /* Handle — large touch area */
-.asheet-handle{width:100%;padding:14px 0 10px;display:flex;justify-content:center;cursor:grab;touch-action:none}
+.asheet-handle{width:100%;padding:12px 0 4px;display:flex;justify-content:center;cursor:grab;touch-action:none}
 .asheet-handle-bar{width:36px;height:5px;background:var(--ghost);border-radius:2.5px}
 /* Title */
 .ch-title{font-size:var(--fs-title);font-weight:800;color:var(--text);letter-spacing:-.5px;padding:0 0 16px}
@@ -425,14 +426,14 @@ body.sheet-open .navbar{transform:translateX(-50%) translateY(100%)}
 .ch-player-row:last-child::after{display:none}
 .ch-player-row:active{opacity:.5}
 /* Step 2 — time segmented */
-.ch-seg{display:flex;background:rgba(255,255,255,.06);border-radius:9px;padding:2px;margin-bottom:28px;position:relative}
+.ch-seg{display:flex;background:rgba(255,255,255,.06);border-radius:9px;padding:2px;margin-bottom:var(--sp-xl);position:relative}
 .ch-seg-pill{position:absolute;top:2px;bottom:2px;border-radius:7px;background:rgba(255,255,255,.12);box-shadow:0 1px 4px rgba(0,0,0,.4);transition:left .3s cubic-bezier(.25,.1,.25,1);pointer-events:none;width:calc(33.333% - 1.33px)}
 .ch-seg-btn{flex:1;padding:8px 0;border-radius:7px;font-size:var(--fs-caption);font-weight:600;font-family:inherit;cursor:pointer;border:none;background:transparent;color:var(--muted);text-align:center;position:relative;z-index:1;transition:color .2s}
 .ch-seg-btn.on{color:var(--text)}
 /* Step 2 — color buttons */
 .ch-color-label{font-size:var(--fs-label);color:var(--dim);margin-bottom:var(--sp-md)}
 .ch-color-row{display:flex;gap:var(--sp-sm)}
-.ch-color-btn{flex:1;border:none;border-radius:var(--r-md);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;height:80px;transition:transform var(--dur-bounce) var(--ease-bounce),opacity var(--dur-fast)}
+.ch-color-btn{flex:1;border:none;border-radius:var(--r-md);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;height:80px;transition:transform var(--dur-bounce) var(--ease-bounce),opacity var(--dur-fast)} /* 80px = large action target, intentional */
 .ch-color-btn:active{transform:scale(.92)}
 .ch-color-white{background:var(--text)}
 .ch-color-white span{font-size:var(--fs-body);font-weight:700;color:var(--bg);letter-spacing:-.2px}
@@ -440,7 +441,7 @@ body.sheet-open .navbar{transform:translateX(-50%) translateY(100%)}
 .ch-color-black span{font-size:var(--fs-body);font-weight:700;color:var(--text);letter-spacing:-.2px}
 /* Step transition content wrapper */
 .ch-content{overflow:hidden;transition:height .25s cubic-bezier(.2,0,0,1)}
-.ch-step{padding:0}
+.ch-step{padding:0 var(--content-pad)}
 .ch-step.fading-out{opacity:0;transition:opacity .12s ease-out}
 .ch-step.fading-in{animation:chFadeIn .2s ease-out forwards}
 @keyframes chFadeIn{0%{opacity:0;transform:translateY(4px)}100%{opacity:1;transform:translateY(0)}}
@@ -2898,13 +2899,11 @@ function selectChallengePlayer(oppId) {
   setTimeout(function() {
     st1.style.display = 'none';
     st1.className = 'ch-step';
-    st1.style.padding = '0 20px';
     st2.style.display = 'block';
     st2.style.opacity = '0';
     requestAnimationFrame(function() { st2.classList.add('fading-in'); });
     setTimeout(function() {
       st2.className = 'ch-step';
-      st2.style.padding = '0 20px';
       st2.style.opacity = '';
       content.style.height = '';
     }, 250);
@@ -3999,15 +3998,15 @@ document.querySelectorAll(".nbtn").forEach(btn => {
     <div class="asheet-handle" id="ch-handle"><div class="asheet-handle-bar"></div></div>
     <div class="ch-content" id="ch-content">
       <!-- Step 1: Player list -->
-      <div class="ch-step" id="ch-step1" style="padding:0 20px">
+      <div class="ch-step" id="ch-step1">
         <div class="ch-title">Chi sfidi?</div>
         <div class="ch-list" id="ch-player-list"></div>
       </div>
       <!-- Step 2: Config -->
-      <div class="ch-step" id="ch-step2" style="display:none;padding:0 20px">
-        <div style="display:flex;align-items:baseline;gap:8px;padding:0 0 24px">
-          <span style="font-size:var(--fs-title);font-weight:700;color:var(--text)" id="ch-opp-name"></span>
-          <span style="font-size:var(--fs-caption);color:var(--dim)" id="ch-opp-elo"></span>
+      <div class="ch-step" id="ch-step2" style="display:none">
+        <div style="display:flex;align-items:baseline;gap:var(--sp-sm);padding:var(--sp-xs) 0 var(--sp-xl)">
+          <span style="font-size:var(--fs-title-lg);font-weight:700;color:var(--text);letter-spacing:-.5px" id="ch-opp-name"></span>
+          <span style="font-size:var(--fs-body);color:var(--dim)" id="ch-opp-elo"></span>
         </div>
         <div class="ch-seg" id="ch-seg-time">
           <div class="ch-seg-pill" id="ch-seg-pill" style="left:calc(33.333% + 0.67px)"></div>
