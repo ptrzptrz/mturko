@@ -227,14 +227,15 @@ body.sheet-open #sa-cover{background:#000000}
 
 
 /* ── Action sheet colore ── */
-.asheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:10001;display:flex;align-items:flex-end;pointer-events:none}
-.asheet-overlay.visible{background:rgba(0,0,0,.75);pointer-events:all}
-.asheet{background:#0A0A0A;border-radius:24px 24px 0 0;padding:24px 16px 40px;width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .38s cubic-bezier(.34,1.56,.64,1)}
+.asheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:10001;display:flex;align-items:flex-end;pointer-events:none;transition:background .3s ease}
+.asheet-overlay.visible{background:rgba(0,0,0,.35);pointer-events:all}
+.asheet{background:var(--surface);border-radius:20px 20px 0 0;padding:0 20px calc(24px + env(safe-area-inset-bottom,0px));width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .38s cubic-bezier(.34,1.56,.64,1);will-change:transform}
 .asheet-overlay.visible .asheet{transform:translateY(0)}
-.asheet-eyebrow{font-size:11px;color:#8E8E93;text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
-.asheet-cta{width:100%;background:#F2F2F7;border:none;border-radius:14px;padding:16px;color:#0A0A0A;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .15s,transform .12s;margin-bottom:8px}
+.asheet.dismissing{transition:transform .25s cubic-bezier(.32,0,.24,1)}
+.asheet-eyebrow{font-size:11px;color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;padding-top:24px}
+.asheet-cta{width:100%;background:var(--text);border:none;border-radius:14px;padding:16px;color:var(--bg);font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .15s,transform .12s;margin-bottom:8px}
 .asheet-cta:active{opacity:.85;transform:scale(.99)}
-.asheet-cta:disabled{background:#2C2C2E;color:#48484A;cursor:not-allowed}
+.asheet-cta:disabled{background:var(--border-light);color:var(--ghost);cursor:not-allowed}
 
 /* Animazioni */
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
@@ -406,19 +407,40 @@ body.sheet-open #sa-cover{background:#000000}
 /* ── Format tag in feed meta ── */
 .fmt{font-size:var(--fs-micro);font-weight:600;color:var(--ghost);text-transform:uppercase;letter-spacing:.5px}
 
-/* ── Challenge sheet (Uber-style) ── */
-.ch-time-chip{flex:1;padding:var(--sp-md) 0;border:1px solid var(--border);border-radius:var(--r-sm);background:transparent;color:var(--dim);font-size:var(--fs-caption);font-weight:600;font-family:inherit;cursor:pointer;text-align:center;transition:border-color var(--dur-fast),color var(--dur-fast),background var(--dur-fast),transform var(--dur-bounce) var(--ease-bounce)}
-.ch-time-chip:active{opacity:.6}
-.ch-time-chip.on{border-color:var(--text);color:var(--text);background:var(--surface)}
-.ch-color-btn{flex:1;border:none;border-radius:var(--r-md);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;height:80px;transition:transform var(--dur-bounce) var(--ease-bounce),opacity var(--dur-fast)}
+/* ── Challenge sheet ── */
+/* Handle — large touch area */
+.asheet-handle{width:100%;padding:14px 0 10px;display:flex;justify-content:center;cursor:grab;touch-action:none}
+.asheet-handle-bar{width:36px;height:5px;background:var(--ghost);border-radius:2.5px}
+/* Title */
+.ch-title{font-size:var(--fs-title);font-weight:800;color:var(--text);letter-spacing:-.5px;padding:0 0 16px}
+/* Player list — expandable */
+.ch-list{max-height:40vh;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain}
+.ch-list::-webkit-scrollbar{display:none}
+/* Player rows */
+.ch-player-row{display:flex;align-items:center;padding:14px 0;position:relative;cursor:pointer;transition:opacity var(--dur-fast)}
+.ch-player-row::after{content:'';position:absolute;bottom:0;left:0;right:0;height:var(--divider-height);background:var(--divider-color)}
+.ch-player-row:last-child::after{display:none}
+.ch-player-row:active{opacity:.5}
+/* Step 2 — time segmented */
+.ch-seg{display:flex;background:rgba(255,255,255,.06);border-radius:9px;padding:2px;margin-bottom:28px;position:relative}
+.ch-seg-pill{position:absolute;top:2px;bottom:2px;border-radius:7px;background:rgba(255,255,255,.12);box-shadow:0 1px 4px rgba(0,0,0,.4);transition:left .3s cubic-bezier(.25,.1,.25,1);pointer-events:none;width:calc(33.333% - 1.33px)}
+.ch-seg-btn{flex:1;padding:8px 0;border-radius:7px;font-size:var(--fs-caption);font-weight:600;font-family:inherit;cursor:pointer;border:none;background:transparent;color:var(--muted);text-align:center;position:relative;z-index:1;transition:color .2s}
+.ch-seg-btn.on{color:var(--text)}
+/* Step 2 — color buttons */
+.ch-color-label{font-size:var(--fs-label);color:var(--dim);margin-bottom:var(--sp-md)}
+.ch-color-row{display:flex;gap:var(--sp-sm)}
+.ch-color-btn{flex:1;border:none;border-radius:var(--r-md);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;height:72px;transition:transform var(--dur-bounce) var(--ease-bounce),opacity var(--dur-fast)}
 .ch-color-btn:active{transform:scale(.92)}
 .ch-color-white{background:var(--text)}
 .ch-color-white span{font-size:var(--fs-body);font-weight:700;color:var(--bg);letter-spacing:-.2px}
-.ch-color-black{background:#38383A;border:1px solid var(--border)}
+.ch-color-black{background:var(--border)}
 .ch-color-black span{font-size:var(--fs-body);font-weight:700;color:var(--text);letter-spacing:-.2px}
-.ch-player-row{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) 0;border-bottom:0.5px solid var(--border);cursor:pointer;transition:opacity var(--dur-fast)}
-.ch-player-row:last-child{border-bottom:none}
-.ch-player-row:active{opacity:.5}
+/* Step transition content wrapper */
+.ch-content{overflow:hidden;transition:height .25s cubic-bezier(.2,0,0,1)}
+.ch-step{padding:0}
+.ch-step.fading-out{opacity:0;transition:opacity .12s ease-out}
+.ch-step.fading-in{animation:chFadeIn .2s ease-out forwards}
+@keyframes chFadeIn{0%{opacity:0;transform:translateY(4px)}100%{opacity:1;transform:translateY(0)}}
 
 /* ── Nav Plus button ── */
 .nav-plus-wrap{flex:1;display:flex;align-items:center;justify-content:center;min-height:44px}
@@ -784,8 +806,10 @@ function getMostPlayedFormat(playerId) {
 }
 
 function getSelectedChallengeFormat() {
-  var sel = document.querySelector('.ch-time-chip.on');
-  return sel ? sel.getAttribute('data-time') : 'rapid';
+  var sel = document.querySelector('#ch-seg-time .ch-seg-btn.on');
+  if(sel) return sel.getAttribute('data-time') || 'rapid';
+  var oldSel = document.querySelector('.ch-time-chip.on');
+  return oldSel ? oldSel.getAttribute('data-time') : 'rapid';
 }
 
 var _heroFormats = ['rapid', 'blitz', 'classic'];
@@ -2652,31 +2676,147 @@ function onPlusTap() {
 var _chOppId = null;
 
 function openNewChallengeSheet() {
-  // Reset to step 1
-  $('ch-step1').style.display = 'block';
-  $('ch-step2').style.display = 'none';
-  $('ch-search').value = '';
+  var st1 = $('ch-step1'), st2 = $('ch-step2'), list = $('ch-player-list');
+  st1.style.display = 'block';
+  st1.className = 'ch-step';
+  st2.style.display = 'none';
+  st2.className = 'ch-step';
   _chOppId = null;
+  _chListExpanded = false;
+  if(list) { list.style.maxHeight = '40vh'; list.style.transition = ''; }
+  $('ch-content').style.height = '';
 
-  // Render player list
   renderChallengePlayers('');
 
-  // Show sheet
-  const overlay = $('challenge-sheet-overlay2');
+  var overlay = $('challenge-sheet-overlay2');
+  var sheet = $('challenge-sheet');
   overlay.style.display = 'flex';
   document.body.classList.add('sheet-open');
-  requestAnimationFrame(() => requestAnimationFrame(() => {
+  sheet.style.transition = 'transform .38s cubic-bezier(.34,1.56,.64,1)';
+  sheet.style.transform = 'translateY(100%)';
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){
     overlay.classList.add('visible');
-    setTimeout(() => $('ch-search').focus(), 400);
-  }));
+    sheet.style.transform = 'translateY(0)';
+  })});
 }
 
 function closeNewChallengeSheet() {
-  const overlay = $('challenge-sheet-overlay2');
+  var overlay = $('challenge-sheet-overlay2');
+  var sheet = $('challenge-sheet');
+  sheet.style.transition = 'transform .25s cubic-bezier(.32,0,.24,1)';
+  sheet.style.transform = 'translateY(100%)';
   overlay.classList.remove('visible');
   document.body.classList.remove('sheet-open');
-  setTimeout(() => { overlay.style.display = 'none'; _chOppId = null; }, 320);
+  setTimeout(function() {
+    overlay.style.display = 'none';
+    sheet.removeAttribute('style');
+    _chOppId = null;
+    _chListExpanded = false;
+  }, 280);
 }
+
+// ── Challenge sheet: handle drag for list expand + dismiss ──
+var _chListExpanded = false;
+(function initChallengeDrag() {
+  var startY = 0, dragging = false;
+  var COMPACT_H = 40, EXPANDED_H = 70; // vh
+
+  document.addEventListener('touchstart', function(e) {
+    var handle = e.target.closest('.asheet-handle');
+    if(!handle) return;
+    var sheet = handle.closest('.asheet');
+    if(!sheet || sheet.id !== 'challenge-sheet') return;
+    startY = e.touches[0].clientY;
+    dragging = true;
+  }, {passive: true});
+
+  document.addEventListener('touchmove', function(e) {
+    if(!dragging) return;
+    var dy = e.touches[0].clientY - startY;
+    var list = $('ch-player-list');
+    var st1 = $('ch-step1');
+    var sheet = $('challenge-sheet');
+    var isStep1 = st1 && st1.style.display !== 'none';
+
+    if(isStep1 && list) {
+      // Resize list height following finger
+      var dvh = (-dy / window.innerHeight) * 100;
+      var baseH = _chListExpanded ? EXPANDED_H : COMPACT_H;
+      var targetH = baseH + dvh;
+      // Rubber band at limits
+      if(targetH > EXPANDED_H) targetH = EXPANDED_H + (targetH - EXPANDED_H) * 0.2;
+      if(targetH < COMPACT_H * 0.5) targetH = COMPACT_H * 0.5;
+      if(targetH < COMPACT_H) {
+        // Below compact: also move sheet down for dismiss feel
+        var underPx = (COMPACT_H - targetH) / 100 * window.innerHeight;
+        sheet.style.transition = 'none';
+        sheet.style.transform = 'translateY(' + underPx + 'px)';
+        targetH = COMPACT_H;
+      } else {
+        sheet.style.transition = 'none';
+        sheet.style.transform = 'translateY(0)';
+      }
+      list.style.transition = 'none';
+      list.style.maxHeight = targetH + 'vh';
+    } else if(!isStep1) {
+      // Step 2: drag sheet down for dismiss
+      if(dy > 0) {
+        sheet.style.transition = 'none';
+        sheet.style.transform = 'translateY(' + dy + 'px)';
+      }
+    }
+  }, {passive: true});
+
+  document.addEventListener('touchend', function() {
+    if(!dragging) return;
+    dragging = false;
+    var list = $('ch-player-list');
+    var st1 = $('ch-step1');
+    var sheet = $('challenge-sheet');
+    var overlay = $('challenge-sheet-overlay2');
+    var isStep1 = st1 && st1.style.display !== 'none';
+
+    if(isStep1 && list) {
+      var curH = parseFloat(list.style.maxHeight) || COMPACT_H;
+      var mid = (COMPACT_H + EXPANDED_H) / 2;
+      // Check if sheet was dragged down for dismiss
+      var t = sheet.style.transform;
+      var match = t.match(/translateY\((\d+)/);
+      var sheetDy = match ? parseInt(match[1]) : 0;
+
+      if(sheetDy > 60) {
+        closeNewChallengeSheet();
+        return;
+      }
+
+      // Spring back sheet
+      sheet.style.transition = 'transform .35s cubic-bezier(.34,1.56,.64,1)';
+      sheet.style.transform = 'translateY(0)';
+
+      // Snap list to nearest detent
+      list.style.transition = 'max-height .4s cubic-bezier(.34,1.56,.64,1)';
+      if(curH > mid && !_chListExpanded) {
+        list.style.maxHeight = EXPANDED_H + 'vh';
+        _chListExpanded = true;
+      } else if(curH < mid && _chListExpanded) {
+        list.style.maxHeight = COMPACT_H + 'vh';
+        _chListExpanded = false;
+      } else {
+        list.style.maxHeight = (_chListExpanded ? EXPANDED_H : COMPACT_H) + 'vh';
+      }
+    } else if(!isStep1) {
+      var t = sheet.style.transform;
+      var match = t.match(/translateY\((\d+)/);
+      var dy = match ? parseInt(match[1]) : 0;
+      if(dy > 60) {
+        closeNewChallengeSheet();
+      } else {
+        sheet.style.transition = 'transform .35s cubic-bezier(.34,1.56,.64,1)';
+        sheet.style.transform = 'translateY(0)';
+      }
+    }
+  }, {passive: true});
+})();
 
 function renderChallengePlayers(query) {
   const list = $('ch-player-list');
@@ -2702,15 +2842,12 @@ function renderChallengePlayers(query) {
     const canChallenge = online && !busy;
     const pElo = Math.round(getPlayerElo(p, selFmt).elo);
     if(!canChallenge) {
-      const reason = busy ? 'in partita' : 'offline';
-      return `<div class="ch-player-row" style="opacity:.4;pointer-events:none">
-        <span style="font-size:var(--fs-body);font-weight:500;color:var(--dim);display:flex;align-items:center;gap:6px">${escHtml(p.nickname)} <span style="font-size:var(--fs-micro);color:var(--ghost)">${reason}</span></span>
-        <span style="font-size:var(--fs-caption);color:var(--ghost)">${pElo}</span>
+      return `<div class="ch-player-row" style="opacity:.3;pointer-events:none">
+        <span style="font-size:var(--fs-body);font-weight:400;color:var(--text)">${escHtml(p.nickname)}</span>
       </div>`;
     }
     return `<div class="ch-player-row" onclick="selectChallengePlayer('${p.id}')">
-      <span style="font-size:var(--fs-body);font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px">${escHtml(p.nickname)} <span class="ds-dot"></span></span>
-      <span style="font-size:var(--fs-caption);color:var(--dim)">${pElo}</span>
+      <span style="font-size:var(--fs-body);font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px">${escHtml(p.nickname)}<span style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0"></span></span>
     </div>`;
   }).join('');
 }
@@ -2724,20 +2861,69 @@ function selectChallengePlayer(oppId) {
   if(!opp) return;
   _chOppId = oppId;
 
-  // Switch to step 2
-  $('ch-step1').style.display = 'none';
-  $('ch-step2').style.display = 'block';
+  var st1 = $('ch-step1'), st2 = $('ch-step2'), content = $('ch-content');
   $('ch-opp-name').textContent = opp.nickname;
   $('ch-opp-elo').textContent = Math.round(getPlayerElo(opp, 'rapid').elo);
 
   // Reset time to Rapid
-  document.querySelectorAll('.ch-time-chip').forEach(c => c.classList.remove('on'));
-  document.querySelector('.ch-time-chip[data-time="rapid"]').classList.add('on');
+  var segBtns = document.querySelectorAll('#ch-seg-time .ch-seg-btn');
+  segBtns.forEach(function(b) { b.classList.remove('on'); });
+  if(segBtns[1]) segBtns[1].classList.add('on');
+  var pill = $('ch-seg-pill');
+  if(pill) pill.style.left = 'calc(33.333% + 0.67px)';
+
+  // ── Transition: fade out step 1, resize, fade in step 2 ──
+  // Measure heights
+  var h1 = content.offsetHeight;
+  content.style.height = h1 + 'px';
+
+  st2.style.display = 'block';
+  st2.style.position = 'absolute';
+  st2.style.visibility = 'hidden';
+  var h2 = st2.offsetHeight;
+  st2.style.position = '';
+  st2.style.visibility = '';
+  st2.style.display = 'none';
+
+  // Fade out step 1
+  st1.classList.add('fading-out');
+
+  // At 80ms: start resize
+  setTimeout(function() { content.style.height = h2 + 'px'; }, 80);
+
+  // At 120ms: swap content
+  setTimeout(function() {
+    st1.style.display = 'none';
+    st1.className = 'ch-step';
+    st1.style.padding = '0 20px';
+    st2.style.display = 'block';
+    st2.style.opacity = '0';
+    requestAnimationFrame(function() { st2.classList.add('fading-in'); });
+    setTimeout(function() {
+      st2.className = 'ch-step';
+      st2.style.padding = '0 20px';
+      st2.style.opacity = '';
+      content.style.height = '';
+    }, 250);
+  }, 120);
+}
+
+function pickChallengeTimeSeg(btn, idx) {
+  var seg = $('ch-seg-time');
+  var pill = $('ch-seg-pill');
+  seg.querySelectorAll('.ch-seg-btn').forEach(function(b) { b.classList.remove('on'); });
+  btn.classList.add('on');
+  pill.style.left = 'calc(' + (idx * 33.333) + '% + 0.67px)';
+  // Update displayed ELO for selected opponent
+  if(_chOppId) {
+    var opp = getP(_chOppId);
+    var selFmt = btn.getAttribute('data-time');
+    if(opp) $('ch-opp-elo').textContent = Math.round(getPlayerElo(opp, selFmt).elo);
+  }
 }
 
 function pickChallengeTime(btn) {
   document.querySelectorAll('.ch-time-chip').forEach(c => c.classList.remove('on'));
-  // Bounce: shrink then spring back via CSS transition
   btn.style.transition = 'none';
   btn.style.transform = 'scale(0.94) translateY(2px)';
   btn.classList.add('on');
@@ -2747,7 +2933,6 @@ function pickChallengeTime(btn) {
       btn.style.transform = '';
     });
   });
-  // Update displayed ELO for selected opponent
   if(_chOppId) {
     var opp = getP(_chOppId);
     var selFmt = btn.getAttribute('data-time');
@@ -2783,7 +2968,7 @@ async function pickChallengeColor(color) {
     if(res?.error) return toast(res.error, "err");
     if(Array.isArray(res) && res[0]?.error) return toast(res[0].error, "err");
     await fetchAll();
-  }, 550);
+  }, 120);
 }
 
 // ── Action sheet colore ──
@@ -3807,36 +3992,32 @@ document.querySelectorAll(".nbtn").forEach(btn => {
 
 <!-- CHALLENGE SHEET (Uber-style 2-step) -->
 <div class="asheet-overlay" id="challenge-sheet-overlay2" onclick="if(event.target===this)closeNewChallengeSheet()">
-  <div class="asheet" onclick="event.stopPropagation()" style="padding:8px 24px calc(24px + env(safe-area-inset-bottom,0px))">
-    <div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px"></div>
-
-    <!-- Step 1: Player list -->
-    <div id="ch-step1">
-      <div style="font-size:var(--fs-title);font-weight:800;color:var(--text);margin-bottom:var(--sp-lg);letter-spacing:-.5px">Chi sfidi?</div>
-      <input id="ch-search" style="background:transparent;border:none;border-bottom:1px solid var(--border);border-radius:0;padding:12px 0;font-size:var(--fs-body);font-weight:500;color:var(--text);width:100%;outline:none;font-family:inherit;-webkit-user-select:text;user-select:text" placeholder="Cerca..." oninput="filterChallengePlayers(this.value)" autocorrect="off" autocapitalize="none" spellcheck="false">
-      <div id="ch-player-list" style="height:280px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-top:var(--sp-sm)"></div>
-    </div>
-
-    <!-- Step 2: Config -->
-    <div id="ch-step2" style="display:none">
-      <div style="margin-bottom:var(--sp-xl)">
-        <span style="font-size:var(--fs-title);font-weight:700;color:var(--text)" id="ch-opp-name"></span>
-        <span style="font-size:var(--fs-caption);color:var(--dim);font-weight:400" id="ch-opp-elo"></span>
+  <div class="asheet" id="challenge-sheet" onclick="event.stopPropagation()">
+    <div class="asheet-handle" id="ch-handle"><div class="asheet-handle-bar"></div></div>
+    <div class="ch-content" id="ch-content">
+      <!-- Step 1: Player list -->
+      <div class="ch-step" id="ch-step1" style="padding:0 20px">
+        <div class="ch-title">Chi sfidi?</div>
+        <div class="ch-list" id="ch-player-list"></div>
       </div>
-
-      <div style="font-size:var(--fs-label);color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:var(--sp-sm)">Tempo</div>
-      <div style="display:flex;gap:var(--sp-sm);margin-bottom:var(--sp-lg)" id="ch-time-row">
-        <button class="ch-time-chip" onclick="pickChallengeTime(this)" data-time="blitz">Blitz</button>
-        <button class="ch-time-chip on" onclick="pickChallengeTime(this)" data-time="rapid">Rapid</button>
-        <button class="ch-time-chip" onclick="pickChallengeTime(this)" data-time="classic">Classic</button>
+      <!-- Step 2: Config -->
+      <div class="ch-step" id="ch-step2" style="display:none;padding:0 20px">
+        <div style="display:flex;align-items:baseline;gap:8px;padding:0 0 24px">
+          <span style="font-size:var(--fs-title);font-weight:700;color:var(--text)" id="ch-opp-name"></span>
+          <span style="font-size:var(--fs-caption);color:var(--dim)" id="ch-opp-elo"></span>
+        </div>
+        <div class="ch-seg" id="ch-seg-time">
+          <div class="ch-seg-pill" id="ch-seg-pill" style="left:calc(33.333% + 0.67px)"></div>
+          <button class="ch-seg-btn" onclick="pickChallengeTimeSeg(this,0)" data-time="blitz">Blitz</button>
+          <button class="ch-seg-btn on" onclick="pickChallengeTimeSeg(this,1)" data-time="rapid">Rapid</button>
+          <button class="ch-seg-btn" onclick="pickChallengeTimeSeg(this,2)" data-time="classic">Classic</button>
+        </div>
+        <div class="ch-color-label">Giochi con il</div>
+        <div class="ch-color-row">
+          <button class="ch-color-btn ch-color-white" onclick="pickChallengeColor('white')"><span>Bianco</span></button>
+          <button class="ch-color-btn ch-color-black" onclick="pickChallengeColor('black')"><span>Nero</span></button>
+        </div>
       </div>
-
-      <div style="font-size:var(--fs-label);color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:var(--sp-sm)">Gioca con</div>
-      <div style="display:flex;gap:var(--sp-sm)" id="ch-color-row">
-        <button class="ch-color-btn ch-color-white" onclick="pickChallengeColor('white')"><span>Bianco</span></button>
-        <button class="ch-color-btn ch-color-black" onclick="pickChallengeColor('black')"><span>Nero</span></button>
-      </div>
-      <div style="font-size:var(--fs-label);color:var(--ghost);text-align:center;margin-top:var(--sp-md)">Scegli il colore per sfidare</div>
     </div>
   </div>
 </div>
