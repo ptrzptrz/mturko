@@ -91,7 +91,7 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 .hidden{display:none!important}
 
 /* ── Layout ── */
-#main{height:100dvh;display:flex;flex-direction:column;overflow:hidden;padding-top:calc(env(safe-area-inset-top,20px) + 12px)}
+#main{height:100dvh;display:flex;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top,20px)}
 .pages{flex:1;overflow:hidden;display:flex;flex-direction:column}
 .page{display:none;flex:1;overflow:hidden}
 .page.active{display:flex;flex-direction:column;animation:pageFadeIn .18s ease}
@@ -189,11 +189,11 @@ body.sheet-open #sa-cover{background:#000000}
 .home-chips{display:flex;gap:var(--sp-sm);padding:var(--sp-md) var(--content-pad)}
 
 /* ── Segmented control (iOS native pattern) ── */
-.home-seg{position:relative;display:flex;margin:0 var(--content-pad) var(--sp-lg);background:rgba(255,255,255,.06);border-radius:9px;padding:2px}
+.home-seg{position:relative;display:flex;margin:0 var(--content-pad) var(--sp-sm);background:rgba(255,255,255,.06);border-radius:9px;padding:2px}
 .home-seg .seg-pill{position:absolute;top:2px;bottom:2px;left:2px;width:calc(50% - 2px);border-radius:7px;background:rgba(255,255,255,.12);box-shadow:0 1px 4px rgba(0,0,0,.4);transition:left .3s cubic-bezier(.25,.1,.25,1);pointer-events:none}
 .home-seg .seg-btn{flex:1;padding:6px 0;border-radius:7px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;border:none;background:transparent;color:var(--muted);text-align:center;position:relative;z-index:1;transition:color .2s ease}
 .home-seg .seg-btn.on{color:var(--text)}
-.home-feed{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 var(--content-pad) calc(80px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
+.home-feed{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 var(--content-pad) calc(64px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
 .home-feed::-webkit-scrollbar{display:none}
 .home-hero:active{opacity:.7}
 .home-hero-nick{font-size:11px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
@@ -538,7 +538,7 @@ body.sheet-open #sa-cover{background:#000000}
     </linearGradient>
   </defs>
 </svg>
-<div id="sa-cover" style="position:fixed;top:0;left:0;right:0;height:calc(env(safe-area-inset-top,20px) + 12px);background:#0A0A0A;z-index:9999;pointer-events:none;transition:background .35s"></div>
+<div id="sa-cover" style="position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,20px);background:#0A0A0A;z-index:9999;pointer-events:none;transition:background .35s"></div>
 <div id="notif" class="notif"></div>
 
 <!-- AUTH -->
