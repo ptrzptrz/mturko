@@ -105,7 +105,7 @@ body.sheet-open #sa-cover{background:#000000}
 /* ── Navbar ── */
 .navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(var(--nav-y,0));width:100%;max-width:480px;display:flex;padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg);border-top:0.33px solid rgba(255,255,255,.06);z-index:100;will-change:transform}
 .navbar-frost{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(var(--nav-y,0));width:100%;max-width:480px;height:calc(80px + env(safe-area-inset-bottom,0px));pointer-events:none;z-index:99;will-change:transform;display:none}
-.nbtn{flex:1;min-height:48px;padding:12px 0;background:none;border:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:color .2s}
+.nbtn{flex:1;min-height:44px;padding:8px 0;background:none;border:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:color .2s}
 .nbtn.on{color:var(--green)}
 .nbtn:active{opacity:.6}
 .nbtn .ico-outline{display:block}
@@ -193,7 +193,7 @@ body.sheet-open #sa-cover{background:#000000}
 .home-seg .seg-pill{position:absolute;top:2px;bottom:2px;left:2px;width:calc(50% - 2px);border-radius:7px;background:rgba(255,255,255,.12);box-shadow:0 1px 4px rgba(0,0,0,.4);transition:left .3s cubic-bezier(.25,.1,.25,1);pointer-events:none}
 .home-seg .seg-btn{flex:1;padding:6px 0;border-radius:7px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;border:none;background:transparent;color:var(--muted);text-align:center;position:relative;z-index:1;transition:color .2s ease}
 .home-seg .seg-btn.on{color:var(--text)}
-.home-feed{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 var(--content-pad) calc(64px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
+.home-feed{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 var(--content-pad) calc(56px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
 .home-feed::-webkit-scrollbar{display:none}
 .home-hero:active{opacity:.7}
 .home-hero-nick{font-size:11px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
@@ -421,7 +421,7 @@ body.sheet-open #sa-cover{background:#000000}
 .ch-player-row:active{opacity:.5}
 
 /* ── Nav Plus button ── */
-.nav-plus-wrap{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px}
+.nav-plus-wrap{flex:1;display:flex;align-items:center;justify-content:center;min-height:44px}
 .nav-plus{background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform var(--dur-bounce) var(--ease-bounce)}
 .nav-plus:active{transform:scale(.85)}
 .nav-plus svg{width:28px;height:28px}
