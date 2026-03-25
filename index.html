@@ -101,8 +101,11 @@ button{cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-colo
 
 /* ── Topbar ── */
 body.sheet-open #sa-cover{background:#000000}
+body.sheet-open #main{transform:scale(.94);border-radius:12px;overflow:hidden}
+body.sheet-open .navbar{transform:translateX(-50%) translateY(100%)}
 
-/* ── Navbar ── */
+/* ── Layout ── */
+#main{height:100dvh;display:flex;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top,20px);transition:transform .38s cubic-bezier(.25,.1,.25,1),border-radius .38s ease;transform-origin:top center;border-radius:0}
 .navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(var(--nav-y,0));width:100%;max-width:480px;display:flex;padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg);border-top:0.33px solid rgba(255,255,255,.06);z-index:100;will-change:transform}
 .navbar-frost{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(var(--nav-y,0));width:100%;max-width:480px;height:calc(80px + env(safe-area-inset-bottom,0px));pointer-events:none;z-index:99;will-change:transform;display:none}
 .nbtn{flex:1;min-height:44px;padding:8px 0;background:none;border:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:color .2s}
@@ -229,7 +232,7 @@ body.sheet-open #sa-cover{background:#000000}
 /* ── Action sheet colore ── */
 .asheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:10001;display:flex;align-items:flex-end;pointer-events:none;transition:background .3s ease}
 .asheet-overlay.visible{background:rgba(0,0,0,.35);pointer-events:all}
-.asheet{background:var(--surface);border-radius:20px 20px 0 0;padding:0 20px calc(24px + env(safe-area-inset-bottom,0px));width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .38s cubic-bezier(.34,1.56,.64,1);will-change:transform}
+.asheet{background:var(--surface);border-radius:20px 20px 0 0;padding:0 20px calc(16px + env(safe-area-inset-bottom,0px));width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .38s cubic-bezier(.34,1.56,.64,1);will-change:transform}
 .asheet-overlay.visible .asheet{transform:translateY(0)}
 .asheet.dismissing{transition:transform .25s cubic-bezier(.32,0,.24,1)}
 .asheet-eyebrow{font-size:11px;color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;padding-top:24px}
@@ -429,7 +432,7 @@ body.sheet-open #sa-cover{background:#000000}
 /* Step 2 — color buttons */
 .ch-color-label{font-size:var(--fs-label);color:var(--dim);margin-bottom:var(--sp-md)}
 .ch-color-row{display:flex;gap:var(--sp-sm)}
-.ch-color-btn{flex:1;border:none;border-radius:var(--r-md);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;height:72px;transition:transform var(--dur-bounce) var(--ease-bounce),opacity var(--dur-fast)}
+.ch-color-btn{flex:1;border:none;border-radius:var(--r-md);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;height:80px;transition:transform var(--dur-bounce) var(--ease-bounce),opacity var(--dur-fast)}
 .ch-color-btn:active{transform:scale(.92)}
 .ch-color-white{background:var(--text)}
 .ch-color-white span{font-size:var(--fs-body);font-weight:700;color:var(--bg);letter-spacing:-.2px}
