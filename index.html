@@ -74,6 +74,7 @@
   --ease-out:cubic-bezier(.2,0,.2,1);
   --ease-spring:cubic-bezier(.34,1.56,.64,1);
   --ease-bounce:cubic-bezier(.25,1.3,.5,1);
+  --ease-list:cubic-bezier(.25,.1,.25,1);
   --dur-fast:150ms;
   --dur-normal:250ms;
   --dur-slow:400ms;
@@ -341,6 +342,64 @@ body.sheet-open .navbar{transform:translateX(-50%) translateY(100%)}
 .ds-card-btn.primary{background:var(--text);color:var(--bg)}
 .ds-card-btn.ghost{background:var(--border);color:var(--dim)}
 .ds-card-btn.danger{background:rgba(212,84,84,.15);color:var(--red)}
+
+/* ── Match strip: replaces ds-card for match states ── */
+/* Wrap: contains reveal layer + strip. Handles entry/exit animations */
+.ms-wrap{overflow:hidden;border-radius:var(--r-sm);background:var(--surface);position:relative;margin-bottom:var(--sp-sm)}
+.ms-wrap.entering{animation:msEnter .7s var(--ease-list) both}
+@keyframes msEnter{0%{max-height:0;opacity:0;margin-bottom:0;padding:0}100%{max-height:200px;opacity:1;margin-bottom:var(--sp-sm)}}
+.ms-wrap.collapsing{animation:msCollapse .6s var(--ease-list) forwards}
+@keyframes msCollapse{0%{max-height:200px;opacity:1;margin-bottom:var(--sp-sm)}100%{max-height:0;opacity:0;margin-bottom:0}}
+.ms-wrap.expiring{animation:msExpire 1.6s var(--ease-list) forwards}
+@keyframes msExpire{0%{max-height:200px;opacity:1;margin-bottom:var(--sp-sm);transform:scale(1)}25%{max-height:200px;opacity:1;margin-bottom:var(--sp-sm);transform:scale(1.01)}100%{max-height:0;opacity:0;margin-bottom:0;transform:scale(.97)}}
+
+/* Swipe reveal: red bg with cancel/refuse label, behind strip */
+.ms-reveal{position:absolute;top:1px;right:1px;bottom:1px;left:1px;display:flex;align-items:center;justify-content:flex-end;padding-right:var(--sp-xl);background:var(--red);border-radius:calc(var(--r-sm) - 1px);font-size:var(--fs-caption);font-weight:700;color:#fff}
+
+/* Strip body */
+.ms-strip{padding:var(--sp-lg);background:var(--surface);position:relative;z-index:1;will-change:transform}
+
+/* Glow: white neutral, opacity-based for GPU acceleration */
+.ms-glow{position:absolute;inset:0;background:rgba(255,255,255,.08);pointer-events:none;will-change:opacity;opacity:0}
+.ms-glow.active{opacity:.6;animation:msGlow 3.5s ease-in-out infinite}
+@keyframes msGlow{0%,100%{opacity:.5}50%{opacity:.85}}
+.ms-glow.dying{animation:msGlowDie 2.5s ease-out forwards}
+@keyframes msGlowDie{0%{opacity:.6}100%{opacity:0}}
+
+/* Strip content */
+.ms-inner{position:relative}
+.ms-row{display:flex;align-items:center;gap:var(--sp-sm)}
+.ms-name{font-size:var(--fs-body);font-weight:700;color:var(--text)}
+.ms-name.muted{font-weight:500;color:var(--muted)}
+.ms-info{font-size:var(--fs-caption);color:var(--muted);transition:opacity .5s ease}
+
+/* CTA: full-width button inside strip */
+.ms-cta{width:100%;padding:var(--sp-md) 0;border-radius:var(--r-sm);border:none;font-size:var(--fs-body);font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:-.2px;margin-top:var(--sp-md);transition:transform .15s,opacity .15s;overflow:hidden;color:#fff}
+.ms-cta:active{transform:scale(.98);opacity:.8}
+.ms-cta.green{background:var(--green)}
+.ms-cta.red{background:var(--red)}
+.ms-cta.appearing{animation:msCtaAppear .6s var(--ease-list) both}
+@keyframes msCtaAppear{0%{max-height:0;margin-top:0;opacity:0;padding:0}100%{max-height:50px;margin-top:var(--sp-md);opacity:1;padding:var(--sp-md) 0}}
+.ms-cta.collapsing{animation:msCtaCollapse .5s var(--ease-list) forwards}
+@keyframes msCtaCollapse{0%{max-height:50px;margin-top:var(--sp-md);opacity:1;padding:var(--sp-md) 0}100%{max-height:0;margin-top:0;opacity:0;padding:0}}
+
+/* Timer bar: challenge expiry indicator */
+.ms-timer{height:3px;border-radius:1.5px;background:rgba(255,255,255,.06);margin-top:var(--sp-md);overflow:hidden}
+.ms-timer-fill{height:100%;border-radius:1.5px;background:var(--muted);transition:width 1s linear}
+.ms-timer-fill.urgent{background:var(--red);animation:msTimerPulse 1.8s ease-in-out infinite}
+@keyframes msTimerPulse{0%,100%{opacity:1}50%{opacity:.4}}
+.ms-timer.collapsing{animation:msTimerCollapse .4s var(--ease-list) forwards}
+@keyframes msTimerCollapse{0%{max-height:3px;margin-top:var(--sp-md);opacity:1}100%{max-height:0;margin-top:0;opacity:0}}
+
+/* Refuse/cancel text */
+.ms-refuse{width:100%;text-align:center;font-size:var(--fs-caption);color:var(--dim);font-weight:500;padding:var(--sp-md) 0 0;cursor:pointer;border:none;background:transparent;font-family:inherit;overflow:hidden}
+.ms-refuse:active{opacity:.5}
+.ms-refuse.collapsing{animation:msRefuseCollapse .4s var(--ease-list) forwards}
+@keyframes msRefuseCollapse{0%{max-height:30px;padding-top:var(--sp-md);opacity:1}100%{max-height:0;padding-top:0;opacity:0}}
+
+/* Live dot */
+.ms-ldot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);animation:msLiveDot 1.8s ease-in-out infinite;margin-right:var(--sp-xs);vertical-align:middle}
+@keyframes msLiveDot{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* ── Chip: filter pills ── */
 .ds-chip{display:inline-block;padding:var(--sp-sm) var(--sp-lg);border-radius:20px;font-size:var(--fs-caption);font-weight:600;font-family:inherit;cursor:pointer;border:none;background:var(--border);color:var(--dim);white-space:nowrap;transition:background var(--dur-fast),color var(--dur-fast)}
@@ -1640,19 +1699,15 @@ async function fetchAll() {
 
 function updateCountdowns() {
   if(!me) return;
-  const now = Date.now();
-  let anyExpired = false;
-  matches.forEach(m => {
+  var anyExpired = false;
+  // Update timer bars via MatchCard instances
+  for(var [id, card] of _activeCards) {
+    if(card.type === 'incoming') card._updateTimer();
+  }
+  // Check for expired
+  matches.forEach(function(m) {
     if(m.status === 'pending_challenge') {
-      const elapsed = Date.now() - new Date(m.created_at).getTime();
-      const remaining = CHALLENGE_EXPIRE_MS - elapsed;
-      const pct = Math.max(0, Math.min(100, (remaining / CHALLENGE_EXPIRE_MS) * 100));
-      const urgent = pct < 20;
-      const bar = document.getElementById('prog-' + m.id);
-      if(bar) {
-        bar.style.width = pct + '%';
-        bar.className = 'card-challenge-progress' + (urgent ? ' urgent' : '');
-      }
+      var remaining = CHALLENGE_EXPIRE_MS - (Date.now() - new Date(m.created_at).getTime());
       if(remaining <= 0) anyExpired = true;
     }
   });
@@ -1908,101 +1963,437 @@ function matchLabel(m) {
 // ── Factory functions card ──
 // ── renderActiveCards: unico entry point per card attive ──
 
+// ══════════════════════════════════════════════════════════
+// MatchCard — persistent DOM component for match strips
+// ══════════════════════════════════════════════════════════
+var _activeCards = new Map(); // matchId → MatchCard instance
+
+function _mcMatchNames(m) {
+  var white = m.white_player_id ? getP(m.white_player_id) : getP(m.p1);
+  var blackId = m.white_player_id ? (m.white_player_id === m.p1 ? m.p2 : m.p1) : m.p2;
+  var black = getP(blackId);
+  return (white?.nickname || '?') + ' \u2014 ' + (black?.nickname || '?');
+}
+function _mcOppName(m) {
+  return (getP(m.p1 === me.id ? m.p2 : m.p1))?.nickname || '?';
+}
+function _mcComputeType(m) {
+  if(m.status === 'pending_challenge') return m.p1 === me.id ? 'sent' : 'incoming';
+  if(m.status !== 'active') return null;
+  var isP1 = m.p1 === me.id;
+  var myRes = isP1 ? m.result_p1 : m.result_p2;
+  if(m.disputed && !myRes) return 'disputed';
+  if(!myRes) return 'live';
+  return 'waiting';
+}
+// Priority for sorting
+var _mcPriority = {incoming:0, disputed:1, live:2, sent:3, waiting:4};
+
+function MatchCard(matchData) {
+  this.id = matchData.id;
+  this.data = matchData;
+  this.type = _mcComputeType(matchData);
+  this.transitioning = false;
+  this.dismissed = false;
+  this._pendingData = null;
+  this._swipeCleanup = null;
+
+  // Create DOM once — entering class BEFORE DOM insertion
+  this.el = document.createElement('div');
+  this.el.className = 'ms-wrap entering';
+  this.el.setAttribute('data-match', this.id);
+  this.el.setAttribute('data-type', this.type);
+  this._buildInner();
+}
+
+MatchCard.prototype._buildInner = function() {
+  var m = this.data;
+  var html = '';
+
+  if(this.type === 'incoming') {
+    var name = _mcOppName(m);
+    var elapsed = Date.now() - new Date(m.created_at).getTime();
+    var pct = Math.max(0, Math.min(100, ((CHALLENGE_EXPIRE_MS - elapsed) / CHALLENGE_EXPIRE_MS) * 100));
+    html =
+      '<div class="ms-reveal">Rifiuta</div>' +
+      '<div class="ms-strip ms-swipeable">' +
+        '<div class="ms-inner">' +
+          '<div class="ms-row">' +
+            '<span class="ms-name">' + name + '</span>' +
+            '<span class="ms-info">ti sfida</span>' +
+          '</div>' +
+          '<button class="ms-cta green" onclick="acceptChallenge(\'' + m.id + '\')">Gioca</button>' +
+          '<div class="ms-timer"><div class="ms-timer-fill" style="width:' + pct + '%"></div></div>' +
+        '</div>' +
+      '</div>';
+  } else if(this.type === 'sent') {
+    var name = _mcOppName(m);
+    html =
+      '<div class="ms-reveal">Annulla</div>' +
+      '<div class="ms-strip ms-swipeable">' +
+        '<div class="ms-glow active"></div>' +
+        '<div class="ms-inner">' +
+          '<div class="ms-row">' +
+            '<span class="ms-name muted">' + name + '</span>' +
+            '<span class="ms-info">sfida inviata</span>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  } else if(this.type === 'live') {
+    var names = _mcMatchNames(m);
+    html =
+      '<div class="ms-strip">' +
+        '<div class="ms-inner">' +
+          '<div class="ms-row">' +
+            '<span class="ms-name">' + names + '</span>' +
+          '</div>' +
+          '<button class="ms-cta green" onclick="openResultSheet(\'' + m.id + '\')">Com\u0027\u00e8 andata?</button>' +
+        '</div>' +
+      '</div>';
+  } else if(this.type === 'waiting') {
+    var names = _mcMatchNames(m);
+    var wName = _mcOppName(m);
+    html =
+      '<div class="ms-strip">' +
+        '<div class="ms-glow active"></div>' +
+        '<div class="ms-inner">' +
+          '<div class="ms-row">' +
+            '<span class="ms-name muted">' + names + '</span>' +
+            '<span class="ms-info">tocca a ' + wName + '</span>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  } else if(this.type === 'disputed') {
+    var names = _mcMatchNames(m);
+    html =
+      '<div class="ms-strip">' +
+        '<div class="ms-glow active"></div>' +
+        '<div class="ms-inner">' +
+          '<div class="ms-row">' +
+            '<span class="ms-name">' + names + '</span>' +
+            '<span class="ms-info">da rivedere</span>' +
+          '</div>' +
+          '<button class="ms-cta red" onclick="openResultSheet(\'' + m.id + '\')">Reinserisci</button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  this.el.innerHTML = html;
+  // Bind swipe if needed
+  var swipeable = this.el.querySelector('.ms-swipeable');
+  if(swipeable) this._bindSwipe(swipeable);
+};
+
+MatchCard.prototype.update = function(newData) {
+  if(this.dismissed) return;
+  var oldType = this.type;
+  this.data = newData;
+  this.type = _mcComputeType(newData);
+
+  if(oldType === this.type) {
+    this._updateTimer();
+    return;
+  }
+
+  if(this.transitioning) {
+    // Save pending data — will be applied when transition ends
+    this._pendingData = newData;
+    return;
+  }
+
+  this.el.setAttribute('data-type', this.type);
+  this._transition(oldType, this.type);
+};
+
+MatchCard.prototype._updateTimer = function() {
+  if(this.type !== 'incoming') return;
+  var m = this.data;
+  var elapsed = Date.now() - new Date(m.created_at).getTime();
+  var pct = Math.max(0, Math.min(100, ((CHALLENGE_EXPIRE_MS - elapsed) / CHALLENGE_EXPIRE_MS) * 100));
+  var fill = this.el.querySelector('.ms-timer-fill');
+  if(fill) {
+    fill.style.width = pct + '%';
+    if(pct < 25 && !fill.classList.contains('urgent')) fill.classList.add('urgent');
+  }
+};
+
+MatchCard.prototype._transition = function(from, to) {
+  this.transitioning = true;
+  var self = this;
+  var strip = this.el.querySelector('.ms-strip');
+  var inner = this.el.querySelector('.ms-inner');
+  var glow = this.el.querySelector('.ms-glow');
+  var nameEl = this.el.querySelector('.ms-name');
+  var info = this.el.querySelector('.ms-info');
+  var cta = this.el.querySelector('.ms-cta');
+
+  function done() {
+    self.transitioning = false;
+    // Apply pending data if any arrived during transition
+    if(self._pendingData) {
+      var pd = self._pendingData;
+      self._pendingData = null;
+      self.update(pd);
+    }
+  }
+
+  // ── sent → live ──
+  if(from === 'sent' && to === 'live') {
+    var names = _mcMatchNames(this.data);
+    // Cleanup swipe
+    if(self._swipeCleanup) { self._swipeCleanup(); self._swipeCleanup = null; }
+    var swEl = self.el.querySelector('.ms-swipeable');
+    if(swEl) swEl.classList.remove('ms-swipeable');
+    // 1. Glow dies
+    if(glow) { glow.style.transition = 'opacity 1.2s ease'; glow.style.opacity = '0'; }
+    // 2. Name cross-fade
+    if(nameEl) {
+      nameEl.classList.remove('muted');
+      nameEl.style.transition = 'opacity .4s ease';
+      nameEl.style.opacity = '0';
+      setTimeout(function() { nameEl.textContent = names; nameEl.style.opacity = '1'; }, 400);
+    }
+    // 3. Info fades
+    if(info) { info.style.transition = 'opacity .4s ease'; info.style.opacity = '0'; setTimeout(function(){ if(info.parentNode) info.remove(); }, 500); }
+    // 4. Remove reveal
+    var reveal = self.el.querySelector('.ms-reveal');
+    if(reveal) setTimeout(function(){ reveal.remove(); }, 500);
+    // 5. CTA appears
+    setTimeout(function() {
+      if(glow && glow.parentNode) glow.remove();
+      var btn = document.createElement('button');
+      btn.className = 'ms-cta green appearing';
+      btn.textContent = 'Com\u0027\u00e8 andata?';
+      btn.setAttribute('onclick', 'openResultSheet(\'' + self.id + '\')');
+      inner.appendChild(btn);
+      setTimeout(done, 600);
+    }, 500);
+    return;
+  }
+
+  // ── incoming → live ──
+  if(from === 'incoming' && to === 'live') {
+    var names = _mcMatchNames(this.data);
+    // Cleanup swipe
+    if(self._swipeCleanup) { self._swipeCleanup(); self._swipeCleanup = null; }
+    var swEl = self.el.querySelector('.ms-swipeable');
+    if(swEl) swEl.classList.remove('ms-swipeable');
+    if(cta) cta.classList.add('collapsing');
+    var timer = self.el.querySelector('.ms-timer');
+    if(timer) timer.classList.add('collapsing');
+    var refuse = self.el.querySelector('.ms-refuse');
+    if(refuse) refuse.classList.add('collapsing');
+    if(info) { info.style.transition = 'opacity .4s ease'; info.style.opacity = '0'; setTimeout(function(){ if(info.parentNode) info.remove(); }, 500); }
+    if(nameEl) {
+      nameEl.style.transition = 'opacity .4s ease';
+      nameEl.style.opacity = '0';
+      setTimeout(function() { nameEl.textContent = names; nameEl.style.opacity = '1'; }, 400);
+    }
+    var reveal = self.el.querySelector('.ms-reveal');
+    if(reveal) setTimeout(function(){ reveal.remove(); }, 500);
+    setTimeout(function() {
+      if(cta && cta.parentNode) cta.remove();
+      if(timer && timer.parentNode) timer.remove();
+      if(refuse && refuse.parentNode) refuse.remove();
+      var btn = document.createElement('button');
+      btn.className = 'ms-cta green appearing';
+      btn.textContent = 'Com\u0027\u00e8 andata?';
+      btn.setAttribute('onclick', 'openResultSheet(\'' + self.id + '\')');
+      inner.appendChild(btn);
+      setTimeout(done, 600);
+    }, 550);
+    return;
+  }
+
+  // ── live → waiting ──
+  if(from === 'live' && to === 'waiting') {
+    var wName = _mcOppName(this.data);
+    if(cta) cta.classList.add('collapsing');
+    if(nameEl) { nameEl.style.transition = 'color .6s ease'; nameEl.classList.add('muted'); }
+    setTimeout(function() {
+      if(cta && cta.parentNode) cta.remove();
+      // Add glow
+      var g = document.createElement('div');
+      g.className = 'ms-glow active';
+      strip.insertBefore(g, strip.firstChild);
+      // Add info
+      var row = self.el.querySelector('.ms-row');
+      if(row) {
+        var sp = document.createElement('span');
+        sp.className = 'ms-info';
+        sp.textContent = 'tocca a ' + wName;
+        sp.style.opacity = '0';
+        row.appendChild(sp);
+        requestAnimationFrame(function() { sp.style.transition = 'opacity .5s ease'; sp.style.opacity = '1'; });
+      }
+      setTimeout(done, 600);
+    }, 500);
+    return;
+  }
+
+  // ── waiting → disputed ──
+  if(from === 'waiting' && to === 'disputed') {
+    var names = _mcMatchNames(this.data);
+    if(nameEl) { nameEl.classList.remove('muted'); nameEl.textContent = names; }
+    if(info) {
+      info.style.transition = 'opacity .4s ease';
+      info.style.opacity = '0';
+      setTimeout(function() { info.textContent = 'da rivedere'; info.style.opacity = '1'; }, 400);
+    }
+    setTimeout(function() {
+      var btn = document.createElement('button');
+      btn.className = 'ms-cta red appearing';
+      btn.textContent = 'Reinserisci';
+      btn.setAttribute('onclick', 'openResultSheet(\'' + self.id + '\')');
+      inner.appendChild(btn);
+      setTimeout(done, 600);
+    }, 500);
+    return;
+  }
+
+  // ── Fallback: rebuild inner ──
+  this._buildInner();
+  done();
+};
+
+MatchCard.prototype.exit = function(callback) {
+  if(this.dismissed) return;
+  this.dismissed = true;
+  // Cleanup touch listeners
+  if(this._swipeCleanup) { this._swipeCleanup(); this._swipeCleanup = null; }
+  var self = this;
+  var called = false;
+  function finish() { if(called) return; called = true; if(self.el.parentNode) self.el.remove(); if(callback) callback(); }
+  this.el.classList.remove('entering');
+  this.el.classList.add('collapsing');
+  this.el.addEventListener('animationend', finish, {once: true});
+  setTimeout(finish, 700);
+};
+
+MatchCard.prototype.swipeExit = function(stripEl, callback) {
+  if(this.dismissed) return;
+  this.dismissed = true;
+  if(this._swipeCleanup) { this._swipeCleanup(); this._swipeCleanup = null; }
+  var self = this;
+  var called = false;
+  function finish() { if(called) return; called = true; if(self.el.parentNode) self.el.remove(); if(callback) callback(); }
+  stripEl.style.transition = 'transform .25s cubic-bezier(.32,0,.24,1)';
+  stripEl.style.transform = 'translateX(-100%)';
+  setTimeout(function() {
+    self.el.classList.remove('entering');
+    self.el.classList.add('collapsing');
+    self.el.addEventListener('animationend', finish, {once: true});
+    setTimeout(finish, 700);
+  }, 250);
+};
+
+MatchCard.prototype._bindSwipe = function(stripEl) {
+  var self = this;
+  var startX = 0, dx = 0, dragging = false;
+
+  stripEl.addEventListener('touchstart', function(e) {
+    if(self.dismissed) return;
+    startX = e.touches[0].clientX;
+    dx = 0; dragging = true;
+    stripEl.style.transition = 'none';
+  }, {passive: true});
+
+  function onMove(e) {
+    if(!dragging) return;
+    dx = e.touches[0].clientX - startX;
+    if(dx > 0) dx = dx * 0.15;
+    stripEl.style.transform = 'translateX(' + Math.min(0, dx) + 'px)';
+  }
+
+  function onEnd() {
+    if(!dragging) return;
+    dragging = false;
+    if(dx < -80) {
+      matches = matches.filter(function(mm) { return mm.id !== self.id; });
+      _activeCards.delete(self.id);
+      self.swipeExit(stripEl, async function() {
+        await db.delete("matches", "id=eq." + self.id);
+        await fetchAll();
+      });
+    } else {
+      stripEl.style.transition = 'transform .3s cubic-bezier(.34,1.56,.64,1)';
+      stripEl.style.transform = 'translateX(0)';
+    }
+  }
+
+  document.addEventListener('touchmove', onMove, {passive: true});
+  document.addEventListener('touchend', onEnd, {passive: true});
+
+  // Save cleanup function
+  self._swipeCleanup = function() {
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('touchend', onEnd);
+  };
+};
+
+// ── Reconciliation: called by renderHome ──
+var _racCallCount = 0;
 function renderActiveCards(activeCards, sentChallenges, incomingChallenges) {
-  const container = $('home-active');
-  const cards = [];
-  const total = incomingChallenges.length + activeCards.length + sentChallenges.length;
-  if(total === 0) { container.innerHTML = ''; return; }
+  _racCallCount++;
+  var container = $('home-active');
 
-  // Helper — ds-card A1 structure
-  function mkCard(accentClass, name, eloStr, statusText, ctaHtml, passive=false) {
-    return `<div class="ds-card${passive ? ' passive' : ''}">
-      <div class="ds-card-accent ${accentClass}"></div>
-      <div class="ds-card-body">
-        <div class="ds-card-name">${name}${eloStr ? ` <span class="ds-card-elo">${eloStr}</span>` : ''}</div>
-        <div class="ds-card-status">${statusText}</div>
-      </div>
-      <div class="ds-card-cta">${ctaHtml}</div>
-    </div>`;
+  // Build desired list
+  var desired = [];
+  incomingChallenges.forEach(function(m) { var t = _mcComputeType(m); if(t) desired.push({id:m.id, type:t, m:m}); });
+  activeCards.forEach(function(c) { desired.push({id:c.m.id, type:c.type, m:c.m}); });
+  sentChallenges.forEach(function(m) { var t = _mcComputeType(m); if(t) desired.push({id:m.id, type:t, m:m}); });
+
+  // Sort by priority
+  desired.sort(function(a,b) { return (_mcPriority[a.type]||9) - (_mcPriority[b.type]||9); });
+
+  var desiredIds = new Set(desired.map(function(d){ return d.id; }));
+
+  // DEBUG
+  var dbgEl = document.getElementById('ms-debug');
+  if(!dbgEl){dbgEl=document.createElement('div');dbgEl.id='ms-debug';dbgEl.style.cssText='position:fixed;top:0;left:0;right:0;font-size:9px;color:#FF453A;padding:2px 8px;background:rgba(0,0,0,.8);z-index:99999;font-family:monospace';document.body.appendChild(dbgEl)}
+  var acts = [];
+  // END DEBUG setup
+
+  // 1. Exit cards no longer desired
+  for(var [id, card] of _activeCards) {
+    if(!desiredIds.has(id) && !card.dismissed) {
+      card.exit();
+      _activeCards.delete(id);
+      acts.push('EXIT:'+id.substr(0,4));
+    }
   }
 
-  // Helper — format stakes HTML from cache
-  function stakesHtml(matchId) {
-    const s = matchStakes[matchId];
-    if(!s) return '';
-    return ' · <span style="color:var(--green)">+' + s.win_delta + '</span> / <span style="color:var(--red)">' + s.loss_delta + '</span>';
-  }
-
-  // 1. Incoming challenges
-  incomingChallenges.forEach(m => {
-    const opp = getP(m.p1);
-    const oppName = opp?.nickname || '?';
-    const cardFmt = m.time_control || 'rapid';
-    const eloStr = opp ? String(Math.round(getPlayerElo(opp, cardFmt).elo)) : '';
-    let statusParts = ['ti sfida'];
-    if(m.time_control) statusParts.push(m.time_control.charAt(0).toUpperCase() + m.time_control.slice(1));
-    if(m.white_player_id) {
-      const amIWhite = m.white_player_id === me.id;
-      statusParts.push('giochi con il ' + (amIWhite ? 'bianco' : 'nero'));
+  // 2. Update existing or create new, in correct order
+  var prevEl = null;
+  desired.forEach(function(item) {
+    var existing = _activeCards.get(item.id);
+    if(existing && !existing.dismissed) {
+      existing.update(item.m);
+      // Ensure correct DOM order — but SKIP if element has entering animation
+      if(!existing.el.classList.contains('entering')) {
+        if(prevEl) {
+          if(existing.el.previousElementSibling !== prevEl) { prevEl.after(existing.el); acts.push('MOVE:'+item.id.substr(0,4)); }
+        } else {
+          if(existing.el !== container.firstElementChild) { container.insertBefore(existing.el, container.firstElementChild); acts.push('MOVE0:'+item.id.substr(0,4)); }
+        }
+      }
+      prevEl = existing.el;
+      acts.push('UPD:'+item.type);
+    } else {
+      var card = new MatchCard(item.m);
+      if(prevEl) {
+        prevEl.after(card.el);
+      } else {
+        container.insertBefore(card.el, container.firstChild);
+      }
+      _activeCards.set(item.id, card);
+      prevEl = card.el;
+      acts.push('NEW:'+item.type);
     }
-    const stakes = stakesHtml(m.id);
-    cards.push(mkCard('green', oppName, eloStr, statusParts.join(' · ') + stakes,
-      `<div style="display:flex;align-items:center;gap:var(--sp-md)"><button class="ds-card-btn primary" onclick="acceptChallenge('${m.id}')">Gioca</button><span style="color:var(--ghost);font-size:var(--fs-label);font-weight:500;cursor:pointer;white-space:nowrap" onclick="rejectChallenge('${m.id}')">Rifiuta</span></div>`
-    ));
   });
 
-  // 2. Disputes
-  activeCards.filter(c => c.type === 'disputed').forEach(({ m }) => {
-    const oppId = m.p1 === me.id ? m.p2 : m.p1;
-    const opp = getP(oppId);
-    const dFmt = m.time_control || 'rapid';
-    cards.push(mkCard('red', opp?.nickname||'?', opp ? String(Math.round(getPlayerElo(opp, dFmt).elo)) : '',
-      'Risultati non coincidono · reinserisci',
-      `<button class="ds-card-btn danger" onclick="openResultSheet('${m.id}')">Reinserisci</button>`
-    ));
-  });
-
-  // 3. Live — need to submit result
-  activeCards.filter(c => c.type === 'live').forEach(({ m }) => {
-    const oppId = m.p1 === me.id ? m.p2 : m.p1;
-    const opp = getP(oppId);
-    const lFmt = m.time_control || 'rapid';
-    cards.push(mkCard('green', opp?.nickname||'?', opp ? String(Math.round(getPlayerElo(opp, lFmt).elo)) : '',
-      'Com\'è andata?',
-      `<button class="ds-card-btn primary" onclick="openResultSheet('${m.id}')">Risultato</button>`
-    ));
-  });
-
-  // 4. Waiting — submitted, waiting for other
-  activeCards.filter(c => c.type === 'waiting').forEach(({ m }) => {
-    const oppId = m.p1 === me.id ? m.p2 : m.p1;
-    const opp = getP(oppId);
-    cards.push(mkCard('gray', opp?.nickname||'?', '',
-      'Risultato inviato · attendi conferma',
-      `<span class="ds-card-btn ghost">Inviato</span>`,
-      true
-    ));
-  });
-
-  // 5. Sent challenges — waiting for acceptance
-  sentChallenges.forEach(m => {
-    const opp = getP(m.p2);
-    const sFmt = m.time_control || 'rapid';
-    let statusParts = ['Sfida inviata'];
-    if(m.time_control) statusParts.push(m.time_control.charAt(0).toUpperCase() + m.time_control.slice(1));
-    if(m.white_player_id) {
-      const amIWhite = m.white_player_id === me.id;
-      statusParts.push('giochi con il ' + (amIWhite ? 'bianco' : 'nero'));
-    }
-    const stakes = stakesHtml(m.id);
-    cards.push(mkCard('gray', opp?.nickname||'?', opp ? String(Math.round(getPlayerElo(opp, sFmt).elo)) : '',
-      statusParts.join(' · ') + stakes,
-      `<button class="ds-card-btn ghost" onclick="cancelChallenge('${m.id}')">Annulla</button>`,
-      true
-    ));
-  });
-
-  container.innerHTML = cards.join('');
+  // DEBUG output
+  dbgEl.textContent = '#' + _racCallCount + ' cards:' + _activeCards.size + ' [' + acts.join(' ') + ']';
 }
 
 // ── Swipe-to-challenge system ──
@@ -2964,12 +3355,17 @@ async function pickChallengeColor(color) {
     btn.style.transition = '';
     btn.style.transform = '';
 
-    // Send challenge
+    // Send challenge to DB
     var selFmt = getSelectedChallengeFormat();
     const res = await db.rpc("create_challenge", {opponent_id: oppId, white_player_id: whiteId, tc: selFmt});
     if(res?.error) return toast(res.error, "err");
     if(Array.isArray(res) && res[0]?.error) return toast(res[0].error, "err");
-    await fetchAll();
+
+    // Wait for sheet close animation to finish before fetching
+    // Sheet decel exit = .25s + extra buffer
+    setTimeout(async function() {
+      await fetchAll();
+    }, 300);
   }, 120);
 }
 
@@ -2994,12 +3390,40 @@ async function acceptChallenge(matchId) {
   await fetchAll();
 }
 async function rejectChallenge(matchId) {
-  await db.delete("matches", `id=eq.${matchId}`);
-  await fetchAll();
+  var card = _activeCards.get(matchId);
+  if(card) {
+    matches = matches.filter(function(m) { return m.id !== matchId; });
+    _activeCards.delete(matchId);
+    var stripEl = card.el.querySelector('.ms-strip');
+    if(stripEl) {
+      card.swipeExit(stripEl, async function() {
+        await db.delete("matches", "id=eq." + matchId);
+        await fetchAll();
+      });
+    } else {
+      card.exit(async function() {
+        await db.delete("matches", "id=eq." + matchId);
+        await fetchAll();
+      });
+    }
+  } else {
+    await db.delete("matches", `id=eq.${matchId}`);
+    await fetchAll();
+  }
 }
 async function cancelChallenge(matchId) {
-  await db.delete("matches", `id=eq.${matchId}`);
-  await fetchAll();
+  var card = _activeCards.get(matchId);
+  if(card) {
+    matches = matches.filter(function(m) { return m.id !== matchId; });
+    _activeCards.delete(matchId);
+    card.exit(async function() {
+      await db.delete("matches", "id=eq." + matchId);
+      await fetchAll();
+    });
+  } else {
+    await db.delete("matches", `id=eq.${matchId}`);
+    await fetchAll();
+  }
 }
 
 // --- pulizia partite scadute ---
@@ -3133,14 +3557,10 @@ async function confirmResultSheet(choice) {
                  : 'draw';
   const field = isP1 ? 'result_p1' : 'result_p2';
 
-  // Optimistic update — aggiorna il match locale immediatamente
-  m[field] = myResult;
-  renderHome();
-
   // Feedback
   toast('Risultato inviato');
 
-  // Scrivi su DB e sincronizza
+  // Scrivi su DB e sincronizza — no optimistic update, DB è source of truth
   await db.patch('matches', `id=eq.${matchId}`, {[field]: myResult});
   activeMatch = null;
   await fetchAll();
