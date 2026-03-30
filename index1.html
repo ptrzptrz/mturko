@@ -12,7 +12,7 @@
 :root{
   --bg:#0A0A0A;--surface:#1C1C1E;--border:#38383A;--border-light:#2C2C2E;
   --text:#F2F2F7;--muted:#8E8E93;--dim:#636366;--ghost:#48484A;
-  --green:#30D158;--red:#FF453A;--gold:#FFD60A;
+  --green:#30D158;--red:#FF453A;--gold:#FFD60A;--blue:#0A84FF;
   --fs-hero:48px;--fs-title-lg:28px;--fs-title:22px;--fs-body:17px;--fs-caption:13px;--fs-label:12px;--fs-micro:11px;
   --sp-xs:4px;--sp-sm:8px;--sp-md:12px;--sp-lg:16px;--sp-xl:24px;--content-pad:20px;
   --r-sm:12px;--r-md:16px;--r-lg:20px;
@@ -109,6 +109,114 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .lb-elo{font-size:var(--fs-body);font-weight:700;color:var(--muted)}
 .fmt-chip{font-size:var(--fs-caption);font-weight:600;color:var(--muted);background:var(--surface);padding:var(--sp-sm) var(--sp-lg);border-radius:var(--r-sm);cursor:pointer;transition:background .15s,color .15s}
 .fmt-chip.on{background:rgba(255,255,255,.12);color:var(--text)}
+
+/* Profile */
+.prof-hero{display:flex;flex-direction:column;align-items:center;padding:var(--sp-xl) var(--content-pad) var(--sp-md);text-align:center}
+.prof-avatar-wrap{position:relative;margin-bottom:var(--sp-md)}
+.prof-avatar{width:88px;height:88px;border-radius:50%;background:var(--border-light);display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:700;color:var(--text)}
+.prof-avatar-edit{position:absolute;bottom:-4px;right:-6px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.prof-avatar-edit:active{opacity:.5}
+.prof-avatar-edit-circle{width:28px;height:28px;border-radius:50%;background:var(--surface);border:2.5px solid var(--bg);display:flex;align-items:center;justify-content:center}
+.prof-avatar-edit-circle svg{width:12px;height:12px;stroke:var(--muted)}
+.prof-name{font-size:var(--fs-title);font-weight:800;letter-spacing:-.5px;line-height:1.2}
+.prof-city{font-size:var(--fs-caption);color:var(--muted);margin-top:2px}
+.prof-bio{font-size:var(--fs-caption);color:var(--dim);margin-top:var(--sp-xs);line-height:1.4;max-width:260px}
+.prof-bio-placeholder{font-size:var(--fs-caption);color:var(--ghost);margin-top:var(--sp-xs);cursor:pointer;font-style:italic}
+.prof-badges{display:flex;gap:var(--sp-sm);justify-content:center;margin-bottom:var(--sp-md);padding:0 var(--content-pad)}
+.prof-badge{display:inline-flex;align-items:center;gap:5px;font-size:var(--fs-micro);font-weight:700;padding:var(--sp-xs) 10px;border-radius:20px}
+.prof-badge svg{width:12px;height:12px}
+.prof-badge.streak{color:var(--green);background:rgba(48,209,88,.1)}
+.prof-badge.peak{color:var(--gold);background:rgba(255,214,10,.1)}
+.prof-ring-row{display:flex;align-items:center;justify-content:center;gap:var(--sp-xl);margin:var(--sp-sm) var(--content-pad) 0;padding:var(--sp-lg) var(--sp-xl);background:var(--surface);border-radius:var(--r-sm) var(--r-sm) 0 0}
+.prof-ring{position:relative;width:84px;height:84px;flex-shrink:0}
+.prof-ring svg{width:84px;height:84px;transform:rotate(-90deg)}
+.prof-ring-track{fill:none;stroke:var(--border-light);stroke-width:5.5}
+.prof-ring-fill{fill:none;stroke:var(--green);stroke-width:5.5;stroke-linecap:round}
+.prof-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.prof-ring-pct{font-size:var(--fs-title);font-weight:800;letter-spacing:-1px;line-height:1}
+.prof-ring-label{font-size:9px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.3px;margin-top:1px}
+.prof-ring-stats{display:flex;flex-direction:column;gap:var(--sp-md);flex:1;min-width:0}
+.prof-ring-stat{display:flex;align-items:center;gap:var(--sp-sm)}
+.prof-ring-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.prof-ring-dot.w{background:var(--green)}
+.prof-ring-dot.d{background:var(--muted)}
+.prof-ring-dot.l{background:var(--red)}
+.prof-ring-num{font-size:var(--fs-body);font-weight:800;min-width:28px}
+.prof-ring-name{font-size:var(--fs-caption);color:var(--muted);font-weight:500}
+.prof-ring-compare{padding:var(--sp-sm) var(--sp-lg) var(--sp-lg);margin:0 var(--content-pad) var(--sp-lg);background:var(--surface);border-radius:0 0 var(--r-sm) var(--r-sm);margin-top:-1px;border-top:0.33px solid rgba(255,255,255,.06)}
+.prof-ring-compare-text{font-size:var(--fs-caption);color:var(--muted);display:flex;align-items:center;gap:var(--sp-xs);justify-content:center}
+.prof-ring-compare-text .up{color:var(--green);font-weight:700}
+.prof-ring-compare-text .down{color:var(--red);font-weight:700}
+.prof-ring-row.empty{border-radius:var(--r-sm)}
+.h-card{margin:0 var(--content-pad) var(--sp-lg);background:var(--surface);border-radius:var(--r-sm);overflow:hidden;transition:opacity .2s ease}
+.h-card.fading{opacity:.4}
+.h-card-header{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-lg) var(--sp-lg) 0}
+.h-card-label{font-size:var(--fs-caption);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.h-card-label.green{color:var(--green)}
+.h-card-label.blue{color:var(--blue)}
+.h-card-chevron{width:14px;height:14px;flex-shrink:0;color:var(--ghost)}
+.h-card-value{padding:var(--sp-xs) var(--sp-lg) 0;display:flex;align-items:baseline;gap:var(--sp-sm)}
+.h-card-big{font-size:34px;font-weight:800;letter-spacing:-1.5px;line-height:1}
+.h-card-unit{font-size:var(--fs-caption);font-weight:600;color:var(--muted)}
+.h-card-sub{padding:2px var(--sp-lg) 0;font-size:var(--fs-micro);color:var(--dim)}
+.h-card-detail{display:flex;align-items:center;gap:var(--sp-xs);padding:var(--sp-xs) var(--sp-lg) 0}
+.h-card-delta{font-size:var(--fs-caption);font-weight:700}
+.h-card-delta.up{color:var(--green)}
+.h-card-delta.down{color:var(--red)}
+.h-card-delta-label{font-size:var(--fs-micro);color:var(--dim)}
+/* Line chart (Apple Health style) */
+.h-line-chart{padding:var(--sp-sm) 0 var(--sp-lg);position:relative}
+.h-line-chart-wrap{position:relative;height:140px;margin:0 var(--sp-lg) 0 var(--sp-lg)}
+.h-line-chart-grid{position:absolute;top:0;bottom:0;left:0;right:40px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}
+.h-line-chart-grid-row{display:flex;align-items:center;position:relative}
+.h-line-chart-gridline{flex:1;height:0.33px;background:rgba(255,255,255,.06)}
+.h-line-chart-grid-val{position:absolute;right:-40px;font-size:9px;font-weight:600;color:var(--dim);width:36px;text-align:right}
+.h-line-chart-svg-wrap{position:absolute;top:0;bottom:0;left:0;right:40px}
+.h-line-chart-svg-wrap svg{width:100%;height:100%;overflow:visible}
+.h-line-chart-line{fill:none;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
+.h-line-chart-line.trend-up{stroke:var(--green)}
+.h-line-chart-line.trend-down{stroke:var(--red)}
+.h-line-chart-dot.trend-up{fill:var(--green);stroke:var(--bg);stroke-width:1.5}
+.h-line-chart-dot.trend-down{fill:var(--red);stroke:var(--bg);stroke-width:1.5}
+.h-line-chart-labels{display:flex;justify-content:space-between;padding:6px var(--sp-lg) 0;padding-right:calc(var(--sp-lg) + 40px)}
+.h-line-chart-lbl{font-size:9px;font-weight:500;color:var(--dim)}
+.h-line-chart-lbl.now{color:var(--text);font-weight:700}
+
+/* Timeframe seg inside card (compact, Apple Health D/W/M/Y style) */
+.h-card-tf{display:flex;background:rgba(255,255,255,.06);border-radius:7px;padding:2px;margin:var(--sp-md) var(--sp-lg) 0;position:relative}
+.h-card-tf-pill{position:absolute;top:2px;bottom:2px;border-radius:5px;background:rgba(255,255,255,.12);box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .25s var(--ease-list),width .25s var(--ease-list)}
+.h-card-tf-btn{flex:1;padding:5px 0;text-align:center;font-size:var(--fs-micro);font-weight:600;color:var(--dim);border-radius:5px;border:none;background:transparent;font-family:inherit;cursor:pointer;position:relative;z-index:1;transition:color .2s}
+.h-card-tf-btn.on{color:var(--text)}
+
+.h-chart{padding:var(--sp-md) var(--sp-lg) var(--sp-lg);position:relative}
+.h-chart-area{height:100px;display:flex;align-items:flex-end;gap:3px;position:relative}
+.h-chart-gridlines{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}
+.h-chart-gridline{height:0.33px;background:rgba(255,255,255,.06)}
+.h-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
+.h-bar{width:100%;border-radius:2.5px 2.5px 1px 1px;min-height:2px;height:0}
+.h-bar.animate{transition:height .5s var(--ease-list)}
+.h-bar.green{background:var(--green)}
+.h-bar.green-dim{background:rgba(48,209,88,.35)}
+.h-bar.blue{background:var(--blue)}
+.h-bar.blue-dim{background:rgba(10,132,255,.35)}
+.h-chart-labels{display:flex;gap:3px;padding-top:6px}
+.h-chart-lbl{flex:1;text-align:center;font-size:9px;font-weight:500;color:var(--dim)}
+.h-chart-lbl.now{color:var(--text);font-weight:700}
+.h-avg-line{position:absolute;left:0;right:0;height:0.5px;background:var(--muted);z-index:2;pointer-events:none;opacity:.35}
+.h-avg-tag{position:absolute;right:0;font-size:9px;font-weight:700;color:var(--muted);transform:translateY(-12px);letter-spacing:.3px}
+.prof-game-delta{font-size:var(--fs-caption);font-weight:700}
+.prof-game-delta.up{color:var(--green)}
+.prof-game-delta.down{color:var(--red)}
+.prof-game-delta.neutral{color:var(--muted)}
+.prof-game-time{font-size:var(--fs-micro);color:var(--dim)}
+.prof-game-meta{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.prof-game-icon{width:36px;height:36px;border-radius:var(--sp-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:var(--sp-md);font-size:15px;font-weight:800}
+.prof-game-icon.win{background:rgba(48,209,88,.12);color:var(--green)}
+.prof-game-icon.loss{background:rgba(255,69,58,.12);color:var(--red)}
+.prof-game-icon.draw{background:rgba(142,142,147,.12);color:var(--muted)}
+.prof-logout{margin:var(--sp-xl) var(--content-pad) var(--sp-xl);background:var(--surface);border-radius:var(--r-sm);overflow:hidden}
+.prof-logout-btn{width:100%;padding:var(--sp-lg);font-size:var(--fs-body);font-weight:600;color:var(--red);background:transparent;border:none;font-family:inherit;cursor:pointer;text-align:center}
+.prof-logout-btn:active{background:var(--border-light)}
 
 /* Placeholder */
 .placeholder{margin:var(--sp-xl) var(--content-pad);padding:var(--sp-xl);background:var(--surface);border-radius:var(--r-md);text-align:center}
@@ -250,7 +358,96 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 
   <div class="page" id="page-venues"><div class="placeholder"><div class="placeholder-title">Venues</div><div class="placeholder-sub">Find places to play chess</div><div class="coming-soon">Coming soon</div></div></div>
 
-  <div class="page" id="page-profile"><div id="profile-content"><div class="placeholder"><div class="placeholder-title">Profile</div><div class="placeholder-sub">Your stats and game history</div></div></div></div>
+  <div class="page" id="page-profile">
+    <!-- Profile Hero -->
+    <div class="prof-hero">
+      <div class="prof-avatar-wrap">
+        <div class="prof-avatar" id="prof-avatar">?</div>
+        <div class="prof-avatar-edit" role="button" aria-label="Edit avatar">
+          <div class="prof-avatar-edit-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="prof-name" id="prof-name"></div>
+      <div class="prof-city" id="prof-city"></div>
+      <div class="prof-bio" id="prof-bio"></div>
+    </div>
+    <!-- Badges -->
+    <div class="prof-badges" id="prof-badges"></div>
+    <!-- Format seg -->
+    <div class="seg" id="prof-fmt-seg" onclick="switchProfileFormat(event)">
+      <div class="seg-pill" id="prof-fmt-pill" style="left:2px;width:33.333%"></div>
+      <button class="seg-btn on" data-fmt="rapid">Rapid</button>
+      <button class="seg-btn" data-fmt="blitz">Blitz</button>
+      <button class="seg-btn" data-fmt="classic">Classic</button>
+    </div>
+    <!-- Ring + W/D/L -->
+    <div class="prof-ring-row" id="prof-ring-row">
+      <div class="prof-ring">
+        <svg viewBox="0 0 84 84">
+          <circle class="prof-ring-track" cx="42" cy="42" r="36"/>
+          <circle class="prof-ring-fill" id="prof-ring-fill" cx="42" cy="42" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"/>
+        </svg>
+        <div class="prof-ring-center">
+          <div class="prof-ring-pct" id="prof-ring-pct">—</div>
+          <div class="prof-ring-label">Win rate</div>
+        </div>
+      </div>
+      <div class="prof-ring-stats">
+        <div class="prof-ring-stat"><div class="prof-ring-dot w"></div><div class="prof-ring-num" id="prof-stat-w">0</div><div class="prof-ring-name">Wins</div></div>
+        <div class="prof-ring-stat"><div class="prof-ring-dot d"></div><div class="prof-ring-num" id="prof-stat-d">0</div><div class="prof-ring-name">Draws</div></div>
+        <div class="prof-ring-stat"><div class="prof-ring-dot l"></div><div class="prof-ring-num" id="prof-stat-l">0</div><div class="prof-ring-name">Losses</div></div>
+      </div>
+    </div>
+    <div class="prof-ring-compare" id="prof-ring-compare">
+      <div class="prof-ring-compare-text" id="prof-ring-compare-text"></div>
+    </div>
+    <!-- ELO Card -->
+    <div class="h-card" id="prof-elo-card">
+      <div class="h-card-header">
+        <span class="h-card-label" id="prof-elo-label">RATING</span>
+        <svg class="h-card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="h-card-value">
+        <span class="h-card-big" id="prof-elo-value">—</span>
+        <span class="h-card-unit">ELO</span>
+      </div>
+      <div class="h-card-detail" id="prof-elo-detail"></div>
+      <div class="h-card-sub" id="prof-elo-sub"></div>
+      <!-- Timeframe seg inside card -->
+      <div class="h-card-tf" id="prof-tf-seg" onclick="switchTimeframe(event)">
+        <div class="h-card-tf-pill" id="prof-tf-pill"></div>
+        <button class="h-card-tf-btn" data-tf="1W">1W</button>
+        <button class="h-card-tf-btn on" data-tf="1M">1M</button>
+        <button class="h-card-tf-btn" data-tf="3M">3M</button>
+        <button class="h-card-tf-btn" data-tf="ALL">All</button>
+      </div>
+      <div id="prof-elo-chart"></div>
+    </div>
+    <!-- Activity Card -->
+    <div class="h-card" id="prof-activity-card">
+      <div class="h-card-header">
+        <span class="h-card-label blue">ACTIVITY</span>
+        <svg class="h-card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="h-card-value">
+        <span class="h-card-big" id="prof-activity-value">0</span>
+        <span class="h-card-unit">games this week</span>
+      </div>
+      <div class="h-card-sub" id="prof-activity-sub"></div>
+      <div class="h-chart" id="prof-activity-chart"></div>
+    </div>
+    <!-- Game History -->
+    <div id="prof-history-section">
+      <div class="section-label">Recent Games</div>
+      <div class="ios-group" id="prof-game-history"></div>
+    </div>
+    <!-- Logout -->
+    <div class="prof-logout">
+      <button class="prof-logout-btn" onclick="doLogout()">Log out</button>
+    </div>
+  </div>
 </div>
 
 <nav class="navbar hidden" id="navbar">
@@ -332,11 +529,11 @@ function switchLbFormat(fmt){currentLbFormat=fmt;document.querySelectorAll('#lb-
 
 function toggleAuthMode(){authMode=authMode==='login'?'register':'login';$('auth-btn').textContent=authMode==='login'?'Log in':'Register';$('auth-toggle').textContent=authMode==='login'?"Don't have an account? Register":"Already have an account? Log in"}
 
-async function doAuth(){var nick=$('auth-nick').value.trim().toLowerCase(),pass=$('auth-pass').value;if(!nick||!pass)return toast('Enter nickname and password','err');var email=nick+'@turko.app';if(authMode==='register'){var r=await supabaseClient.auth.signUp({email:email,password:pass});if(r.error)return toast(r.error.message,'err');if(r.data.session){authToken=r.data.session.access_token;await fetch(SUPA_URL+'/rest/v1/players',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+authToken},body:JSON.stringify({id:r.data.user.id,nickname:nick})})}var l=await supabaseClient.auth.signInWithPassword({email:email,password:pass});if(l.error)return toast(l.error.message,'err');authToken=l.data.session.access_token;await initApp(l.data.user.id)}else{var r=await supabaseClient.auth.signInWithPassword({email:email,password:pass});if(r.error)return toast(r.error.message,'err');authToken=r.data.session.access_token;await initApp(r.data.user.id)}}
+async function doAuth(){var nick=$('auth-nick').value.trim().toLowerCase(),pass=$('auth-pass').value;if(!nick||!pass)return toast('Enter nickname and password','err');var email=nick+'@barscacchi.local';if(authMode==='register'){var r=await supabaseClient.auth.signUp({email:email,password:pass});if(r.error)return toast(r.error.message,'err');if(r.data.session){authToken=r.data.session.access_token;await fetch(SUPA_URL+'/rest/v1/players',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+authToken},body:JSON.stringify({id:r.data.user.id,nickname:nick})})}var l=await supabaseClient.auth.signInWithPassword({email:email,password:pass});if(l.error)return toast(l.error.message,'err');authToken=l.data.session.access_token;await initApp(l.data.user.id)}else{var r=await supabaseClient.auth.signInWithPassword({email:email,password:pass});if(r.error)return toast(r.error.message,'err');authToken=r.data.session.access_token;await initApp(r.data.user.id)}}
 
 async function tryAutoLogin(){var s=await supabaseClient.auth.getSession();if(s.data.session){authToken=s.data.session.access_token;await initApp(s.data.session.user.id)}}
 
-async function initApp(userId){$('auth-screen').classList.add('hidden');$('main').classList.remove('hidden');$('navbar').classList.remove('hidden');var r=await dbGet('players','id=eq.'+userId);if(r&&r.length)me=r[0];if(!me)return toast('Player not found','err');await fetchAll();setupRealtime();setInterval(fetchAll,15000)}
+async function initApp(userId){$('auth-screen').classList.add('hidden');$('main').classList.remove('hidden');$('navbar').classList.remove('hidden');var r=await dbGet('players','id=eq.'+userId);if(r&&r.length)me=r[0];if(!me)return toast('Player not found','err');await fetchAll();setupRealtime();if(window._fetchInterval)clearInterval(window._fetchInterval);window._fetchInterval=setInterval(fetchAll,15000)}
 
 async function dbGet(t,f){var u=SUPA_URL+'/rest/v1/'+t+'?'+(f||'')+'&select=*';var r=await fetch(u,{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+authToken}});return r.json()}
 async function dbPatch(t,f,d){await fetch(SUPA_URL+'/rest/v1/'+t+'?'+f,{method:'PATCH',headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+authToken},body:JSON.stringify(d)})}
@@ -346,11 +543,11 @@ async function dbRpc(fn,p){var r=await fetch(SUPA_URL+'/rest/v1/rpc/'+fn,{method
 async function fetchAll(){if(!me)return;var p=await dbGet('players','order=elo_rapid.desc');if(Array.isArray(p))players=p;var f=players.find(function(x){return x.id===me.id});if(f)me=f;var m=await dbGet('matches','order=created_at.desc&limit=100');if(Array.isArray(m))matches=m;renderAll()}
 
 function getP(id){return players.find(function(p){return p.id===id})}
-function getPlayerElo(p,fmt){return{elo:p['elo_'+(fmt||'rapid')]||1200,peak:p['peak_'+(fmt||'rapid')]||1200}}
+function getPlayerElo(p,fmt){var elo=p['elo_'+(fmt||'rapid')]||1200;var peak=p['peak_'+(fmt||'rapid')]||1200;return{elo:elo,peak:Math.max(elo,peak)}}
 
 function setupRealtime(){supabaseClient.channel('turko-v2').on('postgres_changes',{event:'*',schema:'public',table:'matches'},function(){fetchAll()}).on('postgres_changes',{event:'*',schema:'public',table:'players'},function(){fetchAll()}).subscribe()}
 
-function renderAll(){renderPlayHero();renderPlayStrips();renderLeaderboard();renderDiscover();renderFeed()}
+function renderAll(){renderPlayHero();renderPlayStrips();renderLeaderboard();renderDiscover();renderFeed();renderProfile()}
 
 function renderPlayHero(){var e=getPlayerElo(me,'rapid');$('play-hero-fmt').textContent='RAPID';$('play-hero-elo').textContent=Math.round(e.elo);var next=Math.ceil(e.elo/100)*100,prev=next-100;$('play-hero-bar').style.width=Math.round((e.elo-prev)/100*100)+'%'}
 
@@ -361,6 +558,424 @@ function renderLeaderboard(){var s=players.slice().sort(function(a,b){return(b['
 function renderDiscover(){var others=players.filter(function(p){return p.id!==me.id}).slice(0,6);var sh='';others.forEach(function(p){var elo=Math.round(getPlayerElo(p,'rapid').elo);sh+='<div class="discover-card"><div class="discover-card-avatar">'+(p.nickname?.[0]?.toUpperCase()||'?')+'</div><div class="discover-card-name">'+(p.nickname||'?')+'</div><div class="discover-card-elo">'+elo+' ELO</div><div class="discover-card-follow">Follow</div></div>'});$('discover-players').innerHTML=sh;var sg='';others.slice(0,3).forEach(function(p){var elo=Math.round(getPlayerElo(p,'rapid').elo);sg+='<div class="ios-cell"><div class="ios-cell-icon round">'+(p.nickname?.[0]?.toUpperCase()||'?')+'</div><div class="ios-cell-body"><div class="ios-cell-title">'+(p.nickname||'?')+'</div><div class="ios-cell-sub">'+elo+' ELO</div></div><div class="ios-cell-right"><span class="ios-cell-value" style="color:var(--green)">Follow</span></div></div>'});$('discover-suggested').innerHTML=sg}
 
 function renderFeed(){var my=matches.filter(function(m){return m.status==='done'&&(m.p1===me.id||m.p2===me.id)}).slice(0,10);var h='';if(my.length){h+='<div class="section-label">Recent</div>';my.forEach(function(m){var isP1=m.p1===me.id;var o=getP(isP1?m.p2:m.p1);var won=m.result===(isP1?'p1':'p2');var lost=m.result===(isP1?'p2':'p1');h+='<div class="feed-result"><div><div class="feed-result-title">vs '+(o?.nickname||'?')+'</div><div class="feed-result-sub">'+(m.time_control||'rapid').toUpperCase()+'</div></div><div class="feed-result-delta '+(won?'win':lost?'loss':'')+'">'+(won?'W':lost?'L':'D')+'</div></div>'})}else{h='<div style="text-align:center;padding:var(--sp-xl);color:var(--muted);font-size:var(--fs-caption)">Follow players to see their activity here</div>'}$('home-feed').innerHTML=h}
+
+// ── Profile tab ──
+var _profFormat='rapid';
+var _profTimeframe='1M';
+var _PROF_CIRC=2*Math.PI*36; // 226.19
+var _eloHistoryCache=null; // cache to avoid re-fetching on timeframe switch
+
+function initTimeframePill(){
+  var btns=document.querySelectorAll('#prof-tf-seg .h-card-tf-btn');
+  var activeBtn=document.querySelector('#prof-tf-seg .h-card-tf-btn.on');
+  if(!activeBtn||!btns.length)return;
+  var idx=Array.from(btns).indexOf(activeBtn);
+  var pct=100/btns.length;
+  var pill=$('prof-tf-pill');
+  pill.style.width=pct+'%';
+  pill.style.left=(idx*pct)+'%';
+}
+
+function switchTimeframe(e){
+  var btn=e.target.closest('.h-card-tf-btn');
+  if(!btn)return;
+  var tf=btn.getAttribute('data-tf');
+  if(!tf||tf===_profTimeframe)return;
+  _profTimeframe=tf;
+  var btns=document.querySelectorAll('#prof-tf-seg .h-card-tf-btn');
+  var idx=Array.from(btns).indexOf(btn);
+  btns.forEach(function(b){b.classList.remove('on')});
+  btn.classList.add('on');
+  var pct=100/btns.length;
+  $('prof-tf-pill').style.left=(idx*pct)+'%';
+  // Re-render chart from cache
+  if(_eloHistoryCache)renderEloChartFromData(_eloHistoryCache);
+}
+
+function switchProfileFormat(e){
+  var btn=e.target.closest('.seg-btn');
+  if(!btn)return;
+  var fmt=btn.getAttribute('data-fmt');
+  if(!fmt||fmt===_profFormat)return;
+  _profFormat=fmt;
+  _eloHistoryCache=null; // clear cache, different format
+  var btns=document.querySelectorAll('#prof-fmt-seg .seg-btn');
+  var idx=Array.from(btns).indexOf(btn);
+  btns.forEach(function(b){b.classList.remove('on')});
+  btn.classList.add('on');
+  $('prof-fmt-pill').style.left='calc('+idx*33.333+'% + 2px)';
+  var cards=document.querySelectorAll('.h-card');
+  cards.forEach(function(c){c.classList.add('fading')});
+  setTimeout(function(){renderProfile();cards.forEach(function(c){c.classList.remove('fading')})},150);
+}
+
+function renderProfile(){
+  if(!me)return;
+  // Header
+  $('prof-avatar').textContent=(me.nickname||'?')[0].toUpperCase();
+  $('prof-name').textContent=me.nickname||'?';
+  $('prof-city').textContent=me.city||'';
+  var bioEl=$('prof-bio');
+  if(me.bio){bioEl.textContent=me.bio;bioEl.className='prof-bio'}
+  else{bioEl.textContent='Add a bio';bioEl.className='prof-bio-placeholder'}
+
+  // Stats from real data
+  var w=me.wins||0,d=me.draws||0,l=me.losses||0;
+  var total=w+d+l;
+  var wr=total?Math.round(w/total*100):0;
+
+  // Ring
+  $('prof-ring-pct').textContent=total?wr+'%':'—';
+  $('prof-ring-pct').style.color=total?'':'var(--dim)';
+  var target=total?_PROF_CIRC-(_PROF_CIRC*(wr/100)):_PROF_CIRC;
+  var fill=$('prof-ring-fill');
+  fill.style.transition='none';
+  fill.setAttribute('stroke-dashoffset',_PROF_CIRC);
+  fill.offsetHeight;
+  fill.style.transition='stroke-dashoffset .8s var(--ease-list)';
+  fill.setAttribute('stroke-dashoffset',target);
+
+  // W/D/L
+  $('prof-stat-w').textContent=w;
+  $('prof-stat-d').textContent=d;
+  $('prof-stat-l').textContent=l;
+
+  // Ring compare — hide if no games
+  var cmpEl=$('prof-ring-compare');
+  if(total>0){cmpEl.style.display='';$('prof-ring-row').style.borderRadius='var(--r-sm) var(--r-sm) 0 0';
+    // TODO: real month-over-month comparison needs elo_history; placeholder for now
+    $('prof-ring-compare-text').innerHTML='<span class="up">'+wr+'%</span> win rate · '+total+' games played';
+  }else{cmpEl.style.display='none';$('prof-ring-row').style.borderRadius='var(--r-sm)'}
+
+  // Badges
+  var badgesHTML='';
+  // Streak badge — compute current win streak
+  var myDone=matches.filter(function(m){return m.status==='done'&&(m.p1===me.id||m.p2===me.id)});
+  var streak=0;
+  for(var i=0;i<myDone.length;i++){
+    var m=myDone[i],isP1=m.p1===me.id;
+    if(m.result===(isP1?'p1':'p2'))streak++;else break;
+  }
+  if(streak>=3){
+    badgesHTML+='<div class="prof-badge streak"><svg viewBox="0 0 24 24" fill="var(--green)" stroke="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-4-4 1.41-1.41L11 14.17l5.59-5.59L18 10l-7 7z"/></svg>'+streak+' win streak</div>';
+  }
+  // Peak badge — show if current ELO is within 20 of peak
+  var eloData=getPlayerElo(me,_profFormat);
+  if(eloData.elo>=eloData.peak-20&&total>0){
+    badgesHTML+='<div class="prof-badge peak"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Near peak</div>';
+  }
+  $('prof-badges').innerHTML=badgesHTML;
+
+  // ELO card
+  var elo=Math.round(eloData.elo);
+  var peak=Math.round(eloData.peak);
+  $('prof-elo-value').textContent=elo;
+  $('prof-elo-value').style.color=total?'':'var(--dim)';
+  $('prof-elo-sub').textContent='Peak '+peak;
+  // Delta — difference from starting 1200
+  var delta=elo-1200;
+  var deltaDir=delta>=0?'up':'down';
+  $('prof-elo-detail').innerHTML=total?'<span class="h-card-delta '+deltaDir+'">'+(delta>=0?'+':'')+delta+'</span><span class="h-card-delta-label">from start</span>':'';
+
+  // ELO chart — use elo_history if available, else show empty
+  renderProfileEloChart();
+
+  // Activity chart
+  renderProfileActivityChart();
+
+  // Game history
+  renderProfileHistory();
+}
+
+function renderProfileEloChart(){
+  var chartEl=$('prof-elo-chart');
+  var fmt=_profFormat;
+  initTimeframePill();
+  dbGet('elo_history','player_id=eq.'+me.id+'&time_control=eq.'+fmt+'&order=created_at.asc&select=elo_after,created_at').then(function(rows){
+    if(!Array.isArray(rows)||rows.length<2){
+      _eloHistoryCache=null;
+      chartEl.innerHTML='<div style="padding:var(--sp-lg) 0;text-align:center;font-size:var(--fs-caption);color:var(--dim)">Play more games to see your rating chart</div>';
+      return;
+    }
+    _eloHistoryCache=rows;
+    // Peak from all data
+    var allElos=rows.map(function(r){return Math.round(r.elo_after)});
+    var realPeak=Math.max.apply(null,allElos);
+    $('prof-elo-sub').textContent='Peak '+realPeak;
+    renderEloChartFromData(rows);
+  }).catch(function(){
+    _eloHistoryCache=null;
+    chartEl.innerHTML='<div style="padding:var(--sp-lg) 0;text-align:center;font-size:var(--fs-caption);color:var(--dim)">Rating history unavailable</div>';
+  });
+}
+
+function renderEloChartFromData(rows){
+  var chartEl=$('prof-elo-chart');
+  // Filter by timeframe
+  var now=new Date();
+  var cutoff=null;
+  if(_profTimeframe==='1W')cutoff=new Date(now.getTime()-7*86400000);
+  else if(_profTimeframe==='1M')cutoff=new Date(now.getTime()-30*86400000);
+  else if(_profTimeframe==='3M')cutoff=new Date(now.getTime()-90*86400000);
+  // else ALL — no cutoff
+
+  var filtered=cutoff?rows.filter(function(r){return new Date(r.created_at)>=cutoff}):rows;
+  if(filtered.length<2){
+    chartEl.innerHTML='<div style="padding:var(--sp-lg) 0;text-align:center;font-size:var(--fs-caption);color:var(--dim)">Not enough data for this period</div>';
+    return;
+  }
+
+  var data=filtered.map(function(r){return{elo:Math.round(r.elo_after),date:new Date(r.created_at)}});
+  // Limit to ~20 points max for readability, sample evenly
+  if(data.length>20){
+    var sampled=[data[0]];
+    var step=(data.length-1)/19;
+    for(var i=1;i<19;i++)sampled.push(data[Math.round(i*step)]);
+    sampled.push(data[data.length-1]);
+    data=sampled;
+  }
+
+  var elos=data.map(function(d){return d.elo});
+  // Trend: compare first vs last
+  var trend=elos[elos.length-1]>=elos[0]?'up':'down';
+
+  // Update RATING label color
+  var label=$('prof-elo-label');
+  label.className='h-card-label '+(trend==='up'?'green':'red');
+
+  // Update delta display
+  var deltaVal=elos[elos.length-1]-elos[0];
+  var deltaDir=deltaVal>=0?'up':'down';
+  $('prof-elo-detail').innerHTML='<span class="h-card-delta '+deltaDir+'">'+(deltaVal>=0?'+':'')+deltaVal+'</span><span class="h-card-delta-label">in this period</span>';
+
+  renderLineChart(chartEl,data,trend);
+}
+
+function renderLineChart(container,data,trend){
+  var trendColor=trend==='up'?'--green':'--red';
+  var trendClass='trend-'+trend;
+  var elos=data.map(function(d){return d.elo});
+  var dates=data.map(function(d){return d.date});
+
+  var min=Math.min.apply(null,elos);
+  var max=Math.max.apply(null,elos);
+  var padding=Math.max(Math.round((max-min)*.2),10);
+  var rangeMin=min-padding;
+  var rangeMax=max+padding;
+  var range=rangeMax-rangeMin||1;
+  var n=elos.length;
+
+  // Grid — 3 values
+  var gridVals=[rangeMax,Math.round(rangeMin+range/2),rangeMin];
+
+  var W=300,H=140;
+  var padX=6;
+
+  // Build points
+  var points=[];
+  elos.forEach(function(v,i){
+    var x=n>1?padX+i/(n-1)*(W-padX*2):W/2;
+    var y=H-((v-rangeMin)/range)*H;
+    points.push({x:x,y:y,v:v});
+  });
+
+  var linePath=points.map(function(p,i){return(i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)}).join(' ');
+
+  // Dots — adaptive
+  var showDot=function(i){
+    if(n<=10)return true;
+    if(i===0||i===n-1)return true;
+    return i%Math.ceil(n/8)===0;
+  };
+  var dots='';
+  points.forEach(function(p,i){
+    if(showDot(i)){
+      dots+='<circle class="h-line-chart-dot '+trendClass+'" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+(n<=6?3.5:2.5)+'"/>';
+    }
+  });
+
+  // Dashed vertical lines — at month boundaries
+  var verticals='';
+  var monthLabels=[];
+  var lastMonth=-1;
+  dates.forEach(function(d,i){
+    var m=d.getMonth();
+    if(m!==lastMonth&&i>0){
+      var x=points[i].x;
+      verticals+='<line x1="'+x.toFixed(1)+'" y1="0" x2="'+x.toFixed(1)+'" y2="'+H+'" stroke="rgba(255,255,255,.08)" stroke-width="1" stroke-dasharray="4,4"/>';
+      monthLabels.push({x:x,label:['J','F','M','A','M','J','J','A','S','O','N','D'][m]});
+    }
+    lastMonth=m;
+  });
+
+  var gradId='lg'+Date.now();
+  var colorVar=trend==='up'?'var(--green)':'var(--red)';
+
+  var html='<div class="h-line-chart">';
+  html+='<div class="h-line-chart-wrap">';
+
+  // Grid
+  html+='<div class="h-line-chart-grid">';
+  gridVals.forEach(function(v){
+    html+='<div class="h-line-chart-grid-row"><div class="h-line-chart-gridline"></div><div class="h-line-chart-grid-val">'+v+'</div></div>';
+  });
+  html+='</div>';
+
+  // SVG
+  html+='<div class="h-line-chart-svg-wrap">';
+  html+='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">';
+  html+='<defs><linearGradient id="'+gradId+'" x1="0" y1="0" x2="0" y2="1">';
+  html+='<stop offset="0%" stop-color="'+colorVar+'" stop-opacity="0.15"/>';
+  html+='<stop offset="100%" stop-color="'+colorVar+'" stop-opacity="0"/>';
+  html+='</linearGradient></defs>';
+
+  // Dashed vertical month lines
+  html+=verticals;
+
+  // Area
+  var areaPath=linePath+' L'+points[n-1].x.toFixed(1)+','+H+' L'+points[0].x.toFixed(1)+','+H+' Z';
+  html+='<path d="'+areaPath+'" fill="url(#'+gradId+')" stroke="none"/>';
+  // Line
+  html+='<path class="h-line-chart-line '+trendClass+'" d="'+linePath+'"/>';
+  // Dots
+  html+=dots;
+  html+='</svg></div>';
+
+  html+='</div>'; // wrap
+
+  // Bottom labels — first date and last date
+  var fmtDate=function(d){
+    var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return months[d.getMonth()]+' '+d.getDate();
+  };
+  html+='<div class="h-line-chart-labels">';
+  html+='<div class="h-line-chart-lbl">'+fmtDate(dates[0])+'</div>';
+  // Month labels in between
+  monthLabels.forEach(function(ml){
+    // skip, they're shown as dashed lines — keeping labels minimal
+  });
+  html+='<div class="h-line-chart-lbl now">'+fmtDate(dates[dates.length-1])+'</div>';
+  html+='</div>';
+
+  html+='</div>';
+  container.innerHTML=html;
+}
+
+function renderProfileActivityChart(){
+  var chartEl=$('prof-activity-chart');
+  // Get start of current week (Monday 00:00)
+  var now=new Date();
+  var dayOfWeek=now.getDay();
+  var mondayOffset=(dayOfWeek===0?6:dayOfWeek-1);
+  var thisMonday=new Date(now.getFullYear(),now.getMonth(),now.getDate()-mondayOffset);
+  thisMonday.setHours(0,0,0,0);
+  var myDone=matches.filter(function(m){return m.status==='done'&&(m.p1===me.id||m.p2===me.id)});
+  // Count games per week (last 12 weeks)
+  var weeks=[];var labels=[];
+  for(var w=11;w>=0;w--){
+    var weekStart=new Date(thisMonday.getTime()-w*7*86400000);
+    var weekEnd=new Date(weekStart.getTime()+7*86400000);
+    var count=myDone.filter(function(m){
+      var t=new Date(m.created_at||0).getTime();
+      return t>=weekStart.getTime()&&t<weekEnd.getTime();
+    }).length;
+    weeks.push(count);
+    labels.push(w===0?'Now':'W'+(12-w));
+  }
+  var thisWeek=weeks[weeks.length-1];
+  var total=weeks.reduce(function(a,b){return a+b},0);
+  var weeksWithGames=weeks.filter(function(v){return v>0}).length||1;
+  var avg=total/weeksWithGames;
+  $('prof-activity-value').textContent=thisWeek;
+  $('prof-activity-sub').textContent='Avg '+avg.toFixed(1)+' per active week';
+  if(weeks.every(function(v){return v===0})){
+    chartEl.innerHTML='<div style="padding:var(--sp-lg) 0;text-align:center;font-size:var(--fs-caption);color:var(--dim)">No activity yet</div>';
+    return;
+  }
+  renderProfileBarChart('prof-activity-chart',weeks,labels,'blue',false);
+}
+
+function renderProfileBarChart(containerId,data,labels,color,showAvg){
+  var container=$(containerId);
+  var max=Math.max.apply(null,data);
+  var min=showAvg?Math.min.apply(null,data):0;
+  var range=max-min||1;
+  var avg=data.reduce(function(a,b){return a+b},0)/data.length;
+  var html='<div class="h-chart-area"><div class="h-chart-gridlines">';
+  for(var g=0;g<4;g++)html+='<div class="h-chart-gridline"></div>';
+  html+='</div>';
+  if(showAvg){var avgPct=((avg-min)/range)*100;html+='<div class="h-avg-line" style="bottom:'+avgPct+'%"><span class="h-avg-tag">AVG</span></div>'}
+  data.forEach(function(v,i){
+    var pct=showAvg?((v-min)/range)*100:(max?v/max*100:0);
+    var isLast=i===data.length-1;
+    var barColor=isLast?color:color+'-dim';
+    html+='<div class="h-bar-wrap"><div class="h-bar '+barColor+'" data-h="'+Math.max(pct,3)+'%"></div></div>';
+  });
+  html+='</div><div class="h-chart-labels">';
+  labels.forEach(function(l,i){html+='<div class="h-chart-lbl'+(i===labels.length-1?' now':'')+'">'+l+'</div>'});
+  html+='</div>';
+  container.innerHTML=html;
+  requestAnimationFrame(function(){
+    container.querySelectorAll('.h-bar').forEach(function(bar,i){
+      setTimeout(function(){bar.classList.add('animate');bar.style.height=bar.getAttribute('data-h')},i*25);
+    });
+  });
+}
+
+function renderProfileHistory(){
+  var container=$('prof-game-history');
+  var section=$('prof-history-section');
+  var myDone=matches.filter(function(m){return m.status==='done'&&(m.p1===me.id||m.p2===me.id)}).slice(0,15);
+  if(!myDone.length){
+    section.style.display='none';
+    return;
+  }
+  section.style.display='';
+  var chevSVG='<svg class="h-card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+  var html='';
+  myDone.forEach(function(m){
+    var isP1=m.p1===me.id;
+    var opp=getP(isP1?m.p2:m.p1);
+    var won=m.result===(isP1?'p1':'p2');
+    var lost=m.result===(isP1?'p2':'p1');
+    var isDraw=m.result==='draw';
+    var iconClass=won?'win':lost?'loss':'draw';
+    var iconText=won?'W':lost?'L':'D';
+    var fmt=(m.time_control||'rapid');
+    var side=m.white_player_id===me.id?'W':'B';
+    // Time ago
+    var created=new Date(m.created_at||0);
+    var ago=timeAgo(created);
+    html+='<div class="ios-cell">';
+    html+='<div class="prof-game-icon '+iconClass+'">'+iconText+'</div>';
+    html+='<div class="ios-cell-body"><div class="ios-cell-title">vs '+(opp?.nickname||'?')+'</div>';
+    html+='<div class="ios-cell-sub">'+fmt.charAt(0).toUpperCase()+fmt.slice(1)+' · '+side+'</div></div>';
+    html+='<div class="ios-cell-right"><div class="prof-game-meta"><div class="prof-game-time">'+ago+'</div></div>'+chevSVG+'</div>';
+    html+='</div>';
+  });
+  container.innerHTML=html;
+}
+
+function timeAgo(date){
+  var s=Math.floor((Date.now()-date.getTime())/1000);
+  if(s<60)return 'Just now';
+  if(s<3600)return Math.floor(s/60)+'m ago';
+  if(s<86400)return Math.floor(s/3600)+'h ago';
+  if(s<172800)return 'Yesterday';
+  if(s<604800)return Math.floor(s/86400)+'d ago';
+  return Math.floor(s/604800)+'w ago';
+}
+
+async function doLogout(){
+  if(window._fetchInterval)clearInterval(window._fetchInterval);
+  supabaseClient.removeAllChannels();
+  await supabaseClient.auth.signOut();
+  me=null;players=[];matches=[];authToken=null;
+  $('main').classList.add('hidden');
+  $('navbar').classList.add('hidden');
+  $('auth-screen').classList.remove('hidden');
+  $('auth-nick').value='';$('auth-pass').value='';
+}
 
 // ── Challenge sheet ──
 var _chOppId=null;
