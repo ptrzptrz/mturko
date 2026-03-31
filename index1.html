@@ -220,10 +220,9 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .av-6{background:#2A1A3D}.av-7{background:#1A3D35}
 .p-avatar-badge{position:absolute;bottom:-2px;right:-2px;width:var(--es-badge);height:var(--es-badge);border-radius:50%;background:var(--surface);border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1}
 .p-avatar-badge:empty{display:none}
+.p-avatar-badge.show-plus:empty{display:flex}
+.p-avatar-badge.show-plus:empty::after{content:'+';color:var(--ghost);font-size:13px;font-weight:300}
 /* Edit chip */
-.p-edit-chip{padding:var(--sp-sm) var(--content-pad) var(--sp-md)}
-.p-edit-btn{width:100%;padding:var(--sp-sm) 0;font-size:var(--fs-caption);font-weight:600;color:var(--text);background:var(--fill-medium);border:none;border-radius:var(--r-xs);font-family:inherit;cursor:pointer;transition:transform .12s,opacity .12s}
-.p-edit-btn:active{transform:scale(.97);opacity:.8}
 /* Edit sheet */
 .es-overlay{position:fixed;inset:0;background:transparent;z-index:10001;display:none;align-items:flex-end;transition:background .3s ease}
 .es-overlay.visible{background:var(--overlay)}
@@ -241,15 +240,11 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .es-avatar-badge{position:absolute;bottom:-2px;right:-2px;width:calc(var(--es-badge) + 4px);height:calc(var(--es-badge) + 4px);border-radius:50%;background:var(--surface);border:2.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1}
 .es-avatar-badge:empty::after{content:'+';color:var(--ghost);font-size:16px;font-weight:300}
 .es-step.out{display:none}
-.es-avatar-row{display:flex;align-items:center;gap:var(--sp-lg);padding:0 var(--content-pad) var(--sp-lg)}
-.es-avatar-info{flex:1;min-width:0}
-.es-avatar-name{font-size:var(--fs-body);font-weight:700}
-.es-avatar-hint{font-size:var(--fs-micro);color:var(--dim);margin-top:2px}
-.es-emoji-back{display:flex;align-items:center;gap:var(--sp-xs);font-size:var(--fs-caption);font-weight:600;color:var(--blue);background:none;border:none;font-family:inherit;cursor:pointer}
-.es-emoji-back:active{opacity:.5}
+.es-avatar-row{display:flex;flex-direction:column;align-items:center;padding:var(--sp-sm) var(--content-pad) var(--sp-lg)}
 .es-emoji-grid{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:var(--sp-xs);padding:var(--sp-sm) var(--content-pad) var(--sp-xl)}
 .es-emoji-cell{width:var(--es-emoji-cell);height:var(--es-emoji-cell);border-radius:var(--r-xs);display:flex;align-items:center;justify-content:center;font-size:var(--es-emoji-font);cursor:pointer;border:2px solid transparent;transition:transform .1s,border-color .12s}
 .es-emoji-cell:active{transform:scale(.82)}
+.es-emoji-none{font-size:var(--fs-body);color:var(--ghost)}
 .es-emoji-cell.on{border-color:var(--green);background:var(--fill-medium)}
 .es-fields{padding:0 var(--content-pad)}
 .es-field{margin-bottom:var(--sp-lg)}
@@ -438,7 +433,6 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
   <div class="page" id="page-profile">
     <div id="p-back" style="display:none"></div>
 <div class="p-hero"><div class="p-avatar-wrap" style="position:relative;flex-shrink:0"><div class="p-avatar" id="p-avatar">?</div><div class="p-avatar-badge" id="p-avatar-badge"></div></div><div><div><div class="p-hero-name" id="p-name"></div><div class="p-hero-meta" id="p-meta"></div><div class="p-hero-bio" id="p-bio"></div></div></div></div>
-    <div class="p-edit-chip" id="p-edit-chip"><button class="p-edit-btn" onclick="openEditSheet()">Edit profile</button></div>
     <div class="p-elo" id="p-elo-block"><div class="p-elo-row"><div class="p-elo-num" id="p-elo-num">—</div><div class="p-elo-delta" id="p-elo-delta"></div></div></div>
     <div class="seg" id="p-fmt-seg" onclick="switchProfileFormat(event)"><div class="seg-pill" id="p-fmt-pill" style="left:2px;width:33.333%"></div><button class="seg-btn on" data-fmt="rapid">Rapid</button><button class="seg-btn" data-fmt="blitz">Blitz</button><button class="seg-btn" data-fmt="classic">Classic</button></div>
     <div id="p-content">
@@ -513,7 +507,6 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
   <div class="es-sheet" id="es-sheet" onclick="event.stopPropagation()">
     <div class="es-handle"><div class="es-handle-bar"></div></div>
     <div class="es-header">
-      <div id="es-header-back" style="display:none"><button class="es-emoji-back" onclick="esShowForm()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>Back</button></div>
       <div class="es-title" id="es-header-title">Edit profile</div>
       <button class="es-save" onclick="saveEditProfile()">Save</button>
     </div>
@@ -523,10 +516,7 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
           <div class="es-avatar" id="es-avatar">?</div>
           <div class="es-avatar-badge" id="es-avatar-badge"></div>
         </div>
-        <div class="es-avatar-info">
-          <div class="es-avatar-name" id="es-avatar-name"></div>
-          <div class="es-avatar-hint">Tap to choose emoji</div>
-        </div>
+
       </div>
       <div class="es-fields">
         <div class="es-field">
@@ -586,10 +576,8 @@ function openSheet(overlayId,sheetId){
   var overlay=$(overlayId),sheet=$(sheetId);
   _esBuildGrid();
   $('es-step-form').classList.remove('out');
-  $('es-header-back').style.display='none';
-  $('es-header-title').textContent='Edit profile';
+  document.querySelector('.es-save').style.display='';
   $('es-step-emoji').classList.add('out');
-  $('es-avatar-name').textContent=nick(pt);
   overlay.style.display='flex';
   sheet.style.transition='transform .38s var(--ease-spring)';
   sheet.style.transform='translateY(100%)';
@@ -811,10 +799,7 @@ function openEditSheet(){
   $('es-bio-count').textContent=(pt.bio||'').length;
   _esBuildGrid();
   $('es-step-form').classList.remove('out');
-  $('es-header-back').style.display='none';
-  $('es-header-title').textContent='Edit profile';
   $('es-step-emoji').classList.add('out');
-  $('es-avatar-name').textContent=nick(pt);
   overlay.style.display='flex';
   requestAnimationFrame(function(){requestAnimationFrame(function(){overlay.classList.add('visible')})});
 }
@@ -850,31 +835,37 @@ var EMOJI_SET=[
 function _esBuildGrid(){
   var grid=$('es-emoji-grid');
   var current=($('es-avatar-badge')||{}).textContent||'';
-  var h='';
+  var h='<div class="es-emoji-cell es-emoji-none'+(current?'':' on')+'" data-e="" onclick="esPickEmoji(this)">✕</div>';
   EMOJI_SET.forEach(function(e){
     h+='<div class="es-emoji-cell'+(e===current.trim()?' on':'')+'" data-e="'+e+'" onclick="esPickEmoji(this)">'+e+'</div>';
   });
   grid.innerHTML=h;
 }
 
+
 function esPickEmoji(el){
   var e=el.dataset.e;
   var badge=$('es-avatar-badge');
   var current=badge.textContent.trim();
-  badge.textContent=(e===current)?'':e;
+  badge.textContent=e;
   el.closest('.es-emoji-grid').querySelectorAll('.es-emoji-cell').forEach(function(c){
     c.classList.toggle('on',c.dataset.e===badge.textContent.trim());
   });
   badge.style.transform='scale(1.4)';
   badge.style.transition='transform .25s var(--ease-spring)';
   setTimeout(function(){badge.style.transform='';badge.style.transition=''},300);
+  // Auto-back to form after selection
+  setTimeout(function(){esShowForm()},350);
 }
 
 function esShowEmoji(){
+  var av=$('es-avatar');
+  av.style.transform='scale(.85)';
+  av.style.transition='transform .1s ease';
+  setTimeout(function(){av.style.transform='';av.style.transition='transform .2s var(--ease-spring)'},100);
   $('es-step-form').classList.add('out');
   $('es-step-emoji').classList.remove('out');
-  $('es-header-back').style.display='';
-  $('es-header-title').textContent='';
+  document.querySelector('.es-save').style.display='none';
   // Bounce
   var sheet=$('es-sheet');
   sheet.style.transform='translateY(2%)';
@@ -885,10 +876,7 @@ function esShowEmoji(){
 function esShowForm(){
   $('es-step-emoji').classList.add('out');
   $('es-step-form').classList.remove('out');
-  $('es-header-back').style.display='none';
-  $('es-header-title').textContent='Edit profile';
-  $('es-header-back').style.display='none';
-  $('es-header-title').textContent='Edit profile';
+  document.querySelector('.es-save').style.display='';
   var sheet=$('es-sheet');
   sheet.style.transform='translateY(-2%)';
   sheet.style.transition='transform .4s var(--ease-spring)';
@@ -916,6 +904,8 @@ async function saveEditProfile(){
   var city=cityRaw?_esTitleCase(cityRaw):null;
   var bio=$('es-bio').value.trim()||null;
   closeEditSheet();
+  // Dirty check — only patch if something changed
+  if(emoji===me.emoji&&city===(me.city||null)&&bio===(me.bio||null))return;
   await dbPatch('players','id=eq.'+me.id,{emoji:emoji,city:city,bio:bio});
   me.emoji=emoji;me.city=city;me.bio=bio;
   _profHash=null;
@@ -957,7 +947,6 @@ function viewProfile(playerId){
   var seg=$('p-fmt-seg');
   if(seg){var firstBtn=seg.querySelector('.seg-btn');if(firstBtn)movePill(seg,$('p-fmt-pill'),firstBtn)}
   $('p-back').style.display='';
-  $('p-edit-chip').style.display='none';
   document.querySelector('.p-logout').style.display='none';
   renderProfile();
   if(page)page.scrollTop=0;
@@ -1022,7 +1011,6 @@ function closeViewProfile(){
     if(seg){var firstBtn=seg.querySelector('.seg-btn');if(firstBtn)movePill(seg,$('p-fmt-pill'),firstBtn)}
     $('p-back').style.display='none';
     document.querySelector('.p-logout').style.display='';
-  $('p-edit-chip').style.display='';
     renderProfile();
   }
 }
@@ -1219,7 +1207,13 @@ function renderProfile(){
   // Hero
   $('p-avatar').textContent=initial(pt);
   $('p-avatar').className='p-avatar '+avatarColor(pt.nickname);
-  $('p-avatar-badge').textContent=pt.emoji||'';
+  var badge=$('p-avatar-badge');
+  badge.textContent=pt.emoji||'';
+  if(_viewingPlayer)badge.classList.remove('show-plus');else badge.classList.add('show-plus');
+  // Avatar tappable on own profile
+  var avatarWrap=document.querySelector('#page-profile .p-avatar-wrap');
+  if(avatarWrap)avatarWrap.onclick=_viewingPlayer?null:function(){openEditSheet()};
+  avatarWrap.style.cursor=_viewingPlayer?'default':'pointer';
   $('p-name').textContent=nick(pt);
   $('p-meta').textContent=(pt.city?(pt.city+' \u00b7 '):'')+'Mar 2026';
   var bioEl=$('p-bio');
@@ -1236,8 +1230,6 @@ function renderProfile(){
 
   // ELO
   // Edit chip only on own profile
-  var editChip=$('p-edit-chip');
-  if(editChip)editChip.style.display=_viewingPlayer?'none':'';
   $('p-elo-num').textContent=total?elo:STARTING_ELO;
   $('p-elo-num').className=total?'p-elo-num':'p-elo-num p-elo-num-empty';
   // Peak moved to stats
@@ -1673,10 +1665,7 @@ function openResultSheet(matchId){
   var overlay=$('rs-overlay');
   _esBuildGrid();
   $('es-step-form').classList.remove('out');
-  $('es-header-back').style.display='none';
-  $('es-header-title').textContent='Edit profile';
   $('es-step-emoji').classList.add('out');
-  $('es-avatar-name').textContent=nick(pt);
   overlay.style.display='flex';
   requestAnimationFrame(function(){requestAnimationFrame(function(){overlay.classList.add('visible')})});
 }
