@@ -25,6 +25,7 @@
   --sp-xs:4px;--sp-sm:8px;--sp-md:12px;--sp-lg:16px;--sp-xl:24px;--content-pad:20px;
   --r-xs:9px;--r-sm:12px;--r-md:16px;--r-lg:20px;
   --page-bottom:120px;--chart-axis:40px;--disc-max:1200px;--day-max:500px;
+  --nav-duration:300ms;--nav-push:160ms;--nav-curve:cubic-bezier(.2,.9,.3,1);--nav-parallax:0.3;--nav-dim:0.4;--nav-shadow:-2px 0 8px rgba(0,0,0,.3);
   --ease-list:cubic-bezier(.25,.1,.25,1);--ease-spring:cubic-bezier(.34,1.56,.64,1);--ease-decel:cubic-bezier(.32,0,.24,1);
   --chev-size:14px;
   --starting-elo:1200;
@@ -205,12 +206,50 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .p-empty-text{font-size:var(--fs-caption);color:var(--dim);margin-bottom:var(--sp-lg);line-height:1.4}
 .p-empty-cta{display:inline-flex;align-items:center;gap:var(--sp-sm);font-size:var(--fs-caption);font-weight:700;color:var(--green);background:var(--green-bg);padding:var(--sp-sm) var(--sp-lg);border-radius:var(--r-sm);border:none;font-family:inherit;cursor:pointer}
 .p-empty-cta:active{opacity:.7}
-.page-profile-swiping{will-change:transform}
-.page-profile-transitioning{transition:transform .3s cubic-bezier(.2,.9,.3,1)}
-.p-underlay{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:env(safe-area-inset-top,20px) 0 var(--page-bottom);z-index:-1;display:none;will-change:transform}
+.page-profile-swiping{will-change:transform;z-index:3;background:var(--bg);box-shadow:var(--nav-shadow)}
+.page-profile-transitioning{transition:transform var(--nav-duration) var(--nav-curve);z-index:3;background:var(--bg);box-shadow:var(--nav-shadow)}
+.page-profile-pushing{transition:transform var(--nav-push) var(--nav-curve);z-index:3;background:var(--bg);box-shadow:var(--nav-shadow)}
+.p-underlay{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:env(safe-area-inset-top,20px) 0 var(--page-bottom);z-index:1;background:var(--bg);display:none;will-change:transform}
 .p-underlay.on{display:block}
-.p-dim{position:absolute;inset:0;background:var(--bg);opacity:0;pointer-events:none;z-index:0;display:none}
+.p-dim{position:absolute;inset:0;background:#000;pointer-events:none;z-index:2;display:none}
 .p-dim.on{display:block}
+/* Avatar colors (hash of nickname) */
+.av-0{background:#1A2E4A}.av-1{background:#2D1F47}.av-2{background:#1B3D2A}
+.av-3{background:#3D1A1A}.av-4{background:#3D2A10}.av-5{background:#133535}
+.av-6{background:#2A1A3D}.av-7{background:#1A3D35}
+.p-avatar-badge{position:absolute;bottom:-2px;right:-2px;width:22px;height:22px;border-radius:50%;background:var(--surface);border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1}
+.p-avatar-badge:empty{display:none}
+/* Edit chip */
+.p-edit-chip{padding:var(--sp-sm) var(--content-pad) var(--sp-md)}
+.p-edit-btn{width:100%;padding:var(--sp-sm) 0;font-size:var(--fs-caption);font-weight:600;color:var(--text);background:var(--fill-medium);border:none;border-radius:var(--r-xs);font-family:inherit;cursor:pointer;transition:transform .12s,opacity .12s}
+.p-edit-btn:active{transform:scale(.97);opacity:.8}
+/* Edit sheet */
+.es-overlay{position:fixed;inset:0;background:transparent;z-index:10001;display:none;align-items:flex-end;transition:background .3s ease}
+.es-overlay.visible{background:var(--overlay)}
+.es-sheet{background:var(--surface);border-radius:var(--r-lg) var(--r-lg) 0 0;width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);will-change:transform;transition:transform .38s var(--ease-spring);padding-bottom:env(safe-area-inset-bottom,0px)}
+.es-overlay.visible .es-sheet{transform:translateY(0)}
+.es-handle{width:100%;padding:var(--sp-md) 0 var(--sp-xs);display:flex;justify-content:center}
+.es-handle-bar{width:36px;height:5px;background:var(--ghost);border-radius:2.5px}
+.es-header{display:flex;align-items:center;justify-content:space-between;padding:0 var(--content-pad) var(--sp-lg)}
+.es-title{font-size:var(--fs-title);font-weight:800;letter-spacing:-.5px}
+.es-save{font-size:var(--fs-body);font-weight:700;color:var(--green);background:none;border:none;font-family:inherit;cursor:pointer;padding:var(--sp-xs) var(--sp-sm)}
+.es-save:active{opacity:.5}
+.es-avatar-section{display:flex;flex-direction:column;align-items:center;padding:var(--sp-sm) var(--content-pad) var(--sp-lg)}
+.es-avatar-wrap{position:relative;cursor:pointer}
+.es-avatar{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;color:var(--text);transition:transform .2s var(--ease-spring)}
+.es-avatar:active{transform:scale(.9)}
+.es-avatar-badge{position:absolute;bottom:-2px;right:-2px;width:28px;height:28px;border-radius:50%;background:var(--surface);border:2.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1}
+.es-avatar-badge:empty::after{content:'+';color:var(--ghost);font-size:16px;font-weight:300}
+.es-avatar-hint{font-size:var(--fs-micro);color:var(--blue);margin-top:var(--sp-sm);font-weight:600}
+.es-emoji-input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.es-fields{padding:0 var(--content-pad)}
+.es-field{margin-bottom:var(--sp-lg)}
+.es-field-label{font-size:var(--fs-micro);font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:var(--sp-sm)}
+.es-field-input{width:100%;padding:var(--sp-md) var(--sp-lg);background:var(--fill-subtle);border:1px solid var(--border-light);border-radius:var(--r-sm);font-size:var(--fs-body);color:var(--text);font-family:inherit;-webkit-user-select:text;user-select:text;transition:border-color .2s}
+.es-field-input:focus{outline:none;border-color:var(--blue)}
+.es-field-input::placeholder{color:var(--ghost)}
+.es-field-count{font-size:var(--fs-micro);color:var(--dim);text-align:right;margin-top:var(--sp-xs)}
+.es-field-bio{min-height:80px;resize:none;line-height:1.5}
 .p-logout{margin:var(--sp-xl) var(--content-pad);background:var(--surface);border-radius:var(--r-sm)}
 .p-logout-btn{width:100%;padding:var(--sp-lg);font-size:var(--fs-body);font-weight:600;color:var(--red);background:transparent;border:none;font-family:inherit;cursor:pointer;text-align:center}
 .p-logout-btn:active{background:var(--border-light)}
@@ -390,7 +429,8 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
   <div class="p-dim" id="p-dim"></div>
   <div class="page" id="page-profile">
     <div id="p-back" style="display:none"></div>
-<div class="p-hero"><div class="p-avatar" id="p-avatar">?</div><div><div class="p-hero-name" id="p-name"></div><div class="p-hero-meta" id="p-meta"></div><div class="p-hero-bio" id="p-bio"></div></div></div>
+<div class="p-hero"><div class="p-avatar-wrap" style="position:relative;flex-shrink:0"><div class="p-avatar" id="p-avatar">?</div><div class="p-avatar-badge" id="p-avatar-badge"></div></div><div><div><div class="p-hero-name" id="p-name"></div><div class="p-hero-meta" id="p-meta"></div><div class="p-hero-bio" id="p-bio"></div></div></div></div>
+    <div class="p-edit-chip" id="p-edit-chip"><button class="p-edit-btn" onclick="openEditSheet()">Edit profile</button></div>
     <div class="p-elo" id="p-elo-block"><div class="p-elo-row"><div class="p-elo-num" id="p-elo-num">—</div><div class="p-elo-delta" id="p-elo-delta"></div></div></div>
     <div class="seg" id="p-fmt-seg" onclick="switchProfileFormat(event)"><div class="seg-pill" id="p-fmt-pill" style="left:2px;width:33.333%"></div><button class="seg-btn on" data-fmt="rapid">Rapid</button><button class="seg-btn" data-fmt="blitz">Blitz</button><button class="seg-btn" data-fmt="classic">Classic</button></div>
     <div id="p-content">
@@ -461,6 +501,34 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
   <div class="nav-tab" data-page="page-profile" onclick="switchTab(this)"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-label">Profile</span></div>
 </nav>
 
+<div class="es-overlay" id="es-overlay" onclick="if(event.target===this)closeEditSheet()">
+  <div class="es-sheet" id="es-sheet" onclick="event.stopPropagation()">
+    <div class="es-handle"><div class="es-handle-bar"></div></div>
+    <div class="es-header">
+      <div class="es-title">Edit profile</div>
+      <button class="es-save" onclick="saveEditProfile()">Save</button>
+    </div>
+    <div class="es-avatar-section">
+      <div class="es-avatar-wrap" onclick="openEmojiPicker()">
+        <div class="es-avatar" id="es-avatar">?</div>
+        <div class="es-avatar-badge" id="es-avatar-badge"></div>
+      </div>
+      <div class="es-avatar-hint">Tap to change emoji</div>
+      <input class="es-emoji-input" id="es-emoji-input" type="text" inputmode="text">
+    </div>
+    <div class="es-fields">
+      <div class="es-field">
+        <div class="es-field-label">City</div>
+        <input class="es-field-input" id="es-city" type="text" placeholder="Where do you play?" autocomplete="off" autocapitalize="words" maxlength="30">
+      </div>
+      <div class="es-field">
+        <div class="es-field-label">Bio</div>
+        <textarea class="es-field-input es-field-bio" id="es-bio" placeholder="What's your chess story?" maxlength="100"></textarea>
+        <div class="es-field-count"><span id="es-bio-count">0</span>/100</div>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -545,7 +613,20 @@ function cellHTML(opts){
   return h;
 }
 
-function switchTab(el){document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('on')});if(el.classList.contains('nav-tab'))el.classList.add('on');var p=el.getAttribute('data-page');if(!p)return;document.querySelectorAll('.page').forEach(function(pg){pg.classList.remove('active')});var pg=$(p);if(pg)pg.classList.add('active')}
+function switchTab(el){var p=el.getAttribute('data-page');if(!p)return;
+  // Tap profile tab while viewing another profile = pop to own
+  if(p==='page-profile'&&_navStack.length>0){
+    _navStack=[];
+    _viewingPlayer=null;
+    _eloHistoryCache=null;
+    _profFormat='rapid';
+    _profHash=null;
+    $('p-back').style.display='none';
+    document.querySelector('.p-logout').style.display='';
+    var seg=$('p-fmt-seg');if(seg){var firstBtn=seg.querySelector('.seg-btn');if(firstBtn)movePill(seg,$('p-fmt-pill'),firstBtn)}
+    renderProfile();
+  }
+  document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('on')});if(el.classList.contains('nav-tab'))el.classList.add('on');document.querySelectorAll('.page').forEach(function(pg){pg.classList.remove('active')});var pg=$(p);if(pg)pg.classList.add('active')}
 
 function switchToPlay(){document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('on')});document.querySelectorAll('.page').forEach(function(pg){pg.classList.remove('active')});var pg=$('page-play');if(pg)pg.classList.add('active')}
 
@@ -687,78 +768,215 @@ function renderFeed(){
   $('home-feed').innerHTML=h;
 }
 
+
+// ── Avatar color from nickname hash ──
+function avatarColor(name){
+  if(!name)return'av-0';
+  var h=0;for(var i=0;i<name.length;i++){h=name.charCodeAt(i)+((h<<5)-h)}
+  return'av-'+Math.abs(h%8);
+}
+
+// ── Edit profile sheet ──
+function openEditSheet(){
+  var overlay=$('es-overlay');
+  var pt=profTarget();
+  // Populate fields
+  $('es-avatar').textContent=initial(pt);
+  $('es-avatar').className='es-avatar '+avatarColor(pt.nickname);
+  $('es-avatar-badge').textContent=pt.emoji||'';
+  $('es-city').value=pt.city||'';
+  $('es-bio').value=pt.bio||'';
+  $('es-bio-count').textContent=(pt.bio||'').length;
+  overlay.style.display='flex';
+  requestAnimationFrame(function(){requestAnimationFrame(function(){overlay.classList.add('visible')})});
+}
+
+function closeEditSheet(){
+  var overlay=$('es-overlay');
+  var sheet=$('es-sheet');
+  sheet.style.transition='transform .25s var(--ease-decel)';
+  sheet.style.transform='translateY(100%)';
+  overlay.classList.remove('visible');
+  setTimeout(function(){overlay.style.display='none';sheet.style.transition='';sheet.style.transform=''},280);
+}
+
+function openEmojiPicker(){
+  var input=$('es-emoji-input');
+  input.value='';
+  input.focus();
+  // Bounce avatar
+  var av=$('es-avatar');
+  av.style.transform='scale(.88)';
+  setTimeout(function(){av.style.transform=''},150);
+}
+
+// Listen for emoji input
+document.addEventListener('DOMContentLoaded',function(){
+  var emojiInput=$('es-emoji-input');
+  if(emojiInput){
+    emojiInput.addEventListener('input',function(){
+      var val=this.value;
+      if(!val)return;
+      // Extract first emoji
+      var emoji=Array.from(val)[0]||'';
+      $('es-avatar-badge').textContent=emoji;
+      this.value='';
+      this.blur();
+      // Bounce badge
+      var badge=$('es-avatar-badge');
+      badge.style.transform='scale(1.3)';
+      badge.style.transition='transform .25s var(--ease-spring)';
+      setTimeout(function(){badge.style.transform='';badge.style.transition=''},300);
+    });
+  }
+  var bioEl=$('es-bio');
+  if(bioEl){
+    bioEl.addEventListener('input',function(){$('es-bio-count').textContent=this.value.length});
+  }
+});
+
+async function saveEditProfile(){
+  var emoji=$('es-avatar-badge').textContent.trim()||null;
+  var city=$('es-city').value.trim()||null;
+  var bio=$('es-bio').value.trim()||null;
+  closeEditSheet();
+  await dbPatch('players','id=eq.'+me.id,{emoji:emoji,city:city,bio:bio});
+  me.emoji=emoji;me.city=city;me.bio=bio;
+  _profHash=null;
+  renderProfile();
+  toast('Profile updated');
+}
+
 // ── Profile tab ──
 var _profFormat='rapid';
 var _profHash=null;
 var _viewingPlayer=null;
-var _savedScroll=0;
-var _savedProfileDOM=null;
+var _navStack=[];  // [{playerId,dom,scroll}]
 function profTarget(){return _viewingPlayer||me}
 var _profTimeframe='1M';
 var _eloHistoryCache=null;
 var CHEV_SVG_SM='<svg class="p-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
 
 function viewProfile(playerId){
+  if(playerId===me.id&&_navStack.length===0)return;
   if(playerId===me.id){closeViewProfile();return}
   var p=getP(playerId);
   if(!p)return;
-  // Save current profile state
+  // Don't re-push same player
+  if(_viewingPlayer&&_viewingPlayer.id===playerId)return;
   var page=$('page-profile');
-  if(page&&!_viewingPlayer){
-    _savedScroll=page.scrollTop;
-    _savedProfileDOM=page.innerHTML;
-  }
+  // Push current state onto stack
+  _navStack.push({
+    playerId:_viewingPlayer?_viewingPlayer.id:null,
+    dom:page.innerHTML,
+    scroll:page.scrollTop,
+    format:_profFormat,
+    hash:_profHash
+  });
+  // Set new target
   _viewingPlayer=p;
   _profFormat='rapid';
   _eloHistoryCache=null;
   _profHash=null;
-  // Reset format seg to Rapid
   var seg=$('p-fmt-seg');
   if(seg){var firstBtn=seg.querySelector('.seg-btn');if(firstBtn)movePill(seg,$('p-fmt-pill'),firstBtn)}
   $('p-back').style.display='';
-  // Hide logout when viewing others
+  $('p-edit-chip').style.display='none';
   document.querySelector('.p-logout').style.display='none';
   renderProfile();
-  // Scroll to top
-  var page=$('page-profile');
   if(page)page.scrollTop=0;
-  // Enable swipe-back gesture
   _swipeBackSetup();
+  // Show underlay with previous content, then push animate
+  _swipeShowUnderlay();
+  var nav=_navTokens();
+  var dur=nav.push+'ms';
+  var screenW=window.innerWidth;
+  // Position off-screen right, no transition yet
+  page.classList.add('page-profile-swiping');
+  page.style.transition='none';
+  page.style.transform='translateX('+screenW+'px)';
+  // Force layout so browser registers the starting position
+  page.offsetHeight;
+  // Now add push transition and animate to 0
+  page.classList.add('page-profile-pushing');
+  page.style.transition='';
+  page.style.transform='translateX(0)';
+  // Animate underlay + dim
+  var underlay=$('p-underlay');
+  var dim=$('p-dim');
+  var offset=screenW*-nav.parallax;
+  if(underlay){underlay.style.transition='transform '+dur+' var(--nav-curve)';underlay.style.transform='translateX('+offset+'px)'}
+  if(dim){dim.style.transition='opacity '+dur+' ease';dim.style.opacity=nav.dim}
+  setTimeout(function(){
+    page.classList.remove('page-profile-swiping');
+    page.classList.remove('page-profile-pushing');
+    page.style.transform='';
+    if(underlay)underlay.style.transition='';
+    if(dim)dim.style.transition='';
+    _swipeHideUnderlay();
+  },nav.push);
 }
 
 function closeViewProfile(){
-  _viewingPlayer=null;
-  _eloHistoryCache=null;
   var page=$('page-profile');
-  // Restore saved DOM state instead of re-rendering
-  if(_savedProfileDOM&&page){
-    page.innerHTML=_savedProfileDOM;
-    _savedProfileDOM=null;
-    requestAnimationFrame(function(){page.scrollTop=_savedScroll});
+  _eloHistoryCache=null;
+  _profHash=null;
+  if(_navStack.length>0){
+    // Pop previous state from stack
+    var prev=_navStack.pop();
+    _viewingPlayer=prev.playerId?getP(prev.playerId):null;
+    _profFormat=prev.format||'rapid';
+    if(prev.dom&&page){
+      page.innerHTML=prev.dom;
+      _profHash=prev.hash;
+      // Double rAF ensures DOM layout is computed before setting scroll
+      requestAnimationFrame(function(){requestAnimationFrame(function(){page.scrollTop=prev.scroll||0})});
+    }else{
+      renderProfile();
+    }
+    // Show/hide UI based on whether we're back to own profile
+    if(!_viewingPlayer){
+      $('p-back').style.display='none';
+      document.querySelector('.p-logout').style.display='';
+    }
   }else{
+    _viewingPlayer=null;
     _profFormat='rapid';
-    _profHash=null;
     var seg=$('p-fmt-seg');
     if(seg){var firstBtn=seg.querySelector('.seg-btn');if(firstBtn)movePill(seg,$('p-fmt-pill'),firstBtn)}
+    $('p-back').style.display='none';
+    document.querySelector('.p-logout').style.display='';
+  $('p-edit-chip').style.display='';
     renderProfile();
   }
 }
 
 // Swipe-back gesture — iOS navigation controller physics
 var _swipe={bound:false,tracking:false,startX:0,startY:0,lastX:0,lastTime:0,velocity:0,currentX:0};
-var SWIPE={edge:30,threshold:0.35,velocityMin:500,damping:0.55,springMs:300,parallax:0.3,dimMax:0.4};
+var SWIPE={edge:30,threshold:0.35,velocityMin:500,damping:0.55};
+// Read nav tokens from CSS
+function _navTokens(){
+  var s=getComputedStyle(document.documentElement);
+  return{
+    duration:parseInt(s.getPropertyValue('--nav-duration'))||300,
+    push:parseInt(s.getPropertyValue('--nav-push'))||220,
+    parallax:parseFloat(s.getPropertyValue('--nav-parallax'))||0.3,
+    dim:parseFloat(s.getPropertyValue('--nav-dim'))||0.4
+  }
+}
 
 function _swipeShowUnderlay(){
   var underlay=$('p-underlay');
   var dim=$('p-dim');
-  if(!underlay||!_savedProfileDOM)return;
-  underlay.innerHTML=_savedProfileDOM;
-  underlay.scrollTop=_savedScroll;
+  var top=_navStack.length>0?_navStack[_navStack.length-1]:null;
+  if(!underlay||!top||!top.dom)return;
+  var nav=_navTokens();
+  underlay.innerHTML=top.dom;
+  underlay.scrollTop=top.scroll||0;
   underlay.classList.add('on');
   dim.classList.add('on');
-  dim.style.opacity=SWIPE.dimMax;
-  // Start underlay offset to the left (parallax)
-  var offset=window.innerWidth*-SWIPE.parallax;
+  dim.style.opacity=nav.dim;
+  var offset=window.innerWidth*-nav.parallax;
   underlay.style.transform='translateX('+offset+'px)';
 }
 
@@ -770,12 +988,12 @@ function _swipeHideUnderlay(){
 }
 
 function _swipeUpdateLayers(pct){
-  // pct: 0 = closed, 1 = fully open
   var underlay=$('p-underlay');
   var dim=$('p-dim');
-  var offset=window.innerWidth*-SWIPE.parallax*(1-pct);
+  var nav=_navTokens();
+  var offset=window.innerWidth*-nav.parallax*(1-pct);
   if(underlay)underlay.style.transform='translateX('+offset+'px)';
-  if(dim)dim.style.opacity=SWIPE.dimMax*(1-pct);
+  if(dim)dim.style.opacity=nav.dim*(1-pct);
 }
 
 function _swipeBackSetup(){
@@ -831,14 +1049,16 @@ function _swipeBackSetup(){
     page.classList.remove('page-profile-swiping');
     var screenW=window.innerWidth;
     var pct=_swipe.currentX/screenW;
+    var nav=_navTokens();
+    var dur=nav.duration+'ms';
     if(pct>SWIPE.threshold||_swipe.velocity>SWIPE.velocityMin){
-      // Dismiss — animate both layers
+      // Dismiss
       page.classList.add('page-profile-transitioning');
       page.style.transform='translateX('+screenW+'px)';
       var underlay=$('p-underlay');
       var dim=$('p-dim');
-      if(underlay){underlay.style.transition='transform '+SWIPE.springMs+'ms cubic-bezier(.2,.9,.3,1)';underlay.style.transform='translateX(0)'}
-      if(dim){dim.style.transition='opacity '+SWIPE.springMs+'ms ease';dim.style.opacity='0'}
+      if(underlay){underlay.style.transition='transform '+dur+' var(--nav-curve)';underlay.style.transform='translateX(0)'}
+      if(dim){dim.style.transition='opacity '+dur+' ease';dim.style.opacity='0'}
       setTimeout(function(){
         page.classList.remove('page-profile-transitioning');
         page.style.transform='';
@@ -846,22 +1066,22 @@ function _swipeBackSetup(){
         if(dim)dim.style.transition='';
         _swipeHideUnderlay();
         closeViewProfile();
-      },SWIPE.springMs);
+      },nav.duration);
     }else{
       // Spring back
       page.classList.add('page-profile-transitioning');
       page.style.transform='translateX(0)';
       var underlay=$('p-underlay');
       var dim=$('p-dim');
-      var offset=screenW*-SWIPE.parallax;
-      if(underlay){underlay.style.transition='transform '+SWIPE.springMs+'ms cubic-bezier(.2,.9,.3,1)';underlay.style.transform='translateX('+offset+'px)'}
-      if(dim){dim.style.transition='opacity '+SWIPE.springMs+'ms ease';dim.style.opacity=SWIPE.dimMax}
+      var offset=screenW*-nav.parallax;
+      if(underlay){underlay.style.transition='transform '+dur+' var(--nav-curve)';underlay.style.transform='translateX('+offset+'px)'}
+      if(dim){dim.style.transition='opacity '+dur+' ease';dim.style.opacity=nav.dim}
       setTimeout(function(){
         page.classList.remove('page-profile-transitioning');
         if(underlay)underlay.style.transition='';
         if(dim)dim.style.transition='';
         _swipeHideUnderlay();
-      },SWIPE.springMs);
+      },nav.duration);
     }
     _swipe.currentX=0;
   },{passive:true});
@@ -872,7 +1092,7 @@ function _swipeBackSetup(){
     page.classList.remove('page-profile-swiping');
     page.classList.add('page-profile-transitioning');
     page.style.transform='translateX(0)';
-    setTimeout(function(){page.classList.remove('page-profile-transitioning');_swipeHideUnderlay()},SWIPE.springMs);
+    var nav=_navTokens();setTimeout(function(){page.classList.remove('page-profile-transitioning');_swipeHideUnderlay()},nav.duration);
     _swipe.currentX=0;
   },{passive:true});
 }
@@ -922,6 +1142,8 @@ function renderProfile(){
   _profHash=hash;
   // Hero
   $('p-avatar').textContent=initial(pt);
+  $('p-avatar').className='p-avatar '+avatarColor(pt.nickname);
+  $('p-avatar-badge').textContent=pt.emoji||'';
   $('p-name').textContent=nick(pt);
   $('p-meta').textContent=(pt.city?(pt.city+' \u00b7 '):'')+'Mar 2026';
   var bioEl=$('p-bio');
@@ -937,6 +1159,9 @@ function renderProfile(){
   var elo=Math.round(eloData.elo);
 
   // ELO
+  // Edit chip only on own profile
+  var editChip=$('p-edit-chip');
+  if(editChip)editChip.style.display=_viewingPlayer?'none':'';
   $('p-elo-num').textContent=total?elo:STARTING_ELO;
   $('p-elo-num').className=total?'p-elo-num':'p-elo-num p-elo-num-empty';
   // Peak moved to stats
@@ -1115,7 +1340,7 @@ function renderLineChart(container,data,trend){
   var html='<div class="p-line-chart"><div class="p-line-wrap">';
   html+='<div class="p-line-grid">';gridVals.forEach(function(v){html+='<div class="p-line-grid-row"><div class="p-line-gridline"></div><div class="p-line-grid-val">'+v+'</div></div>'});html+='</div>';
   html+='<div class="p-line-svg"><svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">';
-  html+='<defs><linearGradient id="'+gradId+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+colorVar+'" stop-opacity="0.08"/><stop offset="100%" stop-color="'+colorVar+'" stop-opacity="0"/></linearGradient></defs>';
+  html+='<defs><linearGradient id="'+gradId+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+colorVar+'" stop-opacity="0.18"/><stop offset="100%" stop-color="'+colorVar+'" stop-opacity="0.03"/></linearGradient></defs>';
   html+=verticals;
   var areaPath=linePath+' L'+points[n-1].x.toFixed(1)+','+H+' L'+points[0].x.toFixed(1)+','+H+' Z';
   html+='<path d="'+areaPath+'" fill="url(#'+gradId+')" stroke="none"/>';
