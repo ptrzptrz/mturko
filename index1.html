@@ -206,9 +206,11 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .p-empty-cta{display:inline-flex;align-items:center;gap:var(--sp-sm);font-size:var(--fs-caption);font-weight:700;color:var(--green);background:var(--green-bg);padding:var(--sp-sm) var(--sp-lg);border-radius:var(--r-sm);border:none;font-family:inherit;cursor:pointer}
 .p-empty-cta:active{opacity:.7}
 .page-profile-swiping{will-change:transform}
-.page-profile-transitioning{transition:transform .3s cubic-bezier(.2,.9,.3,1);overflow:hidden}
-.page-profile-shadow{position:fixed;top:0;bottom:0;left:-20px;width:20px;background:linear-gradient(to right,transparent,var(--overlay));opacity:0;transition:opacity .15s;pointer-events:none;z-index:10000}
-.page-profile-shadow.on{opacity:1}
+.page-profile-transitioning{transition:transform .3s cubic-bezier(.2,.9,.3,1)}
+.p-underlay{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:env(safe-area-inset-top,20px) 0 var(--page-bottom);z-index:-1;display:none;will-change:transform}
+.p-underlay.on{display:block}
+.p-dim{position:absolute;inset:0;background:var(--bg);opacity:0;pointer-events:none;z-index:0;display:none}
+.p-dim.on{display:block}
 .p-logout{margin:var(--sp-xl) var(--content-pad);background:var(--surface);border-radius:var(--r-sm)}
 .p-logout-btn{width:100%;padding:var(--sp-lg);font-size:var(--fs-body);font-weight:600;color:var(--red);background:transparent;border:none;font-family:inherit;cursor:pointer;text-align:center}
 .p-logout-btn:active{background:var(--border-light)}
@@ -384,6 +386,8 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 
   <div class="page" id="page-venues"><div class="placeholder"><div class="placeholder-title">Venues</div><div class="placeholder-sub">Find places to play chess</div><div class="coming-soon">Coming soon</div></div></div>
 
+  <div class="p-underlay" id="p-underlay"></div>
+  <div class="p-dim" id="p-dim"></div>
   <div class="page" id="page-profile">
     <div id="p-back" style="display:none"></div>
 <div class="p-hero"><div class="p-avatar" id="p-avatar">?</div><div><div class="p-hero-name" id="p-name"></div><div class="p-hero-meta" id="p-meta"></div><div class="p-hero-bio" id="p-bio"></div></div></div>
@@ -740,20 +744,45 @@ function closeViewProfile(){
   }
 }
 
-// Swipe-back gesture — Instagram/Threads physics
-var _swipe={bound:false,tracking:false,startX:0,startY:0,startTime:0,lastX:0,lastTime:0,velocity:0,currentX:0,shadow:null};
-var SWIPE={edge:30,threshold:0.35,velocityMin:500,damping:0.55,springMs:300};
+// Swipe-back gesture — iOS navigation controller physics
+var _swipe={bound:false,tracking:false,startX:0,startY:0,lastX:0,lastTime:0,velocity:0,currentX:0};
+var SWIPE={edge:30,threshold:0.35,velocityMin:500,damping:0.55,springMs:300,parallax:0.3,dimMax:0.4};
+
+function _swipeShowUnderlay(){
+  var underlay=$('p-underlay');
+  var dim=$('p-dim');
+  if(!underlay||!_savedProfileDOM)return;
+  underlay.innerHTML=_savedProfileDOM;
+  underlay.scrollTop=_savedScroll;
+  underlay.classList.add('on');
+  dim.classList.add('on');
+  dim.style.opacity=SWIPE.dimMax;
+  // Start underlay offset to the left (parallax)
+  var offset=window.innerWidth*-SWIPE.parallax;
+  underlay.style.transform='translateX('+offset+'px)';
+}
+
+function _swipeHideUnderlay(){
+  var underlay=$('p-underlay');
+  var dim=$('p-dim');
+  if(underlay){underlay.classList.remove('on');underlay.style.transform='';underlay.innerHTML=''}
+  if(dim){dim.classList.remove('on');dim.style.opacity=''}
+}
+
+function _swipeUpdateLayers(pct){
+  // pct: 0 = closed, 1 = fully open
+  var underlay=$('p-underlay');
+  var dim=$('p-dim');
+  var offset=window.innerWidth*-SWIPE.parallax*(1-pct);
+  if(underlay)underlay.style.transform='translateX('+offset+'px)';
+  if(dim)dim.style.opacity=SWIPE.dimMax*(1-pct);
+}
 
 function _swipeBackSetup(){
   if(_swipe.bound)return;
   _swipe.bound=true;
   var page=$('page-profile');
   if(!page)return;
-  // Create shadow element
-  var shadow=document.createElement('div');
-  shadow.className='page-profile-shadow';
-  page.parentNode.insertBefore(shadow,page);
-  _swipe.shadow=shadow;
 
   page.addEventListener('touchstart',function(e){
     if(!_viewingPlayer)return;
@@ -761,7 +790,6 @@ function _swipeBackSetup(){
     if(touch.clientX>SWIPE.edge)return;
     _swipe.startX=touch.clientX;
     _swipe.startY=touch.clientY;
-    _swipe.startTime=Date.now();
     _swipe.lastX=touch.clientX;
     _swipe.lastTime=Date.now();
     _swipe.velocity=0;
@@ -769,6 +797,7 @@ function _swipeBackSetup(){
     _swipe.tracking=true;
     page.classList.remove('page-profile-transitioning');
     page.classList.add('page-profile-swiping');
+    _swipeShowUnderlay();
   },{passive:true});
 
   page.addEventListener('touchmove',function(e){
@@ -776,24 +805,23 @@ function _swipeBackSetup(){
     var touch=e.touches[0];
     var dx=touch.clientX-_swipe.startX;
     var dy=Math.abs(touch.clientY-_swipe.startY);
-    // Cancel if vertical dominates early
     if(dy>Math.abs(dx)&&dx<10){
       _swipe.tracking=false;
       page.classList.remove('page-profile-swiping');
       page.style.transform='';
-      _swipe.shadow.classList.remove('on');
+      _swipeHideUnderlay();
       return;
     }
     if(dx<0)dx=0;
     _swipe.currentX=dx*SWIPE.damping;
-    // Track velocity
     var now=Date.now();
     var dt=now-_swipe.lastTime;
     if(dt>0)_swipe.velocity=(touch.clientX-_swipe.lastX)/dt*1000;
     _swipe.lastX=touch.clientX;
     _swipe.lastTime=now;
     page.style.transform='translateX('+_swipe.currentX+'px)';
-    _swipe.shadow.classList.add('on');
+    var pct=_swipe.currentX/window.innerWidth;
+    _swipeUpdateLayers(pct);
     e.preventDefault();
   },{passive:false});
 
@@ -804,21 +832,36 @@ function _swipeBackSetup(){
     var screenW=window.innerWidth;
     var pct=_swipe.currentX/screenW;
     if(pct>SWIPE.threshold||_swipe.velocity>SWIPE.velocityMin){
-      // Dismiss
+      // Dismiss — animate both layers
       page.classList.add('page-profile-transitioning');
       page.style.transform='translateX('+screenW+'px)';
-      _swipe.shadow.classList.remove('on');
+      var underlay=$('p-underlay');
+      var dim=$('p-dim');
+      if(underlay){underlay.style.transition='transform '+SWIPE.springMs+'ms cubic-bezier(.2,.9,.3,1)';underlay.style.transform='translateX(0)'}
+      if(dim){dim.style.transition='opacity '+SWIPE.springMs+'ms ease';dim.style.opacity='0'}
       setTimeout(function(){
         page.classList.remove('page-profile-transitioning');
         page.style.transform='';
+        if(underlay)underlay.style.transition='';
+        if(dim)dim.style.transition='';
+        _swipeHideUnderlay();
         closeViewProfile();
       },SWIPE.springMs);
     }else{
       // Spring back
       page.classList.add('page-profile-transitioning');
       page.style.transform='translateX(0)';
-      _swipe.shadow.classList.remove('on');
-      setTimeout(function(){page.classList.remove('page-profile-transitioning')},SWIPE.springMs);
+      var underlay=$('p-underlay');
+      var dim=$('p-dim');
+      var offset=screenW*-SWIPE.parallax;
+      if(underlay){underlay.style.transition='transform '+SWIPE.springMs+'ms cubic-bezier(.2,.9,.3,1)';underlay.style.transform='translateX('+offset+'px)'}
+      if(dim){dim.style.transition='opacity '+SWIPE.springMs+'ms ease';dim.style.opacity=SWIPE.dimMax}
+      setTimeout(function(){
+        page.classList.remove('page-profile-transitioning');
+        if(underlay)underlay.style.transition='';
+        if(dim)dim.style.transition='';
+        _swipeHideUnderlay();
+      },SWIPE.springMs);
     }
     _swipe.currentX=0;
   },{passive:true});
@@ -829,8 +872,7 @@ function _swipeBackSetup(){
     page.classList.remove('page-profile-swiping');
     page.classList.add('page-profile-transitioning');
     page.style.transform='translateX(0)';
-    _swipe.shadow.classList.remove('on');
-    setTimeout(function(){page.classList.remove('page-profile-transitioning')},SWIPE.springMs);
+    setTimeout(function(){page.classList.remove('page-profile-transitioning');_swipeHideUnderlay()},SWIPE.springMs);
     _swipe.currentX=0;
   },{passive:true});
 }
