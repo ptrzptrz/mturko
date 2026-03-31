@@ -26,6 +26,7 @@
   --r-xs:9px;--r-sm:12px;--r-md:16px;--r-lg:20px;
   --page-bottom:120px;--chart-axis:40px;--disc-max:1200px;--day-max:500px;
   --nav-duration:300ms;--nav-push:160ms;--nav-curve:cubic-bezier(.2,.9,.3,1);--nav-parallax:0.3;--nav-dim:0.4;--nav-shadow:-2px 0 8px rgba(0,0,0,.3);
+  --es-badge:26px;--es-avatar-lg:80px;--es-emoji-cell:44px;--es-emoji-font:26px;
   --ease-list:cubic-bezier(.25,.1,.25,1);--ease-spring:cubic-bezier(.34,1.56,.64,1);--ease-decel:cubic-bezier(.32,0,.24,1);
   --chev-size:14px;
   --starting-elo:1200;
@@ -217,7 +218,7 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .av-0{background:#1A2E4A}.av-1{background:#2D1F47}.av-2{background:#1B3D2A}
 .av-3{background:#3D1A1A}.av-4{background:#3D2A10}.av-5{background:#133535}
 .av-6{background:#2A1A3D}.av-7{background:#1A3D35}
-.p-avatar-badge{position:absolute;bottom:-2px;right:-2px;width:22px;height:22px;border-radius:50%;background:var(--surface);border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1}
+.p-avatar-badge{position:absolute;bottom:-2px;right:-2px;width:var(--es-badge);height:var(--es-badge);border-radius:50%;background:var(--surface);border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1}
 .p-avatar-badge:empty{display:none}
 /* Edit chip */
 .p-edit-chip{padding:var(--sp-sm) var(--content-pad) var(--sp-md)}
@@ -234,14 +235,22 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .es-title{font-size:var(--fs-title);font-weight:800;letter-spacing:-.5px}
 .es-save{font-size:var(--fs-body);font-weight:700;color:var(--green);background:none;border:none;font-family:inherit;cursor:pointer;padding:var(--sp-xs) var(--sp-sm)}
 .es-save:active{opacity:.5}
-.es-avatar-section{display:flex;flex-direction:column;align-items:center;padding:var(--sp-sm) var(--content-pad) var(--sp-lg)}
-.es-avatar-wrap{position:relative;cursor:pointer}
+.es-avatar-wrap{position:relative;cursor:pointer;flex-shrink:0}
 .es-avatar{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;color:var(--text);transition:transform .2s var(--ease-spring)}
 .es-avatar:active{transform:scale(.9)}
-.es-avatar-badge{position:absolute;bottom:-2px;right:-2px;width:28px;height:28px;border-radius:50%;background:var(--surface);border:2.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1}
+.es-avatar-badge{position:absolute;bottom:-2px;right:-2px;width:calc(var(--es-badge) + 4px);height:calc(var(--es-badge) + 4px);border-radius:50%;background:var(--surface);border:2.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1}
 .es-avatar-badge:empty::after{content:'+';color:var(--ghost);font-size:16px;font-weight:300}
-.es-avatar-hint{font-size:var(--fs-micro);color:var(--blue);margin-top:var(--sp-sm);font-weight:600}
-.es-emoji-input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.es-step.out{display:none}
+.es-avatar-row{display:flex;align-items:center;gap:var(--sp-lg);padding:0 var(--content-pad) var(--sp-lg)}
+.es-avatar-info{flex:1;min-width:0}
+.es-avatar-name{font-size:var(--fs-body);font-weight:700}
+.es-avatar-hint{font-size:var(--fs-micro);color:var(--dim);margin-top:2px}
+.es-emoji-back{display:flex;align-items:center;gap:var(--sp-xs);font-size:var(--fs-caption);font-weight:600;color:var(--blue);background:none;border:none;font-family:inherit;cursor:pointer}
+.es-emoji-back:active{opacity:.5}
+.es-emoji-grid{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:var(--sp-xs);padding:var(--sp-sm) var(--content-pad) var(--sp-xl)}
+.es-emoji-cell{width:var(--es-emoji-cell);height:var(--es-emoji-cell);border-radius:var(--r-xs);display:flex;align-items:center;justify-content:center;font-size:var(--es-emoji-font);cursor:pointer;border:2px solid transparent;transition:transform .1s,border-color .12s}
+.es-emoji-cell:active{transform:scale(.82)}
+.es-emoji-cell.on{border-color:var(--green);background:var(--fill-medium)}
 .es-fields{padding:0 var(--content-pad)}
 .es-field{margin-bottom:var(--sp-lg)}
 .es-field-label{font-size:var(--fs-micro);font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:var(--sp-sm)}
@@ -249,7 +258,6 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .es-field-input:focus{outline:none;border-color:var(--blue)}
 .es-field-input::placeholder{color:var(--ghost)}
 .es-field-count{font-size:var(--fs-micro);color:var(--dim);text-align:right;margin-top:var(--sp-xs)}
-.es-field-bio{min-height:80px;resize:none;line-height:1.5}
 .p-logout{margin:var(--sp-xl) var(--content-pad);background:var(--surface);border-radius:var(--r-sm)}
 .p-logout-btn{width:100%;padding:var(--sp-lg);font-size:var(--fs-body);font-weight:600;color:var(--red);background:transparent;border:none;font-family:inherit;cursor:pointer;text-align:center}
 .p-logout-btn:active{background:var(--border-light)}
@@ -505,27 +513,35 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
   <div class="es-sheet" id="es-sheet" onclick="event.stopPropagation()">
     <div class="es-handle"><div class="es-handle-bar"></div></div>
     <div class="es-header">
-      <div class="es-title">Edit profile</div>
+      <div id="es-header-back" style="display:none"><button class="es-emoji-back" onclick="esShowForm()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>Back</button></div>
+      <div class="es-title" id="es-header-title">Edit profile</div>
       <button class="es-save" onclick="saveEditProfile()">Save</button>
     </div>
-    <div class="es-avatar-section">
-      <div class="es-avatar-wrap" onclick="openEmojiPicker()">
-        <div class="es-avatar" id="es-avatar">?</div>
-        <div class="es-avatar-badge" id="es-avatar-badge"></div>
+    <div id="es-step-form" class="es-step">
+      <div class="es-avatar-row">
+        <div class="es-avatar-wrap" onclick="esShowEmoji()">
+          <div class="es-avatar" id="es-avatar">?</div>
+          <div class="es-avatar-badge" id="es-avatar-badge"></div>
+        </div>
+        <div class="es-avatar-info">
+          <div class="es-avatar-name" id="es-avatar-name"></div>
+          <div class="es-avatar-hint">Tap to choose emoji</div>
+        </div>
       </div>
-      <div class="es-avatar-hint">Tap to change emoji</div>
-      <input class="es-emoji-input" id="es-emoji-input" type="text" inputmode="text">
+      <div class="es-fields">
+        <div class="es-field">
+          <div class="es-field-label">City</div>
+          <input class="es-field-input" id="es-city" type="text" placeholder="Where do you play?" autocomplete="off" maxlength="30">
+        </div>
+        <div class="es-field">
+          <div class="es-field-label">Bio</div>
+          <input class="es-field-input" id="es-bio" type="text" placeholder="Say something about you" maxlength="50">
+          <div class="es-field-count"><span id="es-bio-count">0</span>/50</div>
+        </div>
+      </div>
     </div>
-    <div class="es-fields">
-      <div class="es-field">
-        <div class="es-field-label">City</div>
-        <input class="es-field-input" id="es-city" type="text" placeholder="Where do you play?" autocomplete="off" autocapitalize="words" maxlength="30">
-      </div>
-      <div class="es-field">
-        <div class="es-field-label">Bio</div>
-        <textarea class="es-field-input es-field-bio" id="es-bio" placeholder="What's your chess story?" maxlength="100"></textarea>
-        <div class="es-field-count"><span id="es-bio-count">0</span>/100</div>
-      </div>
+    <div id="es-step-emoji" class="es-step out">
+      <div class="es-emoji-grid" id="es-emoji-grid"></div>
     </div>
   </div>
 </div>
@@ -568,6 +584,12 @@ function initPill(segId,pillId){
 // ── Sheet open/close ──
 function openSheet(overlayId,sheetId){
   var overlay=$(overlayId),sheet=$(sheetId);
+  _esBuildGrid();
+  $('es-step-form').classList.remove('out');
+  $('es-header-back').style.display='none';
+  $('es-header-title').textContent='Edit profile';
+  $('es-step-emoji').classList.add('out');
+  $('es-avatar-name').textContent=nick(pt);
   overlay.style.display='flex';
   sheet.style.transition='transform .38s var(--ease-spring)';
   sheet.style.transform='translateY(100%)';
@@ -787,6 +809,12 @@ function openEditSheet(){
   $('es-city').value=pt.city||'';
   $('es-bio').value=pt.bio||'';
   $('es-bio-count').textContent=(pt.bio||'').length;
+  _esBuildGrid();
+  $('es-step-form').classList.remove('out');
+  $('es-header-back').style.display='none';
+  $('es-header-title').textContent='Edit profile';
+  $('es-step-emoji').classList.add('out');
+  $('es-avatar-name').textContent=nick(pt);
   overlay.style.display='flex';
   requestAnimationFrame(function(){requestAnimationFrame(function(){overlay.classList.add('visible')})});
 }
@@ -800,44 +828,92 @@ function closeEditSheet(){
   setTimeout(function(){overlay.style.display='none';sheet.style.transition='';sheet.style.transform=''},280);
 }
 
-function openEmojiPicker(){
-  var input=$('es-emoji-input');
-  input.value='';
-  input.focus();
-  // Bounce avatar
-  var av=$('es-avatar');
-  av.style.transform='scale(.88)';
-  setTimeout(function(){av.style.transform=''},150);
+var EMOJI_SET=[
+  // Fruits & Vegetables
+  '🍎','🍊','🍋','🍇','🍓','🍑','🍒','🥝','🍉','🥭','🍌','🫐','🍆','🥑','🫒',
+  // Plants & Trees
+  '🌿','🍀','🌱','🪴','🌵','🌴','🎋','🌾','🍃','🌲','🌳','🎍',
+  // Flowers
+  '🌸','🌺','🌻','🌷','🌹','💐',
+  // Animals
+  '🦁','🐺','🐉','🦊','🐻','🐯','🦈','🐝','🦋','🐬','🐎','🐍',
+  // Space & Sky
+  '🌙','⭐','🌟','💫','✨','☀️','🌍','🪐','🌈','❄️','🔥','💎',
+  // Water & Nature
+  '💧','💦','🌊','🍂','🌪️','☁️','🌀','⚡',
+  // Hearts
+  '❤️','💚','💙','💜','🤍','🧡','💛',
+  // Objects
+  '🎯','🏆','👑','🎲'
+];
+
+function _esBuildGrid(){
+  var grid=$('es-emoji-grid');
+  var current=($('es-avatar-badge')||{}).textContent||'';
+  var h='';
+  EMOJI_SET.forEach(function(e){
+    h+='<div class="es-emoji-cell'+(e===current.trim()?' on':'')+'" data-e="'+e+'" onclick="esPickEmoji(this)">'+e+'</div>';
+  });
+  grid.innerHTML=h;
 }
 
-// Listen for emoji input
+function esPickEmoji(el){
+  var e=el.dataset.e;
+  var badge=$('es-avatar-badge');
+  var current=badge.textContent.trim();
+  badge.textContent=(e===current)?'':e;
+  el.closest('.es-emoji-grid').querySelectorAll('.es-emoji-cell').forEach(function(c){
+    c.classList.toggle('on',c.dataset.e===badge.textContent.trim());
+  });
+  badge.style.transform='scale(1.4)';
+  badge.style.transition='transform .25s var(--ease-spring)';
+  setTimeout(function(){badge.style.transform='';badge.style.transition=''},300);
+}
+
+function esShowEmoji(){
+  $('es-step-form').classList.add('out');
+  $('es-step-emoji').classList.remove('out');
+  $('es-header-back').style.display='';
+  $('es-header-title').textContent='';
+  // Bounce
+  var sheet=$('es-sheet');
+  sheet.style.transform='translateY(2%)';
+  sheet.style.transition='transform .4s var(--ease-spring)';
+  requestAnimationFrame(function(){sheet.style.transform='translateY(0)'});
+}
+
+function esShowForm(){
+  $('es-step-emoji').classList.add('out');
+  $('es-step-form').classList.remove('out');
+  $('es-header-back').style.display='none';
+  $('es-header-title').textContent='Edit profile';
+  $('es-header-back').style.display='none';
+  $('es-header-title').textContent='Edit profile';
+  var sheet=$('es-sheet');
+  sheet.style.transform='translateY(-2%)';
+  sheet.style.transition='transform .4s var(--ease-spring)';
+  requestAnimationFrame(function(){sheet.style.transform='translateY(0)'});
+}
+
+function _esTitleCase(str){
+  return str.replace(/\S+/g,function(w){return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()});
+}
+
+function _esCityFilter(e){
+  e.target.value=e.target.value.replace(/[^a-zA-Z\u00C0-\u024F\s'\-]/g,'');
+}
+
 document.addEventListener('DOMContentLoaded',function(){
-  var emojiInput=$('es-emoji-input');
-  if(emojiInput){
-    emojiInput.addEventListener('input',function(){
-      var val=this.value;
-      if(!val)return;
-      // Extract first emoji
-      var emoji=Array.from(val)[0]||'';
-      $('es-avatar-badge').textContent=emoji;
-      this.value='';
-      this.blur();
-      // Bounce badge
-      var badge=$('es-avatar-badge');
-      badge.style.transform='scale(1.3)';
-      badge.style.transition='transform .25s var(--ease-spring)';
-      setTimeout(function(){badge.style.transform='';badge.style.transition=''},300);
-    });
-  }
-  var bioEl=$('es-bio');
-  if(bioEl){
-    bioEl.addEventListener('input',function(){$('es-bio-count').textContent=this.value.length});
-  }
+  var bio=$('es-bio');
+  if(bio)bio.addEventListener('input',function(){$('es-bio-count').textContent=this.value.length});
+  var city=$('es-city');
+  if(city)city.addEventListener('input',_esCityFilter);
 });
 
 async function saveEditProfile(){
   var emoji=$('es-avatar-badge').textContent.trim()||null;
-  var city=$('es-city').value.trim()||null;
+  var cityRaw=$('es-city').value.trim();
+  var city=cityRaw?_esTitleCase(cityRaw):null;
   var bio=$('es-bio').value.trim()||null;
   closeEditSheet();
   await dbPatch('players','id=eq.'+me.id,{emoji:emoji,city:city,bio:bio});
@@ -1595,6 +1671,12 @@ function openResultSheet(matchId){
   if(isDisputed)$('rs-warn').classList.remove('hidden');else $('rs-warn').classList.add('hidden');
   document.querySelectorAll('.rs-option').forEach(function(b){b.style.background='';b.style.opacity='';b.style.pointerEvents=''});
   var overlay=$('rs-overlay');
+  _esBuildGrid();
+  $('es-step-form').classList.remove('out');
+  $('es-header-back').style.display='none';
+  $('es-header-title').textContent='Edit profile';
+  $('es-step-emoji').classList.add('out');
+  $('es-avatar-name').textContent=nick(pt);
   overlay.style.display='flex';
   requestAnimationFrame(function(){requestAnimationFrame(function(){overlay.classList.add('visible')})});
 }
