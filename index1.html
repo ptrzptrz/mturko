@@ -228,6 +228,7 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .es-overlay.visible{background:var(--overlay)}
 .es-sheet{background:var(--surface);border-radius:var(--r-lg) var(--r-lg) 0 0;width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);will-change:transform;transition:transform .38s var(--ease-spring);padding-bottom:env(safe-area-inset-bottom,0px)}
 .es-overlay.visible .es-sheet{transform:translateY(0)}
+.es-sheet-scroll{overflow-y:auto;-webkit-overflow-scrolling:touch;max-height:calc(100vh - env(safe-area-inset-top,44px) - 60px)}
 .es-handle{width:100%;padding:var(--sp-md) 0 var(--sp-xs);display:flex;justify-content:center}
 .es-handle-bar{width:36px;height:5px;background:var(--ghost);border-radius:2.5px}
 .es-header{display:flex;align-items:center;justify-content:space-between;padding:0 var(--content-pad) var(--sp-lg)}
@@ -240,11 +241,15 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .es-avatar-badge{position:absolute;bottom:-2px;right:-2px;width:calc(var(--es-badge) + 4px);height:calc(var(--es-badge) + 4px);border-radius:50%;background:var(--surface);border:2.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1}
 .es-avatar-badge:empty::after{content:'+';color:var(--ghost);font-size:16px;font-weight:300}
 .es-step.out{display:none}
-.es-avatar-row{display:flex;flex-direction:column;align-items:center;padding:var(--sp-sm) var(--content-pad) var(--sp-lg)}
+.es-avatar-row{display:flex;align-items:center;gap:var(--sp-lg);padding:var(--sp-sm) var(--content-pad) var(--sp-lg)}
+.es-avatar-actions{display:flex;flex-direction:column;gap:var(--sp-xs)}
+.es-avatar-tap-label{font-size:var(--fs-caption);color:var(--dim)}
+.es-remove{font-size:var(--fs-micro);color:var(--red);font-weight:500;background:none;border:none;font-family:inherit;cursor:pointer;padding:var(--sp-xs) 0;display:none}
+.es-remove:active{opacity:.5}
+.es-remove.on{display:block}
 .es-emoji-grid{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:var(--sp-xs);padding:var(--sp-sm) var(--content-pad) var(--sp-xl)}
 .es-emoji-cell{width:var(--es-emoji-cell);height:var(--es-emoji-cell);border-radius:var(--r-xs);display:flex;align-items:center;justify-content:center;font-size:var(--es-emoji-font);cursor:pointer;border:2px solid transparent;transition:transform .1s,border-color .12s}
 .es-emoji-cell:active{transform:scale(.82)}
-.es-emoji-none{font-size:var(--fs-body);color:var(--ghost)}
 .es-emoji-cell.on{border-color:var(--green);background:var(--fill-medium)}
 .es-fields{padding:0 var(--content-pad)}
 .es-field{margin-bottom:var(--sp-lg)}
@@ -506,13 +511,14 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 <div class="es-overlay" id="es-overlay" onclick="if(event.target===this)closeEditSheet()">
   <div class="es-sheet" id="es-sheet" onclick="event.stopPropagation()">
     <div class="es-handle"><div class="es-handle-bar"></div></div>
+    <div class="es-sheet-scroll">
     <div class="es-header">
       <div class="es-title" id="es-header-title">Edit profile</div>
       <button class="es-save" onclick="saveEditProfile()">Save</button>
     </div>
     <div id="es-step-form" class="es-step">
       <div class="es-avatar-row">
-        <div class="es-avatar-wrap" onclick="esShowEmoji()">
+        <div class="es-avatar-wrap" onclick="esShowEmoji()" role="button" aria-label="Choose profile emoji">
           <div class="es-avatar" id="es-avatar">?</div>
           <div class="es-avatar-badge" id="es-avatar-badge"></div>
         </div>
@@ -532,6 +538,7 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
     </div>
     <div id="es-step-emoji" class="es-step out">
       <div class="es-emoji-grid" id="es-emoji-grid"></div>
+    </div>
     </div>
   </div>
 </div>
@@ -575,6 +582,7 @@ function initPill(segId,pillId){
 function openSheet(overlayId,sheetId){
   var overlay=$(overlayId),sheet=$(sheetId);
   _esBuildGrid();
+  _esUpdateRemove();
   $('es-step-form').classList.remove('out');
   document.querySelector('.es-save').style.display='';
   $('es-step-emoji').classList.add('out');
@@ -798,6 +806,7 @@ function openEditSheet(){
   $('es-bio').value=pt.bio||'';
   $('es-bio-count').textContent=(pt.bio||'').length;
   _esBuildGrid();
+  _esUpdateRemove();
   $('es-step-form').classList.remove('out');
   $('es-step-emoji').classList.add('out');
   overlay.style.display='flex';
@@ -835,13 +844,27 @@ var EMOJI_SET=[
 function _esBuildGrid(){
   var grid=$('es-emoji-grid');
   var current=($('es-avatar-badge')||{}).textContent||'';
-  var h='<div class="es-emoji-cell es-emoji-none'+(current?'':' on')+'" data-e="" onclick="esPickEmoji(this)">✕</div>';
+  var h='';
   EMOJI_SET.forEach(function(e){
     h+='<div class="es-emoji-cell'+(e===current.trim()?' on':'')+'" data-e="'+e+'" onclick="esPickEmoji(this)">'+e+'</div>';
   });
   grid.innerHTML=h;
 }
 
+
+function esRemoveEmoji(){
+  $('es-avatar-badge').textContent='';
+  document.querySelectorAll('.es-emoji-cell').forEach(function(c){c.classList.remove('on')});
+  $('es-remove').classList.remove('on');
+  // Auto-back
+  setTimeout(function(){esShowForm()},200);
+}
+
+function _esUpdateRemove(){
+  var has=$('es-avatar-badge')&&$('es-avatar-badge').textContent.trim();
+  var btn=$('es-remove');
+  if(btn){if(has)btn.classList.add('on');else btn.classList.remove('on')}
+}
 
 function esPickEmoji(el){
   var e=el.dataset.e;
@@ -854,6 +877,7 @@ function esPickEmoji(el){
   badge.style.transform='scale(1.4)';
   badge.style.transition='transform .25s var(--ease-spring)';
   setTimeout(function(){badge.style.transform='';badge.style.transition=''},300);
+  _esUpdateRemove();
   // Auto-back to form after selection
   setTimeout(function(){esShowForm()},350);
 }
@@ -884,7 +908,11 @@ function esShowForm(){
 }
 
 function _esTitleCase(str){
-  return str.replace(/\S+/g,function(w){return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()});
+  return str.replace(/\S+/g,function(w){
+    // Only transform if all-lower or all-upper; preserve mixed case (McDonald)
+    if(w===w.toLowerCase()||w===w.toUpperCase())return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();
+    return w;
+  });
 }
 
 function _esCityFilter(e){
@@ -899,6 +927,9 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 
 async function saveEditProfile(){
+  // Micro-bounce save button
+  var saveBtn=document.querySelector('.es-save');
+  if(saveBtn){saveBtn.style.transform='scale(.9)';saveBtn.style.transition='transform .1s';setTimeout(function(){saveBtn.style.transform='';saveBtn.style.transition='transform .15s var(--ease-spring)'},100)}
   var emoji=$('es-avatar-badge').textContent.trim()||null;
   var cityRaw=$('es-city').value.trim();
   var city=cityRaw?_esTitleCase(cityRaw):null;
@@ -1215,10 +1246,14 @@ function renderProfile(){
   if(avatarWrap)avatarWrap.onclick=_viewingPlayer?null:function(){openEditSheet()};
   avatarWrap.style.cursor=_viewingPlayer?'default':'pointer';
   $('p-name').textContent=nick(pt);
-  $('p-meta').textContent=(pt.city?(pt.city+' \u00b7 '):'')+'Mar 2026';
+  var metaEl=$('p-meta');
+  if(pt.city){metaEl.textContent=pt.city+' \u00b7 Mar 2026';metaEl.onclick=null;metaEl.style.cursor=''}
+  else if(!_viewingPlayer){metaEl.textContent='Add a city';metaEl.className='p-hero-meta';metaEl.style.color='var(--ghost)';metaEl.style.cursor='pointer';metaEl.style.fontStyle='italic';metaEl.onclick=function(){openEditSheet()}}
+  else{metaEl.textContent='Mar 2026';metaEl.onclick=null;metaEl.style.cursor=''}
   var bioEl=$('p-bio');
   if(pt.bio){bioEl.textContent=pt.bio;bioEl.className='p-hero-bio'}
-  else{bioEl.textContent='';bioEl.className='p-hero-bio'}
+  else if(!_viewingPlayer){bioEl.textContent='Add a bio';bioEl.className='p-hero-bio-empty';bioEl.onclick=function(){openEditSheet()}}
+  else{bioEl.textContent='';bioEl.className='p-hero-bio';bioEl.onclick=null}
 
   // Stats filtered by format
   var fmtDone=matches.filter(function(m){return m.status==='done'&&(m.p1===pt.id||m.p2===pt.id)&&(m.time_control||'rapid')===_profFormat});
@@ -1664,6 +1699,7 @@ function openResultSheet(matchId){
   document.querySelectorAll('.rs-option').forEach(function(b){b.style.background='';b.style.opacity='';b.style.pointerEvents=''});
   var overlay=$('rs-overlay');
   _esBuildGrid();
+  _esUpdateRemove();
   $('es-step-form').classList.remove('out');
   $('es-step-emoji').classList.add('out');
   overlay.style.display='flex';
