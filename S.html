@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Swipe-back physics test</title>
+<style>
+:root{
+  --bg:#0A0A0A;--surface:#1C1C1E;--border:#38383A;--border-light:#2C2C2E;
+  --text:#F2F2F7;--muted:#8E8E93;--dim:#636366;--ghost:#48484A;
+  --green:#30D158;--red:#FF453A;--blue:#0A84FF;
+  --separator:rgba(255,255,255,.08);--fill-subtle:rgba(255,255,255,.06);--fill-medium:rgba(255,255,255,.12);
+  --r-sm:12px;--r-lg:20px;
+  --sp-xs:4px;--sp-sm:8px;--sp-md:12px;--sp-lg:16px;--sp-xl:24px;--content-pad:20px;
+  --fs-title-lg:28px;--fs-title:22px;--fs-body:17px;--fs-caption:13px;--fs-micro:11px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;color:var(--text);min-height:100dvh;overflow:hidden}
+
+/* Underlay — the "previous screen" peeking behind */
+.underlay{position:fixed;inset:0;background:var(--bg);z-index:0}
+.underlay-content{padding:calc(env(safe-area-inset-top,44px) + 20px) var(--content-pad);opacity:.3}
+.underlay-content h2{font-size:var(--fs-title);font-weight:700;margin-bottom:var(--sp-md)}
+.underlay-content p{font-size:var(--fs-caption);color:var(--muted);line-height:1.6}
+
+/* The profile card that slides */
+.profile-page{position:fixed;inset:0;background:var(--bg);z-index:1;will-change:transform;overflow-y:auto;-webkit-overflow-scrolling:touch;border-left:0.5px solid var(--border)}
+.profile-page.transitioning{transition:transform .35s cubic-bezier(.2,.9,.3,1);overflow:hidden}
+.profile-page.dismissed{pointer-events:none}
+
+/* Shadow on left edge while swiping */
+.profile-page::before{content:'';position:fixed;top:0;bottom:0;left:-20px;width:20px;background:linear-gradient(to right,transparent,rgba(0,0,0,.15));opacity:0;transition:opacity .2s;pointer-events:none;z-index:2}
+.profile-page.swiping::before{opacity:1}
+
+/* Edge indicator — subtle line on left edge */
+.edge-hint{position:fixed;top:50%;left:0;width:3px;height:40px;border-radius:0 2px 2px 0;background:var(--ghost);transform:translateY(-50%);opacity:0;transition:opacity .3s;z-index:3}
+.profile-page.swiping .edge-hint{opacity:.6}
+
+/* Content */
+.p-hero{display:flex;align-items:flex-start;gap:var(--sp-lg);padding:calc(env(safe-area-inset-top,44px) + 16px) var(--content-pad) var(--sp-sm)}
+.p-avatar{width:60px;height:60px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;flex-shrink:0}
+.p-name{font-size:var(--fs-title);font-weight:800;letter-spacing:-.5px}
+.p-meta{font-size:var(--fs-caption);color:var(--muted);margin-top:3px}
+.p-elo{font-size:48px;font-weight:800;letter-spacing:-3px;padding:var(--sp-sm) var(--content-pad)}
+.p-elo span{font-size:var(--fs-title);font-weight:700;color:var(--green)}
+
+.section{margin:var(--sp-lg) var(--content-pad);background:var(--surface);border-radius:var(--r-sm);padding:var(--sp-lg)}
+.section-title{font-size:var(--fs-body);font-weight:700;margin-bottom:var(--sp-sm)}
+.section p{font-size:var(--fs-caption);color:var(--muted);line-height:1.5}
+
+.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);left:var(--sp-lg);right:var(--sp-lg);background:var(--surface);border-radius:var(--r-lg);padding:var(--sp-lg);z-index:10}
+.control-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-sm)}
+.control-row:last-child{margin-bottom:0}
+.control-label{font-size:var(--fs-caption);color:var(--muted)}
+.control-value{font-size:var(--fs-caption);font-weight:700;color:var(--text);min-width:50px;text-align:right}
+input[type=range]{flex:1;margin:0 var(--sp-sm);accent-color:var(--green)}
+.reset-btn{width:100%;margin-top:var(--sp-sm);padding:var(--sp-sm);font-size:var(--fs-caption);font-weight:600;color:var(--blue);background:none;border:1px solid var(--border);border-radius:var(--r-sm);font-family:inherit;cursor:pointer}
+</style>
+</head>
+<body>
+
+<!-- Previous screen peeking behind -->
+<div class="underlay">
+  <div class="underlay-content">
+    <h2>Your Profile</h2>
+    <p>This is what you'd see when swiping back from someone else's profile. The card slides right to reveal your own content underneath.</p>
+  </div>
+</div>
+
+<!-- The profile page that slides -->
+<div class="profile-page" id="page">
+  <div class="edge-hint"></div>
+  
+  <div class="p-hero">
+    <div class="p-avatar">M</div>
+    <div>
+      <div class="p-name">mario</div>
+      <div class="p-meta">Roma · Mar 2026</div>
+    </div>
+  </div>
+  
+  <div class="p-elo">1479 <span>+12</span></div>
+  
+  <div class="section">
+    <div class="section-title">Swipe from left edge →</div>
+    <p>Start your swipe from the left 30-40px of the screen. The page follows your finger with dampened movement. Release past the threshold to dismiss, or it springs back.</p>
+  </div>
+  
+  <div class="section">
+    <div class="section-title">Physics parameters</div>
+    <p>Use the controls below to tune the feel. The goal is to match Instagram/Threads swipe-back: heavy but responsive, with a satisfying snap.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Filler content</div>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">More content</div>
+    <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.</p>
+  </div>
+</div>
+
+<!-- Tuning controls -->
+<div class="controls" id="controls">
+  <div class="control-row">
+    <span class="control-label">Edge zone</span>
+    <input type="range" id="r-edge" min="20" max="80" value="35">
+    <span class="control-value" id="v-edge">35px</span>
+  </div>
+  <div class="control-row">
+    <span class="control-label">Dismiss %</span>
+    <input type="range" id="r-threshold" min="20" max="60" value="35">
+    <span class="control-value" id="v-threshold">35%</span>
+  </div>
+  <div class="control-row">
+    <span class="control-label">Velocity</span>
+    <input type="range" id="r-velocity" min="100" max="1000" value="400">
+    <span class="control-value" id="v-velocity">400</span>
+  </div>
+  <div class="control-row">
+    <span class="control-label">Damping</span>
+    <input type="range" id="r-damping" min="30" max="100" value="65">
+    <span class="control-value" id="v-damping">0.65</span>
+  </div>
+  <div class="control-row">
+    <span class="control-label">Spring ms</span>
+    <input type="range" id="r-spring" min="200" max="600" value="350">
+    <span class="control-value" id="v-spring">350ms</span>
+  </div>
+  <button class="reset-btn" onclick="resetPage()">Reset page (after dismiss)</button>
+</div>
+
+<script>
+var page = document.getElementById('page');
+
+// Tunable parameters
+var P = {
+  edgeZone: 35,      // px from left edge to start swipe
+  threshold: 0.35,   // % of screen width to trigger dismiss
+  velocityMin: 400,  // px/s velocity that triggers dismiss regardless of position
+  damping: 0.65,     // how much the page follows finger (1 = 1:1, 0.5 = half speed)
+  springMs: 350       // ms for spring-back or dismiss animation
+};
+
+var startX = 0, startY = 0, startTime = 0;
+var currentX = 0, tracking = false, dismissed = false;
+var lastX = 0, lastTime = 0, velocity = 0;
+
+function updateControls() {
+  P.edgeZone = +document.getElementById('r-edge').value;
+  P.threshold = +document.getElementById('r-threshold').value / 100;
+  P.velocityMin = +document.getElementById('r-velocity').value;
+  P.damping = +document.getElementById('r-damping').value / 100;
+  P.springMs = +document.getElementById('r-spring').value;
+  
+  document.getElementById('v-edge').textContent = P.edgeZone + 'px';
+  document.getElementById('v-threshold').textContent = Math.round(P.threshold * 100) + '%';
+  document.getElementById('v-velocity').textContent = P.velocityMin;
+  document.getElementById('v-damping').textContent = P.damping.toFixed(2);
+  document.getElementById('v-spring').textContent = P.springMs + 'ms';
+}
+
+document.querySelectorAll('input[type=range]').forEach(function(el) {
+  el.addEventListener('input', updateControls);
+});
+
+page.addEventListener('touchstart', function(e) {
+  if (dismissed) return;
+  var touch = e.touches[0];
+  if (touch.clientX > P.edgeZone) return;
+  
+  startX = touch.clientX;
+  startY = touch.clientY;
+  startTime = Date.now();
+  lastX = startX;
+  lastTime = startTime;
+  velocity = 0;
+  tracking = true;
+  
+  page.classList.remove('transitioning');
+  page.classList.add('swiping');
+}, { passive: true });
+
+page.addEventListener('touchmove', function(e) {
+  if (!tracking) return;
+  var touch = e.touches[0];
+  var dx = touch.clientX - startX;
+  var dy = Math.abs(touch.clientY - startY);
+  
+  // Cancel if vertical scroll dominates
+  if (dy > Math.abs(dx) && dx < 10) {
+    tracking = false;
+    page.classList.remove('swiping');
+    page.style.transform = '';
+    return;
+  }
+  
+  // Only allow right swipe
+  if (dx < 0) dx = 0;
+  
+  // Apply damping — diminishing returns as you drag further
+  currentX = dx * P.damping;
+  
+  // Track velocity
+  var now = Date.now();
+  var dt = now - lastTime;
+  if (dt > 0) {
+    velocity = (touch.clientX - lastX) / dt * 1000; // px/s
+  }
+  lastX = touch.clientX;
+  lastTime = now;
+  
+  page.style.transform = 'translateX(' + currentX + 'px)';
+  
+  e.preventDefault();
+}, { passive: false });
+
+page.addEventListener('touchend', function(e) {
+  if (!tracking) return;
+  tracking = false;
+  page.classList.remove('swiping');
+  
+  var screenW = window.innerWidth;
+  var pct = currentX / screenW;
+  
+  // Dismiss if: past threshold OR velocity is high enough
+  if (pct > P.threshold || velocity > P.velocityMin) {
+    // Dismiss — slide off screen
+    dismissed = true;
+    page.classList.add('transitioning');
+    page.classList.add('dismissed');
+    page.style.transform = 'translateX(' + screenW + 'px)';
+    
+    setTimeout(function() {
+      console.log('DISMISSED — would call closeViewProfile()');
+    }, P.springMs);
+  } else {
+    // Spring back
+    page.classList.add('transitioning');
+    page.style.transform = 'translateX(0)';
+    
+    setTimeout(function() {
+      page.classList.remove('transitioning');
+    }, P.springMs);
+  }
+  
+  currentX = 0;
+}, { passive: true });
+
+page.addEventListener('touchcancel', function() {
+  if (!tracking) return;
+  tracking = false;
+  page.classList.remove('swiping');
+  page.classList.add('transitioning');
+  page.style.transform = 'translateX(0)';
+  setTimeout(function() { page.classList.remove('transitioning'); }, P.springMs);
+  currentX = 0;
+}, { passive: true });
+
+function resetPage() {
+  dismissed = false;
+  page.classList.remove('dismissed', 'transitioning', 'swiping');
+  page.style.transform = '';
+}
+</script>
+</body>
+</html>
