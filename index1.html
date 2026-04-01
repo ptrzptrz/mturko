@@ -26,7 +26,7 @@
   --r-xs:9px;--r-sm:12px;--r-md:16px;--r-lg:20px;
   --page-bottom:120px;--chart-axis:40px;--disc-max:1200px;--day-max:500px;
   --nav-duration:300ms;--nav-push:160ms;--nav-curve:cubic-bezier(.2,.9,.3,1);--nav-parallax:0.3;--nav-dim:0.4;--nav-shadow:-2px 0 8px rgba(0,0,0,.3);
-  --es-badge:30px;--es-avatar-lg:80px;--es-emoji-cell:44px;--es-emoji-font:26px;
+  --es-badge:30px;--es-avatar-lg:80px;--es-emoji-cell:44px;--es-emoji-font:26px;--elo-count-ms:1200;
   --ease-list:cubic-bezier(.25,.1,.25,1);--ease-spring:cubic-bezier(.34,1.56,.64,1);--ease-decel:cubic-bezier(.32,0,.24,1);
   --chev-size:14px;
   --starting-elo:1200;
@@ -162,8 +162,8 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .p-stat-val.green{color:var(--green)}
 .p-stat-val.red{color:var(--red)}
 .p-stat-val.gold{color:var(--gold)}
-.p-wdl{display:flex;gap:var(--sp-xs);flex-shrink:0}
-.p-b{font-size:var(--fs-micro);font-weight:700;width:28px;text-align:center;padding:var(--sp-xs) 0;border-radius:6px;font-variant-numeric:tabular-nums}
+.p-wdl{display:flex;gap:3px;flex-shrink:0}
+.p-b{font-size:var(--fs-micro);font-weight:700;width:24px;text-align:center;padding:3px 0;border-radius:12px;font-variant-numeric:tabular-nums}
 .p-b.w{background:var(--green-bg);color:var(--green)}
 .p-b.d{background:var(--muted-bg);color:var(--muted)}
 .p-b.l{background:var(--red-bg);color:var(--red)}
@@ -172,6 +172,17 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .p-cell-body{flex:1;min-width:0}
 .p-cell-name{font-size:var(--fs-body);font-weight:700}
 .p-cell-sub{font-size:var(--fs-micro);color:var(--dim);margin-top:1px}
+.p-cell-av{position:relative;flex-shrink:0;margin-right:var(--sp-md)}
+.p-cell-av-circle{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:-0.5px}
+.p-cell-av-badge{position:absolute;bottom:-3px;right:-5px;width:16px;height:16px;border-radius:50%;background:var(--surface);border:1.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:9px;line-height:1}
+.p-cell-av-badge:empty{display:none}
+.p-stat-val-wrap{display:flex;align-items:center;gap:var(--sp-sm);flex-shrink:0}
+.p-stat-bar{width:60px;height:3px;background:var(--fill-subtle);border-radius:1.5px;overflow:hidden;flex-shrink:0}
+.p-stat-bar-fill{height:100%;border-radius:1.5px}
+.p-stat-tap{cursor:pointer;color:var(--green)}
+.p-stat-tap:active{opacity:.5}
+.p-stat-sub{font-size:var(--fs-caption);font-weight:500;color:var(--dim)}
+
 .p-cell-right{flex-shrink:0;margin-left:var(--sp-sm);display:flex;align-items:center;gap:var(--sp-sm);padding-right:calc(var(--chev-size) + var(--sp-sm))}
 .p-hist{margin:0 var(--content-pad) var(--sp-lg);background:var(--surface);border-radius:var(--r-sm);overflow:hidden}
 .p-day{position:relative}
@@ -218,7 +229,7 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .av-0{background:#1A2E4A}.av-1{background:#2D1F47}.av-2{background:#1B3D2A}
 .av-3{background:#3D1A1A}.av-4{background:#3D2A10}.av-5{background:#133535}
 .av-6{background:#2A1A3D}.av-7{background:#1A3D35}
-.p-avatar-badge{position:absolute;bottom:-4px;right:-6px;width:var(--es-badge);height:var(--es-badge);border-radius:50%;background:var(--surface);border:2.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1}
+.p-avatar-badge{position:absolute;bottom:-5px;right:-8px;width:var(--es-badge);height:var(--es-badge);border-radius:50%;background:var(--surface);border:2.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1}
 .p-avatar-badge:empty{display:none}
 .p-avatar-badge.show-plus:empty{display:flex}
 .p-avatar-badge.show-plus:empty::after{content:'+';color:var(--ghost);font-size:15px;font-weight:300}
@@ -238,7 +249,7 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .es-avatar-wrap{position:relative;cursor:pointer;flex-shrink:0}
 .es-avatar{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;color:var(--text);transition:transform .2s var(--ease-spring)}
 .es-avatar:active{transform:scale(.9)}
-.es-avatar-badge{position:absolute;bottom:-4px;right:-6px;width:calc(var(--es-badge) + 6px);height:calc(var(--es-badge) + 6px);border-radius:50%;background:var(--surface);border:2.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1}
+.es-avatar-badge{position:absolute;bottom:-5px;right:-8px;width:calc(var(--es-badge) + 6px);height:calc(var(--es-badge) + 6px);border-radius:50%;background:var(--surface);border:2.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1}
 .es-avatar-badge:empty::after{content:'+';color:var(--ghost);font-size:16px;font-weight:300}
 .es-step.out{display:none}
 .es-avatar-row{display:flex;align-items:center;padding:var(--sp-sm) var(--content-pad) var(--sp-lg)}
@@ -254,9 +265,9 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .es-field-input:focus{outline:none;border-color:var(--blue)}
 .es-field-input::placeholder{color:var(--ghost)}
 .es-field-count{font-size:var(--fs-micro);color:var(--dim);text-align:right;margin-top:var(--sp-xs)}
-.p-logout{margin:var(--sp-xl) var(--content-pad);background:var(--surface);border-radius:var(--r-sm)}
-.p-logout-btn{width:100%;padding:var(--sp-lg);font-size:var(--fs-body);font-weight:600;color:var(--red);background:transparent;border:none;font-family:inherit;cursor:pointer;text-align:center}
-.p-logout-btn:active{background:var(--border-light)}
+.p-logout{margin:var(--sp-xl) var(--content-pad)}
+.p-logout-btn{width:100%;padding:var(--sp-md);font-size:var(--fs-caption);font-weight:500;color:var(--muted);background:transparent;border:none;font-family:inherit;cursor:pointer;text-align:center}
+.p-logout-btn:active{color:var(--red)}
 .p-line-chart{padding:var(--sp-xs) 0 var(--sp-sm);position:relative}
 .p-line-wrap{position:relative;height:140px;margin:0 var(--sp-lg)}
 .p-line-grid{position:absolute;top:0;bottom:0;left:0;right:var(--chart-axis);display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}
@@ -270,6 +281,25 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .p-line-line.trend-down{stroke:var(--red)}
 .p-line-dot.trend-up{fill:var(--green);stroke:var(--bg);stroke-width:1.5}
 .p-line-dot.trend-down{fill:var(--red);stroke:var(--bg);stroke-width:1.5}
+.p-line-dot-last{filter:drop-shadow(0 0 4px currentColor)}
+/* Chart detail modal */
+.chart-modal{position:fixed;inset:0;z-index:10002;background:var(--bg);display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:env(safe-area-inset-top,44px) 0 env(safe-area-inset-bottom,0px)}
+.chart-modal.open{display:block}
+.chart-modal-nav{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--content-pad) var(--sp-lg)}
+.chart-modal-close{font-size:var(--fs-body);font-weight:600;color:var(--blue);background:none;border:none;font-family:inherit;cursor:pointer}
+.chart-modal-close:active{opacity:.5}
+.chart-modal-title{font-size:var(--fs-body);font-weight:700}
+.chart-modal-chart{padding:0 var(--content-pad) var(--sp-xl)}
+.chart-modal-info{margin:0 var(--content-pad) var(--sp-lg);background:var(--surface);border-radius:var(--r-sm);padding:var(--sp-lg)}
+.chart-modal-info-title{font-size:var(--fs-body);font-weight:800;margin-bottom:var(--sp-md)}
+.chart-modal-info-text{font-size:var(--fs-caption);color:var(--muted);line-height:1.6}
+.chart-modal-info-text p{margin-bottom:var(--sp-md)}
+.chart-modal-info-text p:last-child{margin-bottom:0}
+.chart-modal-stat{display:flex;justify-content:space-between;padding:var(--sp-md) 0;border-top:0.33px solid var(--separator)}
+.chart-modal-stat:first-of-type{border-top:none;padding-top:0}
+.chart-modal-stat-label{font-size:var(--fs-caption);color:var(--muted)}
+.chart-modal-stat-val{font-size:var(--fs-caption);font-weight:700;color:var(--text)}
+
 .p-line-labels{display:flex;justify-content:space-between;padding:6px var(--sp-lg) 0;padding-right:calc(var(--sp-lg) + var(--chart-axis))}
 .p-line-lbl{font-size:9px;font-weight:500;color:var(--dim)}
 .p-line-lbl.now{color:var(--text);font-weight:700}
@@ -535,6 +565,24 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
     <div id="es-step-emoji" class="es-step out">
       <div class="es-emoji-grid" id="es-emoji-grid"></div>
     </div>
+    </div>
+  </div>
+</div>
+<div class="chart-modal" id="chart-modal">
+  <div class="chart-modal-nav">
+    <button class="chart-modal-close" onclick="closeChartModal()">Done</button>
+    <div class="chart-modal-title">Rating</div>
+    <div style="width:44px"></div>
+  </div>
+  <div class="chart-modal-chart" id="chart-modal-chart"></div>
+  <div class="chart-modal-info" id="chart-modal-stats"></div>
+  <div class="chart-modal-info">
+    <div class="chart-modal-info-title">How ELO Rating Works</div>
+    <div class="chart-modal-info-text">
+      <p>Your rating is calculated using the Glicko-2 system, an advanced algorithm used by FIDE and major chess platforms. It considers not just wins and losses, but the strength of your opponents.</p>
+      <p>Each player has three hidden values: Rating (your skill estimate), Rating Deviation (RD, how certain the system is), and Volatility (how consistently you perform).</p>
+      <p>When you're new, your RD is high — meaning the system is uncertain about your level. Your rating will change significantly after each game. As you play more, RD decreases and your rating stabilizes.</p>
+      <p>Beating a higher-rated player gives more points than beating a lower-rated one. Drawing with a much stronger player is rewarded, while drawing with a much weaker one costs points.</p>
     </div>
   </div>
 </div>
@@ -928,6 +976,7 @@ async function saveEditProfile(){
 // ── Profile tab ──
 var _profFormat='rapid';
 var _profHash=null;
+var _eloAnimate=false;
 var _viewingPlayer=null;
 var _navStack=[];  // [{playerId,dom,scroll}]
 function profTarget(){return _viewingPlayer||me}
@@ -956,6 +1005,7 @@ function viewProfile(playerId){
   _profFormat='rapid';
   _eloHistoryCache=null;
   _profHash=null;
+  _eloAnimate=false;
   var seg=$('p-fmt-seg');
   if(seg){var firstBtn=seg.querySelector('.seg-btn');if(firstBtn)movePill(seg,$('p-fmt-pill'),firstBtn)}
   $('p-back').style.display='';
@@ -998,6 +1048,7 @@ function closeViewProfile(){
   var page=$('page-profile');
   _eloHistoryCache=null;
   _profHash=null;
+  _eloAnimate=false;
   if(_navStack.length>0){
     // Pop previous state from stack
     var prev=_navStack.pop();
@@ -1192,9 +1243,10 @@ function switchTimeframe(e){
   _profTimeframe=tf;
   movePill($('p-tf-seg'),$('p-tf-pill'),btn);
   if(_eloHistoryCache)renderEloChartFromData(_eloHistoryCache);
+  var chartCard=$('p-chart');if(chartCard)chartCard.style.cursor='pointer';if(chartCard)chartCard.onclick=function(){if(_eloHistoryCache)openChartModal()};
 }
 
-function switchProfileFormat(e){
+function switchProfileFormat(e){_eloAnimate=true;
   var btn=e.target.closest('.seg-btn');
   if(!btn)return;
   var fmt=btn.getAttribute('data-fmt');
@@ -1206,6 +1258,21 @@ function switchProfileFormat(e){
   var cards=document.querySelectorAll('.p-card');
   cards.forEach(function(c){c.classList.add('fading')});
   setTimeout(function(){renderProfile();cards.forEach(function(c){c.classList.remove('fading')})},150);
+}
+
+function _animateElo(el,target){
+  var current=parseInt(el.textContent)||0;
+  if(current===target){el.textContent=target;return}
+  var dur=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--elo-count-ms'))||400;
+  var start=performance.now();
+  var from=current;
+  function tick(now){
+    var t=Math.min((now-start)/dur,1);
+    var ease=1-Math.pow(1-t,3);
+    el.textContent=Math.round(from+(target-from)*ease);
+    if(t<1)requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
 }
 
 function renderProfile(){
@@ -1246,8 +1313,10 @@ function renderProfile(){
 
   // ELO
   // Edit chip only on own profile
-  $('p-elo-num').textContent=total?elo:STARTING_ELO;
-  $('p-elo-num').className=total?'p-elo-num':'p-elo-num p-elo-num-empty';
+  var eloEl=$('p-elo-num');
+  eloEl.className=total?'p-elo-num':'p-elo-num p-elo-num-empty';
+  if(total&&_eloAnimate){_animateElo(eloEl,elo)}else{eloEl.textContent=total?elo:STARTING_ELO}
+  _eloAnimate=false;
   // Peak moved to stats
   // Odometer — delta from last completed match
   var lastMatch=matches.find(function(m){return m.status==='done'&&(m.p1===pt.id||m.p2===pt.id)});
@@ -1256,8 +1325,9 @@ function renderProfile(){
     dbGet('elo_history','player_id=eq.'+pt.id+'&time_control=eq.'+_profFormat+'&order=created_at.desc&limit=1&select=elo_after,elo_before').then(function(rows){
       if(rows&&rows.length){
         var d=Math.round(rows[0].elo_after-rows[0].elo_before);
-        deltaEl.textContent=(d>=0?'+':'')+d;
         deltaEl.className='p-elo-delta '+(d>=0?'up':'down');
+        // Animate delta appearance with slight delay after ELO count
+        deltaEl.textContent=(d>=0?'+':'')+d;
       }
     });
   }else{deltaEl.textContent=''}
@@ -1318,12 +1388,12 @@ function renderProfile(){
   sh+='<div class="p-stat"><span class="p-stat-label">Total games</span><span class="p-stat-val">'+globalTotal+'</span></div>';
   sh+='<div class="p-stat"><span class="p-stat-label">'+fmtLabel+' games</span><span class="p-stat-val">'+total+'</span></div>';
   sh+='<div class="p-stat"><span class="p-stat-label">Peak rating</span><span class="p-stat-val">'+Math.round(eloData.peak)+'</span></div>';
-  sh+='<div class="p-stat"><span class="p-stat-label">Win rate</span><span class="p-stat-val">'+wr+'%</span></div>';
-  sh+='<div class="p-stat"><span class="p-stat-label">Win rate as White</span><span class="p-stat-val">'+wrW+'%</span></div>';
-  sh+='<div class="p-stat"><span class="p-stat-label">Win rate as Black</span><span class="p-stat-val">'+wrB+'%</span></div>';
+  sh+='<div class="p-stat"><div class="p-stat-label">Win rate</div><div class="p-stat-val-wrap"><div class="p-stat-bar"><div class="p-stat-bar-fill" style="width:'+wr+'%;background:var(--green)"></div></div><div class="p-stat-val">'+wr+'%</div></div></div>';
+  sh+='<div class="p-stat"><div class="p-stat-label">Win rate as White</div><div class="p-stat-val-wrap"><div class="p-stat-bar"><div class="p-stat-bar-fill" style="width:'+wrW+'%;background:var(--text)"></div></div><div class="p-stat-val">'+wrW+'%</div></div></div>';
+  sh+='<div class="p-stat"><div class="p-stat-label">Win rate as Black</div><div class="p-stat-val-wrap"><div class="p-stat-bar"><div class="p-stat-bar-fill" style="width:'+wrB+'%;background:var(--dim)"></div></div><div class="p-stat-val">'+wrB+'%</div></div></div>';
   sh+='<div class="p-stat"><span class="p-stat-label">Current streak</span><span class="p-stat-val'+(streak>=3?' gold':'')+'">'+(streak>=3?'\ud83d\udd25 '+streak+'W':streak>0?streak+'W':'\u2014')+'</span></div>';
   sh+='<div class="p-stat"><span class="p-stat-label">Best streak</span><span class="p-stat-val">'+bestStreak+'W</span></div>';
-  if(bestWin)sh+='<div class="p-stat"><span class="p-stat-label">Best win</span><span class="p-stat-val green">'+nick(bestWin)+' ('+bestWinElo+')</span></div>';
+  if(bestWin)sh+='<div class="p-stat"><span class="p-stat-label">Best win</span><span class="p-stat-val p-stat-tap" onclick="viewProfile(\''+bestWin.id+'\')">'+bestWinElo+' <span class="p-stat-sub">('+nick(bestWin)+')</span></span></div>';
   $('p-stats-body').innerHTML=sh;
 
   // Rivals
@@ -1355,11 +1425,48 @@ function renderRivals(){
   sorted.forEach(function(id){
     var o=getP(id);var s=opps[id];
     var oElo=o?Math.round(getPlayerElo(o,_profFormat).elo):STARTING_ELO;
-    h+='<div class="p-cell" onclick="viewProfile(\''+id+'\')"><div class="p-cell-body"><div class="p-cell-name">'+nick(o)+'</div><div class="p-cell-sub">'+oElo+' ELO</div></div>';
+    var avColor=o?avatarColor(o.nickname):'av-0';
+    var avInit=o?initial(o):'?';
+    var avBadge=o&&o.emoji?'<div class="p-cell-av-badge">'+o.emoji+'</div>':'';
+    h+='<div class="p-cell" onclick="viewProfile(\''+id+'\')"><div class="p-cell-av"><div class="p-cell-av-circle '+avColor+'">'+avInit+'</div>'+avBadge+'</div><div class="p-cell-body"><div class="p-cell-name">'+nick(o)+'</div><div class="p-cell-sub">'+oElo+' ELO</div></div>';
     h+='<div class="p-cell-right"><div class="p-wdl"><span class="p-b w">'+s.w+'</span><span class="p-b l">'+s.l+'</span><span class="p-b d">'+s.d+'</span></div></div></div>';
   });
   h+='</div>';
   section.innerHTML=h;
+}
+
+
+// ── Chart detail modal ──
+function openChartModal(){
+  var modal=$('chart-modal');
+  var pt=profTarget();
+  var fmt=_profFormat;
+  modal.classList.add('open');
+  // Render chart in modal
+  var chartEl=$('chart-modal-chart');
+  if(_eloHistoryCache){
+    renderEloChartFromData(_eloHistoryCache,chartEl);
+  }
+  // Stats for this period
+  var statsEl=$('chart-modal-stats');
+  if(_eloHistoryCache&&_eloHistoryCache.length>1){
+    var elos=_eloHistoryCache.map(function(r){return Math.round(r.elo_after)});
+    var first=elos[0],last=elos[elos.length-1];
+    var peak=Math.max.apply(null,elos);
+    var valley=Math.min.apply(null,elos);
+    var change=last-first;
+    var h='<div class="chart-modal-info-title">Period Stats</div>';
+    h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">Current</span><span class="chart-modal-stat-val">'+last+'</span></div>';
+    h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">Period high</span><span class="chart-modal-stat-val">'+peak+'</span></div>';
+    h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">Period low</span><span class="chart-modal-stat-val">'+valley+'</span></div>';
+    h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">Change</span><span class="chart-modal-stat-val" style="color:var(--'+(change>=0?'green':'red')+')">'+( change>=0?'+':'')+change+'</span></div>';
+    h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">Games in period</span><span class="chart-modal-stat-val">'+_eloHistoryCache.length+'</span></div>';
+    statsEl.innerHTML=h;
+  }
+}
+
+function closeChartModal(){
+  $('chart-modal').classList.remove('open');
 }
 
 function renderProfileEloChart(){
@@ -1384,8 +1491,8 @@ function renderProfileEloChart(){
   });
 }
 
-function renderEloChartFromData(rows){
-  var chartEl=$('p-chart');
+function renderEloChartFromData(rows,targetEl){
+  var chartEl=targetEl||$('p-chart');
   var now=new Date();
   var cutoff=null;
   if(_profTimeframe==='1W')cutoff=new Date(now.getTime()-7*86400000);
@@ -1417,7 +1524,7 @@ function renderLineChart(container,data,trend){
   _chartPoints=points;_chartData=data;
   var linePath=points.map(function(p,i){return(i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)}).join(' ');
   var showDot=function(i){if(n<=10)return true;if(i===0||i===n-1)return true;return i%Math.ceil(n/8)===0};
-  var dots='';points.forEach(function(p,i){if(showDot(i))dots+='<circle class="p-line-dot '+trendClass+'" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+(n<=6?2.5:2)+'"/>'});
+  var dots='';points.forEach(function(p,i){if(showDot(i)||i===n-1){var isLast=i===n-1;var r=isLast?3.5:(n<=6?2.5:2);var cls='p-line-dot '+trendClass+(isLast?' p-line-dot-last':'');dots+='<circle class="'+cls+'" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+r+'"/>';}});
   var verticals='';var lastMonth=-1;
   dates.forEach(function(d,i){var m=d.getMonth();if(m!==lastMonth&&i>0){verticals+='<line x1="'+points[i].x.toFixed(1)+'" y1="0" x2="'+points[i].x.toFixed(1)+'" y2="'+H+'" stroke="var(--separator)" stroke-width="1" stroke-dasharray="4,4"/>';}lastMonth=m});
   var gradId='lg'+Date.now();var colorVar=trend==='up'?'var(--green)':'var(--red)';
@@ -1549,6 +1656,12 @@ function renderProfileHistory(){
         var deltaEl=document.createElement('div');
         deltaEl.className='p-game-delta '+cls;
         deltaEl.textContent=sign+delta;
+        gameEls[idx].appendChild(deltaEl);
+      }else if(gameEls[idx]&&m.result==='draw'){
+        // Draw without elo_history record — show 0
+        var deltaEl=document.createElement('div');
+        deltaEl.className='p-game-delta flat';
+        deltaEl.textContent='0';
         gameEls[idx].appendChild(deltaEl);
       }
     });
