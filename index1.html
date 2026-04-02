@@ -27,6 +27,7 @@
   --page-bottom:120px;--chart-axis:40px;--disc-max:1200px;--day-max:500px;
   --nav-duration:300ms;--nav-push:160ms;--nav-curve:cubic-bezier(.2,.9,.3,1);--nav-parallax:0.3;--nav-dim:0.4;--nav-shadow:-2px 0 8px rgba(0,0,0,.3);
   --es-badge:30px;--es-avatar-lg:80px;--es-emoji-cell:44px;--es-emoji-font:26px;--elo-count-ms:1200;
+  --glow-pulse-ms:2s;--glow-r-outer:10;--glow-r-mid:6;--glow-r-dot:3.5;
   --ease-list:cubic-bezier(.25,.1,.25,1);--ease-spring:cubic-bezier(.34,1.56,.64,1);--ease-decel:cubic-bezier(.32,0,.24,1);
   --chev-size:14px;
   --starting-elo:1200;
@@ -280,10 +281,12 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .p-line-line{fill:none;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
 .p-line-line.trend-up{stroke:var(--green)}
 .p-line-line.trend-down{stroke:var(--red)}
+.p-line-line.trend-flat{stroke:var(--ghost)}
+.p-line-dot.trend-flat{fill:var(--ghost);stroke:var(--bg);stroke-width:1.5}
 .p-line-dot.trend-up{fill:var(--green);stroke:var(--bg);stroke-width:1.5}
 .p-line-dot.trend-down{fill:var(--red);stroke:var(--bg);stroke-width:1.5}
 @keyframes dotPulse{0%,100%{opacity:.15}50%{opacity:.35}}
-.p-line-glow{animation:dotPulse 2s ease-in-out infinite}
+.p-line-glow{animation:dotPulse var(--glow-pulse-ms) ease-in-out infinite}
 .p-card[onclick]:active,.p-card.tappable:active{opacity:.85}
 /* Chart detail modal */
 .chart-modal{position:fixed;inset:0;z-index:10002;background:var(--bg);display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:env(safe-area-inset-top,44px) 0 env(safe-area-inset-bottom,0px);scrollbar-width:none}
@@ -299,8 +302,6 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .chart-modal-info-text{font-size:var(--fs-caption);color:var(--muted);line-height:1.6}
 .chart-modal-info-text p{margin-bottom:var(--sp-md)}
 .chart-modal-info-text p:last-child{margin-bottom:0}
-.chart-modal-nerd-title{margin-top:var(--sp-lg);font-weight:700;color:var(--text)}
-.chart-modal-formula{font-family:Menlo,monospace;font-size:var(--fs-micro);color:var(--text);letter-spacing:0.3px;padding:var(--sp-sm) 0}
 .chart-modal-stat{display:flex;justify-content:space-between;padding:var(--sp-md) 0;border-top:0.33px solid var(--separator)}
 .chart-modal-stat:first-of-type{border-top:none;padding-top:0}
 .chart-modal-stat-label{font-size:var(--fs-caption);color:var(--muted)}
@@ -584,18 +585,15 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
   </div>
   <div class="chart-modal-chart" id="chart-modal-chart"></div>
   <div class="chart-modal-info" id="chart-modal-stats"></div>
-  <div class="chart-modal-info">
+    <div class="chart-modal-info">
     <div class="chart-modal-info-title">How your rating works</div>
     <div class="chart-modal-info-text">
-      <p>turko calculates your rating using Glicko-2, created by Mark Glickman as an evolution of classic Elo. You have a separate rating for Rapid, Blitz, and Classic.</p>
-      <p>Every player starts at 1500. After each game, your rating adjusts based on the result and your opponent's strength. The system also tracks how confident it is about your level (RD) and how consistently you perform (volatility).</p>
-      <p>When you're new, your RD is high and your rating moves a lot. As you play more, it stabilizes. Beating a stronger opponent earns more points. Drawing someone well above you is rewarded.</p>
-      <p class="chart-modal-nerd-title">Under the hood</p>
-      <p class="chart-modal-formula">E = 1 / (1 + e<sup>⁻ᵍ⁽φ⁾·⁽μ₁ − μ₂⁾</sup>)</p>
-      <p>The expected score against an opponent, weighted by their rating reliability. τ = 0.5 · Scale = 173.7178 · Starting RD = 100</p>
+      <p>Your rating uses Glicko-2, an evolution of the classic Elo system. Each format — Rapid, Blitz, and Classic — has its own rating.</p>
+      <p>Everyone starts at 1500. After each game, your rating adjusts based on the result and your opponent’s strength. Beating stronger players gives you more points. Losing to lower-rated players costs more.</p>
+      <p>Your rating also reflects how confident the system is about your level. Early on, it can change quickly. As you play more games, it becomes more stable.</p>
+      <p>A draw against a much stronger player is considered a strong result. Over time, as your level becomes clearer, rating changes become smaller.</p>
     </div>
   </div>
-</div>
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -1395,7 +1393,7 @@ function renderProfile(){
   // TODO: needs elo_history for accurate delta; placeholder
   var sh='';
   var globalTotal=(pt.wins||0)+(pt.draws||0)+(pt.losses||0);
-  sh+='<div class="p-stat"><span class="p-stat-label">Total games</span><span class="p-stat-val">'+globalTotal+'</span></div>';
+  sh+='<div class="p-stat"><span class="p-stat-label">All games</span><span class="p-stat-val">'+globalTotal+'</span></div>';
   sh+='<div class="p-stat"><span class="p-stat-label">'+fmtLabel+' games</span><span class="p-stat-val">'+total+'</span></div>';
   sh+='<div class="p-stat"><span class="p-stat-label">Peak rating</span><span class="p-stat-val">'+Math.round(eloData.peak)+'</span></div>';
   sh+='<div class="p-stat"><div class="p-stat-label">Win rate</div><div class="p-stat-val-wrap"><div class="p-stat-bar"><div class="p-stat-bar-fill" style="width:'+wr+'%;background:var(--green)"></div></div><div class="p-stat-val">'+wr+'%</div></div></div>';
@@ -1495,7 +1493,8 @@ function openChartModal(){
     var h='<div class="chart-modal-info-title">'+periodLabel+'</div>';
     h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">Range</span><span class="chart-modal-stat-val">'+valley+' \u2013 '+peak+'</span></div>';
     h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">Change</span><span class="chart-modal-stat-val chart-modal-stat-'+(change>=0?'up':'down')+'">'+( change>=0?'+':'')+change+'</span></div>';
-    h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">Games</span><span class="chart-modal-stat-val">'+filtered.length+'</span></div>';
+    var fmtLabel=_profFormat.charAt(0).toUpperCase()+_profFormat.slice(1);
+    h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">'+fmtLabel+' games</span><span class="chart-modal-stat-val">'+filtered.length+'</span></div>';
     statsEl.innerHTML=h;
   }
 }
@@ -1532,29 +1531,17 @@ function renderEloChartFromData(rows,targetEl){
   var now=new Date();
   var timeframes=['1W','1M','3M','ALL'];
   var cutoffs={'1W':7,'1M':30,'3M':90,'ALL':null};
-  // Auto-fallback: if current timeframe has < 2 datapoints, try next
-  var filtered=null;
-  var tf=_profTimeframe;
-  if(!targetEl){
-    var tfIdx=timeframes.indexOf(tf);
-    for(var t=tfIdx;t<timeframes.length;t++){
-      var days=cutoffs[timeframes[t]];
-      var cut=days?new Date(now.getTime()-days*86400000):null;
-      var f=cut?rows.filter(function(r){return new Date(r.created_at)>=cut}):rows;
-      if(f.length>=2){filtered=f;tf=timeframes[t];break}
+  var days=cutoffs[_profTimeframe];
+  var cut=days?new Date(now.getTime()-days*86400000):null;
+  var filtered=cut?rows.filter(function(r){return new Date(r.created_at)>=cut}):rows;
+  if(filtered.length<2){
+    if(rows.length>=2){
+      // Has data but not in this period — show flat line at last known value
+      var lastElo=filtered.length===1?Math.round(filtered[0].elo_after):Math.round(rows[rows.length-1].elo_after);
+      var lastDate=filtered.length===1?new Date(filtered[0].created_at):new Date(rows[rows.length-1].created_at);
+      console.log('FLAT LINE: elo='+lastElo+' rows='+rows.length+' filtered='+filtered.length);
+      renderLineChart(chartEl,[{elo:lastElo,date:lastDate},{elo:lastElo,date:new Date()}],'flat');return;
     }
-    // Update pill if timeframe changed
-    if(tf!==_profTimeframe){
-      _profTimeframe=tf;
-      var seg=$('p-tf-seg');
-      if(seg){var btn=seg.querySelector('[data-tf="'+tf+'"]');if(btn)movePill(seg,$('p-tf-pill'),btn)}
-    }
-  }else{
-    var days=cutoffs[tf];
-    var cut=days?new Date(now.getTime()-days*86400000):null;
-    filtered=cut?rows.filter(function(r){return new Date(r.created_at)>=cut}):rows;
-  }
-  if(!filtered||filtered.length<2){
     var fmt=_profFormat.charAt(0).toUpperCase()+_profFormat.slice(1);
     chartEl.innerHTML=emptyMsg('Play your first '+fmt+' game to see your rating');return}
   var data=filtered.map(function(r){return{elo:Math.round(r.elo_after),date:new Date(r.created_at)}});
@@ -1581,6 +1568,7 @@ function renderLineChart(container,data,trend){
   var elos=data.map(function(d){return d.elo});
   var dates=data.map(function(d){return d.date});
   var min=Math.min.apply(null,elos),max=Math.max.apply(null,elos);
+  if(min===max){min-=20;max+=20}
   var padding=Math.max(Math.round((max-min)*.2),10);
   var rangeMin=min-padding,rangeMax=max+padding,range=rangeMax-rangeMin||1;
   var n=elos.length;
@@ -1592,17 +1580,18 @@ function renderLineChart(container,data,trend){
   var linePath=points.map(function(p,i){return(i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)}).join(' ');
   var showDot=function(i){if(n<=10)return true;if(i===0||i===n-1)return true;return i%Math.ceil(n/8)===0};
   var resolvedColor=_resolveColor(colorVar);
-  var dots='';points.forEach(function(p,i){if(showDot(i)||i===n-1){var isLast=i===n-1;if(isLast){dots+='<circle class="p-line-glow" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="10" fill="'+resolvedColor+'"/>';dots+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="6" fill="'+resolvedColor+'" opacity="0.3"/>';dots+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="3.5" fill="'+resolvedColor+'" stroke="var(--bg)" stroke-width="2"/>';}else{var r=n<=6?2.5:2;dots+='<circle class="p-line-dot '+trendClass+'" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+r+'"/>';}}});
+  var dots='';points.forEach(function(p,i){if(showDot(i)||i===n-1){var isLast=i===n-1;if(isLast){if(trend==='flat'){/* no dot on flat */}else{var _gr=getComputedStyle(document.documentElement);var grO=parseFloat(_gr.getPropertyValue('--glow-r-outer'))||10;var grM=parseFloat(_gr.getPropertyValue('--glow-r-mid'))||6;var grD=parseFloat(_gr.getPropertyValue('--glow-r-dot'))||3.5;dots+='<circle class="p-line-glow" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+grO+'" fill="'+resolvedColor+'"/>';dots+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+grM+'" fill="'+resolvedColor+'" opacity="0.3"/>';dots+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+grD+'" fill="'+resolvedColor+'" stroke="var(--bg)" stroke-width="2"/>';}}else{if(trend!=='flat'){var r=n<=6?2.5:2;dots+='<circle class="p-line-dot '+trendClass+'" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+r+'"/>';}}}});
   var verticals='';var lastMonth=-1;
   dates.forEach(function(d,i){var m=d.getMonth();if(m!==lastMonth&&i>0){verticals+='<line x1="'+points[i].x.toFixed(1)+'" y1="0" x2="'+points[i].x.toFixed(1)+'" y2="'+H+'" stroke="var(--separator)" stroke-width="1" stroke-dasharray="4,4"/>';}lastMonth=m});
-  var gradId='lg'+Date.now();var colorVar=trend==='up'?'var(--green)':'var(--red)';
+  var gradId='lg'+Date.now();var colorVar=trend==='up'?'var(--green)':trend==='down'?'var(--red)':'var(--ghost)';
   var html='<div class="p-line-chart"><div class="p-line-wrap">';
   html+='<div class="p-line-grid">';gridVals.forEach(function(v){html+='<div class="p-line-grid-row"><div class="p-line-gridline"></div><div class="p-line-grid-val">'+v+'</div></div>'});html+='</div>';
   html+='<div class="p-line-svg"><svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">';
   html+='<defs><linearGradient id="'+gradId+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+colorVar+'" stop-opacity="0.18"/><stop offset="100%" stop-color="'+colorVar+'" stop-opacity="0.03"/></linearGradient></defs>';
   html+=verticals;
   var areaPath=linePath+' L'+points[n-1].x.toFixed(1)+','+H+' L'+points[0].x.toFixed(1)+','+H+' Z';
-  html+='<path d="'+areaPath+'" fill="url(#'+gradId+')" stroke="none"/>';
+  var showArea=trend!=='flat';
+  if(showArea)html+='<path d="'+areaPath+'" fill="url(#'+gradId+')" stroke="none"/>';
   html+='<path class="p-line-line '+trendClass+'" d="'+linePath+'"/>';
   html+='<line class="p-line-cursor" id="p-chart-cursor" x1="0" y1="0" x2="0" y2="'+H+'"/>';
   html+='<circle class="p-line-active-dot" id="p-chart-adot" cx="0" cy="0" r="5" fill="'+colorVar+'" stroke="var(--bg)" stroke-width="2"/>';
