@@ -28,7 +28,7 @@
   --nav-duration:300ms;--nav-push:160ms;--nav-curve:cubic-bezier(.2,.9,.3,1);--nav-parallax:0.3;--nav-dim:0.4;--nav-shadow:-2px 0 8px rgba(0,0,0,.3);
   --es-badge:30px;--es-avatar-lg:80px;--es-emoji-cell:44px;--es-emoji-font:26px;--elo-count-ms:1200;
   --glow-pulse-ms:2s;--glow-r-outer:10;--glow-r-mid:6;--glow-r-dot:3.5;
-  --tip-fs-val:var(--fs-body);--tip-fs-date:10px;--tip-transition:.12s;
+  --tip-fs-val:var(--fs-body);--tip-fs-date:10px;--tip-transition:.12s;--sp-xxl:32px;
   --ease-list:cubic-bezier(.25,.1,.25,1);--ease-spring:cubic-bezier(.34,1.56,.64,1);--ease-decel:cubic-bezier(.32,0,.24,1);
   --chev-size:14px;
   --starting-elo:1200;
@@ -293,22 +293,23 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .chart-modal{position:fixed;inset:0;z-index:10002;background:var(--bg);display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:env(safe-area-inset-top,44px) 0 env(safe-area-inset-bottom,0px);scrollbar-width:none}
 .chart-modal::-webkit-scrollbar{display:none}
 .chart-modal.open{display:block}
-.chart-modal-nav{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--content-pad) var(--sp-lg)}
+.chart-modal-nav{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--content-pad) var(--sp-sm)}
 .chart-modal-close{font-size:var(--fs-body);font-weight:600;color:var(--blue);background:none;border:none;font-family:inherit;cursor:pointer}
 .chart-modal-close:active{opacity:.5}
-.chart-modal-title{font-size:var(--fs-body);font-weight:700}
-.chart-modal-chart{padding:0 var(--content-pad) var(--sp-xl)}
-.chart-modal-info{margin:0 var(--content-pad) var(--sp-lg);background:var(--surface);border-radius:var(--r-sm);padding:var(--sp-lg)}
-.chart-modal-info-title{font-size:var(--fs-body);font-weight:800;margin-bottom:var(--sp-md)}
-.chart-modal-info-text{font-size:var(--fs-caption);color:var(--muted);line-height:1.6}
-.chart-modal-info-text p{margin-bottom:var(--sp-md)}
-.chart-modal-info-text p:last-child{margin-bottom:0}
-.chart-modal-stat{display:flex;justify-content:space-between;padding:var(--sp-md) 0;border-top:0.33px solid var(--separator)}
-.chart-modal-stat:first-of-type{border-top:none;padding-top:0}
+.chart-modal-nav-title{font-size:var(--fs-body);font-weight:700}
+.chart-modal-nav-spacer{width:44px}
+.chart-modal-chart{padding:0 var(--content-pad) var(--sp-sm);max-height:140px}
+.chart-modal-section-title{font-size:var(--fs-title);font-weight:800;letter-spacing:-0.5px;padding:var(--sp-xxl) var(--content-pad) var(--sp-sm)}
+.chart-modal-stats-card{margin:0 var(--content-pad) var(--sp-md);background:var(--surface);border-radius:var(--r-sm);overflow:hidden}
+.chart-modal-stat{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-sm) var(--sp-lg)}
+.chart-modal-stat+.chart-modal-stat{border-top:0.33px solid var(--separator)}
 .chart-modal-stat-label{font-size:var(--fs-caption);color:var(--muted)}
 .chart-modal-stat-val{font-size:var(--fs-caption);font-weight:700;color:var(--text)}
 .chart-modal-stat-up{color:var(--green)}
 .chart-modal-stat-down{color:var(--red)}
+.chart-modal-copy{margin:0 var(--content-pad) var(--sp-lg);background:var(--surface);border-radius:var(--r-sm);padding:var(--sp-lg)}
+.chart-modal-copy p{font-size:var(--fs-caption);color:var(--muted);line-height:1.6;margin-bottom:var(--sp-md)}
+.chart-modal-copy p:last-child{margin-bottom:0}
 
 .p-line-labels{display:flex;justify-content:space-between;padding:6px var(--sp-lg) 0;padding-right:calc(var(--sp-lg) + var(--chart-axis))}
 .p-line-lbl{font-size:9px;font-weight:500;color:var(--dim)}
@@ -581,19 +582,18 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 <div class="chart-modal" id="chart-modal">
   <div class="chart-modal-nav">
     <button class="chart-modal-close" onclick="closeChartModal()">Done</button>
-    <div class="chart-modal-title">Rating</div>
-    <div style="width:44px"></div>
+    <div class="chart-modal-nav-title">Rating</div>
+    <div class="chart-modal-nav-spacer"></div>
   </div>
   <div class="chart-modal-chart" id="chart-modal-chart"></div>
-  <div class="chart-modal-info" id="chart-modal-stats"></div>
-    <div class="chart-modal-info">
-    <div class="chart-modal-info-title">How your rating works</div>
-    <div class="chart-modal-info-text">
-      <p>Your rating uses Glicko-2, an evolution of the classic Elo system. Each format — Rapid, Blitz, and Classic — has its own rating.</p>
-      <p>Everyone starts at 1500. After each game, your rating adjusts based on the result and your opponent’s strength. Beating stronger players gives you more points. Losing to lower-rated players costs more.</p>
-      <p>Your rating also reflects how confident the system is about your level. Early on, it can change quickly. As you play more games, it becomes more stable.</p>
-      <p>A draw against a much stronger player is considered a strong result. Over time, as your level becomes clearer, rating changes become smaller.</p>
-    </div>
+  <div class="chart-modal-section-title" id="chart-modal-period-label"></div>
+  <div class="chart-modal-stats-card" id="chart-modal-stats"></div>
+  <div class="chart-modal-section-title">How your rating works</div>
+  <div class="chart-modal-copy">
+    <p>Your rating uses Glicko-2, an evolution of the classic Elo system. Each format, Rapid, Blitz, and Classic, has its own rating.</p>
+    <p>Everyone starts at 1500. After each game, your rating adjusts based on the result and your opponent's strength. Beating stronger players gives you more points. Losing to lower-rated players costs more.</p>
+    <p>Your rating also reflects how confident the system is about your level. Early on, it can change quickly. As you play more games, it becomes more stable.</p>
+    <p>A draw against a much stronger player is considered a strong result. Over time, as your level becomes clearer, rating changes become smaller.</p>
   </div>
 <div class="toast" id="toast"></div>
 
@@ -1480,6 +1480,9 @@ function openChartModal(){
   }
   // Stats — filter by current timeframe
   var statsEl=$('chart-modal-stats');
+  // Period label outside card
+  var periodLabel=_profTimeframe==='1W'?'Last week':_profTimeframe==='1M'?'Last month':_profTimeframe==='3M'?'Last 3 months':'All time';
+  $('chart-modal-period-label').textContent=periodLabel;
   if(_eloHistoryCache&&_eloHistoryCache.length>1){
     var now=new Date();
     var cutoffs={'1W':7,'1M':30,'3M':90,'ALL':null};
@@ -1490,11 +1493,9 @@ function openChartModal(){
     var peak=Math.max.apply(null,elos);
     var valley=Math.min.apply(null,elos);
     var change=elos[elos.length-1]-elos[0];
-    var periodLabel=_profTimeframe==='1W'?'Last week':_profTimeframe==='1M'?'Last month':_profTimeframe==='3M'?'Last 3 months':'All time';
-    var h='<div class="chart-modal-info-title">'+periodLabel+'</div>';
-    h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">Range</span><span class="chart-modal-stat-val">'+valley+' \u2013 '+peak+'</span></div>';
-    h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">Change</span><span class="chart-modal-stat-val chart-modal-stat-'+(change>=0?'up':'down')+'">'+( change>=0?'+':'')+change+'</span></div>';
     var fmtLabel=_profFormat.charAt(0).toUpperCase()+_profFormat.slice(1);
+    var h='<div class="chart-modal-stat"><span class="chart-modal-stat-label">Range</span><span class="chart-modal-stat-val">'+valley+' \u2013 '+peak+'</span></div>';
+    h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">Change</span><span class="chart-modal-stat-val chart-modal-stat-'+(change>=0?'up':'down')+'">'+( change>=0?'+':'')+change+'</span></div>';
     h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">'+fmtLabel+' games</span><span class="chart-modal-stat-val">'+filtered.length+'</span></div>';
     statsEl.innerHTML=h;
   }
