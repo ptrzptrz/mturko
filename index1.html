@@ -27,7 +27,7 @@
   --page-bottom:120px;--chart-axis:40px;--disc-max:1200px;--day-max:500px;
   --nav-duration:300ms;--nav-push:160ms;--nav-curve:cubic-bezier(.2,.9,.3,1);--nav-parallax:0.3;--nav-dim:0.4;--nav-shadow:-2px 0 8px rgba(0,0,0,.3);
   --es-badge:30px;--es-avatar-lg:80px;--es-emoji-cell:44px;--es-emoji-font:26px;--elo-count-ms:1200;
-  --glow-pulse-ms:2s;--glow-r-outer:10;--glow-r-mid:6;--glow-r-dot:3.5;
+  --glow-pulse-ms:2s;--glow-r-outer:10;--glow-r-mid:6;--glow-r-dot:3.5;--glow-observe-delay:500ms;--ghost-border:0.75px;
   --tip-fs-val:var(--fs-body);--tip-fs-date:10px;--tip-transition:.12s;--sp-xxl:32px;
   --ease-list:cubic-bezier(.25,.1,.25,1);--ease-spring:cubic-bezier(.34,1.56,.64,1);--ease-decel:cubic-bezier(.32,0,.24,1);
   --chev-size:14px;
@@ -126,7 +126,7 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 
 /* Profile */
 .p-hero{display:flex;align-items:flex-start;gap:var(--sp-lg);padding:var(--sp-lg) var(--content-pad) var(--sp-sm)}
-.p-avatar{width:60px;height:60px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:var(--text);flex-shrink:0}
+.p-avatar{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:var(--text);flex-shrink:0;letter-spacing:-1px;text-transform:uppercase}
 .p-hero-name{font-size:var(--fs-title-lg);font-weight:800;letter-spacing:-.5px;line-height:1.1}
 .p-hero-meta{font-size:var(--fs-caption);color:var(--muted);margin-top:var(--sp-xs)}
 .p-hero-bio{font-size:var(--fs-caption);color:var(--dim);margin-top:var(--sp-xs);line-height:1.4}
@@ -161,7 +161,7 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .p-stat{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--sp-lg);position:relative}
 .p-stat::before{content:'';position:absolute;top:0;left:var(--sp-lg);right:var(--sp-lg);height:0.33px;background:var(--separator)}
 .p-stat-label{font-size:var(--fs-caption);color:var(--muted)}
-.p-stat-val{font-size:var(--fs-caption);font-weight:700;color:var(--text)}
+.p-stat-val{font-size:var(--fs-body);font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;letter-spacing:-0.3px}
 .p-stat-val.green{color:var(--green)}
 .p-stat-val.red{color:var(--red)}
 .p-stat-val.gold{color:var(--gold)}
@@ -182,6 +182,20 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .p-stat-val-wrap{display:flex;align-items:center;gap:var(--sp-sm);flex-shrink:0}
 .p-stat-bar{width:60px;height:3px;background:var(--fill-subtle);border-radius:1.5px;overflow:hidden;flex-shrink:0}
 .p-stat-bar-fill{height:100%;border-radius:1.5px}
+/* Momentum dots */
+.p-momentum{display:flex;gap:6px;align-items:center}
+.p-m-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:var(--fs-micro);font-weight:700}
+.p-m-dot.w{background:var(--green-bg);color:var(--green)}
+.p-m-dot.l{background:var(--red-bg);color:var(--red)}
+.p-m-dot.d{background:var(--muted-bg);color:var(--muted)}
+.p-m-dot.ghost{background:transparent;border:var(--ghost-border) solid var(--ghost);color:transparent}
+.p-momentum.streak-w .p-m-dot{animation:mDotGlow 4s ease-in-out 1 forwards}
+.p-momentum.streak-w .p-m-dot:nth-child(1){animation-delay:0.6s}
+.p-momentum.streak-w .p-m-dot:nth-child(2){animation-delay:0.9s}
+.p-momentum.streak-w .p-m-dot:nth-child(3){animation-delay:1.2s}
+.p-momentum.streak-w .p-m-dot:nth-child(4){animation-delay:1.5s}
+.p-momentum.streak-w .p-m-dot:nth-child(5){animation-delay:1.8s}
+@keyframes mDotGlow{0%,100%{box-shadow:none;background:var(--green-bg)}20%{box-shadow:0 0 8px rgba(48,209,88,.4);background:rgba(48,209,88,.3)}40%{box-shadow:none;background:var(--green-bg)}}
 .p-stat-tap{cursor:pointer;color:var(--green)}
 .p-stat-tap:active{opacity:.5}
 .p-stat-sub{font-size:var(--fs-caption);font-weight:500;color:var(--dim)}
@@ -268,10 +282,29 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .es-field-input:focus{outline:none;border-color:var(--blue)}
 .es-field-input::placeholder{color:var(--ghost)}
 .es-field-count{font-size:var(--fs-micro);color:var(--dim);text-align:right;margin-top:var(--sp-xs)}
+/* History cell (tappable → full screen) */
+.p-history-cell{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-lg);cursor:pointer}
+.p-history-cell:active{opacity:.7}
+.p-history-cell-title{font-size:var(--fs-body);font-weight:800}
+.p-history-cell-sub{font-size:var(--fs-micro);color:var(--dim);margin-top:2px}
+/* History full screen */
+.p-hist-full{display:none;position:absolute;inset:0;background:var(--bg);z-index:5;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:env(safe-area-inset-top,20px) 0 var(--page-bottom);scrollbar-width:none}
+.p-hist-full::-webkit-scrollbar{display:none}
+.p-hist-full.open{display:block}
+.p-hist-full-nav{display:flex;align-items:center;padding:var(--sp-md) var(--content-pad) var(--sp-lg)}
+.p-hist-full-back{display:flex;align-items:center;gap:var(--sp-xs);font-size:var(--fs-body);font-weight:600;color:var(--blue);background:none;border:none;font-family:inherit;cursor:pointer}
+.p-hist-full-back:active{opacity:.5}
+.p-hist-full-title{flex:1;text-align:center;font-size:var(--fs-body);font-weight:700;margin-right:44px}
+/* Game row with avatar */
+.p-game-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:-0.5px;flex-shrink:0;margin-right:var(--sp-sm)}
+.p-stats-header{padding:0 var(--sp-lg) var(--sp-sm);display:flex;justify-content:flex-end}
 .p-logout{margin:var(--sp-xl) var(--content-pad)}
 .p-logout-btn{width:100%;padding:var(--sp-md);font-size:var(--fs-caption);font-weight:500;color:var(--muted);background:transparent;border:none;font-family:inherit;cursor:pointer;text-align:center}
 .p-logout-btn:active{color:var(--red)}
 .p-line-chart{padding:var(--sp-xs) 0 var(--sp-sm);position:relative}
+
+#p-chart{min-height:175px}
+#p-chart .p-empty-msg{min-height:175px;display:flex;align-items:center;justify-content:center;color:var(--ghost);font-size:var(--fs-caption);padding-bottom:var(--sp-xl)}
 .p-line-wrap{position:relative;height:140px;margin:0 var(--sp-lg)}
 .p-line-grid{position:absolute;top:0;bottom:0;left:0;right:var(--chart-axis);display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}
 .p-line-grid-row{display:flex;align-items:center;position:relative}
@@ -294,10 +327,10 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .chart-modal::-webkit-scrollbar{display:none}
 .chart-modal.open{display:block}
 .chart-modal-nav{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--content-pad) var(--sp-sm)}
-.chart-modal-close{font-size:var(--fs-body);font-weight:600;color:var(--blue);background:none;border:none;font-family:inherit;cursor:pointer}
+.chart-modal-close{font-size:var(--fs-body);font-weight:600;color:var(--blue);background:none;border:none;font-family:inherit;cursor:pointer;width:54px;text-align:left}
 .chart-modal-close:active{opacity:.5}
 .chart-modal-nav-title{font-size:var(--fs-body);font-weight:700}
-.chart-modal-nav-spacer{width:44px}
+.chart-modal-nav-spacer{width:54px}
 .chart-modal-chart{padding:0 var(--content-pad) var(--sp-sm);max-height:140px}
 .chart-modal-section-title{font-size:var(--fs-title);font-weight:800;letter-spacing:-0.5px;padding:var(--sp-xxl) var(--content-pad) var(--sp-sm)}
 .chart-modal-stats-card{margin:0 var(--content-pad) var(--sp-md);background:var(--surface);border-radius:var(--r-sm);overflow:hidden}
@@ -476,12 +509,13 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
     <div id="p-back" style="display:none"></div>
 <div class="p-hero"><div class="p-avatar-wrap" style="position:relative;flex-shrink:0"><div class="p-avatar" id="p-avatar">?</div><div class="p-avatar-badge" id="p-avatar-badge"></div></div><div><div><div class="p-hero-name" id="p-name"></div><div class="p-hero-meta" id="p-meta"></div><div class="p-hero-bio" id="p-bio"></div></div></div></div>
     <div class="p-elo" id="p-elo-block"><div class="p-elo-row"><div class="p-elo-num" id="p-elo-num">—</div><div class="p-elo-delta" id="p-elo-delta"></div></div></div>
-    <div class="seg" id="p-fmt-seg" onclick="switchProfileFormat(event);event.stopPropagation()"><div class="seg-pill" id="p-fmt-pill" style="left:2px;width:33.333%"></div><button class="seg-btn on" data-fmt="rapid">Rapid</button><button class="seg-btn" data-fmt="blitz">Blitz</button><button class="seg-btn" data-fmt="classic">Classic</button></div>
+    <div class="seg" id="p-fmt-seg" onclick="switchProfileFormat(event);event.stopPropagation()"><div class="seg-pill" id="p-fmt-pill" style="left:33.333%;width:33.333%"></div><button class="seg-btn" data-fmt="blitz">Blitz</button><button class="seg-btn on" data-fmt="rapid">Rapid</button><button class="seg-btn" data-fmt="classic">Classic</button></div>
     <div id="p-content">
       <div class="p-card" id="p-chart-card"><div class="p-tf" id="p-tf-seg" onclick="switchTimeframe(event);event.stopPropagation()"><div class="p-tf-pill" id="p-tf-pill"></div><button class="p-tf-btn" data-tf="1W">1W</button><button class="p-tf-btn on" data-tf="1M">1M</button><button class="p-tf-btn" data-tf="3M">3M</button><button class="p-tf-btn" data-tf="ALL">All</button></div><div id="p-chart"></div></div>
-      <div class="p-disc" id="p-disc-stats"><div class="p-disc-tap" onclick="toggleDisc('p-disc-stats')"><div class="p-disc-title" id="p-stats-title">Statistics</div><div class="p-disc-right"><div class="p-wdl" id="p-stats-wdl"></div><svg class="p-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div></div><div class="p-disc-body" id="p-stats-body"></div></div>
+      <div class="section-label">Statistics</div><div class="ios-group" id="p-stats-hero"></div><div class="ios-group" id="p-stats-detail"></div>
       <div id="p-rivals-section"></div>
       <div id="p-history-section"></div>
+
     </div>
     <div id="p-empty" style="display:none"><div class="p-empty"><div class="p-empty-text">Play your first game to start tracking your rating, stats, and rivals.</div><button class="p-empty-cta" onclick="switchToPlay()"><svg viewBox="0 0 24 24" fill="var(--green)" width="16" height="16"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>New challenge</button></div></div>
     <div class="p-logout"><button class="p-logout-btn" onclick="doLogout()">Log out</button></div>
@@ -590,10 +624,9 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
   <div class="chart-modal-stats-card" id="chart-modal-stats"></div>
   <div class="chart-modal-section-title">How your rating works</div>
   <div class="chart-modal-copy">
-    <p>Your rating uses Glicko-2, an evolution of the classic Elo system. Each format, Rapid, Blitz, and Classic, has its own rating.</p>
-    <p>Everyone starts at 1500. After each game, your rating adjusts based on the result and your opponent's strength. Beating stronger players gives you more points. Losing to lower-rated players costs more.</p>
-    <p>Your rating also reflects how confident the system is about your level. Early on, it can change quickly. As you play more games, it becomes more stable.</p>
-    <p>A draw against a much stronger player is considered a strong result. Over time, as your level becomes clearer, rating changes become smaller.</p>
+    <p>Your rating uses Glicko-2, an evolution of Elo. Each format (Rapid, Blitz, and Classic) has its own rating, starting at 1500.</p>
+    <p>After each game, your rating changes based on the result and your opponent's strength. Beating stronger players gives more points, while losing to lower-rated players costs more.</p>
+    <p>Over time, as the system becomes more confident in your level, rating changes get smaller.</p>
   </div>
 <div class="toast" id="toast"></div>
 
@@ -605,7 +638,7 @@ var SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 var supabaseClient=window.supabase.createClient(SUPA_URL,SUPA_KEY);
 var me=null,players=[],matches=[],authToken=null,authMode='login';
 var CHEVRON_SVG='<svg class="ios-cell-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
-var STARTING_ELO=1200;
+var STARTING_ELO=1500;
 
 function toast(msg,type){var t=$('toast');t.textContent=msg;t.className='toast'+(type==='err'?' err':'');requestAnimationFrame(function(){t.classList.add('visible');setTimeout(function(){t.classList.remove('visible')},2500)})}
 
@@ -721,7 +754,7 @@ async function dbRpc(fn,p){var r=await fetch(SUPA_URL+'/rest/v1/rpc/'+fn,{method
 async function fetchAll(){if(!me)return;var p=await dbGet('players','order=elo_rapid.desc');if(Array.isArray(p))players=p;var f=players.find(function(x){return x.id===me.id});if(f)me=f;var m=await dbGet('matches','order=created_at.desc&limit=100');if(Array.isArray(m))matches=m;renderAll()}
 
 function getP(id){return players.find(function(p){return p.id===id})}
-function getPlayerElo(p,fmt){var elo=p['elo_'+(fmt||'rapid')]||STARTING_ELO;var peak=p['peak_'+(fmt||'rapid')]||STARTING_ELO;return{elo:elo,peak:Math.max(elo,peak)}}
+function getPlayerElo(p,fmt){var f=fmt||'rapid';var elo=p['elo_'+f]||STARTING_ELO;var peak=p['elo_peak_'+f]||STARTING_ELO;return{elo:elo,peak:Math.max(elo,peak)}}
 
 function setupRealtime(){supabaseClient.channel('turko-v2').on('postgres_changes',{event:'*',schema:'public',table:'matches'},function(){fetchAll()}).on('postgres_changes',{event:'*',schema:'public',table:'players'},function(){fetchAll()}).subscribe()}
 
@@ -984,11 +1017,32 @@ async function saveEditProfile(){
 
 // ── Profile tab ──
 var _profFormat='rapid';
+var _profFormatInit=false;
+function initProfileFormat(){
+  if(_profFormatInit||_viewingPlayer)return;
+  _profFormatInit=true;
+  var fmt=getMostPlayedFormat(me.id);
+  _profFormat=fmt;
+  var seg=$('p-fmt-seg');
+  if(seg){var btn=seg.querySelector('[data-fmt="'+fmt+'"]');if(btn){movePill(seg,$('p-fmt-pill'),btn);seg.querySelectorAll('.seg-btn').forEach(function(b){b.classList.remove('on')});btn.classList.add('on')}}
+}
 var _profHash=null;
 var _eloAnimate=false;
 var _viewingPlayer=null;
 var _navStack=[];  // [{playerId,dom,scroll}]
 function profTarget(){return _viewingPlayer||me}
+function getMostPlayedFormat(playerId){
+  var counts={rapid:0,blitz:0,classic:0};
+  matches.forEach(function(m){
+    if(m.status==='done'&&m.result!=='cancelled'&&(m.p1===playerId||m.p2===playerId)){
+      var tc=m.time_control||'rapid';
+      if(counts[tc]!==undefined)counts[tc]++;
+    }
+  });
+  if(counts.blitz>=counts.rapid&&counts.blitz>=counts.classic)return'blitz';
+  if(counts.classic>=counts.rapid&&counts.classic>=counts.blitz)return'classic';
+  return'rapid';
+}
 var _profTimeframe='1M';
 var _eloHistoryCache=null;
 var CHEV_SVG_SM='<svg class="p-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
@@ -1255,18 +1309,20 @@ function switchTimeframe(e){
   _setupChartTap();
 }
 
-function switchProfileFormat(e){_eloAnimate=true;
+function switchProfileFormat(e){
   var btn=e.target.closest('.seg-btn');
   if(!btn)return;
   var fmt=btn.getAttribute('data-fmt');
   if(!fmt||fmt===_profFormat)return;
   _profFormat=fmt;
+  _profTimeframe='1M';
   _eloHistoryCache=null;
   _profHash=null;
   movePill($('p-fmt-seg'),$('p-fmt-pill'),btn);
+  var tfSeg=$('p-tf-seg');if(tfSeg){var tfBtn=tfSeg.querySelector('[data-tf="1M"]');if(tfBtn)movePill(tfSeg,$('p-tf-pill'),tfBtn)}
   var cards=document.querySelectorAll('.p-card');
   cards.forEach(function(c){c.classList.add('fading')});
-  setTimeout(function(){renderProfile();cards.forEach(function(c){c.classList.remove('fading')})},150);
+  setTimeout(function(){_eloAnimate=true;renderProfile();cards.forEach(function(c){c.classList.remove('fading')})},150);
 }
 
 function _animateElo(el,target){
@@ -1287,8 +1343,9 @@ function _animateElo(el,target){
 function renderProfile(){
   if(!me)return;
   var pt=profTarget();
+  initProfileFormat();
   // Dirty check — skip render if data hasn't changed
-  var relevantMatches=matches.filter(function(m){return m.status==='done'&&(m.p1===pt.id||m.p2===pt.id)});
+  var relevantMatches=matches.filter(function(m){return m.status==='done'&&m.result!=='cancelled'&&(m.p1===pt.id||m.p2===pt.id)});
   var hash=pt.id+'|'+_profFormat+'|'+pt.elo_rapid+'|'+pt.elo_blitz+'|'+pt.elo_classic+'|'+relevantMatches.length+'|'+(relevantMatches[0]?relevantMatches[0].id:'')+'|'+players.length;
   if(hash===_profHash)return;
   _profHash=hash;
@@ -1313,7 +1370,7 @@ function renderProfile(){
   else{bioEl.textContent='';bioEl.className='p-hero-bio';bioEl.onclick=null}
 
   // Stats filtered by format
-  var fmtDone=matches.filter(function(m){return m.status==='done'&&(m.p1===pt.id||m.p2===pt.id)&&(m.time_control||'rapid')===_profFormat});
+  var fmtDone=matches.filter(function(m){return m.status==='done'&&m.result!=='cancelled'&&(m.p1===pt.id||m.p2===pt.id)&&(m.time_control||'rapid')===_profFormat});
   var w=0,d=0,l=0;
   fmtDone.forEach(function(m){var isP1=m.p1===pt.id;var won=m.result===(isP1?'p1':'p2');var lost=m.result===(isP1?'p2':'p1');if(won)w++;else if(lost)l++;else d++});
   var total=w+d+l;
@@ -1324,11 +1381,12 @@ function renderProfile(){
   // Edit chip only on own profile
   var eloEl=$('p-elo-num');
   eloEl.className=total?'p-elo-num':'p-elo-num p-elo-num-empty';
-  if(total&&_eloAnimate){_animateElo(eloEl,elo)}else{eloEl.textContent=total?elo:STARTING_ELO}
+  var displayElo=total?elo:STARTING_ELO;
+  if(_eloAnimate){_animateElo(eloEl,displayElo)}else{eloEl.textContent=displayElo}
   _eloAnimate=false;
   // Peak moved to stats
   // Odometer — delta from last completed match
-  var lastMatch=matches.find(function(m){return m.status==='done'&&(m.p1===pt.id||m.p2===pt.id)});
+  var lastMatch=matches.find(function(m){return m.status==='done'&&m.result!=='cancelled'&&(m.p1===pt.id||m.p2===pt.id)});
   var deltaEl=$('p-elo-delta');
   if(lastMatch&&total){
     dbGet('elo_history','player_id=eq.'+pt.id+'&time_control=eq.'+_profFormat+'&order=created_at.desc&limit=1&select=elo_after,elo_before').then(function(rows){
@@ -1350,14 +1408,13 @@ function renderProfile(){
   $('p-empty').style.display=hasGames?'none':'';
   if(!hasGames)return;
 
-  // Stats disclosure W/D/L badges
+  // Stats — two cards: hero + detail
   var fmtLabel=_profFormat.charAt(0).toUpperCase()+_profFormat.slice(1);
-  $('p-stats-wdl').innerHTML='<span class="p-b w">'+w+'</span><span class="p-b l">'+l+'</span><span class="p-b d">'+d+'</span>';
-
-  // Stats body
-  var wr=Math.round(w/total*100);
-  var myDone=matches.filter(function(m){return m.status==='done'&&(m.p1===pt.id||m.p2===pt.id)});
-  // Win rate as white/black
+  var fmtDone=matches.filter(function(m){return m.status==='done'&&m.result!=='cancelled'&&(m.p1===pt.id||m.p2===pt.id)&&(m.time_control||'rapid')===_profFormat});
+  var w=0,l=0,d=0,total=fmtDone.length;
+  fmtDone.forEach(function(m){var isP1=m.p1===pt.id;var won=m.result===(isP1?'p1':'p2');var lost=m.result===(isP1?'p2':'p1');if(won)w++;else if(lost)l++;else d++});
+  var wr=total?Math.round(w/total*100):0;
+  // WR white/black
   var wW=0,tW=0,wB=0,tB=0;
   fmtDone.forEach(function(m){
     var isP1=m.p1===pt.id;
@@ -1367,19 +1424,10 @@ function renderProfile(){
   });
   var wrW=tW?Math.round(wW/tW*100):0;
   var wrB=tB?Math.round(wB/tB*100):0;
-  // Streak
-  var streak=0;
-  for(var i=0;i<fmtDone.length;i++){
-    var m=fmtDone[i],isP1=m.p1===pt.id;
-    if(m.result===(isP1?'p1':'p2'))streak++;else break;
-  }
-  // Best streak (approx — count longest win run)
+  // Best streak
   var bestStreak=0,cur=0;
-  fmtDone.forEach(function(m){
-    var isP1=m.p1===pt.id;
-    if(m.result===(isP1?'p1':'p2')){cur++;if(cur>bestStreak)bestStreak=cur}else{cur=0}
-  });
-  // Best win — highest opponent ELO at time of win
+  fmtDone.forEach(function(m){var isP1=m.p1===pt.id;if(m.result===(isP1?'p1':'p2')){cur++;if(cur>bestStreak)bestStreak=cur}else{cur=0}});
+  // Best win
   var bestWin=null,bestWinElo=0;
   fmtDone.forEach(function(m){
     var isP1=m.p1===pt.id;
@@ -1389,22 +1437,43 @@ function renderProfile(){
       if(oppElo>bestWinElo){bestWinElo=oppElo;bestWin=opp}
     }
   });
-  // Last 12 ELO delta
-  var last12=myDone.slice(0,12);
-  // TODO: needs elo_history for accurate delta; placeholder
-  var sh='';
-  var globalTotal=(pt.wins||0)+(pt.draws||0)+(pt.losses||0);
-  sh+='<div class="p-stat"><span class="p-stat-label">All games</span><span class="p-stat-val">'+globalTotal+'</span></div>';
-  sh+='<div class="p-stat"><span class="p-stat-label">'+fmtLabel+' games</span><span class="p-stat-val">'+total+'</span></div>';
+  // Momentum — last 5 results (most recent last)
+  var last5=fmtDone.slice(0,5).reverse();
+  var isOwn=!_viewingPlayer;
+  var all5W=last5.length===5&&last5.every(function(m){var isP1=m.p1===pt.id;return m.result===(isP1?'p1':'p2')});
+  var momentumClass='p-momentum';
+  var _triggerGlow=all5W&&isOwn;
+  var mDots='';
+  var ghostCount=5-last5.length;
+  for(var gi=0;gi<ghostCount;gi++){mDots+='<div class="p-m-dot ghost"></div>'}
+  last5.forEach(function(m){
+    var isP1=m.p1===pt.id;var won=m.result===(isP1?'p1':'p2');var lost=m.result===(isP1?'p2':'p1');
+    var cls=won?'w':lost?'l':'d';var lbl=won?'W':lost?'L':'D';
+    mDots+='<div class="p-m-dot '+cls+'">'+lbl+'</div>';
+  });
+  // Hero card
+  var sh='<div class="p-stat"><span class="p-stat-label">Form</span><div class="'+momentumClass+'">'+mDots+'</div></div>';
+  sh+='<div class="p-stat"><span class="p-stat-label">Win rate</span><span class="p-stat-val">'+wr+'%</span></div>';
   sh+='<div class="p-stat"><span class="p-stat-label">Peak rating</span><span class="p-stat-val">'+Math.round(eloData.peak)+'</span></div>';
-  sh+='<div class="p-stat"><div class="p-stat-label">Win rate</div><div class="p-stat-val-wrap"><div class="p-stat-bar"><div class="p-stat-bar-fill" style="width:'+wr+'%;background:var(--green)"></div></div><div class="p-stat-val">'+wr+'%</div></div></div>';
-  sh+='<div class="p-stat"><div class="p-stat-label">Win rate as White</div><div class="p-stat-val-wrap"><div class="p-stat-bar"><div class="p-stat-bar-fill" style="width:'+wrW+'%;background:var(--text)"></div></div><div class="p-stat-val">'+wrW+'%</div></div></div>';
-  sh+='<div class="p-stat"><div class="p-stat-label">Win rate as Black</div><div class="p-stat-val-wrap"><div class="p-stat-bar"><div class="p-stat-bar-fill" style="width:'+wrB+'%;background:var(--dim)"></div></div><div class="p-stat-val">'+wrB+'%</div></div></div>';
-  sh+='<div class="p-stat"><span class="p-stat-label">Current streak</span><span class="p-stat-val'+(streak>=3?' gold':'')+'">'+(streak>=3?'\ud83d\udd25 '+streak+'W':streak>0?streak+'W':'\u2014')+'</span></div>';
   sh+='<div class="p-stat"><span class="p-stat-label">Best streak</span><span class="p-stat-val">'+bestStreak+'W</span></div>';
   if(bestWin)sh+='<div class="p-stat"><span class="p-stat-label">Best win</span><span class="p-stat-val p-stat-tap" onclick="viewProfile(\''+bestWin.id+'\')">'+bestWinElo+' <span class="p-stat-sub">('+nick(bestWin)+')</span></span></div>';
-  $('p-stats-body').innerHTML=sh;
-
+  $('p-stats-hero').innerHTML=sh;
+  if(_triggerGlow){
+    var _mEl=$('p-stats-hero').querySelector('.p-momentum');
+    if(_mEl&&'IntersectionObserver' in window){
+      var _obs=new IntersectionObserver(function(entries){
+        if(entries[0].isIntersecting){var _glowDelay=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--glow-observe-delay'))||500;setTimeout(function(){_mEl.classList.add('streak-w')},_glowDelay);_obs.disconnect()}
+      },{threshold:0.8});
+      _obs.observe(_mEl);
+    }
+  }
+  // Detail card
+  var globalTotal=(pt.wins||0)+(pt.draws||0)+(pt.losses||0);
+  var dh='<div class="p-stat"><span class="p-stat-label">All games</span><span class="p-stat-val">'+globalTotal+'</span></div>';
+  dh+='<div class="p-stat"><span class="p-stat-label">'+fmtLabel+' games</span><span class="p-stat-val">'+total+'</span></div>';
+  dh+='<div class="p-stat"><span class="p-stat-label">Win rate as White</span><span class="p-stat-val">'+wrW+'%</span></div>';
+  dh+='<div class="p-stat"><span class="p-stat-label">Win rate as Black</span><span class="p-stat-val">'+wrB+'%</span></div>';
+  $('p-stats-detail').innerHTML=dh;
   // Rivals
   renderRivals();
   // Chart
@@ -1413,10 +1482,93 @@ function renderProfile(){
   renderProfileHistory();
 }
 
+
+function openHistoryFull(){
+  var pt=profTarget();
+  var container=$('p-hist-full-content');
+  var fullView=$('p-hist-full');
+  var myDone=matches.filter(function(m){return m.status==='done'&&m.result!=='cancelled'&&(m.p1===pt.id||m.p2===pt.id)});
+  if(!myDone.length)return;
+  // Group by date
+  var days={};
+  myDone.forEach(function(m){
+    var d=new Date(m.created_at||0);
+    var key=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+    if(!days[key])days[key]={date:d,matches:[]};
+    days[key].matches.push(m);
+  });
+  var dayKeys=Object.keys(days).sort(function(a,b){return days[b].date-days[a].date});
+  var fmtD=function(d){var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return d.getDate()+' '+months[d.getMonth()]};
+
+  var h='<div class="p-hist">';
+  dayKeys.forEach(function(key,di){
+    var day=days[key];
+    var dayW=0,dayL=0,dayD=0;
+    day.matches.forEach(function(m){
+      var isP1=m.p1===pt.id;
+      var won=m.result===(isP1?'p1':'p2');var lost=m.result===(isP1?'p2':'p1');
+      if(won)dayW++;else if(lost)dayL++;else dayD++;
+    });
+    var dayId='hf-day-'+key.replace(/[^0-9]/g,'');
+    h+='<div class="p-day" id="'+dayId+'">';
+    h+='<div class="p-day-tap" onclick="toggleDay(\''+dayId+'\')"><div class="p-day-info"><div class="p-day-date">'+fmtD(day.date)+'</div>';
+    h+='<div class="p-day-meta"><span class="p-day-range">'+day.matches.length+' game'+(day.matches.length>1?'s':'')+'</span></div></div>';
+    h+='<div class="p-day-right"><div class="p-wdl"><span class="p-b w">'+dayW+'</span><span class="p-b l">'+dayL+'</span><span class="p-b d">'+dayD+'</span></div>';
+    h+='<svg class="p-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div></div>';
+    h+='<div class="p-day-games">';
+    day.matches.forEach(function(m){
+      var isP1=m.p1===pt.id;var opp=getP(isP1?m.p2:m.p1);
+      var won=m.result===(isP1?'p1':'p2');var lost=m.result===(isP1?'p2':'p1');
+      var cls=won?'w':lost?'l':'d';var lbl=won?'W':lost?'L':'D';
+      var fmt=(m.time_control||'rapid');var side=m.white_player_id===pt.id?'White':'Black';
+      var avColor=opp?avatarColor(opp.nickname):'av-0';
+      var avInit=opp?initial(opp):'?';
+      h+='<div class="p-game"><div class="p-game-icon '+cls+'">'+lbl+'</div>';
+      h+='<div class="p-game-av '+avColor+'">'+avInit+'</div>';
+      h+='<div class="p-game-body"><div class="p-game-name" onclick="event.stopPropagation();viewProfile(\''+opp.id+'\')">vs '+nick(opp)+'</div>';
+      h+='<div class="p-game-detail">'+fmt.charAt(0).toUpperCase()+fmt.slice(1)+' \u00b7 '+side+'</div></div></div>';
+    });
+    h+='</div></div>';
+  });
+  h+='</div>';
+  container.innerHTML=h;
+  fullView.classList.add('open');
+  fullView.scrollTop=0;
+
+  // Fetch deltas
+  dbGet('elo_history','player_id=eq.'+pt.id+'&order=created_at.desc&limit=500&select=match_id,elo_before,elo_after').then(function(hist){
+    if(!Array.isArray(hist)||!hist.length)return;
+    var deltaMap={};
+    hist.forEach(function(h){deltaMap[h.match_id]=Math.round(h.elo_after-h.elo_before)});
+    var gameEls=container.querySelectorAll('.p-game');
+    var allMatches=myDone.slice();
+    allMatches.forEach(function(m,idx){
+      var delta=deltaMap[m.id];
+      if(delta!==undefined&&gameEls[idx]){
+        var cls=delta>0?'up':delta<0?'down':'flat';
+        var sign=delta>0?'+':'';
+        var deltaEl=document.createElement('div');
+        deltaEl.className='p-game-delta '+cls;
+        deltaEl.textContent=sign+delta;
+        gameEls[idx].appendChild(deltaEl);
+      }else if(gameEls[idx]&&m.result==='draw'){
+        var deltaEl=document.createElement('div');
+        deltaEl.className='p-game-delta flat';
+        deltaEl.textContent='0';
+        gameEls[idx].appendChild(deltaEl);
+      }
+    });
+  });
+}
+
+function closeHistoryFull(){
+  $('p-hist-full').classList.remove('open');
+}
+
 function renderRivals(){
   var pt=profTarget();
   var section=$('p-rivals-section');
-  var myDone=matches.filter(function(m){return m.status==='done'&&(m.p1===pt.id||m.p2===pt.id)&&(m.time_control||'rapid')===_profFormat});
+  var myDone=matches.filter(function(m){return m.status==='done'&&m.result!=='cancelled'&&(m.p1===pt.id||m.p2===pt.id)&&(m.time_control||'rapid')===_profFormat});
   // Count per opponent (filtered by format)
   var opps={};
   myDone.forEach(function(m){
@@ -1464,7 +1616,7 @@ function _setupChartTap(){
     var dt=Date.now()-_tapST;
     var dx=Math.abs(e.changedTouches[0].clientX-_tapSX);
     var dy=Math.abs(e.changedTouches[0].clientY-_tapSY);
-    if(dt<300&&dx<15&&dy<15&&_eloHistoryCache)openChartModal();
+    if(dt<300&&dx<15&&dy<15&&_eloHistoryCache&&!_viewingPlayer)openChartModal();
   },{passive:true});
 }
 
@@ -1512,8 +1664,13 @@ function renderProfileEloChart(){
   initPill('p-tf-seg','p-tf-pill');
   dbGet('elo_history','player_id=eq.'+pt.id+'&time_control=eq.'+fmt+'&order=created_at.asc&select=elo_after,created_at').then(function(rows){
     if(!Array.isArray(rows)||rows.length<2){
-      _eloHistoryCache=null;
-      chartEl.innerHTML=emptyMsg('Play more games to see your rating chart');
+      _eloHistoryCache=rows||[];
+      // Show flat line at current ELO
+      var currentElo=Math.round(getPlayerElo(pt,fmt).elo);
+      var now=new Date();
+      var weekAgo=new Date(now.getTime()-7*86400000);
+      renderLineChart(chartEl,[{elo:currentElo,date:weekAgo},{elo:currentElo,date:now}],'flat');
+      _setupChartTap();
       return;
     }
     _eloHistoryCache=rows;
@@ -1541,11 +1698,13 @@ function renderEloChartFromData(rows,targetEl){
       // Has data but not in this period — show flat line at last known value
       var lastElo=filtered.length===1?Math.round(filtered[0].elo_after):Math.round(rows[rows.length-1].elo_after);
       var lastDate=filtered.length===1?new Date(filtered[0].created_at):new Date(rows[rows.length-1].created_at);
-      console.log('FLAT LINE: elo='+lastElo+' rows='+rows.length+' filtered='+filtered.length);
       renderLineChart(chartEl,[{elo:lastElo,date:lastDate},{elo:lastElo,date:new Date()}],'flat');return;
     }
-    var fmt=_profFormat.charAt(0).toUpperCase()+_profFormat.slice(1);
-    chartEl.innerHTML=emptyMsg('Play your first '+fmt+' game to see your rating');return}
+    // No data at all for this format — show flat line at current ELO
+    var pt=profTarget();
+    var currentElo=Math.round(getPlayerElo(pt,_profFormat).elo);
+    var weekAgo=new Date(now.getTime()-7*86400000);
+    renderLineChart(chartEl,[{elo:currentElo,date:weekAgo},{elo:currentElo,date:now}],'flat');return}
   var data=filtered.map(function(r){return{elo:Math.round(r.elo_after),date:new Date(r.created_at)}});
   if(data.length>20){var sampled=[data[0]];var step=(data.length-1)/19;for(var i=1;i<19;i++)sampled.push(data[Math.round(i*step)]);sampled.push(data[data.length-1]);data=sampled}
   var elos=data.map(function(d){return d.elo});
@@ -1564,6 +1723,7 @@ function _resolveColor(cssVar){
   el.removeChild(temp);
   return resolved;
 }
+
 
 function renderLineChart(container,data,trend){
   var trendClass='trend-'+trend;
@@ -1654,8 +1814,7 @@ function renderLineChart(container,data,trend){
 function renderProfileHistory(){
   var pt=profTarget();
   var section=$('p-history-section');
-
-  var myDone=matches.filter(function(m){return m.status==='done'&&(m.p1===pt.id||m.p2===pt.id)});
+  var myDone=matches.filter(function(m){return m.status==='done'&&m.result!=='cancelled'&&(m.p1===pt.id||m.p2===pt.id)});
   if(!myDone.length){section.innerHTML='';return}
   // Group by date
   var days={};
@@ -1677,11 +1836,9 @@ function renderProfileHistory(){
       var won=m.result===(isP1?'p1':'p2');var lost=m.result===(isP1?'p2':'p1');
       if(won)dayW++;else if(lost)dayL++;else dayD++;
     });
-    var isFirst=di===0;
     var dayId='day-'+key.replace(/[^0-9]/g,'');
     h+='<div class="p-day" id="'+dayId+'">';
-    h+='<div class="p-day-tap" onclick="toggleDay(\''+dayId+'\')">';
-    h+='<div class="p-day-info"><div class="p-day-date">'+fmtD(day.date)+'</div>';
+    h+='<div class="p-day-tap" onclick="toggleDay(\''+dayId+'\')"><div class="p-day-info"><div class="p-day-date">'+fmtD(day.date)+'</div>';
     h+='<div class="p-day-meta"><span class="p-day-range">'+day.matches.length+' game'+(day.matches.length>1?'s':'')+'</span></div></div>';
     h+='<div class="p-day-right"><div class="p-wdl"><span class="p-b w">'+dayW+'</span><span class="p-b l">'+dayL+'</span><span class="p-b d">'+dayD+'</span></div>';
     h+='<svg class="p-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div></div>';
@@ -1699,15 +1856,14 @@ function renderProfileHistory(){
   });
   h+='</div>';
   section.innerHTML=h;
-  // Fetch elo_history for delta display — join by match_id
+  // Fetch elo_history for delta display
   dbGet('elo_history','player_id=eq.'+pt.id+'&order=created_at.desc&limit=200&select=match_id,elo_before,elo_after').then(function(hist){
     if(!Array.isArray(hist)||!hist.length)return;
-    // Build map: match_id -> delta
     var deltaMap={};
     hist.forEach(function(h){deltaMap[h.match_id]=Math.round(h.elo_after-h.elo_before)});
-    // Apply to game rows
     var gameEls=section.querySelectorAll('.p-game');
-    var allMatches=myDone.slice();
+    var allMatches=[];
+    dayKeys.forEach(function(key){days[key].matches.forEach(function(m){allMatches.push(m)})});
     allMatches.forEach(function(m,idx){
       var delta=deltaMap[m.id];
       if(delta!==undefined&&gameEls[idx]){
@@ -1718,7 +1874,6 @@ function renderProfileHistory(){
         deltaEl.textContent=sign+delta;
         gameEls[idx].appendChild(deltaEl);
       }else if(gameEls[idx]&&m.result==='draw'){
-        // Draw without elo_history record — show 0
         var deltaEl=document.createElement('div');
         deltaEl.className='p-game-delta flat';
         deltaEl.textContent='0';
