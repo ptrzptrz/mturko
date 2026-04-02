@@ -28,6 +28,7 @@
   --nav-duration:300ms;--nav-push:160ms;--nav-curve:cubic-bezier(.2,.9,.3,1);--nav-parallax:0.3;--nav-dim:0.4;--nav-shadow:-2px 0 8px rgba(0,0,0,.3);
   --es-badge:30px;--es-avatar-lg:80px;--es-emoji-cell:44px;--es-emoji-font:26px;--elo-count-ms:1200;
   --glow-pulse-ms:2s;--glow-r-outer:10;--glow-r-mid:6;--glow-r-dot:3.5;
+  --tip-fs-val:var(--fs-body);--tip-fs-date:10px;--tip-transition:.12s;
   --ease-list:cubic-bezier(.25,.1,.25,1);--ease-spring:cubic-bezier(.34,1.56,.64,1);--ease-decel:cubic-bezier(.32,0,.24,1);
   --chev-size:14px;
   --starting-elo:1200;
@@ -313,13 +314,13 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .p-line-lbl{font-size:9px;font-weight:500;color:var(--dim)}
 .p-line-lbl.now{color:var(--text);font-weight:700}
 /* Chart tooltip (Apple Health style) */
-.p-line-tooltip{position:absolute;top:-4px;left:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--sp-sm);padding:var(--sp-xs) var(--sp-sm);pointer-events:none;opacity:0;transition:opacity .15s;z-index:2;white-space:nowrap;transform:translateX(-50%)}
+.p-line-tooltip{position:absolute;top:var(--sp-sm);left:0;pointer-events:none;opacity:0;transition:opacity var(--tip-transition);z-index:2;white-space:nowrap;transform:translateX(-50%);text-align:center}
 .p-line-tooltip.on{opacity:1}
-.p-line-tooltip-elo{font-size:var(--fs-caption);font-weight:700;color:var(--text)}
-.p-line-tooltip-date{font-size:var(--fs-micro);color:var(--muted)}
-.p-line-cursor{stroke:var(--muted);stroke-width:0.5;stroke-dasharray:3,3;opacity:0;transition:opacity .15s}
+.p-line-tooltip-elo{font-size:var(--tip-fs-val);font-weight:800;color:var(--text);letter-spacing:-0.3px}
+.p-line-tooltip-date{font-size:var(--tip-fs-date);color:var(--dim);margin-top:1px;font-weight:500}
+.p-line-cursor{stroke:var(--ghost);stroke-width:0.5;stroke-dasharray:3,3;opacity:0;transition:opacity var(--tip-transition)}
 .p-line-cursor.on{opacity:1}
-.p-line-active-dot{opacity:0;transition:opacity .15s}
+.p-line-active-dot{opacity:0;transition:opacity var(--tip-transition)}
 .p-line-active-dot.on{opacity:1}
 
 
