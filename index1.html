@@ -1590,14 +1590,14 @@ function renderLineChart(container,data,trend){
   var linePath=points.map(function(p,i){return(i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)}).join(' ');
   var showDot=function(i){if(n<=10)return true;if(i===0||i===n-1)return true;return i%Math.ceil(n/8)===0};
   var resolvedColor=_resolveColor(colorVar);
-  var dots='';points.forEach(function(p,i){if(showDot(i)||i===n-1){var isLast=i===n-1;if(isLast){dots+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="6" fill="'+resolvedColor+'" opacity="0.5" filter="url(#glow'+gradId+')"/>';dots+='<circle class="p-line-dot '+trendClass+'" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="3.5"/>';}else{var r=n<=6?2.5:2;dots+='<circle class="p-line-dot '+trendClass+'" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+r+'"/>';}}});
+  var dots='';points.forEach(function(p,i){if(showDot(i)||i===n-1){var isLast=i===n-1;if(isLast){dots+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="10" fill="'+resolvedColor+'" opacity="0.15"/>';dots+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="6" fill="'+resolvedColor+'" opacity="0.3"/>';dots+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="3.5" fill="'+resolvedColor+'" stroke="var(--bg)" stroke-width="2"/>';}else{var r=n<=6?2.5:2;dots+='<circle class="p-line-dot '+trendClass+'" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+r+'"/>';}}});
   var verticals='';var lastMonth=-1;
   dates.forEach(function(d,i){var m=d.getMonth();if(m!==lastMonth&&i>0){verticals+='<line x1="'+points[i].x.toFixed(1)+'" y1="0" x2="'+points[i].x.toFixed(1)+'" y2="'+H+'" stroke="var(--separator)" stroke-width="1" stroke-dasharray="4,4"/>';}lastMonth=m});
   var gradId='lg'+Date.now();var colorVar=trend==='up'?'var(--green)':'var(--red)';
   var html='<div class="p-line-chart"><div class="p-line-wrap">';
   html+='<div class="p-line-grid">';gridVals.forEach(function(v){html+='<div class="p-line-grid-row"><div class="p-line-gridline"></div><div class="p-line-grid-val">'+v+'</div></div>'});html+='</div>';
   html+='<div class="p-line-svg"><svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">';
-  html+='<defs><filter id="glow'+gradId+'" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur in="SourceGraphic" stdDeviation="3"/></filter><linearGradient id="'+gradId+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+colorVar+'" stop-opacity="0.18"/><stop offset="100%" stop-color="'+colorVar+'" stop-opacity="0.03"/></linearGradient></defs>';
+  html+='<defs><linearGradient id="'+gradId+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+colorVar+'" stop-opacity="0.18"/><stop offset="100%" stop-color="'+colorVar+'" stop-opacity="0.03"/></linearGradient></defs>';
   html+=verticals;
   var areaPath=linePath+' L'+points[n-1].x.toFixed(1)+','+H+' L'+points[0].x.toFixed(1)+','+H+' Z';
   html+='<path d="'+areaPath+'" fill="url(#'+gradId+')" stroke="none"/>';
