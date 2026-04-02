@@ -34,7 +34,8 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;color:var(--text);min-height:100dvh;overflow:hidden}
 
-.page{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:env(safe-area-inset-top,20px) 0 var(--page-bottom);opacity:0;pointer-events:none;transition:opacity .2s ease}
+.page{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:env(safe-area-inset-top,20px) 0 var(--page-bottom);opacity:0;pointer-events:none;transition:opacity .2s ease;scrollbar-width:none}
+.page::-webkit-scrollbar{display:none}
 .page.active{opacity:1;pointer-events:all}
 
 /* Navbar */
@@ -281,9 +282,11 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .p-line-line.trend-down{stroke:var(--red)}
 .p-line-dot.trend-up{fill:var(--green);stroke:var(--bg);stroke-width:1.5}
 .p-line-dot.trend-down{fill:var(--red);stroke:var(--bg);stroke-width:1.5}
-.p-line-dot-last{filter:drop-shadow(0 0 4px currentColor)}
+.p-line-dot-last{}
+.p-card[onclick]:active,.p-card.tappable:active{opacity:.85}
 /* Chart detail modal */
-.chart-modal{position:fixed;inset:0;z-index:10002;background:var(--bg);display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:env(safe-area-inset-top,44px) 0 env(safe-area-inset-bottom,0px)}
+.chart-modal{position:fixed;inset:0;z-index:10002;background:var(--bg);display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:env(safe-area-inset-top,44px) 0 env(safe-area-inset-bottom,0px);scrollbar-width:none}
+.chart-modal::-webkit-scrollbar{display:none}
 .chart-modal.open{display:block}
 .chart-modal-nav{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-md) var(--content-pad) var(--sp-lg)}
 .chart-modal-close{font-size:var(--fs-body);font-weight:600;color:var(--blue);background:none;border:none;font-family:inherit;cursor:pointer}
@@ -295,10 +298,14 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .chart-modal-info-text{font-size:var(--fs-caption);color:var(--muted);line-height:1.6}
 .chart-modal-info-text p{margin-bottom:var(--sp-md)}
 .chart-modal-info-text p:last-child{margin-bottom:0}
+.chart-modal-nerd-title{margin-top:var(--sp-lg);font-weight:700;color:var(--text)}
+.chart-modal-formula{font-family:Menlo,monospace;font-size:var(--fs-micro);color:var(--text);letter-spacing:0.3px;padding:var(--sp-sm) 0}
 .chart-modal-stat{display:flex;justify-content:space-between;padding:var(--sp-md) 0;border-top:0.33px solid var(--separator)}
 .chart-modal-stat:first-of-type{border-top:none;padding-top:0}
 .chart-modal-stat-label{font-size:var(--fs-caption);color:var(--muted)}
 .chart-modal-stat-val{font-size:var(--fs-caption);font-weight:700;color:var(--text)}
+.chart-modal-stat-up{color:var(--green)}
+.chart-modal-stat-down{color:var(--red)}
 
 .p-line-labels{display:flex;justify-content:space-between;padding:6px var(--sp-lg) 0;padding-right:calc(var(--sp-lg) + var(--chart-axis))}
 .p-line-lbl{font-size:9px;font-weight:500;color:var(--dim)}
@@ -465,9 +472,9 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
     <div id="p-back" style="display:none"></div>
 <div class="p-hero"><div class="p-avatar-wrap" style="position:relative;flex-shrink:0"><div class="p-avatar" id="p-avatar">?</div><div class="p-avatar-badge" id="p-avatar-badge"></div></div><div><div><div class="p-hero-name" id="p-name"></div><div class="p-hero-meta" id="p-meta"></div><div class="p-hero-bio" id="p-bio"></div></div></div></div>
     <div class="p-elo" id="p-elo-block"><div class="p-elo-row"><div class="p-elo-num" id="p-elo-num">—</div><div class="p-elo-delta" id="p-elo-delta"></div></div></div>
-    <div class="seg" id="p-fmt-seg" onclick="switchProfileFormat(event)"><div class="seg-pill" id="p-fmt-pill" style="left:2px;width:33.333%"></div><button class="seg-btn on" data-fmt="rapid">Rapid</button><button class="seg-btn" data-fmt="blitz">Blitz</button><button class="seg-btn" data-fmt="classic">Classic</button></div>
+    <div class="seg" id="p-fmt-seg" onclick="switchProfileFormat(event);event.stopPropagation()"><div class="seg-pill" id="p-fmt-pill" style="left:2px;width:33.333%"></div><button class="seg-btn on" data-fmt="rapid">Rapid</button><button class="seg-btn" data-fmt="blitz">Blitz</button><button class="seg-btn" data-fmt="classic">Classic</button></div>
     <div id="p-content">
-      <div class="p-card" id="p-chart-card"><div class="p-tf" id="p-tf-seg" onclick="switchTimeframe(event)"><div class="p-tf-pill" id="p-tf-pill"></div><button class="p-tf-btn" data-tf="1W">1W</button><button class="p-tf-btn on" data-tf="1M">1M</button><button class="p-tf-btn" data-tf="3M">3M</button><button class="p-tf-btn" data-tf="ALL">All</button></div><div id="p-chart"></div></div>
+      <div class="p-card" id="p-chart-card"><div class="p-tf" id="p-tf-seg" onclick="switchTimeframe(event);event.stopPropagation()"><div class="p-tf-pill" id="p-tf-pill"></div><button class="p-tf-btn" data-tf="1W">1W</button><button class="p-tf-btn on" data-tf="1M">1M</button><button class="p-tf-btn" data-tf="3M">3M</button><button class="p-tf-btn" data-tf="ALL">All</button></div><div id="p-chart"></div></div>
       <div class="p-disc" id="p-disc-stats"><div class="p-disc-tap" onclick="toggleDisc('p-disc-stats')"><div class="p-disc-title" id="p-stats-title">Statistics</div><div class="p-disc-right"><div class="p-wdl" id="p-stats-wdl"></div><svg class="p-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div></div><div class="p-disc-body" id="p-stats-body"></div></div>
       <div id="p-rivals-section"></div>
       <div id="p-history-section"></div>
@@ -577,12 +584,14 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
   <div class="chart-modal-chart" id="chart-modal-chart"></div>
   <div class="chart-modal-info" id="chart-modal-stats"></div>
   <div class="chart-modal-info">
-    <div class="chart-modal-info-title">How ELO Rating Works</div>
+    <div class="chart-modal-info-title">How your rating works</div>
     <div class="chart-modal-info-text">
-      <p>Your rating is calculated using the Glicko-2 system, an advanced algorithm used by FIDE and major chess platforms. It considers not just wins and losses, but the strength of your opponents.</p>
-      <p>Each player has three hidden values: Rating (your skill estimate), Rating Deviation (RD, how certain the system is), and Volatility (how consistently you perform).</p>
-      <p>When you're new, your RD is high — meaning the system is uncertain about your level. Your rating will change significantly after each game. As you play more, RD decreases and your rating stabilizes.</p>
-      <p>Beating a higher-rated player gives more points than beating a lower-rated one. Drawing with a much stronger player is rewarded, while drawing with a much weaker one costs points.</p>
+      <p>turko calculates your rating using Glicko-2, created by Mark Glickman as an evolution of classic Elo. You have a separate rating for Rapid, Blitz, and Classic.</p>
+      <p>Every player starts at 1500. After each game, your rating adjusts based on the result and your opponent's strength. The system also tracks how confident it is about your level (RD) and how consistently you perform (volatility).</p>
+      <p>When you're new, your RD is high and your rating moves a lot. As you play more, it stabilizes. Beating a stronger opponent earns more points. Drawing someone well above you is rewarded.</p>
+      <p class="chart-modal-nerd-title">Under the hood</p>
+      <p class="chart-modal-formula">E = 1 / (1 + e<sup>⁻ᵍ⁽φ⁾·⁽μ₁ − μ₂⁾</sup>)</p>
+      <p>The expected score against an opponent, weighted by their rating reliability. τ = 0.5 · Scale = 173.7178 · Starting RD = 100</p>
     </div>
   </div>
 </div>
@@ -1243,7 +1252,7 @@ function switchTimeframe(e){
   _profTimeframe=tf;
   movePill($('p-tf-seg'),$('p-tf-pill'),btn);
   if(_eloHistoryCache)renderEloChartFromData(_eloHistoryCache);
-  var chartCard=$('p-chart');if(chartCard)chartCard.style.cursor='pointer';if(chartCard)chartCard.onclick=function(){if(_eloHistoryCache)openChartModal()};
+  _setupChartTap();
 }
 
 function switchProfileFormat(e){_eloAnimate=true;
@@ -1437,30 +1446,55 @@ function renderRivals(){
 
 
 // ── Chart detail modal ──
+function _setupChartTap(){
+  var card=$('p-chart-card');
+  if(!card||card._tapBound)return;
+  card._tapBound=true;
+  var _tapSX=0,_tapSY=0,_tapST=0;
+  card.addEventListener('touchstart',function(e){
+    _tapSX=e.touches[0].clientX;_tapSY=e.touches[0].clientY;_tapST=Date.now();
+  },{passive:true});
+  card.addEventListener('touchend',function(e){
+    // Skip if on segmented
+    var t=e.target;
+    while(t&&t!==card){
+      if(t.classList&&(t.classList.contains('p-tf')||t.classList.contains('p-tf-btn')||t.classList.contains('p-tf-pill'))){return}
+      t=t.parentElement;
+    }
+    var dt=Date.now()-_tapST;
+    var dx=Math.abs(e.changedTouches[0].clientX-_tapSX);
+    var dy=Math.abs(e.changedTouches[0].clientY-_tapSY);
+    if(dt<300&&dx<15&&dy<15&&_eloHistoryCache)openChartModal();
+  },{passive:true});
+}
+
 function openChartModal(){
   var modal=$('chart-modal');
-  var pt=profTarget();
-  var fmt=_profFormat;
   modal.classList.add('open');
-  // Render chart in modal
+  modal.scrollTop=0;
+  // Render chart in modal — use a container div
   var chartEl=$('chart-modal-chart');
   if(_eloHistoryCache){
-    renderEloChartFromData(_eloHistoryCache,chartEl);
+    chartEl.innerHTML='<div id="chart-modal-inner"></div>';
+    renderEloChartFromData(_eloHistoryCache,$('chart-modal-inner'));
   }
-  // Stats for this period
+  // Stats — filter by current timeframe
   var statsEl=$('chart-modal-stats');
   if(_eloHistoryCache&&_eloHistoryCache.length>1){
-    var elos=_eloHistoryCache.map(function(r){return Math.round(r.elo_after)});
-    var first=elos[0],last=elos[elos.length-1];
+    var now=new Date();
+    var cutoffs={'1W':7,'1M':30,'3M':90,'ALL':null};
+    var days=cutoffs[_profTimeframe];
+    var cut=days?new Date(now.getTime()-days*86400000):null;
+    var filtered=cut?_eloHistoryCache.filter(function(r){return new Date(r.created_at)>=cut}):_eloHistoryCache;
+    var elos=filtered.map(function(r){return Math.round(r.elo_after)});
     var peak=Math.max.apply(null,elos);
     var valley=Math.min.apply(null,elos);
-    var change=last-first;
-    var h='<div class="chart-modal-info-title">Period Stats</div>';
-    h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">Current</span><span class="chart-modal-stat-val">'+last+'</span></div>';
-    h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">Period high</span><span class="chart-modal-stat-val">'+peak+'</span></div>';
-    h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">Period low</span><span class="chart-modal-stat-val">'+valley+'</span></div>';
-    h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">Change</span><span class="chart-modal-stat-val" style="color:var(--'+(change>=0?'green':'red')+')">'+( change>=0?'+':'')+change+'</span></div>';
-    h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">Games in period</span><span class="chart-modal-stat-val">'+_eloHistoryCache.length+'</span></div>';
+    var change=elos[elos.length-1]-elos[0];
+    var periodLabel=_profTimeframe==='1W'?'Last week':_profTimeframe==='1M'?'Last month':_profTimeframe==='3M'?'Last 3 months':'All time';
+    var h='<div class="chart-modal-info-title">'+periodLabel+'</div>';
+    h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">Range</span><span class="chart-modal-stat-val">'+valley+' \u2013 '+peak+'</span></div>';
+    h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">Change</span><span class="chart-modal-stat-val chart-modal-stat-'+(change>=0?'up':'down')+'">'+( change>=0?'+':'')+change+'</span></div>';
+    h+='<div class="chart-modal-stat"><span class="chart-modal-stat-label">Games</span><span class="chart-modal-stat-val">'+filtered.length+'</span></div>';
     statsEl.innerHTML=h;
   }
 }
@@ -1494,12 +1528,33 @@ function renderProfileEloChart(){
 function renderEloChartFromData(rows,targetEl){
   var chartEl=targetEl||$('p-chart');
   var now=new Date();
-  var cutoff=null;
-  if(_profTimeframe==='1W')cutoff=new Date(now.getTime()-7*86400000);
-  else if(_profTimeframe==='1M')cutoff=new Date(now.getTime()-30*86400000);
-  else if(_profTimeframe==='3M')cutoff=new Date(now.getTime()-90*86400000);
-  var filtered=cutoff?rows.filter(function(r){return new Date(r.created_at)>=cutoff}):rows;
-  if(filtered.length<2){chartEl.innerHTML=emptyMsg('Not enough data for this period');return}
+  var timeframes=['1W','1M','3M','ALL'];
+  var cutoffs={'1W':7,'1M':30,'3M':90,'ALL':null};
+  // Auto-fallback: if current timeframe has < 2 datapoints, try next
+  var filtered=null;
+  var tf=_profTimeframe;
+  if(!targetEl){
+    var tfIdx=timeframes.indexOf(tf);
+    for(var t=tfIdx;t<timeframes.length;t++){
+      var days=cutoffs[timeframes[t]];
+      var cut=days?new Date(now.getTime()-days*86400000):null;
+      var f=cut?rows.filter(function(r){return new Date(r.created_at)>=cut}):rows;
+      if(f.length>=2){filtered=f;tf=timeframes[t];break}
+    }
+    // Update pill if timeframe changed
+    if(tf!==_profTimeframe){
+      _profTimeframe=tf;
+      var seg=$('p-tf-seg');
+      if(seg){var btn=seg.querySelector('[data-tf="'+tf+'"]');if(btn)movePill(seg,$('p-tf-pill'),btn)}
+    }
+  }else{
+    var days=cutoffs[tf];
+    var cut=days?new Date(now.getTime()-days*86400000):null;
+    filtered=cut?rows.filter(function(r){return new Date(r.created_at)>=cut}):rows;
+  }
+  if(!filtered||filtered.length<2){
+    var fmt=_profFormat.charAt(0).toUpperCase()+_profFormat.slice(1);
+    chartEl.innerHTML=emptyMsg('Play your first '+fmt+' game to see your rating');return}
   var data=filtered.map(function(r){return{elo:Math.round(r.elo_after),date:new Date(r.created_at)}});
   if(data.length>20){var sampled=[data[0]];var step=(data.length-1)/19;for(var i=1;i<19;i++)sampled.push(data[Math.round(i*step)]);sampled.push(data[data.length-1]);data=sampled}
   var elos=data.map(function(d){return d.elo});
@@ -1508,7 +1563,17 @@ function renderEloChartFromData(rows,targetEl){
   renderLineChart(chartEl,data,trend);
 }
 
-var _chartPoints=null,_chartData=null,_chartW=300,_chartH=140;
+var _chartPoints=null,_chartData=null,_chartW=300,_chartH=140,_chartTouching=false;
+function _resolveColor(cssVar){
+  var el=document.documentElement;
+  var temp=document.createElement('div');
+  temp.style.color=cssVar;
+  el.appendChild(temp);
+  var resolved=getComputedStyle(temp).color;
+  el.removeChild(temp);
+  return resolved;
+}
+
 function renderLineChart(container,data,trend){
   var trendClass='trend-'+trend;
   var elos=data.map(function(d){return d.elo});
@@ -1524,14 +1589,15 @@ function renderLineChart(container,data,trend){
   _chartPoints=points;_chartData=data;
   var linePath=points.map(function(p,i){return(i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)}).join(' ');
   var showDot=function(i){if(n<=10)return true;if(i===0||i===n-1)return true;return i%Math.ceil(n/8)===0};
-  var dots='';points.forEach(function(p,i){if(showDot(i)||i===n-1){var isLast=i===n-1;var r=isLast?3.5:(n<=6?2.5:2);var cls='p-line-dot '+trendClass+(isLast?' p-line-dot-last':'');dots+='<circle class="'+cls+'" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+r+'"/>';}});
+  var resolvedColor=_resolveColor(colorVar);
+  var dots='';points.forEach(function(p,i){if(showDot(i)||i===n-1){var isLast=i===n-1;if(isLast){dots+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="6" fill="'+resolvedColor+'" opacity="0.5" filter="url(#glow'+gradId+')"/>';dots+='<circle class="p-line-dot '+trendClass+'" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="3.5"/>';}else{var r=n<=6?2.5:2;dots+='<circle class="p-line-dot '+trendClass+'" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+r+'"/>';}}});
   var verticals='';var lastMonth=-1;
   dates.forEach(function(d,i){var m=d.getMonth();if(m!==lastMonth&&i>0){verticals+='<line x1="'+points[i].x.toFixed(1)+'" y1="0" x2="'+points[i].x.toFixed(1)+'" y2="'+H+'" stroke="var(--separator)" stroke-width="1" stroke-dasharray="4,4"/>';}lastMonth=m});
   var gradId='lg'+Date.now();var colorVar=trend==='up'?'var(--green)':'var(--red)';
   var html='<div class="p-line-chart"><div class="p-line-wrap">';
   html+='<div class="p-line-grid">';gridVals.forEach(function(v){html+='<div class="p-line-grid-row"><div class="p-line-gridline"></div><div class="p-line-grid-val">'+v+'</div></div>'});html+='</div>';
   html+='<div class="p-line-svg"><svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">';
-  html+='<defs><linearGradient id="'+gradId+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+colorVar+'" stop-opacity="0.18"/><stop offset="100%" stop-color="'+colorVar+'" stop-opacity="0.03"/></linearGradient></defs>';
+  html+='<defs><filter id="glow'+gradId+'" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur in="SourceGraphic" stdDeviation="3"/></filter><linearGradient id="'+gradId+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+colorVar+'" stop-opacity="0.18"/><stop offset="100%" stop-color="'+colorVar+'" stop-opacity="0.03"/></linearGradient></defs>';
   html+=verticals;
   var areaPath=linePath+' L'+points[n-1].x.toFixed(1)+','+H+' L'+points[0].x.toFixed(1)+','+H+' Z';
   html+='<path d="'+areaPath+'" fill="url(#'+gradId+')" stroke="none"/>';
@@ -1547,8 +1613,9 @@ function renderLineChart(container,data,trend){
   // Touch interaction — Apple Health style
   var wrap=container.querySelector('.p-line-wrap');
   if(wrap){
+    var _chartMoved=false;
     var onTouch=function(e){
-      e.preventDefault();
+      e.preventDefault();_chartTouching=true;_chartMoved=true;
       var touch=e.touches[0];
       var rect=wrap.querySelector('.p-line-svg').getBoundingClientRect();
       var xPct=(touch.clientX-rect.left)/rect.width;
@@ -1584,8 +1651,8 @@ function renderLineChart(container,data,trend){
       var adot=$('p-chart-adot');if(adot)adot.classList.remove('on');
       var tip=$('p-chart-tip');if(tip)tip.classList.remove('on');
     };
-    wrap.addEventListener('touchstart',onTouch,{passive:false});
-    wrap.addEventListener('touchmove',onTouch,{passive:false});
+    wrap.addEventListener('touchstart',function(e){e.preventDefault();_chartTouching=true;_chartMoved=false;},{passive:false});
+    wrap.addEventListener('touchmove',function(e){_chartMoved=true;onTouch(e);},{passive:false});
     wrap.addEventListener('touchend',onEnd);
     wrap.addEventListener('touchcancel',onEnd);
   }
