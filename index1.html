@@ -282,7 +282,8 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .p-line-line.trend-down{stroke:var(--red)}
 .p-line-dot.trend-up{fill:var(--green);stroke:var(--bg);stroke-width:1.5}
 .p-line-dot.trend-down{fill:var(--red);stroke:var(--bg);stroke-width:1.5}
-.p-line-dot-last{}
+@keyframes dotPulse{0%,100%{opacity:.15}50%{opacity:.35}}
+.p-line-glow{animation:dotPulse 2s ease-in-out infinite}
 .p-card[onclick]:active,.p-card.tappable:active{opacity:.85}
 /* Chart detail modal */
 .chart-modal{position:fixed;inset:0;z-index:10002;background:var(--bg);display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:env(safe-area-inset-top,44px) 0 env(safe-area-inset-bottom,0px);scrollbar-width:none}
@@ -1519,6 +1520,7 @@ function renderProfileEloChart(){
     var realPeak=Math.max.apply(null,allElos);
     // peak in stats only
     renderEloChartFromData(rows);
+    _setupChartTap();
   }).catch(function(){
     _eloHistoryCache=null;
     chartEl.innerHTML=emptyMsg('Rating history unavailable');
@@ -1590,7 +1592,7 @@ function renderLineChart(container,data,trend){
   var linePath=points.map(function(p,i){return(i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)}).join(' ');
   var showDot=function(i){if(n<=10)return true;if(i===0||i===n-1)return true;return i%Math.ceil(n/8)===0};
   var resolvedColor=_resolveColor(colorVar);
-  var dots='';points.forEach(function(p,i){if(showDot(i)||i===n-1){var isLast=i===n-1;if(isLast){dots+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="10" fill="'+resolvedColor+'" opacity="0.15"/>';dots+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="6" fill="'+resolvedColor+'" opacity="0.3"/>';dots+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="3.5" fill="'+resolvedColor+'" stroke="var(--bg)" stroke-width="2"/>';}else{var r=n<=6?2.5:2;dots+='<circle class="p-line-dot '+trendClass+'" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+r+'"/>';}}});
+  var dots='';points.forEach(function(p,i){if(showDot(i)||i===n-1){var isLast=i===n-1;if(isLast){dots+='<circle class="p-line-glow" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="10" fill="'+resolvedColor+'"/>';dots+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="6" fill="'+resolvedColor+'" opacity="0.3"/>';dots+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="3.5" fill="'+resolvedColor+'" stroke="var(--bg)" stroke-width="2"/>';}else{var r=n<=6?2.5:2;dots+='<circle class="p-line-dot '+trendClass+'" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+r+'"/>';}}});
   var verticals='';var lastMonth=-1;
   dates.forEach(function(d,i){var m=d.getMonth();if(m!==lastMonth&&i>0){verticals+='<line x1="'+points[i].x.toFixed(1)+'" y1="0" x2="'+points[i].x.toFixed(1)+'" y2="'+H+'" stroke="var(--separator)" stroke-width="1" stroke-dasharray="4,4"/>';}lastMonth=m});
   var gradId='lg'+Date.now();var colorVar=trend==='up'?'var(--green)':'var(--red)';
