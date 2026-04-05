@@ -26,12 +26,11 @@
   --r-xs:9px;--r-sm:12px;--r-md:16px;--r-lg:20px;
   --page-bottom:120px;--chart-axis:40px;--disc-max:1200px;--day-max:500px;
   --nav-duration:300ms;--nav-push:160ms;--nav-curve:cubic-bezier(.2,.9,.3,1);--nav-parallax:0.3;--nav-dim:0.4;--nav-shadow:-2px 0 8px rgba(0,0,0,.3);
-  --es-badge:30px;--es-avatar-lg:80px;--es-emoji-cell:44px;--es-emoji-font:26px;--elo-count-ms:1200;
+  --es-avatar-lg:80px;--av-weight:700;--av-spacing:-1px;--av-fs-hero:26px;--av-fs-edit:36px;--av-fs-cell:13px;--meta-gap:2px;--elo-count-ms:1200;
   --glow-pulse-ms:2s;--glow-r-outer:10;--glow-r-mid:6;--glow-r-dot:3.5;--glow-observe-delay:500ms;--ghost-border:0.75px;
   --tip-fs-val:var(--fs-body);--tip-fs-date:10px;--tip-transition:.12s;--sp-xxl:32px;
   --ease-list:cubic-bezier(.25,.1,.25,1);--ease-spring:cubic-bezier(.34,1.56,.64,1);--ease-decel:cubic-bezier(.32,0,.24,1);
   --chev-size:14px;
-  --starting-elo:1200;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;color:var(--text);min-height:100dvh;overflow:hidden}
@@ -126,7 +125,7 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 
 /* Profile */
 .p-hero{display:flex;align-items:flex-start;gap:var(--sp-lg);padding:var(--sp-lg) var(--content-pad) var(--sp-sm)}
-.p-avatar{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:var(--text);flex-shrink:0;letter-spacing:-1px;text-transform:uppercase}
+.p-avatar{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:var(--av-fs-hero);font-weight:var(--av-weight);color:var(--text);flex-shrink:0;letter-spacing:var(--av-spacing);text-transform:uppercase}
 .p-hero-name{font-size:var(--fs-title-lg);font-weight:800;letter-spacing:-.5px;line-height:1.1}
 .p-hero-meta{font-size:var(--fs-caption);color:var(--muted);margin-top:var(--sp-xs)}
 .p-hero-bio{font-size:var(--fs-caption);color:var(--dim);margin-top:var(--sp-xs);line-height:1.4}
@@ -174,11 +173,9 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .p-cell+.p-cell::before{content:'';position:absolute;top:0;left:var(--sp-lg);right:0;height:0.33px;background:var(--separator)}
 .p-cell-body{flex:1;min-width:0}
 .p-cell-name{font-size:var(--fs-body);font-weight:700}
-.p-cell-sub{font-size:var(--fs-micro);color:var(--dim);margin-top:1px}
+.p-cell-sub{font-size:var(--fs-micro);color:var(--dim);margin-top:var(--meta-gap)}
 .p-cell-av{position:relative;flex-shrink:0;margin-right:var(--sp-md)}
-.p-cell-av-circle{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:-0.5px}
-.p-cell-av-badge{position:absolute;bottom:-3px;right:-5px;width:16px;height:16px;border-radius:50%;background:var(--surface);border:1.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:9px;line-height:1}
-.p-cell-av-badge:empty{display:none}
+.p-cell-av-circle{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:var(--av-fs-cell);font-weight:var(--av-weight);color:var(--text);text-transform:uppercase;letter-spacing:var(--av-spacing)}
 .p-stat-val-wrap{display:flex;align-items:center;gap:var(--sp-sm);flex-shrink:0}
 .p-stat-bar{width:60px;height:3px;background:var(--fill-subtle);border-radius:1.5px;overflow:hidden;flex-shrink:0}
 .p-stat-bar-fill{height:100%;border-radius:1.5px}
@@ -200,7 +197,7 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .p-stat-tap:active{opacity:.5}
 .p-stat-sub{font-size:var(--fs-caption);font-weight:500;color:var(--dim)}
 
-.p-cell-right{flex-shrink:0;margin-left:var(--sp-sm);display:flex;align-items:center;gap:var(--sp-sm);padding-right:calc(var(--chev-size) + var(--sp-sm))}
+.p-cell-right{flex-shrink:0;margin-left:var(--sp-sm);display:flex;align-items:center;gap:var(--sp-sm)}
 .p-hist{margin:0 var(--content-pad) var(--sp-lg);background:var(--surface);border-radius:var(--r-sm);overflow:hidden}
 .p-day{position:relative}
 .p-day+.p-day::before{content:'';position:absolute;top:0;left:var(--sp-lg);right:0;height:0.33px;background:var(--separator)}
@@ -208,24 +205,20 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .p-day-tap:active{background:var(--border-light)}
 .p-day-info{flex:1;min-width:0}
 .p-day-date{font-size:var(--fs-body);font-weight:700}
-.p-day-meta{display:flex;align-items:center;gap:var(--sp-sm);margin-top:2px}
+.p-day-meta{display:flex;align-items:center;gap:var(--sp-sm);margin-top:var(--meta-gap)}
 .p-day-range{font-size:var(--fs-micro);color:var(--dim)}
-.p-day-delta{font-size:var(--fs-micro);font-weight:700}
+.p-day-delta{font-size:var(--fs-body);font-weight:700;font-variant-numeric:tabular-nums}
 .p-day-delta.up{color:var(--green)}
 .p-day-delta.down{color:var(--red)}
 .p-day-right{display:flex;align-items:center;gap:var(--sp-sm);flex-shrink:0}
 .p-day-games{overflow:hidden;max-height:0;transition:max-height .3s var(--ease-list)}
 .p-day-games.open{max-height:var(--day-max)}
-.p-game{display:flex;align-items:center;padding:var(--sp-sm) var(--sp-lg) var(--sp-sm) calc(var(--sp-lg) + var(--sp-xl));position:relative}
-.p-game::before{content:'';position:absolute;top:0;left:calc(var(--sp-lg) + var(--sp-xl));right:var(--sp-lg);height:0.33px;background:var(--separator)}
+.p-game{display:flex;align-items:center;padding:var(--sp-md) var(--sp-lg);position:relative}
+.p-game::before{content:'';position:absolute;top:0;left:var(--sp-lg);right:var(--sp-lg);height:0.33px;background:var(--separator)}
 .p-game:first-child::before{left:var(--sp-lg);right:0}
-.p-game-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:var(--sp-md);font-size:var(--fs-micro);font-weight:800}
-.p-game-icon.w{background:var(--green-bg);color:var(--green)}
-.p-game-icon.l{background:var(--red-bg);color:var(--red)}
-.p-game-icon.d{background:var(--muted-bg);color:var(--muted)}
 .p-game-body{flex:1;min-width:0}
 .p-game-name{font-size:var(--fs-caption);font-weight:600}
-.p-game-detail{font-size:var(--fs-micro);color:var(--dim);margin-top:1px}
+.p-game-sub{font-size:var(--fs-micro);color:var(--dim);margin-top:var(--meta-gap)}
 .p-game-delta{font-size:var(--fs-caption);font-weight:700;flex-shrink:0;margin-left:var(--sp-sm)}
 .p-game-delta.up{color:var(--green)}
 .p-game-delta.down{color:var(--red)}
@@ -246,10 +239,6 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .av-0{background:#1A2E4A}.av-1{background:#2D1F47}.av-2{background:#1B3D2A}
 .av-3{background:#3D1A1A}.av-4{background:#3D2A10}.av-5{background:#133535}
 .av-6{background:#2A1A3D}.av-7{background:#1A3D35}
-.p-avatar-badge{position:absolute;bottom:-5px;right:-8px;width:var(--es-badge);height:var(--es-badge);border-radius:50%;background:var(--surface);border:2.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1}
-.p-avatar-badge:empty{display:none}
-.p-avatar-badge.show-plus:empty{display:flex}
-.p-avatar-badge.show-plus:empty::after{content:'+';color:var(--ghost);font-size:15px;font-weight:300}
 /* Edit chip */
 /* Edit sheet */
 .es-overlay{position:fixed;inset:0;background:transparent;z-index:10001;display:none;align-items:flex-end;transition:background .3s ease}
@@ -264,17 +253,10 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .es-save{font-size:var(--fs-body);font-weight:700;color:var(--green);background:none;border:none;font-family:inherit;cursor:pointer;padding:var(--sp-xs) var(--sp-sm)}
 .es-save:active{opacity:.5}
 .es-avatar-wrap{position:relative;cursor:pointer;flex-shrink:0}
-.es-avatar{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;color:var(--text);transition:transform .2s var(--ease-spring)}
+.es-avatar{width:var(--es-avatar-lg);height:var(--es-avatar-lg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:var(--av-fs-edit);font-weight:var(--av-weight);color:var(--text);letter-spacing:var(--av-spacing);text-transform:uppercase;transition:transform .2s var(--ease-spring)}
 .es-avatar:active{transform:scale(.9)}
-.es-avatar-badge{position:absolute;bottom:-5px;right:-8px;width:calc(var(--es-badge) + 6px);height:calc(var(--es-badge) + 6px);border-radius:50%;background:var(--surface);border:2.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1}
-.es-avatar-badge:empty::after{content:'+';color:var(--ghost);font-size:16px;font-weight:300}
 .es-step.out{display:none}
 .es-avatar-row{display:flex;align-items:center;padding:var(--sp-sm) var(--content-pad) var(--sp-lg)}
-.es-emoji-grid{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:var(--sp-xs);padding:var(--sp-sm) var(--content-pad) var(--sp-xl)}
-.es-emoji-cell{width:var(--es-emoji-cell);height:var(--es-emoji-cell);border-radius:var(--r-xs);display:flex;align-items:center;justify-content:center;font-size:var(--es-emoji-font);cursor:pointer;border:2px solid transparent;transition:transform .1s,border-color .12s}
-.es-emoji-cell:active{transform:scale(.82)}
-.es-no-emoji{color:var(--ghost);font-size:var(--fs-body)}
-.es-emoji-cell.on{border-color:var(--green);background:var(--fill-medium)}
 .es-fields{padding:0 var(--content-pad)}
 .es-field{margin-bottom:var(--sp-lg)}
 .es-field-label{font-size:var(--fs-micro);font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:var(--sp-sm)}
@@ -286,17 +268,9 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .p-history-cell{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-lg);cursor:pointer}
 .p-history-cell:active{opacity:.7}
 .p-history-cell-title{font-size:var(--fs-body);font-weight:800}
-.p-history-cell-sub{font-size:var(--fs-micro);color:var(--dim);margin-top:2px}
+.p-history-cell-sub{font-size:var(--fs-micro);color:var(--dim);margin-top:var(--meta-gap)}
 /* History full screen */
-.p-hist-full{display:none;position:absolute;inset:0;background:var(--bg);z-index:5;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:env(safe-area-inset-top,20px) 0 var(--page-bottom);scrollbar-width:none}
-.p-hist-full::-webkit-scrollbar{display:none}
-.p-hist-full.open{display:block}
-.p-hist-full-nav{display:flex;align-items:center;padding:var(--sp-md) var(--content-pad) var(--sp-lg)}
-.p-hist-full-back{display:flex;align-items:center;gap:var(--sp-xs);font-size:var(--fs-body);font-weight:600;color:var(--blue);background:none;border:none;font-family:inherit;cursor:pointer}
-.p-hist-full-back:active{opacity:.5}
-.p-hist-full-title{flex:1;text-align:center;font-size:var(--fs-body);font-weight:700;margin-right:44px}
 /* Game row with avatar */
-.p-game-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:-0.5px;flex-shrink:0;margin-right:var(--sp-sm)}
 .p-stats-header{padding:0 var(--sp-lg) var(--sp-sm);display:flex;justify-content:flex-end}
 .p-logout{margin:var(--sp-xl) var(--content-pad)}
 .p-logout-btn{width:100%;padding:var(--sp-md);font-size:var(--fs-caption);font-weight:500;color:var(--muted);background:transparent;border:none;font-family:inherit;cursor:pointer;text-align:center}
@@ -507,7 +481,7 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
   <div class="p-dim" id="p-dim"></div>
   <div class="page" id="page-profile">
     <div id="p-back" style="display:none"></div>
-<div class="p-hero"><div class="p-avatar-wrap" style="position:relative;flex-shrink:0"><div class="p-avatar" id="p-avatar">?</div><div class="p-avatar-badge" id="p-avatar-badge"></div></div><div><div><div class="p-hero-name" id="p-name"></div><div class="p-hero-meta" id="p-meta"></div><div class="p-hero-bio" id="p-bio"></div></div></div></div>
+<div class="p-hero"><div class="p-avatar-wrap" style="position:relative;flex-shrink:0"><div class="p-avatar" id="p-avatar">?</div></div><div><div><div class="p-hero-name" id="p-name"></div><div class="p-hero-meta" id="p-meta"></div><div class="p-hero-bio" id="p-bio"></div></div></div></div>
     <div class="p-elo" id="p-elo-block"><div class="p-elo-row"><div class="p-elo-num" id="p-elo-num">—</div><div class="p-elo-delta" id="p-elo-delta"></div></div></div>
     <div class="seg" id="p-fmt-seg" onclick="switchProfileFormat(event);event.stopPropagation()"><div class="seg-pill" id="p-fmt-pill" style="left:33.333%;width:33.333%"></div><button class="seg-btn" data-fmt="blitz">Blitz</button><button class="seg-btn on" data-fmt="rapid">Rapid</button><button class="seg-btn" data-fmt="classic">Classic</button></div>
     <div id="p-content">
@@ -589,9 +563,9 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
     </div>
     <div id="es-step-form" class="es-step">
       <div class="es-avatar-row">
-        <div class="es-avatar-wrap" onclick="esShowEmoji()" role="button" aria-label="Choose profile emoji">
+        <div class="es-avatar-wrap">
           <div class="es-avatar" id="es-avatar">?</div>
-          <div class="es-avatar-badge" id="es-avatar-badge"></div>
+          
         </div>
 
       </div>
@@ -607,8 +581,6 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
         </div>
       </div>
     </div>
-    <div id="es-step-emoji" class="es-step out">
-      <div class="es-emoji-grid" id="es-emoji-grid"></div>
     </div>
     </div>
   </div>
@@ -667,10 +639,8 @@ function initPill(segId,pillId){
 // ── Sheet open/close ──
 function openSheet(overlayId,sheetId){
   var overlay=$(overlayId),sheet=$(sheetId);
-  _esBuildGrid();
   $('es-step-form').classList.remove('out');
   document.querySelector('.es-save').style.display='';
-  $('es-step-emoji').classList.add('out');
   overlay.style.display='flex';
   sheet.style.transition='transform .38s var(--ease-spring)';
   sheet.style.transform='translateY(100%)';
@@ -721,6 +691,7 @@ function switchTab(el){var p=el.getAttribute('data-page');if(!p)return;
   if(p==='page-profile'&&_navStack.length>0){
     _navStack=[];
     _viewingPlayer=null;
+    _viewingMatches=null;
     _eloHistoryCache=null;
     _profFormat='rapid';
     _profHash=null;
@@ -751,7 +722,7 @@ async function dbPatch(t,f,d){await fetch(SUPA_URL+'/rest/v1/'+t+'?'+f,{method:'
 async function dbDelete(t,f){await fetch(SUPA_URL+'/rest/v1/'+t+'?'+f,{method:'DELETE',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+authToken}})}
 async function dbRpc(fn,p){var r=await fetch(SUPA_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+authToken},body:JSON.stringify(p)});return r.json()}
 
-async function fetchAll(){if(!me)return;var p=await dbGet('players','order=elo_rapid.desc');if(Array.isArray(p))players=p;var f=players.find(function(x){return x.id===me.id});if(f)me=f;var m=await dbGet('matches','order=created_at.desc&limit=100');if(Array.isArray(m))matches=m;renderAll()}
+async function fetchAll(){if(!me)return;var p=await dbGet('players','order=elo_rapid.desc');if(Array.isArray(p))players=p;var f=players.find(function(x){return x.id===me.id});if(f)me=f;var m=await dbGet('matches','or=(p1.eq.'+me.id+',p2.eq.'+me.id+')&order=created_at.desc');if(Array.isArray(m))matches=m;renderAll()}
 
 function getP(id){return players.find(function(p){return p.id===id})}
 function getPlayerElo(p,fmt){var f=fmt||'rapid';var elo=p['elo_'+f]||STARTING_ELO;var peak=p['elo_peak_'+f]||STARTING_ELO;return{elo:elo,peak:Math.max(elo,peak)}}
@@ -886,13 +857,10 @@ function openEditSheet(){
   // Populate fields
   $('es-avatar').textContent=initial(pt);
   $('es-avatar').className='es-avatar '+avatarColor(pt.nickname);
-  $('es-avatar-badge').textContent=pt.emoji||'';
   $('es-city').value=pt.city||'';
   $('es-bio').value=pt.bio||'';
   $('es-bio-count').textContent=(pt.bio||'').length;
-  _esBuildGrid();
   $('es-step-form').classList.remove('out');
-  $('es-step-emoji').classList.add('out');
   overlay.style.display='flex';
   requestAnimationFrame(function(){requestAnimationFrame(function(){overlay.classList.add('visible')})});
 }
@@ -906,75 +874,11 @@ function closeEditSheet(){
   setTimeout(function(){overlay.style.display='none';sheet.style.transition='';sheet.style.transform=''},280);
 }
 
-var EMOJI_SET=[
-  // Fruits & Vegetables
-  '🍎','🍊','🍋','🍇','🍓','🍑','🍒','🥝','🍉','🥭','🍌','🫐','🍆','🥑','🫒',
-  // Plants & Trees
-  '🌿','🍀','🌱','🪴','🌵','🌴','🎋','🌾','🍃','🌲','🌳','🎍',
-  // Flowers
-  '🌸','🌺','🌻','🌷','🌹','💐',
-  // Animals
-  '🦁','🐺','🐉','🦊','🐻','🐯','🦈','🐝','🦋','🐬','🐎','🐍',
-  // Space & Sky
-  '🌙','⭐','🌟','💫','✨','☀️','🌍','🪐','🌈','❄️','🔥','💎',
-  // Water & Nature
-  '💧','💦','🌊','🍂','🌪️','☁️','🌀','⚡',
-  // Hearts
-  '❤️','💚','💙','💜','🤍','🧡','💛',
-  // Objects
-  '🎯','🏆','👑','🎲'
-];
-
-function _esBuildGrid(){
-  var grid=$('es-emoji-grid');
-  var current=($('es-avatar-badge')||{}).textContent||'';
-  var h='<div class="es-emoji-cell es-no-emoji'+(current?'':' on')+'" data-e="" onclick="esPickEmoji(this)">✕</div>';
-  EMOJI_SET.forEach(function(e){
-    h+='<div class="es-emoji-cell'+(e===current.trim()?' on':'')+'" data-e="'+e+'" onclick="esPickEmoji(this)">'+e+'</div>';
-  });
-  grid.innerHTML=h;
-}
 
 
-function esPickEmoji(el){
-  var e=el.dataset.e;
-  var badge=$('es-avatar-badge');
-  var current=badge.textContent.trim();
-  badge.textContent=e;
-  el.closest('.es-emoji-grid').querySelectorAll('.es-emoji-cell').forEach(function(c){
-    c.classList.toggle('on',c.dataset.e===badge.textContent.trim());
-  });
-  badge.style.transform='scale(1.4)';
-  badge.style.transition='transform .25s var(--ease-spring)';
-  setTimeout(function(){badge.style.transform='';badge.style.transition=''},300);
-  // Auto-back to form after selection
-  setTimeout(function(){esShowForm()},350);
-}
 
-function esShowEmoji(){
-  var av=$('es-avatar');
-  av.style.transform='scale(.85)';
-  av.style.transition='transform .1s ease';
-  setTimeout(function(){av.style.transform='';av.style.transition='transform .2s var(--ease-spring)'},100);
-  $('es-step-form').classList.add('out');
-  $('es-step-emoji').classList.remove('out');
-  document.querySelector('.es-save').style.display='none';
-  // Bounce
-  var sheet=$('es-sheet');
-  sheet.style.transform='translateY(2%)';
-  sheet.style.transition='transform .4s var(--ease-spring)';
-  requestAnimationFrame(function(){sheet.style.transform='translateY(0)'});
-}
 
-function esShowForm(){
-  $('es-step-emoji').classList.add('out');
-  $('es-step-form').classList.remove('out');
-  document.querySelector('.es-save').style.display='';
-  var sheet=$('es-sheet');
-  sheet.style.transform='translateY(-2%)';
-  sheet.style.transition='transform .4s var(--ease-spring)';
-  requestAnimationFrame(function(){sheet.style.transform='translateY(0)'});
-}
+
 
 function _esTitleCase(str){
   return str.replace(/\S+/g,function(w){
@@ -985,7 +889,6 @@ function _esTitleCase(str){
 }
 
 function _esCityFilter(e){
-  // Strip emoji (surrogate pairs + variation selectors + ZWJ sequences) and non-alpha
   e.target.value=e.target.value.replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu,'').replace(/[^a-zA-Z\u00C0-\u024F\s'\-]/g,'');
 }
 
@@ -1000,16 +903,15 @@ async function saveEditProfile(){
   // Micro-bounce save button
   var saveBtn=document.querySelector('.es-save');
   if(saveBtn){saveBtn.style.transform='scale(.9)';saveBtn.style.transition='transform .1s';setTimeout(function(){saveBtn.style.transform='';saveBtn.style.transition='transform .15s var(--ease-spring)'},100)}
-  var emoji=$('es-avatar-badge').textContent.trim()||null;
   var cityRaw=$('es-city').value.trim();
   if(cityRaw&&cityRaw.length<3){toast('City too short','err');return}
   var city=cityRaw?_esTitleCase(cityRaw):null;
   var bio=$('es-bio').value.trim()||null;
   closeEditSheet();
   // Dirty check — only patch if something changed
-  if(emoji===me.emoji&&city===(me.city||null)&&bio===(me.bio||null))return;
-  await dbPatch('players','id=eq.'+me.id,{emoji:emoji,city:city,bio:bio});
-  me.emoji=emoji;me.city=city;me.bio=bio;
+  if(city===(me.city||null)&&bio===(me.bio||null))return;
+  await dbPatch('players','id=eq.'+me.id,{city:city,bio:bio});
+  me.city=city;me.bio=bio;
   _profHash=null;
   renderProfile();
   toast('Profile updated');
@@ -1029,11 +931,13 @@ function initProfileFormat(){
 var _profHash=null;
 var _eloAnimate=false;
 var _viewingPlayer=null;
+var _viewingMatches=null;
 var _navStack=[];  // [{playerId,dom,scroll}]
 function profTarget(){return _viewingPlayer||me}
+function profMatches(){return _viewingMatches||matches}
 function getMostPlayedFormat(playerId){
   var counts={rapid:0,blitz:0,classic:0};
-  matches.forEach(function(m){
+  profMatches().forEach(function(m){
     if(m.status==='done'&&m.result!=='cancelled'&&(m.p1===playerId||m.p2===playerId)){
       var tc=m.time_control||'rapid';
       if(counts[tc]!==undefined)counts[tc]++;
@@ -1065,6 +969,7 @@ function viewProfile(playerId){
   });
   // Set new target
   _viewingPlayer=p;
+  _viewingMatches=null;
   _profFormat='rapid';
   _eloHistoryCache=null;
   _profHash=null;
@@ -1073,7 +978,12 @@ function viewProfile(playerId){
   if(seg){var firstBtn=seg.querySelector('.seg-btn');if(firstBtn)movePill(seg,$('p-fmt-pill'),firstBtn)}
   $('p-back').style.display='';
   document.querySelector('.p-logout').style.display='none';
-  renderProfile();
+  // Fetch matches for this player
+  dbGet('matches','or=(p1.eq.'+playerId+',p2.eq.'+playerId+')&status=eq.done&result=not.eq.cancelled&order=created_at.desc').then(function(m){
+    if(Array.isArray(m))_viewingMatches=m;
+    _profHash=null;
+    renderProfile();
+  });
   if(page)page.scrollTop=0;
   _swipeBackSetup();
   // Show underlay with previous content, then push animate
@@ -1112,6 +1022,7 @@ function closeViewProfile(){
   _eloHistoryCache=null;
   _profHash=null;
   _eloAnimate=false;
+  _viewingMatches=null;
   if(_navStack.length>0){
     // Pop previous state from stack
     var prev=_navStack.pop();
@@ -1290,12 +1201,12 @@ function _swipeBackSetup(){
 function toggleDisc(id){
   var el=document.getElementById(id);
   el.querySelector('.p-disc-body').classList.toggle('open');
-  el.querySelector('.p-chev').classList.toggle('open');
+
 }
 function toggleDay(id){
   var el=document.getElementById(id);
   el.querySelector('.p-day-games').classList.toggle('open');
-  el.querySelector('.p-chev').classList.toggle('open');
+
 }
 
 function switchTimeframe(e){
@@ -1345,16 +1256,13 @@ function renderProfile(){
   var pt=profTarget();
   initProfileFormat();
   // Dirty check — skip render if data hasn't changed
-  var relevantMatches=matches.filter(function(m){return m.status==='done'&&m.result!=='cancelled'&&(m.p1===pt.id||m.p2===pt.id)});
+  var relevantMatches=profMatches().filter(function(m){return m.status==='done'&&m.result!=='cancelled'&&(m.p1===pt.id||m.p2===pt.id)});
   var hash=pt.id+'|'+_profFormat+'|'+pt.elo_rapid+'|'+pt.elo_blitz+'|'+pt.elo_classic+'|'+relevantMatches.length+'|'+(relevantMatches[0]?relevantMatches[0].id:'')+'|'+players.length;
   if(hash===_profHash)return;
   _profHash=hash;
   // Hero
   $('p-avatar').textContent=initial(pt);
   $('p-avatar').className='p-avatar '+avatarColor(pt.nickname);
-  var badge=$('p-avatar-badge');
-  badge.textContent=pt.emoji||'';
-  if(_viewingPlayer)badge.classList.remove('show-plus');else badge.classList.add('show-plus');
   // Avatar tappable on own profile
   var avatarWrap=document.querySelector('#page-profile .p-avatar-wrap');
   if(avatarWrap)avatarWrap.onclick=_viewingPlayer?null:function(){openEditSheet()};
@@ -1370,7 +1278,7 @@ function renderProfile(){
   else{bioEl.textContent='';bioEl.className='p-hero-bio';bioEl.onclick=null}
 
   // Stats filtered by format
-  var fmtDone=matches.filter(function(m){return m.status==='done'&&m.result!=='cancelled'&&(m.p1===pt.id||m.p2===pt.id)&&(m.time_control||'rapid')===_profFormat});
+  var fmtDone=profMatches().filter(function(m){return m.status==='done'&&m.result!=='cancelled'&&(m.p1===pt.id||m.p2===pt.id)&&(m.time_control||'rapid')===_profFormat});
   var w=0,d=0,l=0;
   fmtDone.forEach(function(m){var isP1=m.p1===pt.id;var won=m.result===(isP1?'p1':'p2');var lost=m.result===(isP1?'p2':'p1');if(won)w++;else if(lost)l++;else d++});
   var total=w+d+l;
@@ -1378,15 +1286,13 @@ function renderProfile(){
   var elo=Math.round(eloData.elo);
 
   // ELO
-  // Edit chip only on own profile
   var eloEl=$('p-elo-num');
   eloEl.className=total?'p-elo-num':'p-elo-num p-elo-num-empty';
   var displayElo=total?elo:STARTING_ELO;
   if(_eloAnimate){_animateElo(eloEl,displayElo)}else{eloEl.textContent=displayElo}
   _eloAnimate=false;
-  // Peak moved to stats
   // Odometer — delta from last completed match
-  var lastMatch=matches.find(function(m){return m.status==='done'&&m.result!=='cancelled'&&(m.p1===pt.id||m.p2===pt.id)});
+  var lastMatch=profMatches().find(function(m){return m.status==='done'&&m.result!=='cancelled'&&(m.p1===pt.id||m.p2===pt.id)});
   var deltaEl=$('p-elo-delta');
   if(lastMatch&&total){
     dbGet('elo_history','player_id=eq.'+pt.id+'&time_control=eq.'+_profFormat+'&order=created_at.desc&limit=1&select=elo_after,elo_before').then(function(rows){
@@ -1398,8 +1304,6 @@ function renderProfile(){
       }
     });
   }else{deltaEl.textContent=''}
-  // Rank
-
 
   // Show/hide content vs empty
   var allTotal=(pt.wins||0)+(pt.draws||0)+(pt.losses||0);
@@ -1410,7 +1314,7 @@ function renderProfile(){
 
   // Stats — two cards: hero + detail
   var fmtLabel=_profFormat.charAt(0).toUpperCase()+_profFormat.slice(1);
-  var fmtDone=matches.filter(function(m){return m.status==='done'&&m.result!=='cancelled'&&(m.p1===pt.id||m.p2===pt.id)&&(m.time_control||'rapid')===_profFormat});
+  var fmtDone=profMatches().filter(function(m){return m.status==='done'&&m.result!=='cancelled'&&(m.p1===pt.id||m.p2===pt.id)&&(m.time_control||'rapid')===_profFormat});
   var w=0,l=0,d=0,total=fmtDone.length;
   fmtDone.forEach(function(m){var isP1=m.p1===pt.id;var won=m.result===(isP1?'p1':'p2');var lost=m.result===(isP1?'p2':'p1');if(won)w++;else if(lost)l++;else d++});
   var wr=total?Math.round(w/total*100):0;
@@ -1483,114 +1387,28 @@ function renderProfile(){
 }
 
 
-function openHistoryFull(){
-  var pt=profTarget();
-  var container=$('p-hist-full-content');
-  var fullView=$('p-hist-full');
-  var myDone=matches.filter(function(m){return m.status==='done'&&m.result!=='cancelled'&&(m.p1===pt.id||m.p2===pt.id)});
-  if(!myDone.length)return;
-  // Group by date
-  var days={};
-  myDone.forEach(function(m){
-    var d=new Date(m.created_at||0);
-    var key=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
-    if(!days[key])days[key]={date:d,matches:[]};
-    days[key].matches.push(m);
-  });
-  var dayKeys=Object.keys(days).sort(function(a,b){return days[b].date-days[a].date});
-  var fmtD=function(d){var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return d.getDate()+' '+months[d.getMonth()]};
-
-  var h='<div class="p-hist">';
-  dayKeys.forEach(function(key,di){
-    var day=days[key];
-    var dayW=0,dayL=0,dayD=0;
-    day.matches.forEach(function(m){
-      var isP1=m.p1===pt.id;
-      var won=m.result===(isP1?'p1':'p2');var lost=m.result===(isP1?'p2':'p1');
-      if(won)dayW++;else if(lost)dayL++;else dayD++;
-    });
-    var dayId='hf-day-'+key.replace(/[^0-9]/g,'');
-    h+='<div class="p-day" id="'+dayId+'">';
-    h+='<div class="p-day-tap" onclick="toggleDay(\''+dayId+'\')"><div class="p-day-info"><div class="p-day-date">'+fmtD(day.date)+'</div>';
-    h+='<div class="p-day-meta"><span class="p-day-range">'+day.matches.length+' game'+(day.matches.length>1?'s':'')+'</span></div></div>';
-    h+='<div class="p-day-right"><div class="p-wdl"><span class="p-b w">'+dayW+'</span><span class="p-b l">'+dayL+'</span><span class="p-b d">'+dayD+'</span></div>';
-    h+='<svg class="p-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div></div>';
-    h+='<div class="p-day-games">';
-    day.matches.forEach(function(m){
-      var isP1=m.p1===pt.id;var opp=getP(isP1?m.p2:m.p1);
-      var won=m.result===(isP1?'p1':'p2');var lost=m.result===(isP1?'p2':'p1');
-      var cls=won?'w':lost?'l':'d';var lbl=won?'W':lost?'L':'D';
-      var fmt=(m.time_control||'rapid');var side=m.white_player_id===pt.id?'White':'Black';
-      var avColor=opp?avatarColor(opp.nickname):'av-0';
-      var avInit=opp?initial(opp):'?';
-      h+='<div class="p-game"><div class="p-game-icon '+cls+'">'+lbl+'</div>';
-      h+='<div class="p-game-av '+avColor+'">'+avInit+'</div>';
-      h+='<div class="p-game-body"><div class="p-game-name" onclick="event.stopPropagation();viewProfile(\''+opp.id+'\')">vs '+nick(opp)+'</div>';
-      h+='<div class="p-game-detail">'+fmt.charAt(0).toUpperCase()+fmt.slice(1)+' \u00b7 '+side+'</div></div></div>';
-    });
-    h+='</div></div>';
-  });
-  h+='</div>';
-  container.innerHTML=h;
-  fullView.classList.add('open');
-  fullView.scrollTop=0;
-
-  // Fetch deltas
-  dbGet('elo_history','player_id=eq.'+pt.id+'&order=created_at.desc&limit=500&select=match_id,elo_before,elo_after').then(function(hist){
-    if(!Array.isArray(hist)||!hist.length)return;
-    var deltaMap={};
-    hist.forEach(function(h){deltaMap[h.match_id]=Math.round(h.elo_after-h.elo_before)});
-    var gameEls=container.querySelectorAll('.p-game');
-    var allMatches=myDone.slice();
-    allMatches.forEach(function(m,idx){
-      var delta=deltaMap[m.id];
-      if(delta!==undefined&&gameEls[idx]){
-        var cls=delta>0?'up':delta<0?'down':'flat';
-        var sign=delta>0?'+':'';
-        var deltaEl=document.createElement('div');
-        deltaEl.className='p-game-delta '+cls;
-        deltaEl.textContent=sign+delta;
-        gameEls[idx].appendChild(deltaEl);
-      }else if(gameEls[idx]&&m.result==='draw'){
-        var deltaEl=document.createElement('div');
-        deltaEl.className='p-game-delta flat';
-        deltaEl.textContent='0';
-        gameEls[idx].appendChild(deltaEl);
-      }
-    });
-  });
-}
-
-function closeHistoryFull(){
-  $('p-hist-full').classList.remove('open');
-}
 
 function renderRivals(){
   var pt=profTarget();
   var section=$('p-rivals-section');
-  var myDone=matches.filter(function(m){return m.status==='done'&&m.result!=='cancelled'&&(m.p1===pt.id||m.p2===pt.id)&&(m.time_control||'rapid')===_profFormat});
-  // Count per opponent (filtered by format)
+  var myDone=profMatches().filter(function(m){return m.status==='done'&&m.result!=='cancelled'&&(m.p1===pt.id||m.p2===pt.id)&&(m.time_control||'rapid')===_profFormat});
   var opps={};
   myDone.forEach(function(m){
     var isP1=m.p1===pt.id;
     var oppId=isP1?m.p2:m.p1;
-    if(!opps[oppId])opps[oppId]={w:0,l:0,d:0,total:0};
+    if(!opps[oppId])opps[oppId]={total:0};
     opps[oppId].total++;
-    var won=m.result===(isP1?'p1':'p2');
-    var lost=m.result===(isP1?'p2':'p1');
-    if(won)opps[oppId].w++;else if(lost)opps[oppId].l++;else opps[oppId].d++;
   });
   var sorted=Object.keys(opps).sort(function(a,b){return opps[b].total-opps[a].total}).slice(0,3);
   if(sorted.length<2){section.innerHTML='';return}
   var h='<div class="section-label">Rivals</div><div class="ios-group">';
   sorted.forEach(function(id){
-    var o=getP(id);var s=opps[id];
+    var o=getP(id);
     var oElo=o?Math.round(getPlayerElo(o,_profFormat).elo):STARTING_ELO;
     var avColor=o?avatarColor(o.nickname):'av-0';
     var avInit=o?initial(o):'?';
-    var avBadge=o&&o.emoji?'<div class="p-cell-av-badge">'+o.emoji+'</div>':'';
-    h+='<div class="p-cell" onclick="viewProfile(\''+id+'\')"><div class="p-cell-av"><div class="p-cell-av-circle '+avColor+'">'+avInit+'</div>'+avBadge+'</div><div class="p-cell-body"><div class="p-cell-name">'+nick(o)+'</div><div class="p-cell-sub">'+oElo+' ELO</div></div>';
-    h+='<div class="p-cell-right"><div class="p-wdl"><span class="p-b w">'+s.w+'</span><span class="p-b l">'+s.l+'</span><span class="p-b d">'+s.d+'</span></div></div></div>';
+    h+='<div class="p-cell" onclick="viewProfile(\''+id+'\')"><div class="p-cell-av"><div class="p-cell-av-circle '+avColor+'">'+avInit+'</div>'+'</div><div class="p-cell-body"><div class="p-cell-name">'+nick(o)+'</div><div class="p-cell-sub">'+oElo+'</div></div>';
+    h+='<div class="p-cell-right"><svg class="p-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div></div>';
   });
   h+='</div>';
   section.innerHTML=h;
@@ -1814,7 +1632,7 @@ function renderLineChart(container,data,trend){
 function renderProfileHistory(){
   var pt=profTarget();
   var section=$('p-history-section');
-  var myDone=matches.filter(function(m){return m.status==='done'&&m.result!=='cancelled'&&(m.p1===pt.id||m.p2===pt.id)});
+  var myDone=profMatches().filter(function(m){return m.status==='done'&&m.result!=='cancelled'&&(m.p1===pt.id||m.p2===pt.id)&&(m.time_control||'rapid')===_profFormat});
   if(!myDone.length){section.innerHTML='';return}
   // Group by date
   var days={};
@@ -1840,17 +1658,15 @@ function renderProfileHistory(){
     h+='<div class="p-day" id="'+dayId+'">';
     h+='<div class="p-day-tap" onclick="toggleDay(\''+dayId+'\')"><div class="p-day-info"><div class="p-day-date">'+fmtD(day.date)+'</div>';
     h+='<div class="p-day-meta"><span class="p-day-range">'+day.matches.length+' game'+(day.matches.length>1?'s':'')+'</span></div></div>';
-    h+='<div class="p-day-right"><div class="p-wdl"><span class="p-b w">'+dayW+'</span><span class="p-b l">'+dayL+'</span><span class="p-b d">'+dayD+'</span></div>';
-    h+='<svg class="p-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div></div>';
+    h+='<div class="p-day-right"><div class="p-day-delta" id="dd-'+dayId+'"></div></div></div>';
     h+='<div class="p-day-games">';
     day.matches.forEach(function(m){
       var isP1=m.p1===pt.id;var opp=getP(isP1?m.p2:m.p1);
+      var side=m.white_player_id===pt.id?'White':'Black';
       var won=m.result===(isP1?'p1':'p2');var lost=m.result===(isP1?'p2':'p1');
-      var cls=won?'w':lost?'l':'d';var lbl=won?'W':lost?'L':'D';
-      var fmt=(m.time_control||'rapid');var side=m.white_player_id===pt.id?'White':'Black';
-      h+='<div class="p-game"><div class="p-game-icon '+cls+'">'+lbl+'</div>';
-      h+='<div class="p-game-body"><div class="p-game-name" onclick="event.stopPropagation();viewProfile(\''+opp.id+'\')">vs '+nick(opp)+'</div>';
-      h+='<div class="p-game-detail">'+fmt.charAt(0).toUpperCase()+fmt.slice(1)+' \u00b7 '+side+'</div></div></div>';
+      var res=won?'Win':lost?'Loss':'Draw';
+      h+='<div class="p-game"><div class="p-game-body"><div class="p-game-name" onclick="event.stopPropagation();viewProfile(\''+opp.id+'\')">'+nick(opp)+'</div>';
+      h+='<div class="p-game-sub">'+res+', as '+side+'</div></div></div>';
     });
     h+='</div></div>';
   });
@@ -1866,6 +1682,7 @@ function renderProfileHistory(){
     dayKeys.forEach(function(key){days[key].matches.forEach(function(m){allMatches.push(m)})});
     allMatches.forEach(function(m,idx){
       var delta=deltaMap[m.id];
+      if(delta===undefined&&m.result==='draw')delta=0;
       if(delta!==undefined&&gameEls[idx]){
         var cls=delta>0?'up':delta<0?'down':'flat';
         var sign=delta>0?'+':'';
@@ -1873,11 +1690,21 @@ function renderProfileHistory(){
         deltaEl.className='p-game-delta '+cls;
         deltaEl.textContent=sign+delta;
         gameEls[idx].appendChild(deltaEl);
-      }else if(gameEls[idx]&&m.result==='draw'){
-        var deltaEl=document.createElement('div');
-        deltaEl.className='p-game-delta flat';
-        deltaEl.textContent='0';
-        gameEls[idx].appendChild(deltaEl);
+      }
+    });
+    // Compute day totals
+    dayKeys.forEach(function(key){
+      var dayTotal=0;
+      days[key].matches.forEach(function(m){
+        var d=deltaMap[m.id];
+        if(d!==undefined)dayTotal+=d;
+      });
+      var ddEl=$('dd-day-'+key.replace(/[^0-9]/g,''));
+      if(ddEl){
+        var cls=dayTotal>0?'up':dayTotal<0?'down':'flat';
+        var sign=dayTotal>0?'+':'';
+        ddEl.className='p-day-delta '+cls;
+        ddEl.textContent=sign+dayTotal;
       }
     });
   });
@@ -2007,9 +1834,7 @@ function openResultSheet(matchId){
   if(isDisputed)$('rs-warn').classList.remove('hidden');else $('rs-warn').classList.add('hidden');
   document.querySelectorAll('.rs-option').forEach(function(b){b.style.background='';b.style.opacity='';b.style.pointerEvents=''});
   var overlay=$('rs-overlay');
-  _esBuildGrid();
   $('es-step-form').classList.remove('out');
-  $('es-step-emoji').classList.add('out');
   overlay.style.display='flex';
   requestAnimationFrame(function(){requestAnimationFrame(function(){overlay.classList.add('visible')})});
 }
