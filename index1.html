@@ -715,7 +715,14 @@ async function doAuth(){var nick=$('auth-nick').value.trim().toLowerCase(),pass=
 
 async function tryAutoLogin(){var s=await supabaseClient.auth.getSession();if(s.data.session){authToken=s.data.session.access_token;await initApp(s.data.session.user.id)}}
 
-async function initApp(userId){$('auth-screen').classList.add('hidden');$('main').classList.remove('hidden');$('navbar').classList.remove('hidden');var r=await dbGet('players','id=eq.'+userId);if(r&&r.length)me=r[0];if(!me)return toast('Player not found','err');await fetchAll();setupRealtime();if(window._fetchInterval)clearInterval(window._fetchInterval);window._fetchInterval=setInterval(fetchAll,15000)}
+async function initApp(userId){$('auth-screen').classList.add('hidden');$('main').classList.remove('hidden');$('navbar').classList.remove('hidden');var r=await dbGet('players','id=eq.'+userId);if(r&&r.length)me=r[0];if(!me)return toast('Player not found','err');await fetchAll();setupRealtime();if(window._fetchInterval)clearInterval(window._fetchInterval);window._fetchInterval=setInterval(fetchAll,15000);_startHeartbeat()}
+
+function _startHeartbeat(){
+  if(window._heartbeatInterval)clearInterval(window._heartbeatInterval);
+  function beat(){if(me)dbPatch('players','id=eq.'+me.id,{last_seen_at:new Date().toISOString()})}
+  beat();
+  window._heartbeatInterval=setInterval(beat,15000);
+}
 
 async function dbGet(t,f){var u=SUPA_URL+'/rest/v1/'+t+'?'+(f||'')+'&select=*';var r=await fetch(u,{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+authToken}});return r.json()}
 async function dbPatch(t,f,d){await fetch(SUPA_URL+'/rest/v1/'+t+'?'+f,{method:'PATCH',headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+authToken},body:JSON.stringify(d)})}
@@ -742,11 +749,10 @@ function _playIsBusy(){
   return matches.some(function(m){
     if(m.status==='pending_challenge'&&m.p2===me.id)return true;
     if(m.status==='pending_challenge'&&m.p1===me.id)return true;
-    if(m.status==='active'){
+    if(m.status==='active'&&(m.p1===me.id||m.p2===me.id)){
       var isP1=m.p1===me.id;
       var myRes=isP1?m.result_p1:m.result_p2;
       if(!myRes)return true;
-      if(m.disputed&&!myRes)return true;
     }
     return false;
   });
@@ -1924,6 +1930,9 @@ function timeAgo(date){
 
 async function doLogout(){
   if(window._fetchInterval)clearInterval(window._fetchInterval);
+  if(window._heartbeatInterval)clearInterval(window._heartbeatInterval);
+  Object.keys(_playTimers).forEach(function(k){cancelAnimationFrame(_playTimers[k])});
+  _playTimers={};
   supabaseClient.removeAllChannels();
   await supabaseClient.auth.signOut();
   me=null;players=[];matches=[];authToken=null;
@@ -1951,22 +1960,20 @@ function closeChallengeSheet(){
 
 function renderChallengePlayers(){
   var list=$('ch-player-list');if(!list)return;
-  var eligible=players.filter(function(p){return p.id!==me.id});
   var now=Date.now();
+  var eligible=players.filter(function(p){
+    if(p.id===me.id)return false;
+    var online=p.last_seen_at&&(now-new Date(p.last_seen_at).getTime())<30000;
+    return online;
+  });
   eligible.sort(function(a,b){
-    var aOn=a.last_seen_at&&(now-new Date(a.last_seen_at).getTime())<30000?1:0;
-    var bOn=b.last_seen_at&&(now-new Date(b.last_seen_at).getTime())<30000?1:0;
-    if(aOn!==bOn)return bOn-aOn;
     return(getPlayerElo(b,'rapid').elo)-(getPlayerElo(a,'rapid').elo);
   });
-  if(!eligible.length){list.innerHTML=emptyMsg('No players found');return}
+  if(!eligible.length){list.innerHTML=emptyMsg('No players online');return}
   var h='';
   eligible.forEach(function(p){
-    var online=p.last_seen_at&&(now-new Date(p.last_seen_at).getTime())<30000;
     h+='<div class="ch-player-row" onclick="selectPlayer(\''+p.id+'\')">';
-    h+='<span class="ch-player-name">'+nick(p);
-    if(online)h+='<span class="ch-online-dot"></span>';
-    h+='</span></div>';
+    h+='<span class="ch-player-name">'+nick(p)+'<span class="ch-online-dot"></span></span></div>';
   });
   list.innerHTML=h;
 }
