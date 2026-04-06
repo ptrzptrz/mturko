@@ -30,7 +30,7 @@
   --glow-pulse-ms:2s;--glow-r-outer:10;--glow-r-mid:6;--glow-r-dot:3.5;--glow-observe-delay:500ms;--ghost-border:0.75px;
   --tip-fs-val:var(--fs-body);--tip-fs-date:10px;--tip-transition:.12s;--sp-xxl:32px;
   --ease-list:cubic-bezier(.25,.1,.25,1);--ease-spring:cubic-bezier(.34,1.56,.64,1);--ease-decel:cubic-bezier(.32,0,.24,1);
-  --play-spring:cubic-bezier(.22,1,.36,1);--play-spring-ms:850ms;--play-tap-ms:200ms;--play-tap-scale:.97;
+  --play-spring:cubic-bezier(.22,1,.36,1);--play-spring-ms:850ms;--play-tap-ms:200ms;--play-tap-scale:.97;--ls-elo:-3px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;color:var(--text);min-height:100dvh;overflow:hidden}
@@ -87,7 +87,7 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 /* Play tab animations */
 /* Result feedback card */
 .play-result{margin:0 var(--content-pad) var(--sp-lg);background:var(--surface);border-radius:var(--r-sm);padding:var(--sp-xl);text-align:center}
-.play-result-delta{font-size:var(--fs-elo);font-weight:800;letter-spacing:-3px;line-height:1}
+.play-result-delta{font-size:var(--fs-elo);font-weight:800;letter-spacing:var(--ls-elo);line-height:1}
 .play-result-delta.up{color:var(--green)}
 .play-result-delta.down{color:var(--red)}
 .play-result-delta.flat{color:var(--muted)}
@@ -155,7 +155,7 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .p-hero-bio-empty{font-size:var(--fs-caption);color:var(--ghost);margin-top:var(--sp-xs);cursor:pointer;font-style:italic}
 .p-elo{padding:var(--sp-sm) var(--content-pad) 0}
 .p-elo-row{display:flex;align-items:baseline;gap:var(--sp-sm);margin-bottom:var(--sp-md)}
-.p-elo-num{font-size:var(--fs-elo);font-weight:800;letter-spacing:-3px;line-height:1}
+.p-elo-num{font-size:var(--fs-elo);font-weight:800;letter-spacing:var(--ls-elo);line-height:1}
 .p-elo-num-empty{color:var(--dim)}
 .p-elo-delta{font-size:var(--fs-title);font-weight:700}
 .p-elo-delta.up{color:var(--green)}
@@ -811,6 +811,7 @@ function _playStartTimer(matchId,createdAt){
     var visual=linear*linear*linear;
     el.style.transform='scaleX('+(1-linear)+')';
     if(linear<0.5)el.style.background='var(--ghost)';
+    // Interpolate --ghost(72,72,74) → --red(255,69,58) — hardcoded RGB for JS interpolation
     else if(linear<0.85){var t=(linear-0.5)/0.35;el.style.background='rgb('+Math.round(72+(255-72)*t)+','+Math.round(72+(69-72)*t)+','+Math.round(74+(58-74)*t)+')'}
     else el.style.background='var(--red)';
     if(linear<1)_playTimers[matchId]=requestAnimationFrame(tick);
