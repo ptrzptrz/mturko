@@ -85,6 +85,14 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .cell-timer-fill{height:100%;border-radius:1px;width:100%;transform-origin:left;background:var(--ghost)}
 
 /* Play tab animations */
+/* Result feedback card */
+.play-result{margin:0 var(--content-pad) var(--sp-lg);background:var(--surface);border-radius:var(--r-sm);padding:var(--sp-xl);text-align:center}
+.play-result-delta{font-size:var(--fs-elo);font-weight:800;letter-spacing:-3px;line-height:1}
+.play-result-delta.up{color:var(--green)}
+.play-result-delta.down{color:var(--red)}
+.play-result-delta.flat{color:var(--muted)}
+.play-result-sub{font-size:var(--fs-caption);color:var(--muted);margin-top:var(--sp-sm)}
+
 @keyframes playGroupEnter{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes playCellSpring{
   0%{opacity:0;transform:translateY(18px) scale(.95)}
@@ -103,7 +111,7 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 
 /* Swipe-to-cancel */
 .play-swipe{position:relative;overflow:hidden}
-.play-swipe-reveal{position:absolute;right:0;top:0;bottom:0;width:80px;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:var(--fs-caption);font-weight:600;color:var(--text)}
+.play-swipe-reveal{position:absolute;inset:0;background:var(--red);display:flex;align-items:center;justify-content:flex-end;padding-right:var(--sp-xl);font-size:var(--fs-caption);font-weight:600;color:var(--text)}
 .play-swipe-surface{background:var(--surface);position:relative;z-index:1;touch-action:pan-y}
 
 
@@ -471,6 +479,7 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
   <div class="page" id="page-clubs"><div class="placeholder"><div class="placeholder-title">Clubs</div><div class="placeholder-sub">Create or join a chess club</div><div class="coming-soon">Coming soon</div></div></div>
 
   <div class="page" id="page-play">
+    <div id="play-result-wrap"></div>
     <div id="play-cta"></div>
     <div id="play-active"></div>
     <div id="play-passive"></div>
@@ -608,7 +617,7 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 var $=function(id){return document.getElementById(id)};
 var SUPA_URL="https://prmptevzfofmohefyvrl.supabase.co";
 var SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBybXB0ZXZ6Zm9mbW9oZWZ5dnJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwOTg2ODEsImV4cCI6MjA4NzY3NDY4MX0.o-CjHwIbfBnCmJfKTDKKtbUok6h6mFQz8Y8O6XiWMzI";
-var supabaseClient=window.supabase.createClient(SUPA_URL,SUPA_KEY);
+var supabaseClient=window.supabase.createClient(SUPA_URL,SUPA_KEY,{realtime:{heartbeatIntervalMs:10000}});
 var me=null,players=[],matches=[],authToken=null,authMode='login';
 var CHEVRON_SVG='<svg class="ios-cell-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
 var STARTING_ELO=1500;
@@ -881,8 +890,97 @@ function _playCancelSwipe(matchId){
   },450);
 }
 
+var _prevMatchStates={};
+var _resultFeedbackTimer=null;
+
+function _showResultFeedback(matchId){
+  var wrap=$('play-result-wrap');
+  if(!wrap)return;
+  // Fetch elo_history for this match to get delta
+  dbGet('elo_history','player_id=eq.'+me.id+'&match_id=eq.'+matchId+'&select=elo_before,elo_after').then(function(rows){
+    var m=null;// match might already be gone from matches array, find in done
+    matches.forEach(function(x){if(x.id===matchId)m=x});
+    var opp=m?getP(m.p1===me.id?m.p2:m.p1):null;
+    var oppName=opp?nick(opp):'';
+    var delta=0;var cls='flat';
+    if(rows&&rows.length){
+      delta=Math.round(rows[0].elo_after-rows[0].elo_before);
+      cls=delta>0?'up':delta<0?'down':'flat';
+    }
+    var sign=delta>0?'+':'';
+    var tc=m?(m.time_control||'rapid').charAt(0).toUpperCase()+(m.time_control||'rapid').slice(1):'';
+    var card=document.createElement('div');
+    card.className='play-result';
+    card.innerHTML='<div class="play-result-delta '+cls+'">'+sign+delta+'</div>'
+      +'<div class="play-result-sub">vs '+oppName+(tc?' · '+tc:'')+'</div>';
+    card.style.animation='playCellSpring var(--play-spring-ms) var(--play-spring) both';
+    wrap.innerHTML='';
+    wrap.appendChild(card);
+    if(_resultFeedbackTimer)clearTimeout(_resultFeedbackTimer);
+    _resultFeedbackTimer=setTimeout(function(){
+      card.style.transition='opacity .5s ease,transform .5s var(--ease-decel)';
+      card.style.opacity='0';card.style.transform='translateY(-8px) scale(.98)';
+      setTimeout(function(){wrap.innerHTML=''},500);
+    },4000);
+  });
+}
+
+function _showCancelledFeedback(matchId,oppName){
+  var wrap=$('play-result-wrap');
+  if(!wrap)return;
+  var card=document.createElement('div');
+  card.className='play-result';
+  card.innerHTML='<div class="play-result-delta flat">0</div>'
+    +'<div class="play-result-sub">vs '+oppName+' · cancelled</div>';
+  card.style.animation='playCellSpring var(--play-spring-ms) var(--play-spring) both';
+  wrap.innerHTML='';
+  wrap.appendChild(card);
+  if(_resultFeedbackTimer)clearTimeout(_resultFeedbackTimer);
+  _resultFeedbackTimer=setTimeout(function(){
+    card.style.transition='opacity .5s ease,transform .5s var(--ease-decel)';
+    card.style.opacity='0';card.style.transform='translateY(-8px) scale(.98)';
+    setTimeout(function(){wrap.innerHTML=''},500);
+  },4000);
+}
+
+function _detectMatchTransitions(){
+  var newStates={};
+  matches.forEach(function(m){
+    var state=getMatchState(m);
+    if(state)newStates[m.id]=state;
+  });
+  // Check for transitions
+  Object.keys(_prevMatchStates).forEach(function(mid){
+    var prev=_prevMatchStates[mid];
+    var curr=newStates[mid];
+    if(!curr&&(prev==='live'||prev==='waiting'||prev==='dispute')){
+      // Match disappeared — could be done or cancelled, fetch to check
+      var m=null;matches.forEach(function(x){if(x.id===mid)m=x});
+      if(m&&m.status==='done'){
+        if(m.result==='cancelled'){
+          var opp=getP(m.p1===me.id?m.p2:m.p1);
+          _showCancelledFeedback(mid,opp?nick(opp):'');
+        }else{
+          _showResultFeedback(mid);
+        }
+      }
+    }
+    if(curr==='done'&&prev!=='done'){
+      var m=null;matches.forEach(function(x){if(x.id===mid)m=x});
+      if(m&&m.result==='cancelled'){
+        var opp=getP(m.p1===me.id?m.p2:m.p1);
+        _showCancelledFeedback(mid,opp?nick(opp):'');
+      }else if(m){
+        _showResultFeedback(mid);
+      }
+    }
+  });
+  _prevMatchStates=newStates;
+}
+
 function renderPlay(){
   if(!me)return;
+  _detectMatchTransitions();
   var busy=_playIsBusy();
 
   // ── CTA ──
@@ -955,7 +1053,7 @@ function renderPlay(){
         h+='<div class="ios-cell-right">'+CHEVRON_SVG+'</div>';
       }else if(item.type==='dispute'){
         h+='<div class="ios-cell-icon red">'+ICON_ALERT+'</div>';
-        h+='<div class="ios-cell-body"><div class="ios-cell-title">'+nick(opp)+'</div><div class="ios-cell-sub">Results don\'t match</div></div>';
+        h+='<div class="ios-cell-body"><div class="ios-cell-title">'+nick(opp)+'</div><div class="ios-cell-sub">Results don\'t match · last attempt</div></div>';
         h+='<div class="ios-cell-right"><span class="ios-cell-value" style="color:var(--red)">Resolve</span>'+CHEVRON_SVG+'</div>';
       }
       h+='</div>';
@@ -2095,7 +2193,7 @@ function openResultSheet(matchId){
   var blackId=m.white_player_id?(m.white_player_id===m.p1?m.p2:m.p1):m.p2;
   var black=getP(blackId);
   var names=nick(white)+' \u2014 '+nick(black);
-  $('rs-title').textContent=isDisputed?'Needs review':'How did it go?';
+  $('rs-title').textContent=isDisputed?'Last attempt':'How did it go?';
   $('rs-sub').textContent=names;
   if(isDisputed)$('rs-warn').classList.remove('hidden');else $('rs-warn').classList.add('hidden');
   document.querySelectorAll('.rs-option').forEach(function(b){b.style.background='';b.style.opacity='';b.style.pointerEvents=''});
