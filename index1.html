@@ -756,19 +756,33 @@ function renderAll(){renderPlay();renderLeaderboard();renderDiscover();renderFee
 var ICON_LIVE='<svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16" fill="var(--green)" stroke="none"/></svg>';
 var CHALLENGE_EXPIRE_MS=60000;
 var _playTimers={};
-var _playRenderedActive={};
-var _playRenderedPassive={};
+
+// Single source of truth for match state from my perspective
+// Returns: 'incoming','sent','live','waiting','dispute','done',null
+function getMatchState(m){
+  if(!me)return null;
+  if(m.status==='done')return'done';
+  if(m.status==='pending_challenge'){
+    if(m.p2===me.id)return'incoming';
+    if(m.p1===me.id)return'sent';
+  }
+  if(m.status==='active'&&(m.p1===me.id||m.p2===me.id)){
+    var isP1=m.p1===me.id;
+    var myRes=isP1?m.result_p1:m.result_p2;
+    if(m.disputed&&!myRes)return'dispute';
+    if(!myRes)return'live';
+    return'waiting';
+  }
+  return null;
+}
+
+// Active states block new challenges
+var BLOCKING_STATES={incoming:true,sent:true,live:true,dispute:true};
 
 function _playIsBusy(){
   return matches.some(function(m){
-    if(m.status==='pending_challenge'&&m.p2===me.id)return true;
-    if(m.status==='pending_challenge'&&m.p1===me.id)return true;
-    if(m.status==='active'&&(m.p1===me.id||m.p2===me.id)){
-      var isP1=m.p1===me.id;
-      var myRes=isP1?m.result_p1:m.result_p2;
-      if(!myRes)return true;
-    }
-    return false;
+    var state=getMatchState(m);
+    return state&&BLOCKING_STATES[state];
   });
 }
 
@@ -882,27 +896,17 @@ function renderPlay(){
   var ctaCell=$('play-cta-cell');
   if(ctaCell){if(busy)ctaCell.classList.add('disabled');else ctaCell.classList.remove('disabled')}
 
-  // ── Classify matches ──
+  // ── Classify matches via getMatchState ──
+  var ACTIVE_STATES={incoming:true,live:true,dispute:true};
+  var PASSIVE_STATES={sent:true,waiting:true};
   var activeList=[];
   var passiveList=[];
   matches.forEach(function(m){
-    if(m.status==='pending_challenge'&&m.p2===me.id){
-      activeList.push({id:m.id,type:'incoming',match:m});
-    }
-    if(m.status==='active'){
-      var isP1=m.p1===me.id;
-      var myRes=isP1?m.result_p1:m.result_p2;
-      if(m.disputed&&!myRes){
-        activeList.push({id:m.id,type:'dispute',match:m});
-      }else if(!myRes){
-        activeList.push({id:m.id,type:'live',match:m});
-      }else{
-        passiveList.push({id:m.id,type:'waiting',match:m});
-      }
-    }
-    if(m.status==='pending_challenge'&&m.p1===me.id){
-      passiveList.push({id:m.id,type:'sent',match:m});
-    }
+    var state=getMatchState(m);
+    if(!state||state==='done')return;
+    var item={id:m.id,type:state,match:m};
+    if(ACTIVE_STATES[state])activeList.push(item);
+    else if(PASSIVE_STATES[state])passiveList.push(item);
   });
 
   // ── Active section ──
