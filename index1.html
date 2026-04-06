@@ -809,10 +809,46 @@ function _playExpireIncoming(matchId){
 function _playInitSwipe(surface,matchId){
   if(surface._playSwipeBound)return;
   surface._playSwipeBound=true;
-  var sx=0,cx=0,tracking=false;
-  surface.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;cx=0;tracking=true;surface.style.transition='none'},{passive:true});
-  surface.addEventListener('touchmove',function(e){if(!tracking)return;var dx=e.touches[0].clientX-sx;if(dx>0)dx=0;if(dx<-100)dx=-100;cx=dx;surface.style.transform='translateX('+dx+'px)'},{passive:true});
-  surface.addEventListener('touchend',function(){if(!tracking)return;tracking=false;surface.style.transition='transform .3s var(--ease-decel)';surface.style.transform=cx<-50?'translateX(-80px)':'translateX(0)'},{passive:true});
+  var sx=0,cx=0,tracking=false,lastX=0,lastTime=0,velocity=0;
+  surface.addEventListener('touchstart',function(e){
+    sx=e.touches[0].clientX;cx=0;tracking=true;velocity=0;
+    lastX=sx;lastTime=Date.now();
+    surface.style.transition='none';
+  },{passive:true});
+  surface.addEventListener('touchmove',function(e){
+    if(!tracking)return;
+    var dx=e.touches[0].clientX-sx;
+    if(dx>0)dx=dx*0.3;// rubber band right
+    cx=dx;
+    var now=Date.now();var dt=now-lastTime;
+    if(dt>0)velocity=(e.touches[0].clientX-lastX)/dt*1000;
+    lastX=e.touches[0].clientX;lastTime=now;
+    surface.style.transform='translateX('+cx+'px)';
+  },{passive:true});
+  surface.addEventListener('touchend',function(){
+    if(!tracking)return;tracking=false;
+    // If swiped far enough or fast enough — dismiss
+    if(cx<-60||velocity<-800){
+      surface.style.transition='transform .35s var(--ease-decel)';
+      surface.style.transform='translateX(-'+window.innerWidth+'px)';
+      var wrap=document.getElementById('play-sw-'+matchId);
+      if(wrap){
+        setTimeout(function(){
+          wrap.style.transition='max-height .35s var(--ease-decel),opacity .25s';
+          wrap.style.maxHeight=wrap.offsetHeight+'px';wrap.style.overflow='hidden';
+          wrap.offsetHeight;wrap.style.maxHeight='0';wrap.style.opacity='0';
+        },200);
+        setTimeout(function(){
+          dbDelete('matches','id=eq.'+matchId);
+          fetchAll();
+        },500);
+      }
+    }else{
+      // Spring back
+      surface.style.transition='transform .4s var(--ease-spring)';
+      surface.style.transform='translateX(0)';
+    }
+  },{passive:true});
 }
 
 function _playCancelSwipe(matchId){
@@ -873,12 +909,14 @@ function renderPlay(){
   var activeSection=$('play-active');
   var activeGroup=activeSection.querySelector('.ios-group');
   var activeIds=activeList.map(function(a){return a.id});
+  var activeTypeMap={};activeList.forEach(function(a){activeTypeMap[a.id]=a.type});
 
-  // Remove cells that no longer exist
+  // Remove cells that no longer exist OR changed type
   if(activeGroup){
     activeGroup.querySelectorAll('.ios-cell').forEach(function(cell){
       var cid=cell.getAttribute('data-mid');
-      if(activeIds.indexOf(cid)===-1){
+      var ctype=cell.getAttribute('data-type');
+      if(activeIds.indexOf(cid)===-1||activeTypeMap[cid]!==ctype){
         _playStopTimer(cid);
         cell.style.transition='opacity .4s ease,transform .4s var(--ease-decel),max-height .4s var(--ease-decel)';
         cell.style.opacity='0';cell.style.transform='translateY(-8px) scale(.98)';
@@ -897,11 +935,11 @@ function renderPlay(){
 
   if(activeGroup){
     activeList.forEach(function(item){
-      var existing=activeGroup.querySelector('[data-mid="'+item.id+'"]');
+      var existing=activeGroup.querySelector('[data-mid="'+item.id+'"][data-type="'+item.type+'"]');
       if(existing)return;
       var m=item.match;
       var opp=getP(m.p1===me.id?m.p2:m.p1);
-      var h='<div class="ios-cell" data-mid="'+item.id+'">';
+      var h='<div class="ios-cell" data-mid="'+item.id+'" data-type="'+item.type+'">';
       if(item.type==='incoming'){
         h+='<div class="ios-cell-icon green">'+ICON_CHECK+'</div>';
         h+='<div class="ios-cell-body"><div class="ios-cell-title">'+nick(opp)+'</div><div class="ios-cell-sub">Wants to play · '+(m.time_control||'rapid').charAt(0).toUpperCase()+(m.time_control||'rapid').slice(1)+'</div></div>';
@@ -941,12 +979,14 @@ function renderPlay(){
   var passiveSection=$('play-passive');
   var passiveGroup=passiveSection.querySelector('.play-passive');
   var passiveIds=passiveList.map(function(p){return p.id});
+  var passiveTypeMap={};passiveList.forEach(function(p){passiveTypeMap[p.id]=p.type});
 
-  // Remove swipe wraps that no longer exist
+  // Remove swipe wraps that no longer exist or changed type
   if(passiveGroup){
     passiveGroup.querySelectorAll('.play-swipe').forEach(function(wrap){
       var wid=wrap.getAttribute('data-mid');
-      if(passiveIds.indexOf(wid)===-1){
+      var wtype=wrap.getAttribute('data-type');
+      if(passiveIds.indexOf(wid)===-1||passiveTypeMap[wid]!==wtype){
         wrap.style.transition='max-height .4s var(--ease-decel),opacity .3s';
         wrap.style.maxHeight=wrap.offsetHeight+'px';wrap.style.overflow='hidden';
         wrap.offsetHeight;wrap.style.maxHeight='0';wrap.style.opacity='0';
@@ -963,14 +1003,14 @@ function renderPlay(){
 
   if(passiveGroup){
     passiveList.forEach(function(item){
-      var existing=passiveGroup.querySelector('[data-mid="'+item.id+'"]');
+      var existing=passiveGroup.querySelector('[data-mid="'+item.id+'"][data-type="'+item.type+'"]');
       if(existing)return;
       var m=item.match;
       var opp=getP(m.p1===me.id?m.p2:m.p1);
       var sub,value;
       if(item.type==='sent'){sub='Challenge sent · '+(m.time_control||'rapid').charAt(0).toUpperCase()+(m.time_control||'rapid').slice(1);value='Waiting'}
       else{sub='Waiting for confirmation';value='Sent'}
-      var wrapHTML='<div class="play-swipe" id="play-sw-'+item.id+'" data-mid="'+item.id+'">'
+      var wrapHTML='<div class="play-swipe" id="play-sw-'+item.id+'" data-mid="'+item.id+'" data-type="'+item.type+'">'
         +'<div class="play-swipe-reveal" onclick="_playCancelSwipe(\''+item.id+'\')">Cancel</div>'
         +'<div class="play-swipe-surface">'
         +'<div class="ios-cell" data-mid="'+item.id+'">'
