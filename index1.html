@@ -31,6 +31,8 @@
   --tip-fs-val:var(--fs-body);--tip-fs-date:10px;--tip-transition:.12s;--sp-xxl:32px;
   --ease-list:cubic-bezier(.25,.1,.25,1);--ease-spring:cubic-bezier(.34,1.56,.64,1);--ease-decel:cubic-bezier(.32,0,.24,1);
   --play-spring:cubic-bezier(.22,1,.36,1);--play-spring-ms:850ms;--play-tap-ms:200ms;--play-tap-scale:.97;--ls-elo:-3px;
+  --result-spring:cubic-bezier(.175,.885,.32,1.275);--result-delta-size:60px;--result-gap-lg:20px;--result-gap-sm:6px;--result-optical-x:-4px;
+  --result-players-size:15px;--result-dismiss-bottom:40px;--confetti-count:70;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;color:var(--text);min-height:100dvh;overflow:hidden}
@@ -85,13 +87,47 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .cell-timer-fill{height:100%;border-radius:1px;width:100%;transform-origin:left;background:var(--ghost)}
 
 /* Play tab animations */
-/* Result feedback card */
-.play-result{margin:0 var(--content-pad) var(--sp-lg);background:var(--surface);border-radius:var(--r-sm);padding:var(--sp-xl);text-align:center}
-.play-result-delta{font-size:var(--fs-elo);font-weight:800;letter-spacing:var(--ls-elo);line-height:1}
-.play-result-delta.up{color:var(--green)}
-.play-result-delta.down{color:var(--red)}
-.play-result-delta.flat{color:var(--muted)}
-.play-result-sub{font-size:var(--fs-caption);color:var(--muted);margin-top:var(--sp-sm)}
+/* Result overlay — fullscreen celebration after match completion */
+.result-overlay{position:fixed;inset:0;z-index:10003;opacity:0;pointer-events:none;transition:opacity .5s ease}
+.result-overlay.visible{opacity:1;pointer-events:all}
+.result-overlay-bg{position:absolute;inset:0;background:var(--bg)}
+.result-content{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
+
+.result-delta{
+  font-size:var(--result-delta-size);font-weight:800;letter-spacing:var(--ls-elo);line-height:1;
+  font-variant-numeric:tabular-nums;
+  opacity:0;transform:scale(.7) translateX(var(--result-optical-x));
+  transition:opacity .6s ease,transform .85s var(--result-spring);
+}
+.result-overlay.visible .result-delta{opacity:1;transform:scale(1) translateX(var(--result-optical-x))}
+.result-delta.up{color:var(--green)}
+.result-delta.down{color:var(--red)}
+.result-delta.flat{color:var(--muted)}
+
+.result-players{
+  font-size:var(--result-players-size);font-weight:500;color:var(--muted);margin-top:var(--result-gap-lg);
+  letter-spacing:.2px;
+  opacity:0;transform:translateY(6px);
+  transition:opacity .5s ease .25s,transform .5s var(--ease-decel) .25s;
+}
+.result-overlay.visible .result-players{opacity:1;transform:translateY(0)}
+
+.result-format{
+  font-size:var(--fs-micro);font-weight:500;color:var(--ghost);margin-top:var(--result-gap-sm);
+  text-transform:uppercase;letter-spacing:1px;
+  opacity:0;transform:translateY(4px);
+  transition:opacity .4s ease .35s,transform .5s var(--ease-decel) .35s;
+}
+.result-overlay.visible .result-format{opacity:1;transform:translateY(0)}
+
+.result-dismiss{
+  position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + var(--result-dismiss-bottom));
+  left:0;right:0;text-align:center;font-size:var(--fs-micro);color:var(--ghost);
+  opacity:0;transition:opacity .5s ease 1s;
+}
+.result-overlay.visible .result-dismiss{opacity:1}
+
+.confetti-canvas{position:absolute;inset:0;pointer-events:none;z-index:2}
 
 @keyframes playGroupEnter{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes playCellSpring{
@@ -479,7 +515,6 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
   <div class="page" id="page-clubs"><div class="placeholder"><div class="placeholder-title">Clubs</div><div class="placeholder-sub">Create or join a chess club</div><div class="coming-soon">Coming soon</div></div></div>
 
   <div class="page" id="page-play">
-    <div id="play-result-wrap"></div>
     <div id="play-cta"></div>
     <div id="play-active"></div>
     <div id="play-passive"></div>
@@ -562,6 +597,17 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
   <div class="nav-tab" data-page="page-venues" onclick="switchTab(this)"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="nav-label">Venues</span></div>
   <div class="nav-tab" data-page="page-profile" onclick="switchTab(this)"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-label">Profile</span></div>
 </nav>
+
+<div class="result-overlay" id="result-overlay" onclick="_playDismissResult()">
+  <div class="result-overlay-bg"></div>
+  <canvas class="confetti-canvas" id="result-confetti-canvas"></canvas>
+  <div class="result-content">
+    <div class="result-delta" id="result-delta"></div>
+    <div class="result-players" id="result-players"></div>
+    <div class="result-format" id="result-format"></div>
+  </div>
+  <div class="result-dismiss">Tap to continue</div>
+</div>
 
 <div class="es-overlay" id="es-overlay" onclick="if(event.target===this)closeEditSheet()">
   <div class="es-sheet" id="es-sheet" onclick="event.stopPropagation()">
@@ -892,56 +938,161 @@ function _playCancelSwipe(matchId){
 }
 
 var _prevMatchStates={};
-var _resultFeedbackTimer=null;
+var _resultDismissTimer=null;
+var _confettiRAF=null;
 
-function _showResultFeedback(matchId){
-  var wrap=$('play-result-wrap');
-  if(!wrap)return;
-  // Fetch elo_history for this match to get delta
+// ── Result overlay ──
+function _playShowResult(delta,whiteName,blackName,format,type){
+  var overlay=$('result-overlay');
+  var deltaEl=$('result-delta');
+  if(!overlay||!deltaEl)return;
+  var sign=delta>0?'+':'';
+  var cls=type==='win'?'up':type==='loss'?'down':'flat';
+  deltaEl.textContent=sign+delta;
+  deltaEl.className='result-delta '+cls;
+  $('result-players').textContent=whiteName+' \u2014 '+blackName;
+  $('result-format').textContent=format;
+  overlay.classList.remove('visible');
+  void overlay.offsetHeight;
+  overlay.classList.add('visible');
+  if(type==='win'){
+    setTimeout(function(){
+      var rect=deltaEl.getBoundingClientRect();
+      _playStartConfetti(rect.left+rect.width/2,rect.top+rect.height/2);
+    },400);
+  }
+  if(_resultDismissTimer)clearTimeout(_resultDismissTimer);
+  _resultDismissTimer=setTimeout(function(){_playDismissResult()},5500);
+}
+
+function _playDismissResult(){
+  if(_resultDismissTimer)clearTimeout(_resultDismissTimer);
+  var overlay=$('result-overlay');
+  if(!overlay)return;
+  overlay.classList.remove('visible');
+  setTimeout(function(){_playStopConfetti()},600);
+}
+
+// ── Confetti — burst from origin, iMessage palette + shapes ──
+var CONFETTI_PALETTE=['#FF453A','#FF9F0A','#FFD60A','#30D158','#64D2FF','#0A84FF','#BF5AF2','#FF375F','#F2F2F7'];
+var CONFETTI_SHAPES=['rect','circle','strip','diamond'];
+
+function _playStartConfetti(ox,oy){
+  _playStopConfetti();
+  var canvas=$('result-confetti-canvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var dpr=window.devicePixelRatio||1;
+  var W=window.innerWidth;
+  var H=window.innerHeight;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  canvas.style.width=W+'px';canvas.style.height=H+'px';
+  ctx.scale(dpr,dpr);
+  var count=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--confetti-count'))||70;
+  var particles=[];
+  for(var i=0;i<count;i++){
+    var angle=-Math.PI/2+(Math.random()-0.5)*Math.PI*1.1;
+    var speed=5+Math.random()*8;
+    var size=3+Math.random()*4;
+    particles.push({
+      x:ox+(Math.random()-0.5)*30,
+      y:oy+(Math.random()-0.5)*10,
+      vx:Math.cos(angle)*speed,
+      vy:Math.sin(angle)*speed,
+      size:size,
+      shape:CONFETTI_SHAPES[Math.floor(Math.random()*CONFETTI_SHAPES.length)],
+      color:CONFETTI_PALETTE[Math.floor(Math.random()*CONFETTI_PALETTE.length)],
+      angle:Math.random()*360,
+      spin:(Math.random()-0.5)*8,
+      wobblePhase:Math.random()*Math.PI*2,
+      wobbleFreq:0.015+Math.random()*0.015,
+      wobbleAmp:0.4+Math.random()*0.8,
+      opacity:1,
+      gravity:0.15+Math.random()*0.08,
+      delay:Math.random()*180
+    });
+  }
+  var startTime=Date.now();
+  function drawShape(ctx,p){
+    var s=p.size;
+    ctx.fillStyle=p.color;
+    if(p.shape==='rect')ctx.fillRect(-s*0.55,-s,s*1.1,s*2);
+    else if(p.shape==='circle'){ctx.beginPath();ctx.arc(0,0,s*0.65,0,Math.PI*2);ctx.fill()}
+    else if(p.shape==='strip')ctx.fillRect(-s*0.25,-s*1.4,s*0.5,s*2.8);
+    else if(p.shape==='diamond'){ctx.beginPath();ctx.moveTo(0,-s);ctx.lineTo(s*0.7,0);ctx.lineTo(0,s);ctx.lineTo(-s*0.7,0);ctx.closePath();ctx.fill()}
+  }
+  function tick(){
+    var elapsed=Date.now()-startTime;
+    ctx.clearRect(0,0,W,H);
+    var alive=false;
+    particles.forEach(function(p){
+      if(elapsed<p.delay)return;
+      if(p.opacity<=0)return;
+      alive=true;
+      p.vy+=p.gravity;
+      p.vx*=0.992;
+      p.x+=p.vx+Math.sin(elapsed*p.wobbleFreq+p.wobblePhase)*p.wobbleAmp;
+      p.y+=p.vy;
+      p.angle+=p.spin;
+      p.spin*=0.997;
+      if(elapsed>2500)p.opacity-=0.012;
+      if(p.opacity<0)p.opacity=0;
+      if(p.y>H+40)p.opacity=0;
+      var tumble=Math.cos(elapsed*0.0035+p.wobblePhase);
+      var scaleX=Math.abs(tumble)*0.6+0.4;
+      ctx.save();
+      ctx.globalAlpha=p.opacity;
+      ctx.translate(p.x,p.y);
+      ctx.rotate(p.angle*Math.PI/180);
+      ctx.scale(scaleX,1);
+      drawShape(ctx,p);
+      ctx.restore();
+    });
+    if(alive&&elapsed<5000)_confettiRAF=requestAnimationFrame(tick);
+    else ctx.clearRect(0,0,W,H);
+  }
+  _confettiRAF=requestAnimationFrame(tick);
+}
+
+function _playStopConfetti(){
+  if(_confettiRAF){cancelAnimationFrame(_confettiRAF);_confettiRAF=null}
+  var canvas=$('result-confetti-canvas');
+  if(canvas){var ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height)}
+}
+
+// ── Match transition detection ──
+function _showResultForMatch(matchId){
   dbGet('elo_history','player_id=eq.'+me.id+'&match_id=eq.'+matchId+'&select=elo_before,elo_after').then(function(rows){
-    var m=null;// match might already be gone from matches array, find in done
-    matches.forEach(function(x){if(x.id===matchId)m=x});
-    var opp=m?getP(m.p1===me.id?m.p2:m.p1):null;
-    var oppName=opp?nick(opp):'';
-    var delta=0;var cls='flat';
-    if(rows&&rows.length){
-      delta=Math.round(rows[0].elo_after-rows[0].elo_before);
-      cls=delta>0?'up':delta<0?'down':'flat';
-    }
-    var sign=delta>0?'+':'';
-    var tc=m?(m.time_control||'rapid').charAt(0).toUpperCase()+(m.time_control||'rapid').slice(1):'';
-    var card=document.createElement('div');
-    card.className='play-result';
-    card.innerHTML='<div class="play-result-delta '+cls+'">'+sign+delta+'</div>'
-      +'<div class="play-result-sub">vs '+oppName+(tc?' · '+tc:'')+'</div>';
-    card.style.animation='playCellSpring var(--play-spring-ms) var(--play-spring) both';
-    wrap.innerHTML='';
-    wrap.appendChild(card);
-    if(_resultFeedbackTimer)clearTimeout(_resultFeedbackTimer);
-    _resultFeedbackTimer=setTimeout(function(){
-      card.style.transition='opacity .5s ease,transform .5s var(--ease-decel)';
-      card.style.opacity='0';card.style.transform='translateY(-8px) scale(.98)';
-      setTimeout(function(){wrap.innerHTML=''},500);
-    },4000);
+    var m=null;matches.forEach(function(x){if(x.id===matchId)m=x});
+    if(!m)return;
+    var white=m.white_player_id?getP(m.white_player_id):getP(m.p1);
+    var blackId=m.white_player_id?(m.white_player_id===m.p1?m.p2:m.p1):m.p2;
+    var black=getP(blackId);
+    var whiteName=white?nick(white):'';
+    var blackName=black?nick(black):'';
+    var delta=0;
+    if(rows&&rows.length)delta=Math.round(rows[0].elo_after-rows[0].elo_before);
+    var isP1=m.p1===me.id;
+    var myResult=m.result;
+    var type='flat';
+    if(myResult==='draw')type='draw';
+    else if((myResult==='p1'&&isP1)||(myResult==='p2'&&!isP1))type='win';
+    else if(myResult==='p1'||myResult==='p2')type='loss';
+    var fmt=(m.time_control||'rapid').charAt(0).toUpperCase()+(m.time_control||'rapid').slice(1);
+    _playShowResult(delta,whiteName,blackName,fmt,type);
   });
 }
 
-function _showCancelledFeedback(matchId,oppName){
-  var wrap=$('play-result-wrap');
-  if(!wrap)return;
-  var card=document.createElement('div');
-  card.className='play-result';
-  card.innerHTML='<div class="play-result-delta flat">0</div>'
-    +'<div class="play-result-sub">vs '+oppName+' · cancelled</div>';
-  card.style.animation='playCellSpring var(--play-spring-ms) var(--play-spring) both';
-  wrap.innerHTML='';
-  wrap.appendChild(card);
-  if(_resultFeedbackTimer)clearTimeout(_resultFeedbackTimer);
-  _resultFeedbackTimer=setTimeout(function(){
-    card.style.transition='opacity .5s ease,transform .5s var(--ease-decel)';
-    card.style.opacity='0';card.style.transform='translateY(-8px) scale(.98)';
-    setTimeout(function(){wrap.innerHTML=''},500);
-  },4000);
+function _showCancelledForMatch(matchId){
+  var m=null;matches.forEach(function(x){if(x.id===matchId)m=x});
+  if(!m)return;
+  var white=m.white_player_id?getP(m.white_player_id):getP(m.p1);
+  var blackId=m.white_player_id?(m.white_player_id===m.p1?m.p2:m.p1):m.p2;
+  var black=getP(blackId);
+  var whiteName=white?nick(white):'';
+  var blackName=black?nick(black):'';
+  var fmt=(m.time_control||'rapid').charAt(0).toUpperCase()+(m.time_control||'rapid').slice(1);
+  _playShowResult(0,whiteName,blackName,fmt+' · cancelled','flat');
 }
 
 function _detectMatchTransitions(){
@@ -950,30 +1101,14 @@ function _detectMatchTransitions(){
     var state=getMatchState(m);
     if(state)newStates[m.id]=state;
   });
-  // Check for transitions
   Object.keys(_prevMatchStates).forEach(function(mid){
     var prev=_prevMatchStates[mid];
     var curr=newStates[mid];
-    if(!curr&&(prev==='live'||prev==='waiting'||prev==='dispute')){
-      // Match disappeared — could be done or cancelled, fetch to check
+    if(curr==='done'&&prev!=='done'&&prev){
       var m=null;matches.forEach(function(x){if(x.id===mid)m=x});
-      if(m&&m.status==='done'){
-        if(m.result==='cancelled'){
-          var opp=getP(m.p1===me.id?m.p2:m.p1);
-          _showCancelledFeedback(mid,opp?nick(opp):'');
-        }else{
-          _showResultFeedback(mid);
-        }
-      }
-    }
-    if(curr==='done'&&prev!=='done'){
-      var m=null;matches.forEach(function(x){if(x.id===mid)m=x});
-      if(m&&m.result==='cancelled'){
-        var opp=getP(m.p1===me.id?m.p2:m.p1);
-        _showCancelledFeedback(mid,opp?nick(opp):'');
-      }else if(m){
-        _showResultFeedback(mid);
-      }
+      if(!m)return;
+      if(m.result==='cancelled')_showCancelledForMatch(mid);
+      else _showResultForMatch(mid);
     }
   });
   _prevMatchStates=newStates;
@@ -2089,6 +2224,10 @@ async function doLogout(){
   if(window._fetchInterval)clearInterval(window._fetchInterval);
   Object.keys(_playTimers).forEach(function(k){cancelAnimationFrame(_playTimers[k])});
   _playTimers={};
+  _playStopConfetti();
+  if(_resultDismissTimer)clearTimeout(_resultDismissTimer);
+  _prevMatchStates={};
+  $('result-overlay').classList.remove('visible');
   if(_presenceChannel){_presenceChannel.untrack();_presenceChannel=null}
   _onlinePlayers={};
   supabaseClient.removeAllChannels();
