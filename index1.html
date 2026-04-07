@@ -31,9 +31,14 @@
   --tip-fs-val:var(--fs-body);--tip-fs-date:10px;--tip-transition:.12s;--sp-xxl:32px;
   --ease-list:cubic-bezier(.25,.1,.25,1);--ease-spring:cubic-bezier(.34,1.56,.64,1);--ease-decel:cubic-bezier(.32,0,.24,1);
   --play-spring:cubic-bezier(.22,1,.36,1);--play-spring-ms:850ms;--play-tap-ms:200ms;--play-tap-scale:.97;--ls-elo:-2px;
+  --play-exit-ms:400ms;--play-exit-buffer-ms:20ms;--play-tap-anim-ms:120ms;--play-group-exit-ms:500ms;--play-swipe-exit-ms:450ms;
+  --play-swipe-threshold-px:60;--play-swipe-velocity-px:800;--play-swipe-rubber:0.3;
+  --play-swipe-collapse-delay-ms:200ms;--play-swipe-delete-ms:500ms;
   --ease-expo-out:cubic-bezier(.19,1,.22,1);
   --result-delta-size:60px;--result-gap:20px;--result-optical-x:-3px;
   --result-meta-size:16px;--result-dismiss-bottom:40px;--confetti-count:70;
+  --result-auto-dismiss-ms:5500ms;--confetti-duration-ms:6000ms;
+  --challenge-expire-ms:60000ms;
   --sheet-conv-title-size:20px;--sheet-conv-pad:var(--sp-xl);
   --empty-prompt-size:var(--fs-caption);
 }
@@ -80,6 +85,8 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .ios-cell-sub{font-size:var(--fs-caption);color:var(--muted);margin-top:1px}
 .ios-cell-right{flex-shrink:0;display:flex;align-items:center;gap:var(--sp-sm);margin-left:var(--sp-sm)}
 .ios-cell-value{font-size:var(--fs-caption);color:var(--muted);font-weight:500}
+.ios-cell-value.green{color:var(--green)}
+.ios-cell-value.red{color:var(--red)}
 .ios-cell-chevron{width:14px;height:14px;flex-shrink:0;color:var(--ghost)}
 
 .section-label{font-size:var(--fs-micro);color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;font-weight:600;padding:var(--sp-sm) var(--content-pad) var(--sp-sm)}
@@ -91,7 +98,9 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 
 /* Cell timer bar */
 .cell-timer{position:absolute;bottom:0;left:var(--sp-lg);right:var(--sp-lg);height:2px;border-radius:1px;overflow:hidden}
-.cell-timer-fill{height:100%;border-radius:1px;width:100%;transform-origin:left;background:var(--ghost)}
+.cell-timer-fill{height:100%;border-radius:1px;width:100%;transform-origin:left;background:var(--ghost);transition:background .4s ease}
+.cell-timer-fill.warn{background:var(--gold)}
+.cell-timer-fill.danger{background:var(--red)}
 
 /* Play tab animations */
 /* Result overlay — fullscreen celebration after match completion */
@@ -139,7 +148,7 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
   100%{transform:translateY(0) scale(1)}
 }
 .ios-group.play-enter{animation:playGroupEnter .8s var(--ease-spring) both}
-.ios-group.play-exit{transition:max-height .5s var(--ease-decel),opacity .35s ease,margin .5s var(--ease-decel);overflow:hidden}
+.ios-group.play-exit{transition:max-height var(--play-group-exit-ms) var(--ease-decel),opacity .35s ease,margin var(--play-group-exit-ms) var(--ease-decel);overflow:hidden}
 .ios-group.play-exiting{max-height:0!important;opacity:0;margin-top:0;margin-bottom:0}
 
 /* Passive group */
@@ -413,6 +422,11 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .ch-player-row::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0.33px;background:var(--separator)}
 .ch-player-row:last-child::after{display:none}
 .ch-player-row:active{opacity:.5}
+.ch-player-row.busy{opacity:.5;cursor:default;pointer-events:none}
+.ch-player-name{font-size:var(--fs-body);font-weight:600;color:var(--text);display:flex;align-items:center;gap:var(--sp-sm)}
+.ch-online-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+.ch-online-dot.busy{background:var(--gold)}
+.ch-player-status{font-size:var(--fs-caption);color:var(--muted);margin-left:auto;font-weight:500}
 .ch-seg{display:flex;background:var(--fill-subtle);border-radius:var(--r-xs);padding:2px;margin-bottom:var(--sp-xl);position:relative}
 .ch-seg-pill{position:absolute;top:2px;bottom:2px;border-radius:7px;background:var(--fill-medium);box-shadow:var(--shadow-md);transition:left .3s var(--ease-list);pointer-events:none}
 .ch-seg-btn{flex:1;padding:8px 0;border-radius:7px;font-size:var(--fs-caption);font-weight:600;font-family:inherit;cursor:pointer;border:none;background:transparent;color:var(--muted);text-align:center;position:relative;z-index:1;transition:color .2s}
@@ -420,8 +434,6 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .ch-step2-header{display:flex;align-items:baseline;gap:var(--sp-sm);padding:var(--sp-xs) 0 var(--sp-xl)}
 .ch-step2-name{font-size:var(--fs-title-lg);font-weight:700;color:var(--text);letter-spacing:-.5px}
 .ch-step2-elo{font-size:var(--fs-body);color:var(--dim)}
-.ch-player-name{font-size:var(--fs-body);font-weight:600;color:var(--text);display:flex;align-items:center;gap:var(--sp-sm)}
-.ch-online-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
 .ch-color-label{font-size:var(--fs-label);color:var(--muted);margin-bottom:var(--sp-md)}
 .ch-color-row{display:flex;gap:var(--sp-sm)}
 .ch-color-btn{flex:1;border:none;border-radius:var(--r-md);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;height:80px;transition:transform .25s var(--ease-spring),opacity .15s}
@@ -436,7 +448,7 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .ch-step.fading-in{animation:chFadeIn .2s ease-out forwards}
 @keyframes chFadeIn{0%{opacity:0;transform:translateY(var(--sp-xs))}100%{opacity:1;transform:translateY(0)}}
 
-/* Conversational step (when user is busy) — tap anywhere to route */
+/* Conversational step (when user is busy and already in Play tab) */
 .ch-step-busy{padding:var(--sheet-conv-pad) var(--content-pad);text-align:center;cursor:pointer;transition:opacity .15s}
 .ch-step-busy:active{opacity:.6}
 .ch-step-busy-title{font-size:var(--sheet-conv-title-size);font-weight:700;color:var(--text);letter-spacing:-.2px}
@@ -559,10 +571,10 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
   <div class="asheet" id="ch-sheet" onclick="event.stopPropagation()">
     <div class="asheet-handle"><div class="asheet-handle-bar"></div></div>
     <div class="ch-content" id="ch-content">
-      <div class="ch-step-busy" id="ch-step-busy" style="display:none" onclick="_playGoToBlockingMatch()">
+      <div class="ch-step-busy" id="ch-step-busy" style="display:none" onclick="closeChallengeSheet()">
         <div class="ch-step-busy-title" id="ch-busy-title"></div>
         <div class="ch-step-busy-sub" id="ch-busy-sub"></div>
-        <div class="ch-step-busy-hint">Tap to continue</div>
+        <div class="ch-step-busy-hint">Tap to dismiss</div>
       </div>
       <div class="ch-step" id="ch-step1">
         <div class="ch-title">Who do you play?</div>
@@ -732,6 +744,20 @@ function nick(p){return(p&&p.nickname)||'?'}
 function emptyMsg(text){return'<div class="p-empty-msg">'+text+'</div>'}
 function groupHTML(inner){return'<div class="ios-group">'+inner+'</div>'}
 
+// Read a CSS time token (e.g. "400ms" or ".4s") as integer ms
+function cssMs(name){
+  var v=getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  if(!v)return 0;
+  if(v.endsWith('ms'))return parseFloat(v);
+  if(v.endsWith('s'))return parseFloat(v)*1000;
+  return parseFloat(v)||0;
+}
+// Read a unitless CSS number token (e.g. "60", "0.3")
+function cssNum(name){
+  var v=getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return parseFloat(v)||0;
+}
+
 // SVG icon templates
 var ICON_CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>';
 var ICON_CLOCK='<svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>';
@@ -771,7 +797,21 @@ function switchTab(el){var p=el.getAttribute('data-page');if(!p)return;
   }
   document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('on')});if(el.classList.contains('nav-tab'))el.classList.add('on');document.querySelectorAll('.page').forEach(function(pg){pg.classList.remove('active')});var pg=$(p);if(pg)pg.classList.add('active')}
 
-function switchToPlay(){document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('on')});document.querySelectorAll('.page').forEach(function(pg){pg.classList.remove('active')});var pg=$('page-play');if(pg)pg.classList.add('active');openChallengeSheet()}
+function switchToPlay(){
+  var alreadyInPlay=$('page-play').classList.contains('active');
+  document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('on')});
+  document.querySelectorAll('.page').forEach(function(pg){pg.classList.remove('active')});
+  var pg=$('page-play');if(pg)pg.classList.add('active');
+  var blocking=_playGetBlockingMatch();
+  if(!blocking){
+    // Free → open opponent picker
+    openChallengeSheet();
+  }else if(alreadyInPlay){
+    // Busy + already here → show conversational sheet (feedback)
+    openBusySheet();
+  }
+  // Busy + coming from another tab → just switch, no sheet
+}
 
 function switchHomeSeg(e){var btn=e.target.closest('.seg-btn');if(!btn)return;var idx=movePill($('home-seg'),$('home-seg-pill'),btn);var views=['discover','following','leaderboard'];views.forEach(function(vn,i){var el=$('home-view-'+vn);if(el){if(i===idx)el.classList.remove('hidden');else el.classList.add('hidden')}})}
 
@@ -823,8 +863,14 @@ function renderAll(){renderPlay();renderLeaderboard();renderDiscover();renderFee
 
 // ── Play tab ──
 var ICON_LIVE='<svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16" fill="var(--green)" stroke="none"/></svg>';
-var CHALLENGE_EXPIRE_MS=60000;
-var _playTimers={};
+
+// Play module state — all play-related runtime state in one namespace
+var _play={
+  timers:{},          // matchId -> rAF id (per-cell countdown timers)
+  prevStates:{},      // matchId -> previous state (for transition detection)
+  dismissTimer:null,  // setTimeout id for auto-dismiss of result overlay
+  confettiRAF:null    // rAF id for confetti animation
+};
 
 // Single source of truth for match state from my perspective
 // Returns: 'incoming','sent','live','waiting','dispute','done',null
@@ -845,36 +891,41 @@ function getMatchState(m){
   return null;
 }
 
-// Active states block new challenges
+// State sets used by renderPlay and busy detection — module-level constants
 var BLOCKING_STATES={incoming:true,sent:true,live:true,dispute:true};
+var ACTIVE_STATES={incoming:true,live:true,dispute:true};
+var PASSIVE_STATES={sent:true,waiting:true};
 
 function _playStartTimer(matchId,createdAt){
-  if(_playTimers[matchId])return;
+  if(_play.timers[matchId])return;
   var el=document.getElementById('play-timer-'+matchId);
   if(!el)return;
+  var EXPIRE_MS=cssMs('--challenge-expire-ms');
   var created=new Date(createdAt).getTime();
   var start=Date.now();
   var elapsed=start-created;
-  var remaining=Math.max(CHALLENGE_EXPIRE_MS-elapsed,0);
+  var remaining=Math.max(EXPIRE_MS-elapsed,0);
   if(remaining<=0){_playExpireIncoming(matchId);return}
+  var lastStage='';
   function tick(){
     var now=Date.now();
     var total=now-created;
-    var linear=Math.min(total/CHALLENGE_EXPIRE_MS,1);
-    var visual=linear*linear*linear;
+    var linear=Math.min(total/EXPIRE_MS,1);
     el.style.transform='scaleX('+(1-linear)+')';
-    if(linear<0.5)el.style.background='var(--ghost)';
-    // Interpolate --ghost(72,72,74) → --red(255,69,58) — hardcoded RGB for JS interpolation
-    else if(linear<0.85){var t=(linear-0.5)/0.35;el.style.background='rgb('+Math.round(72+(255-72)*t)+','+Math.round(72+(69-72)*t)+','+Math.round(74+(58-74)*t)+')'}
-    else el.style.background='var(--red)';
-    if(linear<1)_playTimers[matchId]=requestAnimationFrame(tick);
+    var stage=linear<0.5?'':(linear<0.85?'warn':'danger');
+    if(stage!==lastStage){
+      el.classList.remove('warn','danger');
+      if(stage)el.classList.add(stage);
+      lastStage=stage;
+    }
+    if(linear<1)_play.timers[matchId]=requestAnimationFrame(tick);
     else _playExpireIncoming(matchId);
   }
-  _playTimers[matchId]=requestAnimationFrame(tick);
+  _play.timers[matchId]=requestAnimationFrame(tick);
 }
 
 function _playStopTimer(matchId){
-  if(_playTimers[matchId]){cancelAnimationFrame(_playTimers[matchId]);delete _playTimers[matchId]}
+  if(_play.timers[matchId]){cancelAnimationFrame(_play.timers[matchId]);delete _play.timers[matchId]}
 }
 
 function _playExpireIncoming(matchId){
@@ -886,6 +937,11 @@ function _playExpireIncoming(matchId){
 function _playInitSwipe(surface,matchId){
   if(surface._playSwipeBound)return;
   surface._playSwipeBound=true;
+  var SWIPE_THRESHOLD=cssNum('--play-swipe-threshold-px');
+  var SWIPE_VELOCITY=cssNum('--play-swipe-velocity-px');
+  var SWIPE_RUBBER=cssNum('--play-swipe-rubber');
+  var COLLAPSE_DELAY=cssMs('--play-swipe-collapse-delay-ms');
+  var DELETE_DELAY=cssMs('--play-swipe-delete-ms');
   var sx=0,cx=0,tracking=false,lastX=0,lastTime=0,velocity=0;
   surface.addEventListener('touchstart',function(e){
     sx=e.touches[0].clientX;cx=0;tracking=true;velocity=0;
@@ -895,7 +951,7 @@ function _playInitSwipe(surface,matchId){
   surface.addEventListener('touchmove',function(e){
     if(!tracking)return;
     var dx=e.touches[0].clientX-sx;
-    if(dx>0)dx=dx*0.3;// rubber band right
+    if(dx>0)dx=dx*SWIPE_RUBBER;// rubber band right
     cx=dx;
     var now=Date.now();var dt=now-lastTime;
     if(dt>0)velocity=(e.touches[0].clientX-lastX)/dt*1000;
@@ -905,7 +961,7 @@ function _playInitSwipe(surface,matchId){
   surface.addEventListener('touchend',function(){
     if(!tracking)return;tracking=false;
     // If swiped far enough or fast enough — dismiss
-    if(cx<-60||velocity<-800){
+    if(cx<-SWIPE_THRESHOLD||velocity<-SWIPE_VELOCITY){
       surface.style.transition='transform .35s var(--ease-decel)';
       surface.style.transform='translateX(-'+window.innerWidth+'px)';
       var wrap=document.getElementById('play-sw-'+matchId);
@@ -914,11 +970,11 @@ function _playInitSwipe(surface,matchId){
           wrap.style.transition='max-height .35s var(--ease-decel),opacity .25s';
           wrap.style.maxHeight=wrap.offsetHeight+'px';wrap.style.overflow='hidden';
           wrap.offsetHeight;wrap.style.maxHeight='0';wrap.style.opacity='0';
-        },200);
+        },COLLAPSE_DELAY);
         setTimeout(function(){
           dbDelete('matches','id=eq.'+matchId);
           fetchAll();
-        },500);
+        },DELETE_DELAY);
       }
     }else{
       // Spring back
@@ -941,12 +997,8 @@ function _playCancelSwipe(matchId){
   setTimeout(function(){
     dbDelete('matches','id=eq.'+matchId);
     fetchAll();
-  },450);
+  },cssMs('--play-swipe-exit-ms'));
 }
-
-var _prevMatchStates={};
-var _resultDismissTimer=null;
-var _confettiRAF=null;
 
 // ── Result overlay ──
 // type: 'win' | 'loss' | 'draw' | 'cancelled'
@@ -1002,12 +1054,12 @@ function _playShowResult(delta,oppName,type){
     deltaEl.addEventListener('transitionend',onEnd);
     setTimeout(fire,1200);
   }
-  if(_resultDismissTimer)clearTimeout(_resultDismissTimer);
-  _resultDismissTimer=setTimeout(function(){_playDismissResult()},5500);
+  if(_play.dismissTimer)clearTimeout(_play.dismissTimer);
+  _play.dismissTimer=setTimeout(function(){_playDismissResult()},cssMs('--result-auto-dismiss-ms'));
 }
 
 function _playDismissResult(){
-  if(_resultDismissTimer)clearTimeout(_resultDismissTimer);
+  if(_play.dismissTimer)clearTimeout(_play.dismissTimer);
   var overlay=$('result-overlay');
   if(!overlay)return;
   overlay.classList.remove('visible');
@@ -1120,14 +1172,15 @@ function _playStartConfetti(ox,oy){
       drawShape(ctx,p);
       ctx.restore();
     });
-    if(alive&&elapsed<6000)_confettiRAF=requestAnimationFrame(tick);
+    if(alive&&elapsed<DURATION)_play.confettiRAF=requestAnimationFrame(tick);
     else ctx.clearRect(0,0,W,H);
   }
-  _confettiRAF=requestAnimationFrame(tick);
+  var DURATION=cssMs('--confetti-duration-ms');
+  _play.confettiRAF=requestAnimationFrame(tick);
 }
 
 function _playStopConfetti(){
-  if(_confettiRAF){cancelAnimationFrame(_confettiRAF);_confettiRAF=null}
+  if(_play.confettiRAF){cancelAnimationFrame(_play.confettiRAF);_play.confettiRAF=null}
   var canvas=$('result-confetti-canvas');
   if(canvas){var ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height)}
 }
@@ -1167,8 +1220,8 @@ function _detectMatchTransitions(){
     var state=getMatchState(m);
     if(state)newStates[m.id]=state;
   });
-  Object.keys(_prevMatchStates).forEach(function(mid){
-    var prev=_prevMatchStates[mid];
+  Object.keys(_play.prevStates).forEach(function(mid){
+    var prev=_play.prevStates[mid];
     var curr=newStates[mid];
     if(curr==='done'&&prev!=='done'&&prev){
       var m=null;matches.forEach(function(x){if(x.id===mid)m=x});
@@ -1177,7 +1230,7 @@ function _detectMatchTransitions(){
       else _showResultForMatch(mid);
     }
   });
-  _prevMatchStates=newStates;
+  _play.prevStates=newStates;
 }
 
 function renderPlay(){
@@ -1193,8 +1246,6 @@ function renderPlay(){
   if(emptyEl)emptyEl.style.display=hasInProgress?'none':'flex';
 
   // ── Classify matches via getMatchState ──
-  var ACTIVE_STATES={incoming:true,live:true,dispute:true};
-  var PASSIVE_STATES={sent:true,waiting:true};
   var activeList=[];
   var passiveList=[];
   matches.forEach(function(m){
@@ -1212,17 +1263,19 @@ function renderPlay(){
   var activeTypeMap={};activeList.forEach(function(a){activeTypeMap[a.id]=a.type});
 
   // Remove cells that no longer exist OR changed type
+  // Selector matches both bare .ios-cell (live/dispute) and .play-swipe wraps (incoming)
   if(activeGroup){
-    activeGroup.querySelectorAll('.ios-cell').forEach(function(cell){
-      var cid=cell.getAttribute('data-mid');
-      var ctype=cell.getAttribute('data-type');
+    var exitMs=cssMs('--play-exit-ms')+cssMs('--play-exit-buffer-ms');
+    activeGroup.querySelectorAll(':scope > [data-mid]').forEach(function(el){
+      var cid=el.getAttribute('data-mid');
+      var ctype=el.getAttribute('data-type');
       if(activeIds.indexOf(cid)===-1||activeTypeMap[cid]!==ctype){
         _playStopTimer(cid);
-        cell.style.transition='opacity .4s ease,transform .4s var(--ease-decel),max-height .4s var(--ease-decel)';
-        cell.style.opacity='0';cell.style.transform='translateY(-8px) scale(.98)';
-        cell.style.maxHeight=cell.offsetHeight+'px';cell.style.overflow='hidden';
-        cell.offsetHeight;cell.style.maxHeight='0';cell.style.padding='0 var(--sp-lg)';cell.style.minHeight='0';
-        setTimeout(function(){cell.remove();if(!activeSection.querySelector('.ios-cell'))activeSection.innerHTML=''},420);
+        el.style.transition='opacity .4s ease,transform .4s var(--ease-decel),max-height .4s var(--ease-decel)';
+        el.style.opacity='0';el.style.transform='translateY(-8px) scale(.98)';
+        el.style.maxHeight=el.offsetHeight+'px';el.style.overflow='hidden';
+        el.offsetHeight;el.style.maxHeight='0';el.style.padding='0';el.style.minHeight='0';
+        setTimeout(function(){el.remove();if(!activeGroup.querySelector('[data-mid]'))activeSection.innerHTML=''},exitMs);
       }
     });
   }
@@ -1235,35 +1288,54 @@ function renderPlay(){
 
   if(activeGroup){
     activeList.forEach(function(item){
-      var existing=activeGroup.querySelector('[data-mid="'+item.id+'"][data-type="'+item.type+'"]');
+      var existing=activeGroup.querySelector(':scope > [data-mid="'+item.id+'"][data-type="'+item.type+'"]');
       if(existing)return;
       var m=item.match;
       var opp=getP(m.p1===me.id?m.p2:m.p1);
-      var h='<div class="ios-cell" data-mid="'+item.id+'" data-type="'+item.type+'">';
+      var cellHTML='<div class="ios-cell" data-mid="'+item.id+'">';
       if(item.type==='incoming'){
-        h+='<div class="ios-cell-icon green">'+ICON_CHECK+'</div>';
-        h+='<div class="ios-cell-body"><div class="ios-cell-title">'+nick(opp)+'</div><div class="ios-cell-sub">Wants to play · '+(m.time_control||'rapid').charAt(0).toUpperCase()+(m.time_control||'rapid').slice(1)+'</div></div>';
-        h+='<div class="ios-cell-right"><span class="ios-cell-value" style="color:var(--green)">Play</span>'+CHEVRON_SVG+'</div>';
-        h+='<div class="cell-timer"><div class="cell-timer-fill" id="play-timer-'+item.id+'"></div></div>';
+        cellHTML+='<div class="ios-cell-icon green">'+ICON_CHECK+'</div>';
+        cellHTML+='<div class="ios-cell-body"><div class="ios-cell-title">'+nick(opp)+'</div><div class="ios-cell-sub">Wants to play · '+(m.time_control||'rapid').charAt(0).toUpperCase()+(m.time_control||'rapid').slice(1)+'</div></div>';
+        cellHTML+='<div class="ios-cell-right"><span class="ios-cell-value green">Play</span>'+CHEVRON_SVG+'</div>';
+        cellHTML+='<div class="cell-timer"><div class="cell-timer-fill" id="play-timer-'+item.id+'"></div></div>';
       }else if(item.type==='live'){
-        h+='<div class="ios-cell-icon green">'+ICON_LIVE+'</div>';
-        h+='<div class="ios-cell-body"><div class="ios-cell-title">'+nick(opp)+'</div><div class="ios-cell-sub">Submit your result</div></div>';
-        h+='<div class="ios-cell-right">'+CHEVRON_SVG+'</div>';
+        cellHTML+='<div class="ios-cell-icon green">'+ICON_LIVE+'</div>';
+        cellHTML+='<div class="ios-cell-body"><div class="ios-cell-title">'+nick(opp)+'</div><div class="ios-cell-sub">Submit your result</div></div>';
+        cellHTML+='<div class="ios-cell-right">'+CHEVRON_SVG+'</div>';
       }else if(item.type==='dispute'){
-        h+='<div class="ios-cell-icon red">'+ICON_ALERT+'</div>';
-        h+='<div class="ios-cell-body"><div class="ios-cell-title">'+nick(opp)+'</div><div class="ios-cell-sub">Results don\'t match · last attempt</div></div>';
-        h+='<div class="ios-cell-right"><span class="ios-cell-value" style="color:var(--red)">Resolve</span>'+CHEVRON_SVG+'</div>';
+        cellHTML+='<div class="ios-cell-icon red">'+ICON_ALERT+'</div>';
+        cellHTML+='<div class="ios-cell-body"><div class="ios-cell-title">'+nick(opp)+'</div><div class="ios-cell-sub">Results don\'t match · last attempt</div></div>';
+        cellHTML+='<div class="ios-cell-right"><span class="ios-cell-value red">Resolve</span>'+CHEVRON_SVG+'</div>';
       }
-      h+='</div>';
-      var temp=document.createElement('div');temp.innerHTML=h;
-      var newCell=temp.firstChild;
-      // Set onclick
-      if(item.type==='incoming')newCell.onclick=function(){acceptChallenge(item.id)};
-      else if(item.type==='live')newCell.onclick=function(){openResultSheet(item.id)};
-      else if(item.type==='dispute')newCell.onclick=function(){openResultSheet(item.id)};
-      newCell.style.animation='playCellSpring var(--play-spring-ms) var(--play-spring) both';
-      activeGroup.appendChild(newCell);
-      if(item.type==='incoming')setTimeout(function(){_playStartTimer(item.id,m.created_at)},50);
+      cellHTML+='</div>';
+
+      var temp=document.createElement('div');
+      var newEl;
+      if(item.type==='incoming'){
+        // Wrap in play-swipe for swipe-to-reject gesture
+        temp.innerHTML='<div class="play-swipe" id="play-sw-'+item.id+'" data-mid="'+item.id+'" data-type="'+item.type+'">'
+          +'<div class="play-swipe-reveal" onclick="_playCancelSwipe(\''+item.id+'\')">Reject</div>'
+          +'<div class="play-swipe-surface">'+cellHTML+'</div></div>';
+        newEl=temp.firstChild;
+        var innerCell=newEl.querySelector('.ios-cell');
+        innerCell.onclick=function(){acceptChallenge(item.id)};
+      }else{
+        // Bare cell — set data-type directly so cleanup loop matches it
+        temp.innerHTML=cellHTML;
+        newEl=temp.firstChild;
+        newEl.setAttribute('data-type',item.type);
+        if(item.type==='live')newEl.onclick=function(){openResultSheet(item.id)};
+        else if(item.type==='dispute')newEl.onclick=function(){openResultSheet(item.id)};
+      }
+
+      newEl.style.animation='playCellSpring var(--play-spring-ms) var(--play-spring) both';
+      activeGroup.appendChild(newEl);
+
+      if(item.type==='incoming'){
+        var mid=item.id,createdAt=m.created_at;
+        requestAnimationFrame(function(){requestAnimationFrame(function(){_playStartTimer(mid,createdAt)})});
+        _playInitSwipe(newEl.querySelector('.play-swipe-surface'),item.id);
+      }
     });
   }
 
@@ -1272,7 +1344,7 @@ function renderPlay(){
     activeGroup.style.maxHeight=activeGroup.offsetHeight+'px';
     activeGroup.offsetHeight;
     activeGroup.classList.add('play-exiting');
-    setTimeout(function(){activeSection.innerHTML=''},500);
+    setTimeout(function(){activeSection.innerHTML=''},cssMs('--play-group-exit-ms'));
   }
 
   // ── Passive section ──
@@ -1283,6 +1355,7 @@ function renderPlay(){
 
   // Remove swipe wraps that no longer exist or changed type
   if(passiveGroup){
+    var swipeExitMs=cssMs('--play-swipe-exit-ms');
     passiveGroup.querySelectorAll('.play-swipe').forEach(function(wrap){
       var wid=wrap.getAttribute('data-mid');
       var wtype=wrap.getAttribute('data-type');
@@ -1290,7 +1363,7 @@ function renderPlay(){
         wrap.style.transition='max-height .4s var(--ease-decel),opacity .3s';
         wrap.style.maxHeight=wrap.offsetHeight+'px';wrap.style.overflow='hidden';
         wrap.offsetHeight;wrap.style.maxHeight='0';wrap.style.opacity='0';
-        setTimeout(function(){wrap.remove();if(!passiveSection.querySelector('.play-swipe'))passiveSection.innerHTML=''},450);
+        setTimeout(function(){wrap.remove();if(!passiveSection.querySelector('.play-swipe'))passiveSection.innerHTML=''},swipeExitMs);
       }
     });
   }
@@ -1316,7 +1389,7 @@ function renderPlay(){
         +'<div class="ios-cell" data-mid="'+item.id+'">'
         +'<div class="ios-cell-icon amber">'+ICON_CLOCK+'</div>'
         +'<div class="ios-cell-body"><div class="ios-cell-title">'+nick(opp)+'</div><div class="ios-cell-sub">'+sub+'</div></div>'
-        +'<div class="ios-cell-right"><span class="ios-cell-value" style="color:var(--muted)">'+value+'</span></div>'
+        +'<div class="ios-cell-right"><span class="ios-cell-value">'+value+'</span></div>'
         +'</div></div></div>';
       var temp=document.createElement('div');temp.innerHTML=wrapHTML;
       var wrap=temp.firstChild;
@@ -1329,10 +1402,10 @@ function renderPlay(){
   }
 
   if(!passiveList.length&&passiveGroup){
-    passiveGroup.style.transition='max-height .5s var(--ease-decel),opacity .35s ease,margin .5s var(--ease-decel)';
+    passiveGroup.style.transition='max-height var(--play-group-exit-ms) var(--ease-decel),opacity .35s ease,margin var(--play-group-exit-ms) var(--ease-decel)';
     passiveGroup.style.maxHeight=passiveGroup.offsetHeight+'px';passiveGroup.style.overflow='hidden';
     passiveGroup.offsetHeight;passiveGroup.style.maxHeight='0';passiveGroup.style.opacity='0';passiveGroup.style.marginBottom='0';
-    setTimeout(function(){passiveSection.innerHTML=''},500);
+    setTimeout(function(){passiveSection.innerHTML=''},cssMs('--play-group-exit-ms'));
   }
 }
 
@@ -2284,11 +2357,11 @@ function timeAgo(date){
 
 async function doLogout(){
   if(window._fetchInterval)clearInterval(window._fetchInterval);
-  Object.keys(_playTimers).forEach(function(k){cancelAnimationFrame(_playTimers[k])});
-  _playTimers={};
+  Object.keys(_play.timers).forEach(function(k){cancelAnimationFrame(_play.timers[k])});
+  _play.timers={};
   _playStopConfetti();
-  if(_resultDismissTimer)clearTimeout(_resultDismissTimer);
-  _prevMatchStates={};
+  if(_play.dismissTimer)clearTimeout(_play.dismissTimer);
+  _play.prevStates={};
   $('result-overlay').classList.remove('visible');
   if(_presenceChannel){_presenceChannel.untrack();_presenceChannel=null}
   _onlinePlayers={};
@@ -2322,36 +2395,31 @@ function _playBusyCopy(state,oppName){
   return{title:'Already in progress',sub:''};
 }
 
-function openChallengeSheet(){
-  var st1=$('ch-step1'),st2=$('ch-step2'),stBusy=$('ch-step-busy');
-  $('ch-content').style.height='';
-  _chOppId=null;
-
+function openBusySheet(){
   var blocking=_playGetBlockingMatch();
-  if(blocking){
-    // Busy: show conversational step
-    var oppId=blocking.match.p1===me.id?blocking.match.p2:blocking.match.p1;
-    var opp=getP(oppId);
-    var oppName=opp?nick(opp):'';
-    var copy=_playBusyCopy(blocking.state,oppName);
-    $('ch-busy-title').textContent=copy.title;
-    $('ch-busy-sub').textContent=copy.sub;
-    st1.style.display='none';
-    st2.style.display='none';
-    stBusy.style.display='block';
-  }else{
-    // Free: normal opponent list
-    stBusy.style.display='none';
-    st1.style.display='block';st1.className='ch-step';
-    st2.style.display='none';st2.className='ch-step';
-    renderChallengePlayers();
-  }
+  if(!blocking)return;
+  var oppId=blocking.match.p1===me.id?blocking.match.p2:blocking.match.p1;
+  var opp=getP(oppId);
+  var oppName=opp?nick(opp):'';
+  var copy=_playBusyCopy(blocking.state,oppName);
+  $('ch-busy-title').textContent=copy.title;
+  $('ch-busy-sub').textContent=copy.sub;
+  $('ch-content').style.height='';
+  $('ch-step1').style.display='none';
+  $('ch-step2').style.display='none';
+  $('ch-step-busy').style.display='block';
   openSheet('ch-overlay','ch-sheet');
 }
 
-function _playGoToBlockingMatch(){
-  closeChallengeSheet();
-  switchToPlay();
+function openChallengeSheet(){
+  var st1=$('ch-step1'),st2=$('ch-step2');
+  $('ch-content').style.height='';
+  _chOppId=null;
+  $('ch-step-busy').style.display='none';
+  st1.style.display='block';st1.className='ch-step';
+  st2.style.display='none';st2.className='ch-step';
+  renderChallengePlayers();
+  openSheet('ch-overlay','ch-sheet');
 }
 
 function closeChallengeSheet(){
@@ -2360,20 +2428,41 @@ function closeChallengeSheet(){
 
 function renderChallengePlayers(){
   var list=$('ch-player-list');if(!list)return;
-  var eligible=players.filter(function(p){
-    if(p.id===me.id)return false;
-    return isPlayerOnline(p.id);
+  list.innerHTML=emptyMsg('Loading...');
+  dbRpc('get_available_players',{}).then(function(rows){
+    if(!Array.isArray(rows))rows=[];
+    // Build availableIds set
+    var availableIds={};
+    rows.forEach(function(p){availableIds[p.id]=true});
+    // Show all online players (except me); mark non-available as busy
+    var onlinePlayers=players.filter(function(p){
+      if(p.id===me.id)return false;
+      return isPlayerOnline(p.id);
+    });
+    if(!onlinePlayers.length){list.innerHTML=emptyMsg('No players online');return}
+    // Sort: available first, then busy. Within each group, by elo desc
+    onlinePlayers.sort(function(a,b){
+      var aAvail=availableIds[a.id]?1:0;
+      var bAvail=availableIds[b.id]?1:0;
+      if(aAvail!==bAvail)return bAvail-aAvail;
+      return getPlayerElo(b,'rapid').elo-getPlayerElo(a,'rapid').elo;
+    });
+    var h='';
+    onlinePlayers.forEach(function(p){
+      var avail=availableIds[p.id];
+      var rowCls=avail?'ch-player-row':'ch-player-row busy';
+      var dotCls=avail?'ch-online-dot':'ch-online-dot busy';
+      var clickAttr=avail?(' onclick="selectPlayer(\''+p.id+'\')"'):'';
+      var statusHTML=avail?'':'<span class="ch-player-status">Playing</span>';
+      h+='<div class="'+rowCls+'"'+clickAttr+'>';
+      h+='<span class="ch-player-name">'+nick(p)+'<span class="'+dotCls+'"></span></span>';
+      h+=statusHTML;
+      h+='</div>';
+    });
+    list.innerHTML=h;
+  }).catch(function(){
+    list.innerHTML=emptyMsg('No players online');
   });
-  eligible.sort(function(a,b){
-    return(getPlayerElo(b,'rapid').elo)-(getPlayerElo(a,'rapid').elo);
-  });
-  if(!eligible.length){list.innerHTML=emptyMsg('No players online');return}
-  var h='';
-  eligible.forEach(function(p){
-    h+='<div class="ch-player-row" onclick="selectPlayer(\''+p.id+'\')">';
-    h+='<span class="ch-player-name">'+nick(p)+'<span class="ch-online-dot"></span></span></div>';
-  });
-  list.innerHTML=h;
 }
 
 function selectPlayer(oppId){
@@ -2417,12 +2506,23 @@ async function pickColor(color){
   setTimeout(async function(){
     closeChallengeSheet();
     var fmt=getSelectedFormat();
-    var res=await dbRpc('create_challenge',{opponent_id:oppId,white_player_id:whiteId,tc:fmt});
-    if(res?.error)return toast(String(res.error),'err');
-    if(Array.isArray(res)&&res[0]?.error)return toast(String(res[0].error),'err');
-    toast('Challenge sent');
-    setTimeout(function(){fetchAll()},300);
-  },120);
+    try{
+      var res=await dbRpc('create_challenge',{opponent_id:oppId,white_player_id:whiteId,tc:fmt});
+      // PostgREST may return: {ok:true} | {error:"..."} | [{ok:true}] | [{error:"..."}] | error object with code/message
+      var payload=Array.isArray(res)?res[0]:res;
+      if(payload&&payload.error)return toast(String(payload.error),'err');
+      if(payload&&payload.message&&payload.code)return toast(String(payload.message),'err');
+      if(payload&&payload.ok){
+        toast('Challenge sent');
+        setTimeout(function(){fetchAll()},300);
+        return;
+      }
+      // Unknown shape — fallback
+      toast('Challenge failed','err');
+    }catch(e){
+      toast('Network error','err');
+    }
+  },cssMs('--play-tap-anim-ms'));
 }
 
 // ── Result sheet ──
