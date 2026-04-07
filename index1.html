@@ -34,6 +34,8 @@
   --ease-expo-out:cubic-bezier(.19,1,.22,1);
   --result-delta-size:60px;--result-gap:20px;--result-optical-x:-3px;
   --result-meta-size:16px;--result-dismiss-bottom:40px;--confetti-count:70;
+  --sheet-conv-title-size:20px;--sheet-conv-pad:var(--sp-xl);
+  --empty-prompt-size:var(--fs-caption);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;color:var(--text);min-height:100dvh;overflow:hidden}
@@ -41,6 +43,10 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .page{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:env(safe-area-inset-top,20px) 0 var(--page-bottom);opacity:0;pointer-events:none;transition:opacity .2s ease;scrollbar-width:none}
 .page::-webkit-scrollbar{display:none}
 .page.active{opacity:1;pointer-events:all}
+
+/* Empty state — soft prompt centered in viewport */
+.play-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:var(--content-pad);text-align:center;pointer-events:none}
+.play-empty-prompt{font-size:var(--empty-prompt-size);font-weight:500;color:var(--ghost)}
 
 /* Navbar */
 .navbar{position:fixed;bottom:calc(var(--sp-md) + env(safe-area-inset-bottom,0px));left:var(--sp-lg);right:var(--sp-lg);height:64px;background:var(--surface);border-radius:var(--r-lg);display:flex;align-items:center;justify-content:space-around;z-index:9999;padding:0 var(--sp-sm)}
@@ -430,6 +436,13 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .ch-step.fading-in{animation:chFadeIn .2s ease-out forwards}
 @keyframes chFadeIn{0%{opacity:0;transform:translateY(var(--sp-xs))}100%{opacity:1;transform:translateY(0)}}
 
+/* Conversational step (when user is busy) — tap anywhere to route */
+.ch-step-busy{padding:var(--sheet-conv-pad) var(--content-pad);text-align:center;cursor:pointer;transition:opacity .15s}
+.ch-step-busy:active{opacity:.6}
+.ch-step-busy-title{font-size:var(--sheet-conv-title-size);font-weight:700;color:var(--text);letter-spacing:-.2px}
+.ch-step-busy-sub{font-size:var(--fs-body);font-weight:400;color:var(--muted);margin-top:var(--sp-sm);line-height:1.4}
+.ch-step-busy-hint{font-size:var(--fs-micro);color:var(--ghost);margin-top:var(--sp-lg);letter-spacing:.3px}
+
 /* Result sheet */
 .rs-overlay{position:fixed;inset:0;background:transparent;z-index:10001;display:flex;align-items:flex-end;pointer-events:none;transition:background .3s ease}
 .rs-overlay.visible{background:var(--overlay);pointer-events:all}
@@ -510,9 +523,11 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
   <div class="page" id="page-clubs"><div class="placeholder"><div class="placeholder-title">Clubs</div><div class="placeholder-sub">Create or join a chess club</div><div class="coming-soon">Coming soon</div></div></div>
 
   <div class="page" id="page-play">
-    <div id="play-cta"></div>
     <div id="play-active"></div>
     <div id="play-passive"></div>
+    <div class="play-empty" id="play-empty" style="display:none">
+      <div class="play-empty-prompt">Ready to play?</div>
+    </div>
   </div>
 
   <div class="page" id="page-venues"><div class="placeholder"><div class="placeholder-title">Venues</div><div class="placeholder-sub">Find places to play chess</div><div class="coming-soon">Coming soon</div></div></div>
@@ -544,6 +559,11 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
   <div class="asheet" id="ch-sheet" onclick="event.stopPropagation()">
     <div class="asheet-handle"><div class="asheet-handle-bar"></div></div>
     <div class="ch-content" id="ch-content">
+      <div class="ch-step-busy" id="ch-step-busy" style="display:none" onclick="_playGoToBlockingMatch()">
+        <div class="ch-step-busy-title" id="ch-busy-title"></div>
+        <div class="ch-step-busy-sub" id="ch-busy-sub"></div>
+        <div class="ch-step-busy-hint">Tap to continue</div>
+      </div>
       <div class="ch-step" id="ch-step1">
         <div class="ch-title">Who do you play?</div>
         <div class="ch-list" id="ch-player-list"></div>
@@ -751,7 +771,7 @@ function switchTab(el){var p=el.getAttribute('data-page');if(!p)return;
   }
   document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('on')});if(el.classList.contains('nav-tab'))el.classList.add('on');document.querySelectorAll('.page').forEach(function(pg){pg.classList.remove('active')});var pg=$(p);if(pg)pg.classList.add('active')}
 
-function switchToPlay(){document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('on')});document.querySelectorAll('.page').forEach(function(pg){pg.classList.remove('active')});var pg=$('page-play');if(pg)pg.classList.add('active')}
+function switchToPlay(){document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('on')});document.querySelectorAll('.page').forEach(function(pg){pg.classList.remove('active')});var pg=$('page-play');if(pg)pg.classList.add('active');openChallengeSheet()}
 
 function switchHomeSeg(e){var btn=e.target.closest('.seg-btn');if(!btn)return;var idx=movePill($('home-seg'),$('home-seg-pill'),btn);var views=['discover','following','leaderboard'];views.forEach(function(vn,i){var el=$('home-view-'+vn);if(el){if(i===idx)el.classList.remove('hidden');else el.classList.add('hidden')}})}
 
@@ -827,13 +847,6 @@ function getMatchState(m){
 
 // Active states block new challenges
 var BLOCKING_STATES={incoming:true,sent:true,live:true,dispute:true};
-
-function _playIsBusy(){
-  return matches.some(function(m){
-    var state=getMatchState(m);
-    return state&&BLOCKING_STATES[state];
-  });
-}
 
 function _playStartTimer(matchId,createdAt){
   if(_playTimers[matchId])return;
@@ -1170,18 +1183,14 @@ function _detectMatchTransitions(){
 function renderPlay(){
   if(!me)return;
   _detectMatchTransitions();
-  var busy=_playIsBusy();
 
-  // ── CTA ──
-  var ctaEl=$('play-cta');
-  if(!ctaEl.innerHTML){
-    ctaEl.innerHTML='<div class="ios-group"><div class="ios-cell" id="play-cta-cell" onclick="openChallengeSheet()">'
-      +'<div class="ios-cell-icon green"><svg viewBox="0 0 24 24" fill="var(--green)"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>'
-      +'<div class="ios-cell-body"><div class="ios-cell-title">New challenge</div></div>'
-      +'<div class="ios-cell-right">'+CHEVRON_SVG+'</div></div></div>';
-  }
-  var ctaCell=$('play-cta-cell');
-  if(ctaCell){if(busy)ctaCell.classList.add('disabled');else ctaCell.classList.remove('disabled')}
+  // ── Empty state: show prompt only when no match in progress ──
+  var hasInProgress=matches.some(function(m){
+    var s=getMatchState(m);
+    return s&&s!=='done';
+  });
+  var emptyEl=$('play-empty');
+  if(emptyEl)emptyEl.style.display=hasInProgress?'none':'flex';
 
   // ── Classify matches via getMatchState ──
   var ACTIVE_STATES={incoming:true,live:true,dispute:true};
@@ -2295,13 +2304,54 @@ async function doLogout(){
 // ── Challenge sheet ──
 var _chOppId=null;
 
+// Find the first match that's blocking new challenges, return {match, state} or null
+function _playGetBlockingMatch(){
+  for(var i=0;i<matches.length;i++){
+    var state=getMatchState(matches[i]);
+    if(state&&BLOCKING_STATES[state])return{match:matches[i],state:state};
+  }
+  return null;
+}
+
+// Conversational copy for the busy sheet, per state
+function _playBusyCopy(state,oppName){
+  if(state==='live')return{title:'Finish your current match',sub:"You're playing "+oppName};
+  if(state==='incoming')return{title:'Respond to your challenge',sub:oppName+' wants to play with you'};
+  if(state==='sent')return{title:'Waiting on '+oppName,sub:'Your challenge was sent'};
+  if(state==='dispute')return{title:'Resolve your result',sub:"Your result with "+oppName+" doesn't match"};
+  return{title:'Already in progress',sub:''};
+}
+
 function openChallengeSheet(){
-  var st1=$('ch-step1'),st2=$('ch-step2');
-  st1.style.display='block';st1.className='ch-step';
-  st2.style.display='none';st2.className='ch-step';
-  _chOppId=null;$('ch-content').style.height='';
-  renderChallengePlayers();
+  var st1=$('ch-step1'),st2=$('ch-step2'),stBusy=$('ch-step-busy');
+  $('ch-content').style.height='';
+  _chOppId=null;
+
+  var blocking=_playGetBlockingMatch();
+  if(blocking){
+    // Busy: show conversational step
+    var oppId=blocking.match.p1===me.id?blocking.match.p2:blocking.match.p1;
+    var opp=getP(oppId);
+    var oppName=opp?nick(opp):'';
+    var copy=_playBusyCopy(blocking.state,oppName);
+    $('ch-busy-title').textContent=copy.title;
+    $('ch-busy-sub').textContent=copy.sub;
+    st1.style.display='none';
+    st2.style.display='none';
+    stBusy.style.display='block';
+  }else{
+    // Free: normal opponent list
+    stBusy.style.display='none';
+    st1.style.display='block';st1.className='ch-step';
+    st2.style.display='none';st2.className='ch-step';
+    renderChallengePlayers();
+  }
   openSheet('ch-overlay','ch-sheet');
+}
+
+function _playGoToBlockingMatch(){
+  closeChallengeSheet();
+  switchToPlay();
 }
 
 function closeChallengeSheet(){
