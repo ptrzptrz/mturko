@@ -39,6 +39,7 @@
   --result-meta-size:16px;--result-dismiss-bottom:40px;--confetti-count:70;
   --result-auto-dismiss-ms:5500ms;--confetti-duration-ms:6000ms;
   --challenge-expire-ms:60000ms;
+  --cell-av-size:36px;--cell-av-fs:14px;--cell-av-ring:2px;--cell-av-ring-gap:2px;
   --sheet-conv-title-size:20px;--sheet-conv-pad:var(--sp-xl);
   --empty-prompt-size:var(--fs-caption);
 }
@@ -88,6 +89,12 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .ios-cell-value.green{color:var(--green)}
 .ios-cell-value.red{color:var(--red)}
 .ios-cell-chevron{width:14px;height:14px;flex-shrink:0;color:var(--ghost)}
+
+/* Cell avatar — opponent avatar inside cells with optional state ring */
+.cell-avatar{width:var(--cell-av-size);height:var(--cell-av-size);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:var(--sp-md);font-size:var(--cell-av-fs);font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:-.3px;position:relative}
+.cell-avatar.s-green{box-shadow:0 0 0 var(--cell-av-ring-gap) var(--surface),0 0 0 calc(var(--cell-av-ring-gap) + var(--cell-av-ring)) var(--green)}
+.cell-avatar.s-amber{box-shadow:0 0 0 var(--cell-av-ring-gap) var(--surface),0 0 0 calc(var(--cell-av-ring-gap) + var(--cell-av-ring)) var(--gold)}
+.cell-avatar.s-red{box-shadow:0 0 0 var(--cell-av-ring-gap) var(--surface),0 0 0 calc(var(--cell-av-ring-gap) + var(--cell-av-ring)) var(--red)}
 
 .section-label{font-size:var(--fs-micro);color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;font-weight:600;padding:var(--sp-sm) var(--content-pad) var(--sp-sm)}
 
@@ -304,10 +311,15 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .p-underlay.on{display:block}
 .p-dim{position:absolute;inset:0;background:#000;pointer-events:none;z-index:2;display:none}
 .p-dim.on{display:block}
-/* Avatar colors (hash of nickname) */
-.av-0{background:#1A2E4A}.av-1{background:#2D1F47}.av-2{background:#1B3D2A}
-.av-3{background:#3D1A1A}.av-4{background:#3D2A10}.av-5{background:#133535}
-.av-6{background:#2A1A3D}.av-7{background:#1A3D35}
+/* Avatar colors (hash of player.id, 24 colors super-safe distribution) */
+.av-0{background:#1A2E4A}.av-1{background:#1F3344}.av-2{background:#14333A}
+.av-3{background:#1E3A3A}.av-4{background:#1F3528}.av-5{background:#243D2D}
+.av-6{background:#2E2A14}.av-7{background:#3A2F1F}.av-8{background:#3D2818}
+.av-9{background:#3D2018}.av-10{background:#3A1F2E}.av-11{background:#3D1F35}
+.av-12{background:#2A1A2E}.av-13{background:#2D1F47}.av-14{background:#2A1A3D}
+.av-15{background:#1F1F33}.av-16{background:#1A2440}.av-17{background:#16384A}
+.av-18{background:#1F2D3D}.av-19{background:#28332E}.av-20{background:#2D2A1A}
+.av-21{background:#3D2A28}.av-22{background:#331F2A}.av-23{background:#251935}
 /* Edit chip */
 /* Edit sheet */
 .es-overlay{position:fixed;inset:0;background:transparent;z-index:10001;display:none;align-items:flex-end;transition:background .3s ease}
@@ -759,9 +771,6 @@ function cssNum(name){
 }
 
 // SVG icon templates
-var ICON_CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>';
-var ICON_CLOCK='<svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>';
-var ICON_ALERT='<svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>';
 
 function cellHTML(opts){
   var h='<div class="ios-cell"'+(opts.style?' style="'+opts.style+'"':'')+(opts.onclick?' onclick="'+opts.onclick+'"':'')+'>';
@@ -862,7 +871,6 @@ function setupRealtime(){supabaseClient.channel('turko-v2').on('postgres_changes
 function renderAll(){renderPlay();renderLeaderboard();renderDiscover();renderFeed();renderProfile()}
 
 // ── Play tab ──
-var ICON_LIVE='<svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16" fill="var(--green)" stroke="none"/></svg>';
 
 // Play module state — all play-related runtime state in one namespace
 var _play={
@@ -1292,18 +1300,20 @@ function renderPlay(){
       if(existing)return;
       var m=item.match;
       var opp=getP(m.p1===me.id?m.p2:m.p1);
+      var oppInitial=initial(opp);
+      var oppColor=opp?avatarColor(opp):'av-0';
       var cellHTML='<div class="ios-cell" data-mid="'+item.id+'">';
       if(item.type==='incoming'){
-        cellHTML+='<div class="ios-cell-icon green">'+ICON_CHECK+'</div>';
+        cellHTML+='<div class="cell-avatar '+oppColor+' s-green">'+oppInitial+'</div>';
         cellHTML+='<div class="ios-cell-body"><div class="ios-cell-title">'+nick(opp)+'</div><div class="ios-cell-sub">Wants to play · '+(m.time_control||'rapid').charAt(0).toUpperCase()+(m.time_control||'rapid').slice(1)+'</div></div>';
         cellHTML+='<div class="ios-cell-right"><span class="ios-cell-value green">Play</span>'+CHEVRON_SVG+'</div>';
         cellHTML+='<div class="cell-timer"><div class="cell-timer-fill" id="play-timer-'+item.id+'"></div></div>';
       }else if(item.type==='live'){
-        cellHTML+='<div class="ios-cell-icon green">'+ICON_LIVE+'</div>';
+        cellHTML+='<div class="cell-avatar '+oppColor+' s-green">'+oppInitial+'</div>';
         cellHTML+='<div class="ios-cell-body"><div class="ios-cell-title">'+nick(opp)+'</div><div class="ios-cell-sub">Submit your result</div></div>';
         cellHTML+='<div class="ios-cell-right">'+CHEVRON_SVG+'</div>';
       }else if(item.type==='dispute'){
-        cellHTML+='<div class="ios-cell-icon red">'+ICON_ALERT+'</div>';
+        cellHTML+='<div class="cell-avatar '+oppColor+' s-red">'+oppInitial+'</div>';
         cellHTML+='<div class="ios-cell-body"><div class="ios-cell-title">'+nick(opp)+'</div><div class="ios-cell-sub">Results don\'t match · last attempt</div></div>';
         cellHTML+='<div class="ios-cell-right"><span class="ios-cell-value red">Resolve</span>'+CHEVRON_SVG+'</div>';
       }
@@ -1380,6 +1390,8 @@ function renderPlay(){
       if(existing)return;
       var m=item.match;
       var opp=getP(m.p1===me.id?m.p2:m.p1);
+      var oppInitial=initial(opp);
+      var oppColor=opp?avatarColor(opp):'av-0';
       var sub,value;
       if(item.type==='sent'){sub='Challenge sent · '+(m.time_control||'rapid').charAt(0).toUpperCase()+(m.time_control||'rapid').slice(1);value='Waiting'}
       else{sub='Waiting for confirmation';value='Sent'}
@@ -1387,7 +1399,7 @@ function renderPlay(){
         +'<div class="play-swipe-reveal" onclick="_playCancelSwipe(\''+item.id+'\')">Cancel</div>'
         +'<div class="play-swipe-surface">'
         +'<div class="ios-cell" data-mid="'+item.id+'">'
-        +'<div class="ios-cell-icon amber">'+ICON_CLOCK+'</div>'
+        +'<div class="cell-avatar '+oppColor+' s-amber">'+oppInitial+'</div>'
         +'<div class="ios-cell-body"><div class="ios-cell-title">'+nick(opp)+'</div><div class="ios-cell-sub">'+sub+'</div></div>'
         +'<div class="ios-cell-right"><span class="ios-cell-value">'+value+'</span></div>'
         +'</div></div></div>';
@@ -1479,10 +1491,12 @@ function renderFeed(){
 
 
 // ── Avatar color from nickname hash ──
-function avatarColor(name){
-  if(!name)return'av-0';
-  var h=0;for(var i=0;i<name.length;i++){h=name.charCodeAt(i)+((h<<5)-h)}
-  return'av-'+Math.abs(h%8);
+function avatarColor(p){
+  if(!p||!p.id)return'av-0';
+  var s=p.id;
+  var h=5381;
+  for(var i=0;i<s.length;i++){h=((h<<5)+h+s.charCodeAt(i))|0}
+  return'av-'+(Math.abs(h)%24);
 }
 
 // ── Edit profile sheet ──
@@ -1491,7 +1505,7 @@ function openEditSheet(){
   var pt=profTarget();
   // Populate fields
   $('es-avatar').textContent=initial(pt);
-  $('es-avatar').className='es-avatar '+avatarColor(pt.nickname);
+  $('es-avatar').className='es-avatar '+avatarColor(pt);
   $('es-city').value=pt.city||'';
   $('es-bio').value=pt.bio||'';
   $('es-bio-count').textContent=(pt.bio||'').length;
@@ -1897,7 +1911,7 @@ function renderProfile(){
   _profHash=hash;
   // Hero
   $('p-avatar').textContent=initial(pt);
-  $('p-avatar').className='p-avatar '+avatarColor(pt.nickname);
+  $('p-avatar').className='p-avatar '+avatarColor(pt);
   // Avatar tappable on own profile
   var avatarWrap=document.querySelector('#page-profile .p-avatar-wrap');
   if(avatarWrap)avatarWrap.onclick=_viewingPlayer?null:function(){openEditSheet()};
@@ -2040,7 +2054,7 @@ function renderRivals(){
   sorted.forEach(function(id){
     var o=getP(id);
     var oElo=o?Math.round(getPlayerElo(o,_profFormat).elo):STARTING_ELO;
-    var avColor=o?avatarColor(o.nickname):'av-0';
+    var avColor=o?avatarColor(o):'av-0';
     var avInit=o?initial(o):'?';
     h+='<div class="p-cell" onclick="viewProfile(\''+id+'\')"><div class="p-cell-av"><div class="p-cell-av-circle '+avColor+'">'+avInit+'</div>'+'</div><div class="p-cell-body"><div class="p-cell-name">'+nick(o)+'</div><div class="p-cell-sub">'+oElo+'</div></div>';
     h+='<div class="p-cell-right"><svg class="p-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div></div>';
