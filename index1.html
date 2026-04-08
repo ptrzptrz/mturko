@@ -35,13 +35,18 @@
   --play-swipe-threshold-px:60;--play-swipe-velocity-px:800;--play-swipe-rubber:0.3;
   --play-swipe-collapse-delay-ms:200ms;--play-swipe-delete-ms:500ms;
   --ease-expo-out:cubic-bezier(.19,1,.22,1);
-  --result-delta-size:60px;--result-gap:20px;--result-optical-x:-3px;
-  --result-meta-size:16px;--result-dismiss-bottom:40px;--confetti-count:70;
+  --result-delta-size:60px;--result-optical-x:-3px;
+  --result-dismiss-bottom:40px;--confetti-count:70;
   --result-auto-dismiss-ms:5500ms;--confetti-duration-ms:6000ms;
   --challenge-expire-ms:60000ms;
   --cell-av-size:36px;--cell-av-fs:14px;--cell-av-ring:2px;--cell-av-ring-gap:2px;
   --sheet-conv-title-size:20px;--sheet-conv-pad:var(--sp-xl);
   --empty-prompt-size:var(--fs-caption);
+  --rs-av-size:96px;--rs-av-fs:34px;
+  --rs-float-amp:4px;--rs-float-ms:3500ms;
+  --rs-ring-width:2px;--rs-ripple-ms:600ms;
+  --rs-close-delay-ms:700ms;
+  --ease-back-out:cubic-bezier(.2,1.4,.4,1);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;color:var(--text);min-height:100dvh;overflow:hidden}
@@ -126,16 +131,6 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .result-delta.up{color:var(--green)}
 .result-delta.down{color:var(--red)}
 .result-delta.flat{color:var(--muted)}
-.result-delta.hidden{display:none}
-
-.result-meta{
-  font-size:var(--result-meta-size);font-weight:500;color:var(--muted);margin-top:var(--result-gap);
-  letter-spacing:.1px;
-  opacity:0;transform:translateY(10px);
-  transition:opacity .5s var(--ease-expo-out) .2s,transform .5s var(--ease-expo-out) .2s;
-}
-.result-overlay.visible .result-meta{opacity:1;transform:translateY(0)}
-.result-meta.no-delta{margin-top:0}
 
 .result-dismiss{
   position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + var(--result-dismiss-bottom));
@@ -465,9 +460,8 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .ch-step-busy:active{opacity:.6}
 .ch-step-busy-title{font-size:var(--sheet-conv-title-size);font-weight:700;color:var(--text);letter-spacing:-.2px}
 .ch-step-busy-sub{font-size:var(--fs-body);font-weight:400;color:var(--muted);margin-top:var(--sp-sm);line-height:1.4}
-.ch-step-busy-hint{font-size:var(--fs-micro);color:var(--ghost);margin-top:var(--sp-lg);letter-spacing:.3px}
 
-/* Result sheet */
+/* Result sheet — V3+ two-avatar arena */
 .rs-overlay{position:fixed;inset:0;background:transparent;z-index:10001;display:flex;align-items:flex-end;pointer-events:none;transition:background .3s ease}
 .rs-overlay.visible{background:var(--overlay);pointer-events:all}
 .rs-sheet{background:var(--surface);border-radius:20px 20px 0 0;padding:0 var(--content-pad) calc(var(--sp-md) + env(safe-area-inset-bottom,0px));width:100%;max-width:480px;margin:0 auto;transform:translateY(100%);transition:transform .38s var(--ease-spring);will-change:transform}
@@ -475,16 +469,69 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
 .rs-sheet.dismissing{transition:transform .25s var(--ease-decel)}
 .rs-handle{width:100%;padding:var(--sp-md) 0 var(--sp-xs);display:flex;justify-content:center}
 .rs-handle-bar{width:36px;height:5px;background:var(--ghost);border-radius:2.5px}
-.rs-header{padding:var(--sp-xs) 0 var(--sp-xs)}
+.rs-header{padding:var(--sp-xs) 0 var(--sp-xl)}
 .rs-title{font-size:var(--fs-title);font-weight:800;color:var(--text);letter-spacing:-.5px}
-.rs-sub{font-size:var(--fs-micro);color:var(--muted);margin-top:var(--sp-xs);text-transform:uppercase;letter-spacing:1px}
-.rs-group{background:var(--border-light);border-radius:var(--r-sm);overflow:hidden;margin-bottom:var(--sp-sm)}
-.rs-option{width:100%;padding:var(--sp-lg);border:none;background:transparent;font-size:var(--fs-body);font-weight:600;font-family:inherit;cursor:pointer;text-align:center;letter-spacing:-.2px;color:var(--text);position:relative;transition:background .25s ease-out}
-.rs-option:active{background:var(--border)}
-.rs-option+.rs-option::before{content:'';position:absolute;top:0;left:var(--sp-lg);right:var(--sp-lg);height:0.33px;background:var(--border)}
-.rs-warn{font-size:var(--fs-micro);color:var(--ghost);text-align:center;padding:var(--sp-sm) 0 var(--sp-md);line-height:1.5}
-.rs-cancel{width:100%;text-align:center;font-size:var(--fs-caption);color:var(--dim);font-weight:500;padding:var(--sp-md) 0;cursor:pointer;border:none;background:transparent;font-family:inherit}
-.rs-cancel:active{opacity:.5}
+.rs-warn{font-size:var(--fs-caption);font-weight:500;color:var(--gold);margin-top:var(--sp-xs);letter-spacing:.1px}
+.rs-warn.hidden{display:none}
+
+/* Arena — grid so "vs" aligns with avatar center */
+.rs-arena{display:grid;grid-template-columns:1fr auto 1fr;align-items:start;gap:var(--sp-xl);padding:var(--sp-sm) 0 var(--sp-xl)}
+.rs-vs{font-size:var(--fs-caption);font-weight:700;color:var(--ghost);text-transform:uppercase;letter-spacing:1.5px;height:var(--rs-av-size);display:flex;align-items:center;justify-content:center;pointer-events:none}
+
+/* Player button (tappable avatar + name) */
+.rs-player{display:flex;flex-direction:column;align-items:center;gap:var(--sp-md);padding:0;border:none;background:transparent;font-family:inherit;cursor:pointer;transition:opacity .25s ease}
+.rs-av{width:var(--rs-av-size);height:var(--rs-av-size);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:var(--rs-av-fs);font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:-.5px;position:relative;animation:rsFloat var(--rs-float-ms) ease-in-out infinite}
+.rs-player:nth-child(3) .rs-av{animation-delay:calc(var(--rs-float-ms) * -0.5)}
+@keyframes rsFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(calc(var(--rs-float-amp) * -1))}
+}
+.rs-player:active .rs-av{transform:scale(.96);animation-play-state:paused}
+
+/* Disable all players during celebration */
+.rs-arena.locked .rs-player{pointer-events:none}
+.rs-arena.locked .rs-player:not(.tapped-win):not(.tapped-loss){opacity:.3}
+
+/* Celebrate WIN — Apple Watch ripple: sharp ring + expanding concentric ring */
+.rs-player.tapped-win .rs-av{
+  box-shadow:0 0 0 var(--rs-ring-width) var(--green);
+  animation:rsPopWin var(--rs-ripple-ms) var(--ease-expo-out);
+}
+.rs-player.tapped-win .rs-av::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  border:var(--rs-ring-width) solid var(--green);
+  pointer-events:none;
+  animation:rsRipple var(--rs-ripple-ms) ease-out forwards;
+}
+@keyframes rsPopWin{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.05)}
+  100%{transform:scale(1)}
+}
+@keyframes rsRipple{
+  0%{transform:scale(1);opacity:.8}
+  100%{transform:scale(1.6);opacity:0}
+}
+
+/* Celebrate LOSS — sober: muted ring, no glow, no ripple */
+.rs-player.tapped-loss .rs-av{
+  box-shadow:0 0 0 var(--rs-ring-width) var(--muted);
+  animation:rsPopLoss var(--rs-ripple-ms) var(--ease-expo-out);
+}
+@keyframes rsPopLoss{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.03)}
+  100%{transform:scale(1)}
+}
+
+.rs-player-name{font-size:var(--fs-body);font-weight:600;color:var(--text)}
+
+/* Draw as text link */
+.rs-draw{width:100%;text-align:center;font-size:var(--fs-body);font-weight:500;color:var(--muted);padding:var(--sp-md) 0;border:none;background:transparent;font-family:inherit;cursor:pointer;transition:opacity .15s}
+.rs-draw:active{opacity:.5}
 
 /* Auth */
 #auth-screen{position:fixed;inset:0;z-index:10000;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:var(--content-pad)}
@@ -586,7 +633,6 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
       <div class="ch-step-busy" id="ch-step-busy" style="display:none" onclick="closeChallengeSheet()">
         <div class="ch-step-busy-title" id="ch-busy-title"></div>
         <div class="ch-step-busy-sub" id="ch-busy-sub"></div>
-        <div class="ch-step-busy-hint">Tap to dismiss</div>
       </div>
       <div class="ch-step" id="ch-step1">
         <div class="ch-title">Who do you play?</div>
@@ -619,15 +665,20 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
     <div class="rs-handle"><div class="rs-handle-bar"></div></div>
     <div class="rs-header">
       <div class="rs-title" id="rs-title"></div>
-      <div class="rs-sub" id="rs-sub"></div>
+      <div class="rs-warn hidden" id="rs-warn">Last attempt — next mismatch will cancel the match</div>
     </div>
-    <div class="rs-group">
-      <button class="rs-option" onclick="confirmResult('win')">I won</button>
-      <button class="rs-option" onclick="confirmResult('draw')">Draw</button>
-      <button class="rs-option" onclick="confirmResult('loss')">I lost</button>
+    <div class="rs-arena" id="rs-arena">
+      <button class="rs-player" id="rs-player-me" onclick="pickResult('win')">
+        <div class="rs-av" id="rs-av-me"></div>
+        <div class="rs-player-name">You</div>
+      </button>
+      <div class="rs-vs">vs</div>
+      <button class="rs-player" id="rs-player-opp" onclick="pickResult('loss')">
+        <div class="rs-av" id="rs-av-opp"></div>
+        <div class="rs-player-name" id="rs-opp-name"></div>
+      </button>
     </div>
-    <div class="rs-warn hidden" id="rs-warn">If you disagree again, the game will be cancelled</div>
-    <button class="rs-cancel" onclick="closeResultSheet()">Cancel</button>
+    <button class="rs-draw" onclick="pickResult('draw')">Draw</button>
   </div>
 </div>
   <div class="nav-tab on" data-page="page-home" onclick="switchTab(this)"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/></svg><span class="nav-label">Home</span></div>
@@ -642,7 +693,6 @@ html,body{background:var(--bg);font-family:-apple-system,system-ui,sans-serif;co
   <canvas class="confetti-canvas" id="result-confetti-canvas"></canvas>
   <div class="result-content">
     <div class="result-delta" id="result-delta"></div>
-    <div class="result-meta" id="result-meta"></div>
   </div>
   <div class="result-dismiss">Tap to continue</div>
 </div>
@@ -1010,37 +1060,31 @@ function _playCancelSwipe(matchId){
 
 // ── Result overlay ──
 // type: 'win' | 'loss' | 'draw' | 'cancelled'
-function _playShowResult(delta,oppName,type){
+function _playShowResult(delta,kind){
   var overlay=$('result-overlay');
   var deltaEl=$('result-delta');
-  var metaEl=$('result-meta');
-  if(!overlay||!deltaEl||!metaEl)return;
+  if(!overlay||!deltaEl)return;
 
-  // Determine label and color class
-  var label,cls;
-  if(type==='win'){label='Win';cls='up'}
-  else if(type==='loss'){label='Loss';cls='down'}
-  else if(type==='draw'){label='Draw';cls='flat'}
-  else{label='Cancelled';cls='flat'}
-
-  // Delta — hidden for cancelled
-  if(type==='cancelled'){
-    deltaEl.className='result-delta hidden';
-    deltaEl.textContent='';
-    metaEl.className='result-meta no-delta';
+  // Cancelled match — show "No result" instead of delta
+  if(kind==='cancelled'){
+    deltaEl.textContent='No result';
+    deltaEl.className='result-delta flat';
   }else{
+    // Color driven by numeric delta, not by win/loss/draw
+    var cls='flat';
+    if(delta>0)cls='up';
+    else if(delta<0)cls='down';
     var sign=delta>0?'+':'';
     deltaEl.textContent=sign+delta;
     deltaEl.className='result-delta '+cls;
-    metaEl.className='result-meta';
   }
-  metaEl.textContent=label+' vs '+oppName;
 
   overlay.classList.remove('visible');
   void overlay.offsetHeight;
   overlay.classList.add('visible');
 
-  if(type==='win'){
+  // Confetti only when you actually won the match (not on positive delta from draw)
+  if(kind==='win'){
     var fired=false;
     var fire=function(){
       if(fired)return;
@@ -1195,31 +1239,15 @@ function _playStopConfetti(){
 
 // ── Match transition detection ──
 function _showResultForMatch(matchId){
+  var m=null;matches.forEach(function(x){if(x.id===matchId)m=x});
+  if(!m)return;
   dbGet('elo_history','player_id=eq.'+me.id+'&match_id=eq.'+matchId+'&select=elo_before,elo_after').then(function(rows){
-    var m=null;matches.forEach(function(x){if(x.id===matchId)m=x});
-    if(!m)return;
-    var oppId=m.p1===me.id?m.p2:m.p1;
-    var opp=getP(oppId);
-    var oppName=opp?nick(opp):'';
     var delta=0;
     if(rows&&rows.length)delta=Math.round(rows[0].elo_after-rows[0].elo_before);
     var isP1=m.p1===me.id;
-    var myResult=m.result;
-    var type='draw';
-    if(myResult==='draw')type='draw';
-    else if((myResult==='p1'&&isP1)||(myResult==='p2'&&!isP1))type='win';
-    else if(myResult==='p1'||myResult==='p2')type='loss';
-    _playShowResult(delta,oppName,type);
+    var iWon=(m.result==='p1'&&isP1)||(m.result==='p2'&&!isP1);
+    _playShowResult(delta,iWon?'win':'result');
   });
-}
-
-function _showCancelledForMatch(matchId){
-  var m=null;matches.forEach(function(x){if(x.id===matchId)m=x});
-  if(!m)return;
-  var oppId=m.p1===me.id?m.p2:m.p1;
-  var opp=getP(oppId);
-  var oppName=opp?nick(opp):'';
-  _playShowResult(0,oppName,'cancelled');
 }
 
 function _detectMatchTransitions(){
@@ -1234,7 +1262,7 @@ function _detectMatchTransitions(){
     if(curr==='done'&&prev!=='done'&&prev){
       var m=null;matches.forEach(function(x){if(x.id===mid)m=x});
       if(!m)return;
-      if(m.result==='cancelled')_showCancelledForMatch(mid);
+      if(m.result==='cancelled')_playShowResult(0,'cancelled');
       else _showResultForMatch(mid);
     }
   });
@@ -1310,8 +1338,8 @@ function renderPlay(){
         cellHTML+='<div class="cell-timer"><div class="cell-timer-fill" id="play-timer-'+item.id+'"></div></div>';
       }else if(item.type==='live'){
         cellHTML+='<div class="cell-avatar '+oppColor+' s-green">'+oppInitial+'</div>';
-        cellHTML+='<div class="ios-cell-body"><div class="ios-cell-title">'+nick(opp)+'</div><div class="ios-cell-sub">Submit your result</div></div>';
-        cellHTML+='<div class="ios-cell-right">'+CHEVRON_SVG+'</div>';
+        cellHTML+='<div class="ios-cell-body"><div class="ios-cell-title">'+nick(opp)+'</div><div class="ios-cell-sub">Game in progress</div></div>';
+        cellHTML+='<div class="ios-cell-right"><span class="ios-cell-value green">Result</span>'+CHEVRON_SVG+'</div>';
       }else if(item.type==='dispute'){
         cellHTML+='<div class="cell-avatar '+oppColor+' s-red">'+oppInitial+'</div>';
         cellHTML+='<div class="ios-cell-body"><div class="ios-cell-title">'+nick(opp)+'</div><div class="ios-cell-sub">Results don\'t match · last attempt</div></div>';
@@ -1393,7 +1421,7 @@ function renderPlay(){
       var oppInitial=initial(opp);
       var oppColor=opp?avatarColor(opp):'av-0';
       var sub,value;
-      if(item.type==='sent'){sub='Challenge sent · '+(m.time_control||'rapid').charAt(0).toUpperCase()+(m.time_control||'rapid').slice(1);value='Waiting'}
+      if(item.type==='sent'){sub=(m.time_control||'rapid').charAt(0).toUpperCase()+(m.time_control||'rapid').slice(1);value='Waiting'}
       else{sub='Waiting for confirmation';value='Sent'}
       var wrapHTML='<div class="play-swipe" id="play-sw-'+item.id+'" data-mid="'+item.id+'" data-type="'+item.type+'">'
         +'<div class="play-swipe-reveal" onclick="_playCancelSwipe(\''+item.id+'\')">Cancel</div>'
@@ -2403,9 +2431,9 @@ function _playGetBlockingMatch(){
 // Conversational copy for the busy sheet, per state
 function _playBusyCopy(state,oppName){
   if(state==='live')return{title:'Finish your current match',sub:"You're playing "+oppName};
-  if(state==='incoming')return{title:'Respond to your challenge',sub:oppName+' wants to play with you'};
+  if(state==='incoming')return{title:'Respond to your challenge',sub:oppName+' wants to play'};
   if(state==='sent')return{title:'Waiting on '+oppName,sub:'Your challenge was sent'};
-  if(state==='dispute')return{title:'Resolve your result',sub:"Your result with "+oppName+" doesn't match"};
+  if(state==='dispute')return{title:'Resolve your result',sub:"You and "+oppName+" don't agree"};
   return{title:'Already in progress',sub:''};
 }
 
@@ -2442,7 +2470,7 @@ function closeChallengeSheet(){
 
 function renderChallengePlayers(){
   var list=$('ch-player-list');if(!list)return;
-  list.innerHTML=emptyMsg('Loading...');
+  list.innerHTML=emptyMsg('Finding players…');
   dbRpc('get_available_players',{}).then(function(rows){
     if(!Array.isArray(rows))rows=[];
     // Build availableIds set
@@ -2453,7 +2481,7 @@ function renderChallengePlayers(){
       if(p.id===me.id)return false;
       return isPlayerOnline(p.id);
     });
-    if(!onlinePlayers.length){list.innerHTML=emptyMsg('No players online');return}
+    if(!onlinePlayers.length){list.innerHTML=emptyMsg('Nobody around right now');return}
     // Sort: available first, then busy. Within each group, by elo desc
     onlinePlayers.sort(function(a,b){
       var aAvail=availableIds[a.id]?1:0;
@@ -2475,7 +2503,7 @@ function renderChallengePlayers(){
     });
     list.innerHTML=h;
   }).catch(function(){
-    list.innerHTML=emptyMsg('No players online');
+    list.innerHTML=emptyMsg('Nobody around right now');
   });
 }
 
@@ -2541,21 +2569,34 @@ async function pickColor(color){
 
 // ── Result sheet ──
 var _rsMatchId=null;
+var _rsLocked=false;
 
 function openResultSheet(matchId){
   var m=matches.find(function(x){return x.id===matchId});if(!m)return;
   _rsMatchId=matchId;
+  _rsLocked=false;
   var isDisputed=m.disputed;
-  var white=m.white_player_id?getP(m.white_player_id):getP(m.p1);
-  var blackId=m.white_player_id?(m.white_player_id===m.p1?m.p2:m.p1):m.p2;
-  var black=getP(blackId);
-  var names=nick(white)+' \u2014 '+nick(black);
-  $('rs-title').textContent=isDisputed?'Last attempt':'How did it go?';
-  $('rs-sub').textContent=names;
+  $('rs-title').textContent=isDisputed?'Try again':'How did it go?';
   if(isDisputed)$('rs-warn').classList.remove('hidden');else $('rs-warn').classList.add('hidden');
-  document.querySelectorAll('.rs-option').forEach(function(b){b.style.background='';b.style.opacity='';b.style.pointerEvents=''});
+
+  // Populate opponent avatar + name
+  var oppId=m.p1===me.id?m.p2:m.p1;
+  var opp=getP(oppId);
+  var avMe=$('rs-av-me'),avOpp=$('rs-av-opp');
+  avMe.textContent=initial(me);
+  avMe.className='rs-av '+avatarColor(me);
+  avOpp.textContent=opp?initial(opp):'?';
+  avOpp.className='rs-av '+(opp?avatarColor(opp):'av-0');
+  $('rs-opp-name').textContent=opp?nick(opp):'?';
+
+  // Reset any previous celebration state
+  var arena=$('rs-arena');
+  arena.classList.remove('locked');
+  document.querySelectorAll('.rs-player').forEach(function(p){
+    p.classList.remove('tapped-win','tapped-loss');
+  });
+
   var overlay=$('rs-overlay');
-  $('es-step-form').classList.remove('out');
   overlay.style.display='flex';
   requestAnimationFrame(function(){requestAnimationFrame(function(){overlay.classList.add('visible')})});
 }
@@ -2563,25 +2604,39 @@ function openResultSheet(matchId){
 function closeResultSheet(){
   var overlay=$('rs-overlay'),sheet=$('rs-sheet');
   sheet.classList.add('dismissing');overlay.classList.remove('visible');
-  setTimeout(function(){overlay.style.display='none';sheet.classList.remove('dismissing');_rsMatchId=null},280);
+  setTimeout(function(){
+    overlay.style.display='none';
+    sheet.classList.remove('dismissing');
+    _rsMatchId=null;
+    _rsLocked=false;
+  },280);
 }
 
-async function confirmResult(choice){
-  if(!_rsMatchId)return;
+async function pickResult(choice){
+  if(!_rsMatchId||_rsLocked)return;
+  _rsLocked=true;
   var matchId=_rsMatchId;
   var m=matches.find(function(x){return x.id===matchId});if(!m)return;
-  var btns=document.querySelectorAll('.rs-option');
-  btns.forEach(function(b){b.style.pointerEvents='none'});
-  var tapped=event.target;
-  tapped.style.transition='background .25s ease-out';tapped.style.background='var(--fill-medium)';
-  btns.forEach(function(b){if(b!==tapped){b.style.transition='opacity .3s ease-out';b.style.opacity='.3'}});
-  setTimeout(function(){closeResultSheet()},280);
+
+  // Apply celebration class to the right avatar
+  var arena=$('rs-arena');
+  arena.classList.add('locked');
+  if(choice==='win')$('rs-player-me').classList.add('tapped-win');
+  else if(choice==='loss')$('rs-player-opp').classList.add('tapped-loss');
+  // For draw, no avatar celebration — just wait and close
+
+  // Submit result after the celebration dwell
   var isP1=m.p1===me.id;
   var myResult=choice==='win'?(isP1?'p1':'p2'):choice==='loss'?(isP1?'p2':'p1'):'draw';
   var field=isP1?'result_p1':'result_p2';
-  toast('Result submitted');
-  await dbPatch('matches','id=eq.'+matchId,JSON.parse('{"'+field+'":"'+myResult+'"}'));
-  await fetchAll();
+
+  setTimeout(async function(){
+    closeResultSheet();
+    toast('Result submitted');
+    var patch={};patch[field]=myResult;
+    await dbPatch('matches','id=eq.'+matchId,patch);
+    await fetchAll();
+  },cssMs('--rs-close-delay-ms'));
 }
 
 async function acceptChallenge(id){await dbPatch('matches','id=eq.'+id,{status:'active'});await fetchAll()}
