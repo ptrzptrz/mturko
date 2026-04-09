@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="theme-color" content="#f1f0ec" />
+<title>Receipt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f1f0ec;
+    --slot: #1a1a1a;
+    --paper: #fafaf6;
+    --ink: #0a0a0a;
+    --ink-faded: #b8b6b0;
+    --rule: #c9c7c0;
+    --pill-border: #e5e3dd;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    height: 100%; width: 100%;
+  }
+
+  .app {
+    position: fixed;
+    inset: 0;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .slot-wrap {
+    padding: 14px 18px 0;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 5;
+  }
+  .slot {
+    height: 22px;
+    background: var(--slot);
+    border-radius: 999px;
+    box-shadow:
+      inset 0 3px 6px rgba(0,0,0,0.7),
+      inset 0 -1px 0 rgba(255,255,255,0.05),
+      0 1px 0 rgba(255,255,255,0.6);
+    position: relative;
+  }
+  .slot.printing {
+    animation: rattle 0.09s linear infinite;
+  }
+  @keyframes rattle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(0.6px); }
+  }
+
+  .paper-area {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 18px;
+    margin-top: -11px;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+    z-index: 1;
+  }
+  .paper-area::-webkit-scrollbar { display: none; }
+
+  .paper-clip {
+    position: relative;
+    min-height: 100%;
+  }
+
+  .paper {
+    background:
+      /* horizontal creases — soft repeating bands of light/shadow */
+      repeating-linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.000) 0px,
+        rgba(0,0,0,0.020) 16px,
+        rgba(0,0,0,0.050) 32px,
+        rgba(0,0,0,0.020) 48px,
+        rgba(0,0,0,0.000) 64px
+      ),
+      /* subtle vertical curl — darker at the edges */
+      linear-gradient(
+        to right,
+        rgba(0,0,0,0.07) 0%,
+        rgba(0,0,0,0.00) 9%,
+        rgba(0,0,0,0.00) 91%,
+        rgba(0,0,0,0.07) 100%
+      ),
+      var(--paper);
+    padding: 38px 22px 38px;
+    position: relative;
+    -webkit-mask:
+      linear-gradient(#000 0 0) top / 100% calc(100% - 10px) no-repeat,
+      radial-gradient(circle at 6px 0, transparent 5px, #000 5.5px) bottom left / 12px 10px repeat-x;
+            mask:
+      linear-gradient(#000 0 0) top / 100% calc(100% - 10px) no-repeat,
+      radial-gradient(circle at 6px 0, transparent 5px, #000 5.5px) bottom left / 12px 10px repeat-x;
+    transform: translateY(-100%);
+  }
+  /* breathing creases — very slow drift to feel alive */
+  .paper.printed {
+    animation: breathe 7s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { background-position: 0 0, 0 0, 0 0; }
+    50%      { background-position: 0 4px, 0 0, 0 0; }
+  }
+  .paper.printed { transform: translateY(0); }
+  .paper.printing {
+    transform: translateY(0);
+    transition: transform 3.2s cubic-bezier(0.33, 0.02, 0.4, 1);
+  }
+
+  .empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-faded);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    pointer-events: none;
+  }
+  .empty.hidden { display: none; }
+
+  .markers {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .rule {
+    border: none;
+    border-top: 1px dashed var(--rule);
+    margin: 14px 0;
+  }
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: 0.01em;
+    margin: 6px 0 18px;
+  }
+  .stats { display: flex; flex-direction: column; gap: 8px; font-size: 13px; letter-spacing: 0.02em; }
+  .stat { display: flex; justify-content: space-between; align-items: baseline; }
+  .stat .label { font-weight: 400; }
+  .stat .value { font-weight: 500; }
+  .centered { text-align: center; }
+  .duplicate { font-weight: 700; font-size: 14px; letter-spacing: 0.05em; margin: 4px 0 10px; }
+  .keep { font-size: 11px; letter-spacing: 0.18em; margin-bottom: 18px; }
+  .blurb {
+    color: var(--ink-faded);
+    font-size: 11.5px;
+    line-height: 1.65;
+    letter-spacing: 0.02em;
+    text-align: justify;
+    margin: 0 0 12px;
+  }
+  .office { font-weight: 700; font-size: 12.5px; line-height: 1.5; letter-spacing: 0.03em; margin: 6px 0 16px; }
+  .tagline { font-weight: 700; font-size: 13px; letter-spacing: 0.12em; margin-bottom: 16px; }
+  .footer-note { color: var(--ink-faded); font-size: 10.5px; letter-spacing: 0.08em; margin-bottom: 4px; }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    padding: 16px 18px calc(16px + env(safe-area-inset-bottom));
+    background: var(--bg);
+    flex-shrink: 0;
+    z-index: 4;
+  }
+  .pill {
+    flex: 1;
+    border-radius: 999px;
+    padding: 14px 8px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    border: 1px solid var(--pill-border);
+    background: #fff;
+    color: var(--ink);
+    transition: transform 0.08s ease, opacity 0.2s ease;
+  }
+  .pill:active { transform: scale(0.97); }
+  .pill.primary {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+  .pill:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .pill svg { width: 20px; height: 20px; stroke-width: 1.6; }
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="slot-wrap">
+      <div class="slot" id="slot"></div>
+    </div>
+
+    <div class="paper-area" id="paperArea">
+      <div class="paper-clip">
+        <div class="empty" id="empty">PRESS PRINT TO BEGIN</div>
+        <div class="paper" id="paper">
+          <div class="markers">
+            <span>0KM</span>
+            <span>10.6KM</span>
+          </div>
+          <hr class="rule" />
+
+          <div class="total-row">
+            <span>TOTAL:</span>
+            <span>10.61 KM</span>
+          </div>
+
+          <div class="stats">
+            <div class="stat"><span class="label">DURATION</span><span class="value">00:58:17</span></div>
+            <div class="stat"><span class="label">AVG PACE</span><span class="value">05'29"/KM</span></div>
+            <div class="stat"><span class="label">BEST INT</span><span class="value">03'57"/KM</span></div>
+            <div class="stat"><span class="label">EST. STEPS</span><span class="value">14150</span></div>
+            <div class="stat"><span class="label">CALORIES</span><span class="value">636 KCAL</span></div>
+            <div class="stat"><span class="label">ELEVATION</span><span class="value">363m~367m ▲+53m</span></div>
+          </div>
+
+          <hr class="rule" />
+
+          <div class="centered duplicate">*** DUPLICATE COPY ***</div>
+          <div class="centered keep">KEEP FOR YOUR RECORDS</div>
+
+          <p class="blurb">
+            ATOMIC OS IS A BODY-CENTERED OPERATING SYSTEM BORN FROM MOVEMENT AND REFLECTION.
+            IT TRANSFORMS CLEAN, LONG-TERM DATA INTO A LANGUAGE THAT HELPS PEOPLE UNDERSTAND
+            THEIR OWN RHYTHM.
+          </p>
+          <p class="blurb">
+            RATHER THAN CHASING PERFORMANCE ALONE, WE FOCUS ON HOW TRAINING INTEGRATES INTO
+            DAILY LIFE — HOW EFFORT, RECOVERY, AND AWARENESS FORM A SUSTAINABLE PATTERN OVER
+            TIME.
+          </p>
+
+          <hr class="rule" />
+
+          <div class="centered office">
+            OFFICE HOUR<br/>
+            FRI-FEB 10:26
+          </div>
+
+          <div class="centered tagline">POWER, CONTROL, FINISH.</div>
+          <div class="centered footer-note">GENERATED LOCALLY VIA ATOMIC OS.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="pill primary" id="printBtn" aria-label="Print">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        PRINT
+      </button>
+      <button class="pill" id="tearBtn" aria-label="Tear off" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="13" x2="13" y2="13"/></svg>
+        TEAR OFF
+      </button>
+      <button class="pill" id="sigBtn" aria-label="Signature" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17c2-1 3-3 5-3s2 2 4 2 3-4 5-4 2 2 4 2"/><line x1="3" y1="21" x2="21" y2="21"/></svg>
+        SIGNATURE
+      </button>
+    </div>
+  </div>
+
+<script>
+  const printBtn = document.getElementById('printBtn');
+  const paper = document.getElementById('paper');
+  const slot = document.getElementById('slot');
+  const empty = document.getElementById('empty');
+  const tearBtn = document.getElementById('tearBtn');
+  const sigBtn = document.getElementById('sigBtn');
+  const paperArea = document.getElementById('paperArea');
+
+  let printed = false;
+  let printing = false;
+
+  printBtn.addEventListener('click', () => {
+    if (printing) return;
+    if (printed) {
+      // Reset to empty
+      paper.classList.remove('printed', 'printing');
+      empty.classList.remove('hidden');
+      tearBtn.disabled = true;
+      sigBtn.disabled = true;
+      printed = false;
+      return;
+    }
+
+    printing = true;
+    empty.classList.add('hidden');
+    slot.classList.add('printing');
+
+    if (navigator.vibrate) navigator.vibrate(8);
+
+    void paper.offsetWidth;
+    paper.classList.add('printing');
+
+    let ticks = 0;
+    const buzz = setInterval(() => {
+      if (navigator.vibrate) navigator.vibrate(3);
+      ticks++;
+      if (ticks > 12) clearInterval(buzz);
+    }, 250);
+
+    setTimeout(() => {
+      slot.classList.remove('printing');
+      paper.classList.remove('printing');
+      paper.classList.add('printed');
+      tearBtn.disabled = false;
+      sigBtn.disabled = false;
+      printed = true;
+      printing = false;
+      paperArea.scrollTop = 0;
+    }, 3250);
+  });
+
+  tearBtn.addEventListener('click', () => {
+    if (!printed) return;
+    if (navigator.vibrate) navigator.vibrate([5, 30, 15]);
+    paper.style.transition = 'transform 0.45s cubic-bezier(0.7, 0, 0.84, 0)';
+    paper.style.transform = 'translateY(-100%)';
+    setTimeout(() => {
+      paper.style.transition = '';
+      paper.style.transform = '';
+      paper.classList.remove('printed', 'printing');
+      empty.classList.remove('hidden');
+      tearBtn.disabled = true;
+      sigBtn.disabled = true;
+      printed = false;
+    }, 500);
+  });
+</script>
+</body>
+</html>
