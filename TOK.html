@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Turko — receipt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ═══════════════════════════════════════════════════════════════
+     DESIGN TOKENS
+     ═══════════════════════════════════════════════════════════════ */
+  :root {
+    /* colors — primitives */
+    --paper-white: #fafaf6;
+    --paper-bg:    #f1f0ec;
+    --ink-black:   #0a0a0a;
+    --grey-dark:   #7a7874;
+    --grey-medium: #9a9893;
+    --grey-light:  #c9c7c0;
+
+    /* colors — semantic */
+    --color-paper:     var(--paper-white);
+    --color-bg:        var(--paper-bg);
+    --color-ink:       var(--ink-black);
+    --color-ink-faded: var(--grey-medium);
+    --color-connector: var(--grey-dark);
+    --color-rule:      var(--grey-light);
+
+    /* spaces — primitives */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 28px;
+    --space-7: 40px;
+    --space-8: 56px;
+
+    /* typography — sizes */
+    --text-xs:   10px;
+    --text-sm:   11px;
+    --text-base: 12px;
+    --text-md:   13px;
+    --text-lg:   14px;
+    --text-xl:   26px;
+
+    /* typography — semantic sizes */
+    --text-body:    var(--text-md);
+    --text-display: var(--text-xl);
+
+    /* typography — weights */
+    --weight-regular: 400;
+    --weight-medium:  500;
+    --weight-bold:    700;
+
+    /* typography — tracking */
+    --track-tight:   0.02em;
+    --track-default: 0.05em;
+    --track-wide:    0.1em;
+    --track-widest:  0.22em;
+
+    /* typography — line heights */
+    --leading-tight:  1;
+    --leading-snug:   1.5;
+    --leading-normal: 1.7;
+
+    /* receipt component tokens */
+    --receipt-max-width:     380px;
+    --receipt-padding-x:     var(--space-6);
+    --receipt-padding-top:   var(--space-7);
+    --receipt-padding-bottom: var(--space-8);
+    --receipt-scallop-h:     30px;
+
+    /* brand component tokens */
+    --brand-title-size:          52px;
+    --brand-title-margin-top:    0;
+    --brand-title-margin-bottom: var(--space-6);
+
+    /* chart component tokens */
+    --chart-white:    var(--grey-medium);
+    --chart-black:    var(--ink-black);
+    --chart-baseline: var(--grey-light);
+    --chart-grid-dot: var(--grey-light);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     PAGE
+     ═══════════════════════════════════════════════════════════════ */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--color-bg);
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-7) var(--space-5) var(--space-8);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     RECEIPT
+     ═══════════════════════════════════════════════════════════════ */
+  .receipt {
+    width: 100%;
+    max-width: var(--receipt-max-width);
+    background: var(--color-paper);
+    padding: var(--receipt-padding-top) var(--receipt-padding-x) var(--receipt-padding-bottom);
+
+    /* Scalloped bottom edge (Atomic OS style).
+       Two-layer composite mask:
+       - Top layer: linear gradient covering everything except the bottom strip
+       - Bottom layer: SVG with flat top + concave scoops carved into the bottom
+       1px overlap between the two layers prevents sub-pixel edge erosion. */
+    -webkit-mask:
+      linear-gradient(#000 0 0) top / 100% calc(100% - var(--receipt-scallop-h) + 1px) no-repeat,
+      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 30" preserveAspectRatio="none"><path d="M 0 0 L 380 0 L 380 30 Q 368.28 10.41 356.55 30 Q 345.01 9.56 333.47 30 Q 320.64 9.74 307.81 30 Q 295.72 11.02 283.63 30 Q 272.15 8.99 260.67 30 Q 249.22 10.61 237.78 30 Q 225.67 11.22 213.56 30 Q 202.18 11.14 190.80 30 Q 178.55 10.67 166.31 30 Q 154.89 8.85 143.47 30 Q 131.48 11.45 119.50 30 Q 107.20 8.48 94.91 30 Q 83.46 10.33 72.01 30 Q 59.50 9.75 47.00 30 Q 35.41 8.57 23.82 30 Q 11.91 9.59 0.00 30 Z" fill="black"/></svg>') bottom / 100% var(--receipt-scallop-h) no-repeat;
+            mask:
+      linear-gradient(#000 0 0) top / 100% calc(100% - var(--receipt-scallop-h) + 1px) no-repeat,
+      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 30" preserveAspectRatio="none"><path d="M 0 0 L 380 0 L 380 30 Q 368.28 10.41 356.55 30 Q 345.01 9.56 333.47 30 Q 320.64 9.74 307.81 30 Q 295.72 11.02 283.63 30 Q 272.15 8.99 260.67 30 Q 249.22 10.61 237.78 30 Q 225.67 11.22 213.56 30 Q 202.18 11.14 190.80 30 Q 178.55 10.67 166.31 30 Q 154.89 8.85 143.47 30 Q 131.48 11.45 119.50 30 Q 107.20 8.48 94.91 30 Q 83.46 10.33 72.01 30 Q 59.50 9.75 47.00 30 Q 35.41 8.57 23.82 30 Q 11.91 9.59 0.00 30 Z" fill="black"/></svg>') bottom / 100% var(--receipt-scallop-h) no-repeat;
+  }
+
+  /* ─── Brand header ─── */
+  .header {
+    text-align: center;
+  }
+  .brand-title {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: var(--brand-title-size);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: var(--leading-tight);
+    color: var(--color-ink);
+    margin-top: var(--brand-title-margin-top);
+    margin-bottom: var(--brand-title-margin-bottom);
+  }
+  .header .meta {
+    line-height: var(--leading-snug);
+    letter-spacing: var(--track-default);
+  }
+  .header .meta .date {
+    display: block;
+    font-size: var(--text-base);
+    color: var(--color-ink);
+  }
+  .header .meta .order {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--color-ink);
+    margin-top: var(--space-2);
+  }
+
+  /* ─── Dashed rule (denser pattern) ─── */
+  .rule {
+    border: none;
+    height: 1px;
+    background-image: linear-gradient(to right, var(--color-rule) 50%, transparent 50%);
+    background-size: 6px 1px;
+    background-repeat: repeat-x;
+    margin: var(--space-5) 0;
+  }
+
+  /* ─── Generic row: label left / value right ─── */
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: var(--text-body);
+    letter-spacing: var(--track-tight);
+    padding: var(--space-1) 0;
+  }
+  .row .label { font-weight: var(--weight-regular); }
+  .row .value { font-weight: var(--weight-medium); text-align: right; }
+  .row.dramatic .value { font-weight: var(--weight-bold); }
+
+  /* mini gap between sub-clusters in a block */
+  .sub-gap { height: var(--space-2); }
+
+  /* ─── Enrollment block ─── */
+  .enrollment .player {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: var(--space-4);
+    align-items: baseline;
+    font-size: var(--text-md);
+    padding: var(--space-3) 0;
+    letter-spacing: var(--track-tight);
+  }
+  .enrollment .player .name {
+    font-weight: var(--weight-bold);
+    font-size: var(--text-lg);
+  }
+  .enrollment .player .progression {
+    font-weight: var(--weight-regular);
+    color: var(--color-ink);
+  }
+  .enrollment .player .progression .arrow {
+    color: var(--color-connector);
+    margin: 0 var(--space-1);
+  }
+  .enrollment .player .delta {
+    font-weight: var(--weight-bold);
+    min-width: 36px;
+    text-align: right;
+  }
+  .enrollment .category {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: var(--text-base);
+    padding: var(--space-2) 0 var(--space-1);
+    letter-spacing: var(--track-default);
+  }
+  .enrollment .category .label {
+    color: var(--color-ink);
+    font-weight: var(--weight-regular);
+  }
+  .enrollment .category .value { font-weight: var(--weight-medium); }
+
+  /* ─── Headline: result only, vertical centered ─── */
+  .headline {
+    text-align: center;
+    padding: var(--space-3) 0 var(--space-5);
+  }
+  .headline .label {
+    display: block;
+    font-size: var(--text-base);
+    font-weight: var(--weight-regular);
+    color: var(--color-ink);
+    letter-spacing: var(--track-wide);
+    margin-bottom: var(--space-1);
+  }
+  .headline .value {
+    display: block;
+    font-size: var(--text-display);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--track-tight);
+    line-height: var(--leading-tight);
+    color: var(--color-ink);
+  }
+
+  /* ─── Time-per-move chart ─── */
+  .chart-block {
+    padding: var(--space-1) 0;
+  }
+  .chart-block .chart-title {
+    font-size: var(--text-lg);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--track-default);
+    margin-bottom: var(--space-3);
+  }
+  .chart-block .stats-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: var(--space-3);
+    align-items: baseline;
+    font-size: var(--text-base);
+    letter-spacing: var(--track-tight);
+    padding: var(--space-1) 0;
+  }
+  .chart-block .stats-row .side {
+    font-weight: var(--weight-regular);
+    font-size: var(--text-xs);
+    color: var(--color-ink-faded);
+    letter-spacing: var(--track-wide);
+    width: 14px;
+  }
+  .chart-block .stats-row .range {
+    font-weight: var(--weight-regular);
+  }
+  .chart-block .stats-row .avg-label {
+    font-size: var(--text-xs);
+    color: var(--color-ink-faded);
+    letter-spacing: var(--track-wide);
+  }
+  .chart-block .stats-row .avg-value {
+    font-weight: var(--weight-medium);
+    min-width: 42px;
+    text-align: right;
+  }
+  .chart-block .chart-wrap {
+    margin-top: var(--space-4);
+    position: relative;
+  }
+  .chart-block svg.chart {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .chart-block .x-axis-wrap {
+    position: relative;
+    margin-top: var(--space-2);
+    height: 14px;
+  }
+  .chart-block .x-label {
+    position: absolute;
+    font-size: var(--text-xs);
+    color: var(--color-ink-faded);
+    letter-spacing: var(--track-default);
+    transform: translateX(-50%);
+    top: 0;
+  }
+  /* X-labels aligned to the padded plot area (32px left, 8px right of 410px) */
+  .chart-block .x-label.start-pad {
+    left: 7.8%;
+    transform: none;
+  }
+  .chart-block .x-label.end-pad {
+    right: 1.95%;
+    left: auto;
+    transform: none;
+  }
+  .chart-block .peak-label {
+    position: absolute;
+    font-size: var(--text-xs);
+    color: var(--color-ink-faded);
+    letter-spacing: var(--track-default);
+    transform: translateX(-50%);
+    font-weight: var(--weight-medium);
+    top: 0;
+  }
+  .chart-block .caption {
+    font-size: var(--text-xs);
+    font-style: italic;
+    color: var(--color-ink-faded);
+    letter-spacing: var(--track-tight);
+    line-height: var(--leading-snug);
+    margin-top: var(--space-4);
+    text-align: left;
+  }
+
+  /* ─── Chart stack container (holds multiple charts) ─── */
+  .chart-stack > .chart-block + .chart-block {
+    margin-top: var(--space-6);
+  }
+  .chart-stack.with-rules > .chart-block + .chart-block {
+    margin-top: 0;
+  }
+  .chart-stack.with-rules .chart-block + .chart-block::before {
+    content: '';
+    display: block;
+    height: 1px;
+    background-image: linear-gradient(to right, var(--color-rule) 50%, transparent 50%);
+    background-size: 6px 1px;
+    background-repeat: repeat-x;
+    margin: var(--space-5) 0;
+  }
+
+  /* ─── Closing ritual ─── */
+  .ritual {
+    text-align: center;
+  }
+  .ritual .duplicate {
+    font-weight: var(--weight-bold);
+    font-size: var(--text-lg);
+    letter-spacing: var(--track-default);
+    margin: var(--space-2) 0 var(--space-2);
+  }
+  .ritual .keep {
+    font-size: var(--text-sm);
+    letter-spacing: var(--track-widest);
+    margin-bottom: var(--space-5);
+  }
+  .ritual .blurb {
+    color: var(--color-ink-faded);
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+    letter-spacing: var(--track-tight);
+    text-align: left;
+    margin: 0 0 var(--space-4);
+  }
+  .ritual .office {
+    font-weight: var(--weight-medium);
+    font-size: var(--text-base);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--track-default);
+    margin: var(--space-3) 0 var(--space-2);
+  }
+  .ritual .match-counter {
+    font-size: var(--text-xs);
+    color: var(--color-ink);
+    letter-spacing: var(--track-wide);
+    line-height: var(--leading-snug);
+    margin-bottom: var(--space-5);
+  }
+  .ritual .footer-note {
+    color: var(--color-ink-faded);
+    font-size: var(--text-xs);
+    letter-spacing: var(--track-wide);
+    line-height: var(--leading-normal);
+  }
+
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="receipt">
+
+    <!-- 1. HEADER -->
+    <div class="header">
+      <div class="brand-title">TURKO</div>
+      <div class="meta">
+        <span class="date">THU, APR 09, 2026</span>
+        <span class="order">ORDER #000042</span>
+      </div>
+    </div>
+
+    <hr class="rule" />
+
+    <!-- 2. ENROLLMENT -->
+    <div class="enrollment">
+      <div class="player">
+        <span class="name">PATRIZIO</span>
+        <span class="progression">1542 <span class="arrow">→</span> 1556</span>
+        <span class="delta">+14</span>
+      </div>
+      <div class="player">
+        <span class="name">M.ROSSI</span>
+        <span class="progression">1498 <span class="arrow">→</span> 1484</span>
+        <span class="delta">−14</span>
+      </div>
+      <div class="category">
+        <span class="label">TIME CONTROL</span>
+        <span class="value">BLITZ — 5+3</span>
+      </div>
+    </div>
+
+    <hr class="rule" />
+
+    <!-- 3. HEADLINE -->
+    <div class="headline">
+      <span class="label">RESULT</span>
+      <span class="value">1 — 0</span>
+    </div>
+
+    <hr class="rule" />
+
+    <!-- 4. TIME BLOCK -->
+    <div class="time-block">
+      <div class="row"><span class="label">MOVES</span><span class="value">41</span></div>
+
+      <div class="sub-gap"></div>
+
+      <div class="row"><span class="label">WHITE LEFT</span><span class="value">00:37</span></div>
+      <div class="row dramatic"><span class="label">BLACK LEFT</span><span class="value">00:00</span></div>
+    </div>
+
+    <hr class="rule" />
+
+    <!-- 5. CHARTS STACK -->
+    <div class="chart-stack with-rules">
+
+      <!-- Chart 1: TIME PER MOVE (existing) -->
+      <div class="chart-block">
+        <div class="chart-title">TIME PER MOVE</div>
+
+        <div class="stats-row">
+          <span class="side">W</span>
+          <span class="range" id="rangeW">–</span>
+          <span class="avg-label">AVG</span>
+          <span class="avg-value" id="avgW">–</span>
+        </div>
+        <div class="stats-row">
+          <span class="side">B</span>
+          <span class="range" id="rangeB">–</span>
+          <span class="avg-label">AVG</span>
+          <span class="avg-value" id="avgB">–</span>
+        </div>
+
+        <div class="chart-wrap">
+          <svg class="chart" id="chart" viewBox="0 0 410 140" preserveAspectRatio="none"></svg>
+          <div class="x-axis-wrap" id="xAxisWrap"></div>
+        </div>
+        <div class="caption" id="caption1"></div>
+      </div>
+
+      <!-- Chart 2: CLOCK BURN -->
+      <div class="chart-block">
+        <div class="chart-title">CLOCK BURN</div>
+
+        <div class="stats-row">
+          <span class="side">W</span>
+          <span class="range">05:00 → 00:37</span>
+          <span class="avg-label">USED</span>
+          <span class="avg-value">04:23</span>
+        </div>
+        <div class="stats-row">
+          <span class="side">B</span>
+          <span class="range">05:00 → 00:00</span>
+          <span class="avg-label">USED</span>
+          <span class="avg-value">05:00</span>
+        </div>
+
+        <div class="chart-wrap">
+          <svg class="chart" id="chart2" viewBox="0 0 410 180" preserveAspectRatio="none"></svg>
+          <div class="x-axis-wrap">
+            <div class="x-label start-pad">1</div>
+            <div class="x-label end-pad">41</div>
+          </div>
+        </div>
+        <div class="caption" id="caption2"></div>
+      </div>
+
+      <!-- Chart 3: MOVE TIME DISTRIBUTION -->
+      <div class="chart-block">
+        <div class="chart-title">MOVE TIME DISTRIBUTION</div>
+
+        <div class="stats-row">
+          <span class="side">W</span>
+          <span class="range"></span>
+          <span class="avg-label">MAX</span>
+          <span class="avg-value" id="distMaxW">–</span>
+        </div>
+        <div class="stats-row">
+          <span class="side">B</span>
+          <span class="range"></span>
+          <span class="avg-label">MAX</span>
+          <span class="avg-value" id="distMaxB">–</span>
+        </div>
+
+        <div class="chart-wrap">
+          <svg class="chart" id="chart3" viewBox="0 0 410 140" preserveAspectRatio="none"></svg>
+          <div class="x-axis-wrap">
+            <div class="x-label start-pad">0"</div>
+            <div class="x-label end-pad">20"</div>
+          </div>
+        </div>
+        <div class="caption" id="caption3"></div>
+      </div>
+
+    </div>
+
+    <hr class="rule" />
+
+    <!-- 6. CLOSING RITUAL -->
+    <div class="ritual">
+      <div class="duplicate">*** DUPLICATE COPY ***</div>
+      <div class="keep">KEEP FOR YOUR RECORDS</div>
+
+      <p class="blurb">
+        [ manifesto Turko — placeholder. Due o tre paragrafi sobri, da
+        riscrivere quando avremo trovato la voce giusta. Questo blocco
+        è il posto dove Turko racconta cos'è, in prima persona, senza
+        marketing. Tono editoriale asciutto, mixed case, giustificato. ]
+      </p>
+
+      <div class="office">
+        THU, APR 09, 2026 · 18:42
+      </div>
+      <div class="match-counter">
+        BLITZ #01/2026
+      </div>
+
+      <div class="footer-note">
+        GENERATED LOCALLY VIA TURKO<br/>
+        turko.app
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  // ─── DATASET: 41-move blitz, black flagged ──────────────────────
+  // Matches the example match shown on this receipt:
+  // 41 moves, white wins on time, black left 00:00
+  const whiteTimes = [
+    2.8, 2.1, 3.2, 2.4, 3.5, 3.1, 2.9, 2.2, 5.5, 7.1,
+    6.2, 8.4, 9.2, 7.9, 10.6, 9.4, 18.4, 9.3, 11.1, 13.6,
+    12.9, 14.3, 13.1, 11.9, 15.6, 12.4, 11.0, 11.5, 13.9, 10.3,
+    12.6, 11.9, 10.7, 12.4, 11.1, 10.8, 9.9, 11.3, 10.6, 9.4,
+    9.7
+  ];
+  const blackTimes = [
+    3.1, 2.5, 3.6, 2.8, 3.3, 4.2, 4.9, 3.7, 9.7, 11.2,
+    10.4, 13.7, 16.1, 14.5, 16.3, 15.8, 15.1, 16.8, 15.5, 14.3,
+    22.0, 15.6, 16.5, 16.1, 14.8, 16.3, 15.1, 15.5, 16.4, 15.8,
+    8.1, 7.6, 7.1, 6.6, 6.1, 5.6, 5.1, 4.6, 4.1, 3.1,
+    3.9
+  ];
+
+  // ─── Chart constants ──────────────────────────────────────────
+  const CHART_W = 410;
+  const CHART_H = 140;
+  const CHART_LEFT_PAD  = 32;  // shared left padding for axis labels
+  const CHART_RIGHT_PAD = 8;   // shared right padding
+  const CHART_PLOT_W = CHART_W - CHART_LEFT_PAD - CHART_RIGHT_PAD;
+  const THRESHOLD = 15;      // games below this use fixed-width bars
+  const PEAK_MIN  = 5;       // peak markers only from this many moves
+  const GAP       = 1.4;
+  const FIXED_BAR_WIDTH = (CHART_PLOT_W - GAP * (THRESHOLD - 1)) / THRESHOLD;
+
+  // ─── Helpers ──────────────────────────────────────────────────
+  const fmt = s => s.toFixed(1) + '"';
+  const avg = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
+  const argmax = arr => arr.indexOf(Math.max(...arr));
+
+  // ─── Render ───────────────────────────────────────────────────
+  function renderChart() {
+    const moves = whiteTimes.length;
+    const svg = document.getElementById('chart');
+    const xAxisWrap = document.getElementById('xAxisWrap');
+
+    // Stats
+    const minW = Math.min(...whiteTimes);
+    const maxW = Math.max(...whiteTimes);
+    const avgW = avg(whiteTimes);
+    const minB = Math.min(...blackTimes);
+    const maxB = Math.max(...blackTimes);
+    const avgB = avg(blackTimes);
+
+    document.getElementById('rangeW').textContent = `${fmt(minW)}~${fmt(maxW)}`;
+    document.getElementById('rangeB').textContent = `${fmt(minB)}~${fmt(maxB)}`;
+    document.getElementById('avgW').textContent = fmt(avgW);
+    document.getElementById('avgB').textContent = fmt(avgB);
+
+    // Layout mode: fixed or distributed
+    let barWidth;
+    let isShortMode;
+    if (moves < THRESHOLD) {
+      barWidth = FIXED_BAR_WIDTH;
+      isShortMode = true;
+    } else {
+      barWidth = (CHART_PLOT_W - GAP * (moves - 1)) / moves;
+      isShortMode = false;
+    }
+
+    // Peaks
+    const showPeaks = moves >= PEAK_MIN;
+    let uniquePeaks = [];
+    if (showPeaks) {
+      const peakW = argmax(whiteTimes);
+      const peakB = argmax(blackTimes);
+      uniquePeaks = peakW === peakB ? [peakW] : [peakW, peakB];
+    }
+
+    // Geometry
+    const midY = CHART_H / 2;
+    const topPad = 4;
+    const halfH = midY - topPad;
+    const maxAll = Math.max(...whiteTimes, ...blackTimes);
+
+    const parts = [];
+
+    // Peak marker columns (dotted, behind bars)
+    uniquePeaks.forEach(idx => {
+      const cx = CHART_LEFT_PAD + idx * (barWidth + GAP) + barWidth / 2;
+      for (let y = 4; y <= CHART_H - 4; y += 4) {
+        parts.push(`<circle cx="${cx.toFixed(2)}" cy="${y}" r="0.8" fill="var(--chart-grid-dot)" />`);
+      }
+    });
+
+    // Dashed center baseline
+    parts.push(
+      `<line x1="${CHART_LEFT_PAD}" y1="${midY}" x2="${CHART_W - CHART_RIGHT_PAD}" y2="${midY}" ` +
+      `stroke="var(--chart-baseline)" stroke-width="0.8" stroke-dasharray="2,2" />`
+    );
+
+    // White bars (above, grey)
+    whiteTimes.forEach((t, i) => {
+      const x = CHART_LEFT_PAD + i * (barWidth + GAP);
+      const h = (t / maxAll) * halfH;
+      if (h < 0.5) return;
+      parts.push(
+        `<rect x="${x.toFixed(2)}" y="${(midY - h).toFixed(2)}" ` +
+        `width="${barWidth.toFixed(2)}" height="${h.toFixed(2)}" ` +
+        `fill="var(--chart-white)" />`
+      );
+    });
+
+    // Black bars (below, ink black)
+    blackTimes.forEach((t, i) => {
+      const x = CHART_LEFT_PAD + i * (barWidth + GAP);
+      const h = (t / maxAll) * halfH;
+      if (h < 0.5) return;
+      parts.push(
+        `<rect x="${x.toFixed(2)}" y="${midY.toFixed(2)}" ` +
+        `width="${barWidth.toFixed(2)}" height="${h.toFixed(2)}" ` +
+        `fill="var(--chart-black)" />`
+      );
+    });
+
+    svg.innerHTML = parts.join('');
+
+    // X-axis labels
+    xAxisWrap.innerHTML = '';
+
+    const leftPct = (CHART_LEFT_PAD / CHART_W) * 100;
+    const rightPct = (CHART_RIGHT_PAD / CHART_W) * 100;
+
+    const startLabel = document.createElement('div');
+    startLabel.className = 'x-label';
+    startLabel.style.left = `${leftPct}%`;
+    startLabel.textContent = '1';
+    xAxisWrap.appendChild(startLabel);
+
+    const endLabel = document.createElement('div');
+    endLabel.textContent = moves;
+
+    if (isShortMode) {
+      const lastBarCenterX = CHART_LEFT_PAD + (moves - 1) * (barWidth + GAP) + barWidth / 2;
+      const lastBarPct = (lastBarCenterX / CHART_W) * 100;
+      if (lastBarPct > 4) {
+        endLabel.className = 'x-label';
+        endLabel.style.left = `${lastBarPct}%`;
+        xAxisWrap.appendChild(endLabel);
+      }
+    } else {
+      endLabel.className = 'x-label';
+      endLabel.style.right = `${rightPct}%`;
+      xAxisWrap.appendChild(endLabel);
+    }
+
+    // Peak labels below axis
+    uniquePeaks.forEach(idx => {
+      const cx = CHART_LEFT_PAD + idx * (barWidth + GAP) + barWidth / 2;
+      const pct = (cx / CHART_W) * 100;
+      const label = document.createElement('div');
+      label.className = 'peak-label';
+      label.textContent = idx + 1;
+      label.style.left = `${pct}%`;
+      xAxisWrap.appendChild(label);
+    });
+  }
+
+  // ─── CHART 2: Clock burn (time remaining curves) ──────────────
+  function renderClockBurn() {
+    const svg = document.getElementById('chart2');
+    const START_TIME = 300;
+    const INCREMENT = 3;
+    const CB_W = 410;
+    const CB_H = 180;
+    const TOP_PAD = 20;
+    const BOTTOM_PAD = 20;
+    const LEFT_PAD = 32;
+    const RIGHT_PAD = 8;
+    const PLOT_W = CB_W - LEFT_PAD - RIGHT_PAD;
+    const PLOT_H = CB_H - TOP_PAD - BOTTOM_PAD;
+    const moves = whiteTimes.length;
+
+    // Compute remaining time series
+    function computeRemaining(moveTimes) {
+      const series = [START_TIME];
+      let rem = START_TIME;
+      for (let i = 0; i < moveTimes.length; i++) {
+        rem = Math.max(0, rem - moveTimes[i] + INCREMENT);
+        series.push(rem);
+      }
+      return series;
+    }
+    const whiteRemaining = computeRemaining(whiteTimes);
+    const blackRemaining = computeRemaining(blackTimes);
+
+    // Moving average with window tapering near endpoints.
+    // Near the edges the window shrinks so the curve lands cleanly on the
+    // actual first/last values — important for "flag fall" (final = 0).
+    function movingAvg(arr) {
+      const n = arr.length;
+      const result = [];
+      for (let i = 0; i < n; i++) {
+        // How far is i from the nearest edge? 0 at the edge, larger in the middle
+        const edgeDist = Math.min(i, n - 1 - i);
+        // Half-window: 0 at edges → 2 in the middle (full window 5)
+        const half = Math.min(2, edgeDist);
+        if (half === 0) {
+          // Endpoint: keep intact
+          result.push(arr[i]);
+          continue;
+        }
+        let sum = 0, count = 0;
+        for (let j = i - half; j <= i + half; j++) {
+          sum += arr[j];
+          count++;
+        }
+        result.push(sum / count);
+      }
+      return result;
+    }
+
+    // Pre-compute smoothed series so we can derive the real Y-axis ceiling.
+    // With increment-based time controls (e.g. 5+3), a fast player can briefly
+    // exceed the starting time. The chart ceiling is data-driven.
+    const wSmoothed = movingAvg(whiteRemaining);
+    const bSmoothed = movingAvg(blackRemaining);
+    const dataMax = Math.max(...wSmoothed, ...bSmoothed);
+    // yMax must include at least START_TIME, but grows if the data exceeds it
+    const yMax = Math.max(START_TIME, dataMax);
+
+    // Format seconds as mm:ss for the Y-axis labels
+    function fmtClock(sec) {
+      const m = Math.floor(sec / 60);
+      const s = Math.round(sec - m * 60);
+      if (s === 60) return `${String(m + 1).padStart(2, '0')}:00`;
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    // Catmull-Rom to cubic bezier — normalized against yMax
+    function toPoint(i, val, nPoints) {
+      const x = LEFT_PAD + (i / (nPoints - 1)) * PLOT_W;
+      const y = TOP_PAD + (1 - val / yMax) * PLOT_H;
+      return [x, y];
+    }
+
+    // Helper to map a Y value (in seconds) to SVG Y coordinate
+    function valueToY(val) {
+      return TOP_PAD + (1 - val / yMax) * PLOT_H;
+    }
+    function buildCatmullRom(series, tension) {
+      const nPoints = series.length;
+      const pts = series.map((val, i) => toPoint(i, val, nPoints));
+      if (pts.length < 2) return '';
+      let d = `M ${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+      for (let i = 0; i < pts.length - 1; i++) {
+        const p0 = pts[i - 1] || pts[i];
+        const p1 = pts[i];
+        const p2 = pts[i + 1];
+        const p3 = pts[i + 2] || p2;
+        const cp1x = p1[0] + (p2[0] - p0[0]) * tension / 3;
+        const cp1y = p1[1] + (p2[1] - p0[1]) * tension / 3;
+        const cp2x = p2[0] - (p3[0] - p1[0]) * tension / 3;
+        const cp2y = p2[1] - (p3[1] - p1[1]) * tension / 3;
+        d += ` C ${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+      }
+      return d;
+    }
+
+    const parts = [];
+
+    // Grid: 12 verticals (alternating solid/dashed), 5 horizontals (all dashed)
+    const numVerticals = 12;
+    const numHorizontals = 5;
+    const stepX = PLOT_W / (numVerticals - 1);
+    const stepY = PLOT_H / (numHorizontals - 1);
+
+    for (let i = 0; i < numHorizontals; i++) {
+      const y = TOP_PAD + i * stepY;
+      parts.push(
+        `<line x1="${LEFT_PAD}" y1="${y}" x2="${CB_W - RIGHT_PAD}" y2="${y}" ` +
+        `stroke="var(--chart-grid-dot)" stroke-width="1" stroke-dasharray="2,2" />`
+      );
+    }
+    for (let i = 0; i < numVerticals; i++) {
+      const x = LEFT_PAD + i * stepX;
+      const isSolid = i % 2 === 0;
+      parts.push(
+        `<line x1="${x}" y1="${TOP_PAD}" x2="${x}" y2="${CB_H - BOTTOM_PAD}" ` +
+        `stroke="var(--chart-grid-dot)" stroke-width="1"` +
+        (isSolid ? '' : ' stroke-dasharray="2,2"') +
+        ` />`
+      );
+    }
+
+    // Y axis labels
+    // `0:00` is always at the bottom of the plot area
+    // `5:00` (START_TIME) is anchored at its real position on the Y axis
+    // If there's surplus above START_TIME, also show the actual peak at the top
+    parts.push(
+      `<text x="${LEFT_PAD - 6}" y="${valueToY(START_TIME) + 3}" ` +
+      `font-family="'JetBrains Mono', monospace" font-size="10" ` +
+      `fill="var(--color-ink-faded)" text-anchor="end" letter-spacing="0.5">${fmtClock(START_TIME)}</text>`
+    );
+    parts.push(
+      `<text x="${LEFT_PAD - 6}" y="${valueToY(0) + 3}" ` +
+      `font-family="'JetBrains Mono', monospace" font-size="10" ` +
+      `fill="var(--color-ink-faded)" text-anchor="end" letter-spacing="0.5">${fmtClock(0)}</text>`
+    );
+    if (dataMax > START_TIME + 10) {
+      parts.push(
+        `<text x="${LEFT_PAD - 6}" y="${TOP_PAD + 3}" ` +
+        `font-family="'JetBrains Mono', monospace" font-size="10" ` +
+        `fill="var(--color-ink-faded)" text-anchor="end" letter-spacing="0.5">${fmtClock(dataMax)}</text>`
+      );
+    }
+
+    // Smoothed curves (Catmull-Rom tension 0.8, stroke 2.5)
+    parts.push(
+      `<path d="${buildCatmullRom(wSmoothed, 0.8)}" fill="none" ` +
+      `stroke="var(--chart-white)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />`
+    );
+    parts.push(
+      `<path d="${buildCatmullRom(bSmoothed, 0.8)}" fill="none" ` +
+      `stroke="var(--chart-black)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />`
+    );
+
+    svg.innerHTML = parts.join('');
+  }
+
+  // ─── CHART 3: Move time distribution (histogram) ──────────────
+  function renderDistribution() {
+    const svg = document.getElementById('chart3');
+    const midY = CHART_H / 2;
+    const topPad = 4;
+    const halfH = midY - topPad;
+
+    // Dynamic X-axis range: round up to nearest 5 seconds above the real max
+    const realMax = Math.max(...whiteTimes, ...blackTimes);
+    const BIN_SIZE = 2;
+    // Round to nearest multiple of BIN_SIZE * 5 for clean axis labels and integer bin count
+    const MAX_SEC = Math.ceil(realMax / (BIN_SIZE * 5)) * (BIN_SIZE * 5);
+    const numBins = MAX_SEC / BIN_SIZE;
+
+    // Update X-axis end label dynamically
+    const chart3Wrap = svg.parentElement;
+    const endLabel = chart3Wrap.querySelector('.x-label.end-pad');
+    if (endLabel) endLabel.textContent = `${MAX_SEC}"`;
+
+    function bin(arr) {
+      const bins = new Array(numBins).fill(0);
+      arr.forEach(t => {
+        const idx = Math.min(Math.floor(t / BIN_SIZE), numBins - 1);
+        bins[idx]++;
+      });
+      return bins;
+    }
+
+    const whiteBins = bin(whiteTimes);
+    const blackBins = bin(blackTimes);
+    const maxCount = Math.max(...whiteBins, ...blackBins);
+
+    document.getElementById('distMaxW').textContent = `${Math.max(...whiteTimes).toFixed(1)}"`;
+    document.getElementById('distMaxB').textContent = `${Math.max(...blackTimes).toFixed(1)}"`;
+
+    const gap = 2;
+    const barW = (CHART_PLOT_W - gap * (numBins - 1)) / numBins;
+
+    const parts = [];
+    parts.push(
+      `<line x1="${CHART_LEFT_PAD}" y1="${midY}" x2="${CHART_W - CHART_RIGHT_PAD}" y2="${midY}" ` +
+      `stroke="var(--chart-baseline)" stroke-width="0.8" stroke-dasharray="2,2" />`
+    );
+
+    whiteBins.forEach((count, i) => {
+      if (count === 0) return;
+      const x = CHART_LEFT_PAD + i * (barW + gap);
+      const h = (count / maxCount) * halfH;
+      parts.push(
+        `<rect x="${x.toFixed(2)}" y="${(midY - h).toFixed(2)}" ` +
+        `width="${barW.toFixed(2)}" height="${h.toFixed(2)}" ` +
+        `fill="var(--chart-white)" />`
+      );
+    });
+
+    blackBins.forEach((count, i) => {
+      if (count === 0) return;
+      const x = CHART_LEFT_PAD + i * (barW + gap);
+      const h = (count / maxCount) * halfH;
+      parts.push(
+        `<rect x="${x.toFixed(2)}" y="${midY.toFixed(2)}" ` +
+        `width="${barW.toFixed(2)}" height="${h.toFixed(2)}" ` +
+        `fill="var(--chart-black)" />`
+      );
+    });
+
+    svg.innerHTML = parts.join('');
+  }
+
+  // ─── Narrative captions — facts only, no interpretation ──────
+  function generateCaptions() {
+    // Caption 1: longest think for both players
+    const peakWIdx = argmax(whiteTimes);
+    const peakBIdx = argmax(blackTimes);
+    const peakWVal = whiteTimes[peakWIdx];
+    const peakBVal = blackTimes[peakBIdx];
+    document.getElementById('caption1').textContent =
+      `Longest think: white move ${peakWIdx + 1} (${peakWVal.toFixed(1)}"), black move ${peakBIdx + 1} (${peakBVal.toFixed(1)}").`;
+
+    // Caption 2: final clock state — pure fact
+    // Compute final remaining time for both players
+    const START_TIME = 300, INCREMENT = 3;
+    let wRem = START_TIME, bRem = START_TIME;
+    for (let i = 0; i < whiteTimes.length; i++) {
+      wRem = Math.max(0, wRem - whiteTimes[i] + INCREMENT);
+      bRem = Math.max(0, bRem - blackTimes[i] + INCREMENT);
+    }
+    function fmtClock(sec) {
+      const m = Math.floor(sec / 60);
+      const s = Math.round(sec % 60);
+      return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+    document.getElementById('caption2').textContent =
+      `White finished with ${fmtClock(wRem)}. Black reached zero at move ${blackTimes.length}.`;
+
+    // Caption 3: medians — pure fact
+    function median(arr) {
+      const sorted = [...arr].sort((a, b) => a - b);
+      const mid = Math.floor(sorted.length / 2);
+      return sorted.length % 2 === 0
+        ? (sorted[mid - 1] + sorted[mid]) / 2
+        : sorted[mid];
+    }
+    const medW = median(whiteTimes);
+    const medB = median(blackTimes);
+    document.getElementById('caption3').textContent =
+      `Median: white ${medW.toFixed(1)}", black ${medB.toFixed(1)}".`;
+  }
+
+  renderChart();
+  renderClockBurn();
+  renderDistribution();
+  generateCaptions();
+</script>
+
+</body>
+</html>
