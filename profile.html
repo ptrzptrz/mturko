@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Turko — Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ═══════════════════════════════════════════════════════════════
+     TOKENS — same design system as match receipt and statement
+     ═══════════════════════════════════════════════════════════════ */
+  :root {
+    --paper-white: #fafaf6;
+    --paper-bg:    #f1f0ec;
+    --ink-black:   #0a0a0a;
+    --grey-medium: #9a9893;
+    --grey-light:  #c9c7c0;
+
+    --color-paper:     var(--paper-white);
+    --color-bg:        var(--paper-bg);
+    --color-ink:       var(--ink-black);
+    --color-ink-faded: var(--grey-medium);
+    --color-rule:      var(--grey-light);
+
+    --space-1:  4px;
+    --space-2:  8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 28px;
+    --space-7: 40px;
+    --space-8: 56px;
+
+    --text-xxs:  9px;
+    --text-xs:   10px;
+    --text-sm:   11px;
+    --text-base: 12px;
+    --text-md:   13px;
+    --text-lg:   14px;
+    --text-xl:   26px;
+
+    --text-display: var(--text-xl);
+
+    --weight-regular: 400;
+    --weight-medium:  500;
+    --weight-bold:    700;
+
+    --track-tight:   0.02em;
+    --track-default: 0.05em;
+    --track-wide:    0.1em;
+    --track-widest:  0.22em;
+
+    --leading-tight:  1;
+    --leading-snug:   1.5;
+    --leading-normal: 1.7;
+
+    --seg-bar-height: 6px;
+    --x-axis-height: 14px;
+
+    --track-brand: -0.01em;
+
+    /* ─── Profile component tokens ─────────────────────────────────
+       The profile is NOT a .receipt container — it's a full-width
+       view with its own max-width (wider than the receipt because
+       it hosts a grid of cards, not a single-column document). */
+    --profile-max-width:   420px;
+    --profile-padding-x:   var(--space-5);
+    --profile-padding-top: var(--space-5);
+    --profile-padding-bottom: var(--space-8);
+
+    /* Profile header nickname — larger than body data, smaller than
+       the 52px brand title reserved for receipt/statement documents.
+       Monospace Bold so Archivo Black stays exclusive to documents. */
+    --profile-title-size: 24px;
+
+    /* Topbar slot — reserved above the header on every profile view.
+       Kept at the minimum visible height so it reads as intentional
+       space without stealing real estate from the content below. In
+       home it stays empty (an anchor for the title's Y position). In
+       nested views it hosts the back trigger; the trigger uses an
+       invisible padding to reach the --touch-target size, so the visible
+       slot stays thin while the tap area remains comfortable. */
+    --topbar-height: 14px;
+
+    /* Minimum comfortable tap target size for any touch element across
+       the product (back trigger, tappable glyphs, text buttons). Any
+       element smaller than this visually must be padded up to this
+       size via invisible padding + negative margin. */
+    --touch-target: 44px;
+
+    /* Match card in the library grid */
+    --card-radius: 12px;
+    --card-thumb-h: 52px;
+
+    /* ─── FAB — new match trigger ─────────────────────────────
+       Floating action button for starting a new match. Lives
+       bottom-right of the viewport, above all content, always
+       accessible. Primary high-frequency action of the product:
+       users open Turko to play, not to browse, so this button is
+       the single most important interactive element in the home.
+
+       Size and inset are tokenized. Press feedback is an
+       Apple-style critically-damped spring driven by JS (see the
+       script block below): the circle scales down to --fab-press-scale
+       on pointerdown and returns to 1 on release via real spring
+       dynamics, not a CSS curve. The halo behind the FAB fades in
+       on press and out on release, adding a whisper of weight
+       without any visible animation at rest. */
+    --fab-size:         46px;
+    --fab-inset:        var(--space-5);
+    --fab-glyph-size:   27px;
+    --fab-glyph-offset: -3px;
+    --fab-press-scale:  0.96;
+    --fab-spring-stiffness: 400;
+    --fab-spring-damping:   38;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "tnum" 1;
+    line-height: var(--leading-snug);
+  }
+  .page {
+    display: flex;
+    justify-content: center;
+    padding: 0 var(--space-4);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     PROFILE — full-width view, not a .receipt container
+     ═══════════════════════════════════════════════════════════════ */
+  .profile {
+    width: 100%;
+    max-width: var(--profile-max-width);
+    background: var(--color-paper);
+    padding: var(--profile-padding-top) var(--profile-padding-x) var(--profile-padding-bottom);
+  }
+
+  /* ─── Topbar: context slot above the header ─────────────────────
+     Minimum-height reserved slot (14px) that keeps the title (nickname)
+     at a consistent Y across home and nested states so nothing jumps
+     when you navigate between profiles. In home it is empty. In nested
+     views it hosts a back trigger whose tap area is expanded to
+     --touch-target (44px) via invisible padding and negative margin:
+     the element visually fits inside the 14px slot but registers taps
+     in a comfortable 44px square. */
+  .topbar {
+    height: var(--topbar-height);
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--space-2);
+  }
+  .topbar .back {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: var(--text-md);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--track-wide);
+    color: var(--color-ink);
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    line-height: 1;
+    /* Expand the tap area to the accessible minimum without changing
+       visual position. The negative margins pull the element back so
+       the glyph still appears at the slot's baseline. */
+    padding: calc((var(--touch-target) - var(--topbar-height)) / 2) var(--space-3);
+    margin: calc(-1 * (var(--touch-target) - var(--topbar-height)) / 2) calc(-1 * var(--space-3));
+  }
+  .topbar .back:active { opacity: 0.5; }
+  .topbar .back .glyph {
+    font-size: var(--text-lg);
+    line-height: 1;
+    font-weight: var(--weight-regular);
+  }
+
+  /* ─── Header: identity of the user ──────────────────────────────
+     The title is the nickname, followed by a vertical stack of
+     .header-info rows. Today there is one row (the ratings); this
+     structure is intentionally built to grow — future rows can hold
+     bio, club, location, follower count, badges, etc. Adding a row
+     is a matter of appending a <div class="row"> inside .header-info
+     with no layout change. */
+  .header {
+    margin-bottom: var(--space-5);
+  }
+  .header .title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: var(--profile-title-size);
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--track-tight);
+    color: var(--color-ink);
+    margin: 0 0 var(--space-2);
+  }
+  .header-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .header-info .row {
+    font-size: var(--text-xs);
+    letter-spacing: var(--track-wide);
+    color: var(--color-ink-faded);
+    line-height: var(--leading-snug);
+  }
+  .header-info .row .dot { margin: 0 var(--space-1); }
+  .header-info .row .val {
+    color: var(--color-ink);
+    font-weight: var(--weight-medium);
+  }
+
+  /* ─── Rating tabs ─────────────────────────────────────────────────
+     Each of the three rating values (BLITZ / RAPID / CLASSIC) is an
+     individually tappable element that will open the statement of
+     its category in a nested view (navigation deferred to Phase 4).
+     Visually identical to a plain data row — the tappable behavior
+     is discovered on first use, not signaled by any chrome or
+     affordance, to keep the header typographically pure.
+     Accessibility: the visible text is text-xs (~10px line), but the
+     tap target is expanded to --touch-target (44px) via invisible
+     vertical padding + equal negative margin, so the touch area is
+     comfortable without changing the element's visual position. */
+  .header-info .rating-tab {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-1);
+    cursor: pointer;
+    user-select: none;
+    /* tap target expansion — see comment above */
+    padding: calc((var(--touch-target) - var(--text-xs)) / 2) var(--space-1);
+    margin: calc(-1 * (var(--touch-target) - var(--text-xs)) / 2) calc(-1 * var(--space-1));
+  }
+  .header-info .rating-tab:active {
+    opacity: 0.5;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     LIBRARY — 3-column grid of match cards
+     Each card shows date, a thumbnail (currently placeholder), the
+     opponent name, and the result + delta. Tapping a card will open
+     the corresponding match receipt (navigation deferred to Phase 4).
+     ═══════════════════════════════════════════════════════════════ */
+  .library {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-3);
+  }
+  .match-card {
+    background: var(--color-bg);
+    border-radius: var(--card-radius);
+    padding: var(--space-3) var(--space-3) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    cursor: pointer;
+    user-select: none;
+  }
+  .match-card:active { opacity: 0.6; }
+  .match-card .date {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--text-xxs);
+    letter-spacing: var(--track-wide);
+    color: var(--color-ink-faded);
+  }
+  /* Thumbnail placeholder — to be replaced with a mini clock-burn
+     curve in a follow-up iteration. Diagonal hatching marks it as
+     a placeholder at a glance. */
+  .match-card .thumb {
+    height: var(--card-thumb-h);
+    background: repeating-linear-gradient(
+      45deg,
+      transparent 0 3px,
+      var(--grey-light) 3px 4px
+    );
+    border-radius: 4px;
+    margin: var(--space-1) 0;
+  }
+  .match-card .opp {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+    color: var(--color-ink);
+    letter-spacing: var(--track-tight);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .match-card .result {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--track-tight);
+  }
+  .match-card .result .delta {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+  }
+  /* Losses and draws use grey-faded for the delta — the result itself
+     stays black for readability. Wins are black by default. */
+  .match-card .result .delta.neg,
+  .match-card .result .delta.draw {
+    color: var(--color-ink-faded);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     FAB — floating new-match trigger
+     Three-layer structure:
+       .fab-wrap   click target + positioning context (viewport-fixed)
+       .halo       radial ghost behind the ink, hidden at rest
+       .fab        the ink circle itself (only element that scales)
+       .fab .plus  the glyph, visually fixed (never scales)
+     The scale is set inline by the spring engine via JS; every
+     other property stays in CSS via classes.
+
+     Positioning: centered horizontally on the viewport, fixed to
+     the bottom with --fab-inset of clearance. Centering is a
+     deliberate choice for Turko — the FAB is the primary action
+     of the product (users open the app to play), and Turko's
+     entire visual architecture is centered (receipt, statement,
+     profile column). Placing the FAB off-axis bottom-right would
+     break that symmetry and follow mobile convention instead of
+     the product's own grammar. */
+  .fab-wrap {
+    position: fixed;
+    left: 50%;
+    bottom: var(--fab-inset);
+    transform: translateX(-50%);
+    width: var(--fab-size);
+    height: var(--fab-size);
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .fab {
+    width: var(--fab-size);
+    height: var(--fab-size);
+    background: var(--color-ink);
+    color: var(--color-paper);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: var(--fab-glyph-size);
+    line-height: 1;
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.12),
+      0 6px 20px rgba(0, 0, 0, 0.22);
+    position: relative;
+    z-index: 2;
+    transform: scale(1);
+    will-change: transform, box-shadow;
+  }
+  .fab .plus {
+    pointer-events: none;
+    display: block;
+    /* Archivo Black's + glyph sits slightly below the optical
+       center of its em box — this offset pulls it back up so the
+       glyph sits visually centered in the circle. */
+    margin-top: var(--fab-glyph-offset);
+  }
+  /* Halo: radial gradient behind the FAB. Fades in on press only,
+     fades out slowly on release. At rest it is fully invisible.
+     Provides a whisper of weight under the finger without making
+     the FAB move or pulse when no one is touching it. */
+  .halo {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at center,
+      rgba(10, 10, 10, 0.18) 0%,
+      rgba(10, 10, 10, 0)   65%
+    );
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+    transform: scale(1);
+    will-change: opacity, transform;
+    transition:
+      opacity   700ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .fab-wrap.pressed .halo {
+    opacity: 1;
+    transform: scale(1.22);
+    transition:
+      opacity   220ms cubic-bezier(0.4, 0, 0.3, 1),
+      transform 220ms cubic-bezier(0.4, 0, 0.3, 1);
+  }
+  /* Shadow softens slightly on press — the circle settles onto
+     the paper instead of hovering above it. */
+  .fab-wrap.pressed .fab {
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.14),
+      0 3px 12px rgba(0, 0, 0, 0.18);
+    transition: box-shadow 220ms cubic-bezier(0.4, 0, 0.3, 1);
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="profile">
+
+    <!-- 1. TOPBAR — empty in home, hosts back trigger in nested views -->
+    <div class="topbar"></div>
+
+    <!-- 2. HEADER — identity stack -->
+    <div class="header">
+      <div class="title">PATRIZIO</div>
+      <div class="header-info">
+        <div class="row">
+          <div class="rating-tab" data-category="blitz">
+            BLITZ <span class="val">1556</span>
+          </div>
+          <span class="dot">·</span>
+          <div class="rating-tab" data-category="rapid">
+            RAPID <span class="val">1480</span>
+          </div>
+          <span class="dot">·</span>
+          <div class="rating-tab" data-category="classic">
+            CLASSIC <span class="val">1520</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. LIBRARY — rendered from mock data via JS -->
+    <div class="library" id="library"></div>
+
+  </div>
+</div>
+
+<!-- FAB — new match trigger, fixed to viewport bottom-right -->
+<div class="fab-wrap" id="fab" aria-label="Start new match">
+  <span class="halo"></span>
+  <div class="fab"><span class="plus">+</span></div>
+</div>
+
+<script>
+(function () {
+  // ─── Mock dataset — 12 recent matches for Patrizio ─────────────
+  // All are blitz for now. When the model supports multiple categories
+  // each entry will also carry a .category field, and the card may
+  // display it as a tiny tag.
+  const matches = [
+    { date: ['APR','09'], opp: 'M.ROSSI',    result: '1 — 0', delta: '+14' },
+    { date: ['APR','08'], opp: 'L.BIANCHI',  result: '0 — 1', delta: '−12', kind: 'neg' },
+    { date: ['APR','07'], opp: 'A.VERDI',    result: '½ — ½', delta: '+2',  kind: 'draw' },
+    { date: ['APR','05'], opp: 'F.CONTI',    result: '1 — 0', delta: '+11' },
+    { date: ['APR','04'], opp: 'M.ROSSI',    result: '0 — 1', delta: '−9',  kind: 'neg' },
+    { date: ['APR','02'], opp: 'G.NERI',     result: '1 — 0', delta: '+16' },
+    { date: ['APR','01'], opp: 'L.BIANCHI',  result: '0 — 1', delta: '−11', kind: 'neg' },
+    { date: ['MAR','28'], opp: 'S.LOMBARDI', result: '1 — 0', delta: '+8'  },
+    { date: ['MAR','27'], opp: 'A.VERDI',    result: '1 — 0', delta: '+10' },
+    { date: ['MAR','25'], opp: 'F.CONTI',    result: '½ — ½', delta: '+1',  kind: 'draw' },
+    { date: ['MAR','22'], opp: 'M.ROSSI',    result: '1 — 0', delta: '+13' },
+    { date: ['MAR','20'], opp: 'G.NERI',     result: '0 — 1', delta: '−10', kind: 'neg' },
+  ];
+
+  // ─── Render the library grid ───────────────────────────────────
+  const library = document.getElementById('library');
+  library.innerHTML = matches.map(m => `
+    <div class="match-card">
+      <div class="date">
+        <span>${m.date[0]}</span>
+        <span>${m.date[1]}</span>
+      </div>
+      <div class="thumb"></div>
+      <div class="opp">${m.opp}</div>
+      <div class="result">
+        <span>${m.result}</span>
+        <span class="delta ${m.kind || ''}">${m.delta}</span>
+      </div>
+    </div>
+  `).join('');
+
+  // ─── Rating tab taps — placeholder navigation ─────────────────
+  // Tapping a rating will open the statement of that category in
+  // a nested view. Until Phase 4 wires up view routing, the tap
+  // just logs the intent so the interaction can be tested.
+  document.querySelectorAll('.rating-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const category = tab.dataset.category;
+      console.log('open statement:', category);
+    });
+  });
+
+  // ─── FAB: critically-damped spring press feedback ─────────────
+  // Physical spring simulation integrated at 60fps. Computes the
+  // motion of a mass pulled toward a target by a spring with
+  // damping. Critically damped (damping ≈ 2·sqrt(stiffness·mass))
+  // means no overshoot — the circle returns to rest cleanly and
+  // precisely, which reads as weight rather than bounce.
+  //
+  // Parameters are read from CSS custom properties so every
+  // tunable (stiffness, damping, press scale) is defined once in
+  // :root and referenced here without duplication.
+  function makeSpring({ stiffness, damping, mass, onUpdate }) {
+    let value = 1;
+    let target = 1;
+    let velocity = 0;
+    let rafId = null;
+    const dt = 1 / 60;
+
+    function tick() {
+      const force = -stiffness * (value - target);
+      const damp  = -damping * velocity;
+      const accel = (force + damp) / mass;
+      velocity += accel * dt;
+      value    += velocity * dt;
+      onUpdate(value);
+
+      const settled = Math.abs(velocity) < 0.0005
+                   && Math.abs(value - target) < 0.0005;
+      if (!settled) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        value = target;
+        velocity = 0;
+        onUpdate(value);
+        rafId = null;
+      }
+    }
+
+    return {
+      setTarget(t) {
+        target = t;
+        if (rafId === null) rafId = requestAnimationFrame(tick);
+      }
+    };
+  }
+
+  const fabWrap = document.getElementById('fab');
+  const fabCircle = fabWrap.querySelector('.fab');
+
+  // Read tuning tokens from the root stylesheet — single source of truth.
+  const rootStyle = getComputedStyle(document.documentElement);
+  const stiffness = parseFloat(rootStyle.getPropertyValue('--fab-spring-stiffness'));
+  const damping   = parseFloat(rootStyle.getPropertyValue('--fab-spring-damping'));
+  const pressScale = parseFloat(rootStyle.getPropertyValue('--fab-press-scale'));
+
+  const fabSpring = makeSpring({
+    stiffness, damping, mass: 1,
+    onUpdate(v) {
+      fabCircle.style.transform = `scale(${v})`;
+    }
+  });
+
+  fabWrap.addEventListener('pointerdown', () => {
+    fabSpring.setTarget(pressScale);
+    fabWrap.classList.add('pressed');
+  });
+  const releaseFab = () => {
+    fabSpring.setTarget(1);
+    fabWrap.classList.remove('pressed');
+  };
+  fabWrap.addEventListener('pointerup',     releaseFab);
+  fabWrap.addEventListener('pointerleave',  releaseFab);
+  fabWrap.addEventListener('pointercancel', releaseFab);
+
+  // Tap action — placeholder. In Phase 4 this will navigate to
+  // the new-match flow. Today it just logs the intent.
+  fabWrap.addEventListener('click', () => {
+    console.log('new match');
+  });
+})();
+</script>
+
+</body>
+</html>
