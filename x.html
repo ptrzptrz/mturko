@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Turko — Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ═══════════════════════════════════════════════════════════════
+     TOKENS — same design system as match receipt and statement
+     ═══════════════════════════════════════════════════════════════ */
+  :root {
+    --paper-white: #fafaf6;
+    --paper-bg:    #f1f0ec;
+    --ink-black:   #0a0a0a;
+    --grey-medium: #9a9893;
+    --grey-light:  #c9c7c0;
+
+    --color-paper:     var(--paper-white);
+    --color-bg:        var(--paper-bg);
+    --color-ink:       var(--ink-black);
+    --color-ink-faded: var(--grey-medium);
+    --color-rule:      var(--grey-light);
+
+    --space-1:  4px;
+    --space-2:  8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 28px;
+    --space-7: 40px;
+    --space-8: 56px;
+
+    --text-xxs:  9px;
+    --text-xs:   10px;
+    --text-sm:   11px;
+    --text-base: 12px;
+    --text-md:   13px;
+    --text-lg:   14px;
+    --text-xl:   26px;
+
+    --text-display: var(--text-xl);
+
+    --weight-regular: 400;
+    --weight-medium:  500;
+    --weight-bold:    700;
+
+    --track-tight:   0.02em;
+    --track-default: 0.05em;
+    --track-wide:    0.1em;
+    --track-widest:  0.22em;
+
+    --leading-tight:  1;
+    --leading-snug:   1.5;
+    --leading-normal: 1.7;
+
+    --seg-bar-height: 6px;
+    --x-axis-height: 14px;
+
+    --track-brand: -0.01em;
+
+    /* ─── Page frame above the ticket ────────────────────────────
+       Vertical space of page background always visible above the
+       ticket, both before scroll and while the header is sticky-
+       pinned. Communicates that the ticket sits within the page
+       rather than being clipped to the viewport's top edge. The
+       same value is used for:
+       1. .page top padding (initial breathing room above the ticket)
+       2. .header sticky top offset (so the pinned header stops
+          --page-frame-height below the viewport top, keeping the
+          frame visible during scroll)
+       3. .page-frame-shield height (the fixed strip that masks the
+          area above the pinned header so library cards don't show
+          through during scroll) */
+    --page-frame-height: var(--space-3);
+
+    /* ─── Dashed rule pattern ─────────────────────────────────────
+       The dashed horizontal rule used as structural separator
+       between blocks throughout Turko (receipt, statement, profile).
+       6px period, 1px stroke height. Identical in every canonical
+       file; consolidated here so future tweaks are a single change. */
+    --dashed-rule-pattern: 6px 1px;
+
+    /* ─── FAB press feedback transition ──────────────────────────
+       The two timing/easing pairs used by the FAB halo. Press is
+       fast and assertive (220ms with sharp ease-out for instant
+       response on touch). Release is slower and gentle (700ms with
+       soft ease for the halo fading away after the finger lifts).
+       Tokenized so both halves of the press feedback share consistent
+       motion curves and a single change updates both directions. */
+    --fab-press-duration:   220ms;
+    --fab-release-duration: 700ms;
+    --fab-press-easing:     cubic-bezier(0.4, 0, 0.3, 1);
+    --fab-release-easing:   cubic-bezier(0.22, 1, 0.36, 1);
+    /* Scale factor the halo expands to on press. >1 means it
+       grows beyond the FAB circle, blurring out as it spreads. */
+    --fab-halo-scale:       1.22;
+
+    /* NOTE on inherited tokens above: --space-7, --space-8,
+       --text-base, --text-md, --text-lg, --text-display,
+       --leading-normal, --track-default, --track-widest,
+       --seg-bar-height, --x-axis-height, --track-brand may appear
+       unused here — they are part of the Turko shared design system
+       (used by receipt and statement) and are kept here intentionally
+       so the design tokens stay consistent across canonical files
+       until convergence. Do not remove without coordinating with
+       index.html and statement.html. */
+
+    /* ─── Profile component tokens ─────────────────────────────────
+       The profile is NOT a .receipt container — it's a full-width
+       view with its own max-width (wider than the receipt because
+       it hosts a grid of cards, not a single-column document). */
+    --profile-max-width:   420px;
+    --profile-padding-x:   var(--space-6);
+    /* Bottom padding is derived from the FAB metrics so the last
+       row of content always clears the floating button with the
+       same inset above it as the FAB has from the viewport edge.
+       If --fab-size or --fab-inset change, this follows. */
+    --profile-padding-bottom: calc(var(--fab-size) + var(--fab-inset) * 2);
+
+    /* Profile header nickname — larger than body data, smaller than
+       the 52px brand title reserved for receipt/statement documents.
+       Monospace Bold so Archivo Black stays exclusive to documents. */
+    --profile-title-size: 24px;
+
+    /* Minimum comfortable tap target size for any touch element across
+       the product (back trigger, tappable glyphs, text buttons). Any
+       element smaller than this visually must be padded up to this
+       size via invisible padding + negative margin. */
+    --touch-target: 44px;
+
+    /* Side scallop — diameter of the two semicircular indents
+       carved into the left and right edges of the sticky header at
+       its bottom border. Together with the dashed hairline rule
+       they form a "ticket perforation" line that visually separates
+       the pinned header from the scrolling library, in the same
+       skeuomorphic family as the bottom scallop of the receipt and
+       statement documents. */
+    --scallop-side-size: 22px;
+
+    /* Top corner radius of the .profile paper. Mirrors the rounded
+       top of a physical ticket (the bottom is "torn off" via the
+       scallop perforation, so only the top has a clean rounded
+       corner). Slightly smaller than the side scallops so the
+       proportions read as ticket, not as pill. */
+    --profile-corner-radius: 14px;
+
+    /* Match card in the library grid */
+    --card-radius: 12px;
+    --card-thumb-h: 52px;
+
+    /* ─── FAB — new match trigger ─────────────────────────────
+       Floating action button for starting a new match. Lives
+       bottom-center of the viewport, above all content, always
+       accessible. Primary high-frequency action of the product:
+       users open Turko to play, not to browse, so this button is
+       the single most important interactive element in the home.
+
+       Visual: paper-white circle with a 2px solid ink border and
+       an ink + glyph inside. No shadow — the FAB sits on the paper
+       like a stamp printed onto it, in the same flat-skeuomorphic
+       language as the rest of the product (no UI chrome, no
+       drop-shadows from another visual world). The border alone
+       gives enough visual separation from the paper background.
+
+       Press feedback (preserved from earlier work): an Apple-style
+       critically-damped spring driven by JS scales the circle down
+       to --fab-press-scale on pointerdown and back to 1 on release
+       via real spring dynamics. A soft radial halo behind the FAB
+       fades in on press and out on release, adding a whisper of
+       weight without any visible animation at rest. */
+    --fab-size:         52px;
+    --fab-inset:        var(--space-5);
+    --fab-glyph-size:   28px;
+    --fab-glyph-offset: -2px;
+    --fab-border-width: 2px;
+    --fab-press-scale:  0.96;
+    --fab-spring-stiffness: 400;
+    --fab-spring-damping:   38;
+    /* Halo behind the FAB: a soft radial ghost that fades in on
+       press. Uses ink-black with low alpha so it reads as a
+       weight shadow under the finger rather than a color glow. */
+    --fab-halo-color:     rgba(10, 10, 10, 0.18);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "tnum" 1;
+    line-height: var(--leading-snug);
+  }
+  /* ─── Page-frame shield (top + corner extensions) ───────────────
+     The fixed strip at the top of the viewport that masks the area
+     above the pinned sticky header during scroll. Without it, the
+     library cards scrolling underneath the header would show
+     through the page-frame space, breaking the visual frame around
+     the ticket.
+
+     Composition:
+     - .page-frame-shield: full-viewport-width strip,
+       --page-frame-height tall, page-bg colored. Sits above the
+       sticky header on z-index, completely opaque to scrolling
+       content beneath.
+     - .page-frame-shield .corner: two narrow vertical strips
+       (--profile-corner-radius wide, --profile-corner-radius tall)
+       that extend below the main shield, one against each lateral
+       edge of the .profile column. Their job: cover the two small
+       triangular gaps that the header's rounded top corners leave
+       open, so those rounded corners read as page-bg (the actual
+       cut shape) instead of merging with the paper underneath.
+
+     z-index 51 stays above .header (50). pointer-events none so
+     taps pass through. Corner positioning uses the same max() math
+     as the FAB to anchor to the .profile column's lateral edges. */
+  .page-frame-shield {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--page-frame-height);
+    background: var(--color-bg);
+    z-index: 51;
+    pointer-events: none;
+  }
+  .page-frame-shield .corner {
+    position: fixed;
+    top: var(--page-frame-height);
+    height: var(--profile-corner-radius);
+    width: var(--profile-corner-radius);
+  }
+  /* The corner's job: cover ONLY the triangular gap outside the
+     header's rounded curve, leaving the curve itself untouched so
+     the paper of the header shows through it. Implementation: a
+     radial-gradient centered at the inner corner (the side facing
+     the paper interior). Inside the gradient's --profile-corner-
+     radius, fully transparent (the rounded paper area). Outside,
+     solid --color-bg (the gap to mask). The 100%/100% step ensures
+     a sharp boundary, not a soft gradient. */
+  .page-frame-shield .corner.left {
+    left: max(
+      var(--space-4),
+      calc(50% - (var(--profile-max-width) / 2))
+    );
+    background: radial-gradient(
+      circle at bottom right,
+      transparent var(--profile-corner-radius),
+      var(--color-bg) var(--profile-corner-radius)
+    );
+  }
+  .page-frame-shield .corner.right {
+    right: max(
+      var(--space-4),
+      calc(50% - (var(--profile-max-width) / 2))
+    );
+    background: radial-gradient(
+      circle at bottom left,
+      transparent var(--profile-corner-radius),
+      var(--color-bg) var(--profile-corner-radius)
+    );
+  }
+
+  .page {
+    display: flex;
+    justify-content: center;
+    padding: var(--page-frame-height) var(--space-4) 0;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     PROFILE — full-width column, the "paper" of this view.
+     min-height: 100vh ensures the paper extends to the full
+     viewport height regardless of content length, leaving the
+     grey .page background visible only as lateral framing on wide
+     screens. Required so the fixed FAB always sits above paper,
+     never above the grey page.
+
+     Top corners rounded as a paper ticket. Bottom is also rounded
+     so the ticket reads as a complete object, with the bottom
+     scallops (perforation) carving into the bottom paper edge.
+     ═══════════════════════════════════════════════════════════════ */
+  .profile {
+    position: relative;
+    width: 100%;
+    max-width: var(--profile-max-width);
+    min-height: 100vh;
+    background: var(--color-paper);
+    padding: 0 var(--profile-padding-x) var(--profile-padding-bottom);
+    border-top-left-radius: var(--profile-corner-radius);
+    border-top-right-radius: var(--profile-corner-radius);
+    border-bottom-left-radius: var(--profile-corner-radius);
+    border-bottom-right-radius: var(--profile-corner-radius);
+  }
+
+  /* ─── Header: identity of the user, sticky-pinned ───────────────
+     Contains the title (nickname) + .header-info stack of rows
+     (today: ratings; future: bio, club, location, etc.). Sticky
+     to top: 0 so it stays visible while the library scrolls. The
+     opaque paper background prevents library cards from showing
+     through; the dashed hairline at the bottom (drawn as a pseudo
+     element) marks the visual perforation between the pinned
+     header and the scrolling content. The horizontal full-bleed
+     via negative margin lets the background and rule extend to
+     the .profile column edges, even though the header content
+     itself is still inset by --profile-padding-x.
+
+     Side scallops: two .scallop spans at bottom-left and
+     bottom-right, half-out / half-in, filled with --color-bg so
+     they read as concave holes carved into the paper. Together
+     with the dashed hairline they form the upper perforation. */
+  .header {
+    position: sticky;
+    top: var(--page-frame-height);
+    z-index: 50;
+    background: var(--color-paper);
+    margin: 0 calc(-1 * var(--profile-padding-x)) var(--space-5);
+    padding: var(--space-5) var(--profile-padding-x) var(--space-3);
+    border-top-left-radius: var(--profile-corner-radius);
+    border-top-right-radius: var(--profile-corner-radius);
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    /* Inset by half the scallop size so the rule stops at the
+       scallop edges instead of running into the carved holes. */
+    left:  calc(var(--scallop-side-size) / 2);
+    right: calc(var(--scallop-side-size) / 2);
+    bottom: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, var(--color-rule) 50%, transparent 50%);
+    background-size: var(--dashed-rule-pattern);
+    background-repeat: repeat-x;
+  }
+
+  /* ─── Side scallops: solid discs filled with --color-bg, half
+     outside the .profile / .header boundary, simulating
+     concave holes carved into the paper. Top pair lives in
+     .header (pinned with the sticky header). Bottom pair lives
+     directly in .profile (at the bottom edge of the paper). */
+  .scallop {
+    position: absolute;
+    width: var(--scallop-side-size);
+    height: var(--scallop-side-size);
+    background: var(--color-bg);
+    border-radius: 50%;
+    z-index: 10;
+  }
+  .header .scallop { bottom: 0; }
+  .header .scallop.left  { left: 0;  transform: translate(-50%, 50%); }
+  .header .scallop.right { right: 0; transform: translate(50%,  50%); }
+  .profile > .scallop { bottom: 0; }
+  .profile > .scallop.left  { left: 0;  transform: translate(-50%, 50%); }
+  .profile > .scallop.right { right: 0; transform: translate(50%,  50%); }
+
+  /* Bottom dashed rule mirroring the header bottom rule, just
+     above the bottom scallops to complete the lower perforation
+     line of the ticket. */
+  .profile::after {
+    content: '';
+    position: absolute;
+    left:  calc(var(--scallop-side-size) / 2);
+    right: calc(var(--scallop-side-size) / 2);
+    bottom: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, var(--color-rule) 50%, transparent 50%);
+    background-size: var(--dashed-rule-pattern);
+    background-repeat: repeat-x;
+  }
+
+  .header .title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: var(--profile-title-size);
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--track-tight);
+    color: var(--color-ink);
+    margin: 0 0 var(--space-2);
+  }
+  .header-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .header-info .row {
+    font-size: var(--text-xs);
+    letter-spacing: var(--track-wide);
+    color: var(--color-ink-faded);
+    line-height: var(--leading-snug);
+  }
+  .header-info .row .dot { margin: 0 var(--space-2); }
+  .header-info .row .val {
+    color: var(--color-ink);
+    font-weight: var(--weight-medium);
+  }
+
+  /* ─── Rating tabs ─────────────────────────────────────────────────
+     Each of the three rating values (BLITZ / RAPID / CLASSIC) is an
+     individually tappable element that will open the statement of
+     its category in a nested view (navigation deferred to Phase 4).
+     Visually identical to a plain data row — the tappable behavior
+     is discovered on first use, not signaled by any chrome or
+     affordance, to keep the header typographically pure.
+     Accessibility: the visible text is text-xs (~10px line), but the
+     tap target is expanded to --touch-target (44px) via invisible
+     vertical padding + equal negative margin, so the touch area is
+     comfortable without changing the element's visual position. */
+  .header-info .rating-tab {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-1);
+    cursor: pointer;
+    user-select: none;
+    /* tap target expansion — see comment above */
+    padding: calc((var(--touch-target) - var(--text-xs)) / 2) var(--space-1);
+    margin: calc(-1 * (var(--touch-target) - var(--text-xs)) / 2) calc(-1 * var(--space-1));
+  }
+  .header-info .rating-tab:active {
+    opacity: 0.5;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     LIBRARY — 3-column grid of match cards
+     Each card shows date, a thumbnail (currently placeholder), the
+     opponent name, and the result + delta. Tapping a card will open
+     the corresponding match receipt (navigation deferred to Phase 4).
+     ═══════════════════════════════════════════════════════════════ */
+  .library {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-3);
+  }
+  .match-card {
+    background: var(--color-bg);
+    border-radius: var(--card-radius);
+    padding: var(--space-3) var(--space-3) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    cursor: pointer;
+    user-select: none;
+  }
+  .match-card:active { opacity: 0.6; }
+  .match-card .date {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--text-xxs);
+    letter-spacing: var(--track-wide);
+    color: var(--color-ink-faded);
+  }
+  /* Thumbnail placeholder — to be replaced with a mini clock-burn
+     curve in a follow-up iteration. Diagonal hatching marks it as
+     a placeholder at a glance. */
+  .match-card .thumb {
+    height: var(--card-thumb-h);
+    background: repeating-linear-gradient(
+      45deg,
+      transparent 0 3px,
+      var(--grey-light) 3px 4px
+    );
+    border-radius: 4px;
+    margin: var(--space-1) 0;
+  }
+  .match-card .opp {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+    color: var(--color-ink);
+    letter-spacing: var(--track-tight);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .match-card .result {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--track-tight);
+  }
+  .match-card .result .delta {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+  }
+  /* Losses and draws use grey-faded for the delta — the result itself
+     stays black for readability. Wins are black by default. */
+  .match-card .result .delta.neg,
+  .match-card .result .delta.draw {
+    color: var(--color-ink-faded);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     FAB — floating new-match trigger
+     Three-layer structure:
+       .fab-wrap   click target + positioning context (viewport-fixed)
+       .halo       radial ghost behind the ink, hidden at rest
+       .fab        the ink circle itself (only element that scales)
+       .fab .plus  the glyph, visually fixed (never scales)
+     The scale is set inline by the spring engine via JS; every
+     other property stays in CSS via classes.
+
+     Positioning: anchored to the bottom-right of the .profile
+     column, --fab-inset from both edges. The horizontal anchor
+     uses max() so the FAB hugs the right edge of the centered
+     paper column on wide viewports, and falls back to the page's
+     own horizontal padding (--space-4) on narrow viewports so it
+     never runs off the screen. Bottom is fixed to the viewport so
+     the FAB stays visible while scrolling the library. */
+  .fab-wrap {
+    position: fixed;
+    right: max(
+      calc(var(--space-4) + var(--fab-inset)),
+      calc(50% - (var(--profile-max-width) / 2) + var(--fab-inset))
+    );
+    bottom: var(--fab-inset);
+    width: var(--fab-size);
+    height: var(--fab-size);
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .fab {
+    width: var(--fab-size);
+    height: var(--fab-size);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    border: var(--fab-border-width) solid var(--color-ink);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: var(--weight-regular);
+    font-size: var(--fab-glyph-size);
+    line-height: 1;
+    position: relative;
+    z-index: 2;
+    transform: scale(1);
+    will-change: transform;
+  }
+  .fab .plus {
+    pointer-events: none;
+    display: block;
+    /* The + glyph sits slightly below the optical center of its
+       em box — this offset pulls it back up so the glyph sits
+       visually centered in the circle. */
+    margin-top: var(--fab-glyph-offset);
+  }
+  /* Halo: radial gradient behind the FAB. Fades in on press only,
+     fades out slowly on release. At rest it is fully invisible.
+     Provides a whisper of weight under the finger without making
+     the FAB move or pulse when no one is touching it. */
+  .halo {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at center,
+      var(--fab-halo-color) 0%,
+      transparent 65%
+    );
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+    transform: scale(1);
+    will-change: opacity, transform;
+    transition:
+      opacity   var(--fab-release-duration) var(--fab-release-easing),
+      transform var(--fab-release-duration) var(--fab-release-easing);
+  }
+  .fab-wrap.pressed .halo {
+    opacity: 1;
+    transform: scale(var(--fab-halo-scale));
+    transition:
+      opacity   var(--fab-press-duration) var(--fab-press-easing),
+      transform var(--fab-press-duration) var(--fab-press-easing);
+  }
+</style>
+</head>
+<body>
+
+<!-- Page-frame shield: fixed strip masking the top of the viewport so
+     library cards don't show through the page-frame space when
+     scrolling under the pinned sticky header. The two .corner spans
+     extend down past the main shield to cover the rounded-corner
+     triangles of the pinned header, so those corners read against
+     page-bg instead of merging with the paper beneath. -->
+<div class="page-frame-shield">
+  <span class="corner left"></span>
+  <span class="corner right"></span>
+</div>
+
+<div class="page">
+  <div class="profile">
+
+    <!-- 1. HEADER — identity stack, sticky-pinned -->
+    <div class="header">
+      <span class="scallop left"></span>
+      <span class="scallop right"></span>
+      <div class="title">PATRIZIO</div>
+      <div class="header-info">
+        <div class="row">
+          <div class="rating-tab" data-category="blitz">
+            BLITZ <span class="val">1556</span>
+          </div>
+          <span class="dot">·</span>
+          <div class="rating-tab" data-category="rapid">
+            RAPID <span class="val">1480</span>
+          </div>
+          <span class="dot">·</span>
+          <div class="rating-tab" data-category="classic">
+            CLASSIC <span class="val">1520</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. LIBRARY — rendered from mock data via JS -->
+    <div class="library" id="library"></div>
+
+    <!-- 3. BOTTOM SCALLOPS — completing the ticket perforation -->
+    <span class="scallop left"></span>
+    <span class="scallop right"></span>
+
+  </div>
+</div>
+
+<!-- FAB — new match trigger, fixed to viewport bottom-right -->
+<div class="fab-wrap" id="fab" aria-label="Start new match">
+  <span class="halo"></span>
+  <div class="fab"><span class="plus">+</span></div>
+</div>
+
+<script>
+(function () {
+  // ─── Mock dataset — 60 recent matches for Patrizio ────────────
+  // Enough volume to fill the viewport multiple times so scroll
+  // behavior (sticky header) can be tested realistically. All
+  // blitz for now; when the model supports multiple categories
+  // each entry will carry a .category field.
+  const matches = [
+    { date: ['APR','09'], opp: 'M.ROSSI',    result: '1 — 0', delta: '+14' },
+    { date: ['APR','08'], opp: 'L.BIANCHI',  result: '0 — 1', delta: '−12', kind: 'neg' },
+    { date: ['APR','07'], opp: 'A.VERDI',    result: '½ — ½', delta: '+2',  kind: 'draw' },
+    { date: ['APR','05'], opp: 'F.CONTI',    result: '1 — 0', delta: '+11' },
+    { date: ['APR','04'], opp: 'M.ROSSI',    result: '0 — 1', delta: '−9',  kind: 'neg' },
+    { date: ['APR','02'], opp: 'G.NERI',     result: '1 — 0', delta: '+16' },
+    { date: ['APR','01'], opp: 'L.BIANCHI',  result: '0 — 1', delta: '−11', kind: 'neg' },
+    { date: ['MAR','28'], opp: 'S.LOMBARDI', result: '1 — 0', delta: '+8'  },
+    { date: ['MAR','27'], opp: 'A.VERDI',    result: '1 — 0', delta: '+10' },
+    { date: ['MAR','25'], opp: 'F.CONTI',    result: '½ — ½', delta: '+1',  kind: 'draw' },
+    { date: ['MAR','22'], opp: 'M.ROSSI',    result: '1 — 0', delta: '+13' },
+    { date: ['MAR','20'], opp: 'G.NERI',     result: '0 — 1', delta: '−10', kind: 'neg' },
+    { date: ['MAR','18'], opp: 'L.BIANCHI',  result: '1 — 0', delta: '+9'  },
+    { date: ['MAR','17'], opp: 'A.VERDI',    result: '0 — 1', delta: '−8',  kind: 'neg' },
+    { date: ['MAR','15'], opp: 'F.CONTI',    result: '1 — 0', delta: '+12' },
+    { date: ['MAR','14'], opp: 'S.LOMBARDI', result: '½ — ½', delta: '+3',  kind: 'draw' },
+    { date: ['MAR','12'], opp: 'M.ROSSI',    result: '1 — 0', delta: '+15' },
+    { date: ['MAR','10'], opp: 'G.NERI',     result: '1 — 0', delta: '+11' },
+    { date: ['MAR','08'], opp: 'L.BIANCHI',  result: '0 — 1', delta: '−13', kind: 'neg' },
+    { date: ['MAR','07'], opp: 'A.VERDI',    result: '1 — 0', delta: '+9'  },
+    { date: ['MAR','05'], opp: 'F.CONTI',    result: '0 — 1', delta: '−7',  kind: 'neg' },
+    { date: ['MAR','03'], opp: 'M.ROSSI',    result: '1 — 0', delta: '+14' },
+    { date: ['MAR','01'], opp: 'S.LOMBARDI', result: '1 — 0', delta: '+10' },
+    { date: ['FEB','27'], opp: 'G.NERI',     result: '½ — ½', delta: '+2',  kind: 'draw' },
+    { date: ['FEB','25'], opp: 'L.BIANCHI',  result: '1 — 0', delta: '+12' },
+    { date: ['FEB','24'], opp: 'A.VERDI',    result: '0 — 1', delta: '−9',  kind: 'neg' },
+    { date: ['FEB','22'], opp: 'F.CONTI',    result: '1 — 0', delta: '+11' },
+    { date: ['FEB','20'], opp: 'M.ROSSI',    result: '0 — 1', delta: '−10', kind: 'neg' },
+    { date: ['FEB','18'], opp: 'S.LOMBARDI', result: '1 — 0', delta: '+13' },
+    { date: ['FEB','16'], opp: 'G.NERI',     result: '1 — 0', delta: '+8'  },
+    { date: ['FEB','14'], opp: 'L.BIANCHI',  result: '½ — ½', delta: '+1',  kind: 'draw' },
+    { date: ['FEB','12'], opp: 'A.VERDI',    result: '1 — 0', delta: '+12' },
+    { date: ['FEB','10'], opp: 'F.CONTI',    result: '0 — 1', delta: '−11', kind: 'neg' },
+    { date: ['FEB','08'], opp: 'M.ROSSI',    result: '1 — 0', delta: '+15' },
+    { date: ['FEB','06'], opp: 'G.NERI',     result: '0 — 1', delta: '−9',  kind: 'neg' },
+    { date: ['FEB','04'], opp: 'S.LOMBARDI', result: '1 — 0', delta: '+10' },
+    { date: ['FEB','02'], opp: 'L.BIANCHI',  result: '1 — 0', delta: '+13' },
+    { date: ['JAN','30'], opp: 'A.VERDI',    result: '½ — ½', delta: '+2',  kind: 'draw' },
+    { date: ['JAN','28'], opp: 'F.CONTI',    result: '1 — 0', delta: '+11' },
+    { date: ['JAN','26'], opp: 'M.ROSSI',    result: '0 — 1', delta: '−12', kind: 'neg' },
+    { date: ['JAN','24'], opp: 'G.NERI',     result: '1 — 0', delta: '+9'  },
+    { date: ['JAN','22'], opp: 'L.BIANCHI',  result: '1 — 0', delta: '+14' },
+    { date: ['JAN','20'], opp: 'S.LOMBARDI', result: '0 — 1', delta: '−8',  kind: 'neg' },
+    { date: ['JAN','18'], opp: 'A.VERDI',    result: '1 — 0', delta: '+11' },
+    { date: ['JAN','16'], opp: 'F.CONTI',    result: '½ — ½', delta: '+3',  kind: 'draw' },
+    { date: ['JAN','14'], opp: 'M.ROSSI',    result: '1 — 0', delta: '+13' },
+    { date: ['JAN','12'], opp: 'G.NERI',     result: '1 — 0', delta: '+10' },
+    { date: ['JAN','10'], opp: 'L.BIANCHI',  result: '0 — 1', delta: '−11', kind: 'neg' },
+    { date: ['JAN','08'], opp: 'A.VERDI',    result: '1 — 0', delta: '+12' },
+    { date: ['JAN','06'], opp: 'F.CONTI',    result: '1 — 0', delta: '+9'  },
+    { date: ['JAN','04'], opp: 'S.LOMBARDI', result: '½ — ½', delta: '+1',  kind: 'draw' },
+    { date: ['JAN','02'], opp: 'M.ROSSI',    result: '0 — 1', delta: '−10', kind: 'neg' },
+    { date: ['DEC','30'], opp: 'G.NERI',     result: '1 — 0', delta: '+11' },
+    { date: ['DEC','28'], opp: 'L.BIANCHI',  result: '1 — 0', delta: '+13' },
+    { date: ['DEC','26'], opp: 'A.VERDI',    result: '0 — 1', delta: '−9',  kind: 'neg' },
+    { date: ['DEC','24'], opp: 'F.CONTI',    result: '1 — 0', delta: '+12' },
+    { date: ['DEC','22'], opp: 'M.ROSSI',    result: '½ — ½', delta: '+2',  kind: 'draw' },
+    { date: ['DEC','20'], opp: 'S.LOMBARDI', result: '1 — 0', delta: '+10' },
+    { date: ['DEC','18'], opp: 'G.NERI',     result: '0 — 1', delta: '−11', kind: 'neg' },
+    { date: ['DEC','16'], opp: 'L.BIANCHI',  result: '1 — 0', delta: '+14' },
+    { date: ['DEC','14'], opp: 'A.VERDI',    result: '1 — 0', delta: '+9'  },
+  ];
+
+  // ─── Render the library grid ───────────────────────────────────
+  const library = document.getElementById('library');
+  library.innerHTML = matches.map(m => `
+    <div class="match-card">
+      <div class="date">
+        <span>${m.date[0]}</span>
+        <span>${m.date[1]}</span>
+      </div>
+      <div class="thumb"></div>
+      <div class="opp">${m.opp}</div>
+      <div class="result">
+        <span>${m.result}</span>
+        <span class="delta ${m.kind || ''}">${m.delta}</span>
+      </div>
+    </div>
+  `).join('');
+
+  // ─── Rating tab taps — placeholder navigation ─────────────────
+  // Tapping a rating will open the statement of that category in
+  // a nested view. Navigation wiring is deferred to Phase 4 when
+  // the routing system between views is built; the handler is
+  // left in place as the hook point.
+  document.querySelectorAll('.rating-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      // Phase 4: navigate to statement view for tab.dataset.category
+    });
+  });
+
+  // ─── FAB: critically-damped spring press feedback ─────────────
+  // Physical spring simulation integrated at 60fps. Computes the
+  // motion of a mass pulled toward a target by a spring with
+  // damping. Critically damped (damping ≈ 2·sqrt(stiffness·mass))
+  // means no overshoot — the circle returns to rest cleanly and
+  // precisely, which reads as weight rather than bounce.
+  //
+  // Parameters are read from CSS custom properties so every
+  // tunable (stiffness, damping, press scale) is defined once in
+  // :root and referenced here without duplication.
+  function makeSpring({ stiffness, damping, mass, onUpdate }) {
+    let value = 1;
+    let target = 1;
+    let velocity = 0;
+    let rafId = null;
+    const dt = 1 / 60;
+
+    function tick() {
+      const force = -stiffness * (value - target);
+      const damp  = -damping * velocity;
+      const accel = (force + damp) / mass;
+      velocity += accel * dt;
+      value    += velocity * dt;
+      onUpdate(value);
+
+      const settled = Math.abs(velocity) < 0.0005
+                   && Math.abs(value - target) < 0.0005;
+      if (!settled) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        value = target;
+        velocity = 0;
+        onUpdate(value);
+        rafId = null;
+      }
+    }
+
+    return {
+      setTarget(t) {
+        target = t;
+        if (rafId === null) rafId = requestAnimationFrame(tick);
+      }
+    };
+  }
+
+  const fabWrap = document.getElementById('fab');
+  const fabCircle = fabWrap.querySelector('.fab');
+
+  // Read tuning tokens from the root stylesheet — single source of truth.
+  const rootStyle = getComputedStyle(document.documentElement);
+  const stiffness = parseFloat(rootStyle.getPropertyValue('--fab-spring-stiffness'));
+  const damping   = parseFloat(rootStyle.getPropertyValue('--fab-spring-damping'));
+  const pressScale = parseFloat(rootStyle.getPropertyValue('--fab-press-scale'));
+
+  const fabSpring = makeSpring({
+    stiffness, damping, mass: 1,
+    onUpdate(v) {
+      fabCircle.style.transform = `scale(${v})`;
+    }
+  });
+
+  fabWrap.addEventListener('pointerdown', () => {
+    fabSpring.setTarget(pressScale);
+    fabWrap.classList.add('pressed');
+  });
+  const releaseFab = () => {
+    fabSpring.setTarget(1);
+    fabWrap.classList.remove('pressed');
+  };
+  fabWrap.addEventListener('pointerup',     releaseFab);
+  fabWrap.addEventListener('pointerleave',  releaseFab);
+  fabWrap.addEventListener('pointercancel', releaseFab);
+
+  // Tap action — placeholder. In Phase 4 this will navigate to
+  // the new-match flow.
+  fabWrap.addEventListener('click', () => {
+    // Phase 4: start new match flow
+  });
+})();
+</script>
+
+</body>
+</html>
