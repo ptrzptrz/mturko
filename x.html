@@ -2,7 +2,49 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<!-- ─── Viewport ────────────────────────────────────────────────────
+     width=device-width: scale to the device's actual pixel width.
+     initial-scale=1: no initial zoom.
+     maximum-scale=1, user-scalable=no: disable pinch-zoom and
+     double-tap zoom. Turko has a controlled typographic system at
+     fixed sizes; an accidental zoom would break the layout
+     (cards reflow, sticky header misalign, FAB shift). Disabled
+     intentionally for the single-app experience.
+     viewport-fit=cover: extend the layout under the rounded
+     corners and dynamic island on modern iPhones, so theme-color
+     and PWA backgrounds reach the screen edges. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+
+<!-- ─── Theme color: colors the browser chrome and the area around
+     the dynamic island / status bar on iOS Safari. Using --color-bg
+     (#f1f0ec) so the system UI blends seamlessly with the page
+     frame around the ticket, no visible color seam.
+     KEEP IN SYNC WITH --paper-bg in :root. Meta tags don't support
+     CSS custom properties, so this is the one place the value is
+     duplicated. -->
+<meta name="theme-color" content="#f1f0ec" />
+
+<!-- ─── Apple PWA capability ───────────────────────────────────────
+     apple-mobile-web-app-capable=yes: when installed via "Add to
+     Home Screen" on iOS, the app launches standalone (fullscreen,
+     no Safari chrome).
+     status-bar-style=black-translucent: the status bar becomes
+     transparent and overlays our content; combined with viewport-fit
+     cover, our background extends under it. The status bar text
+     is dark (suitable for our light page-bg).
+     apple-mobile-web-app-title: the home-screen icon label. -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Turko" />
+<meta name="mobile-web-app-capable" content="yes" />
+
+<!-- ─── Format detection: disable iOS auto-linking of numbers as
+     phone calls. Turko shows ratings (1556) and dates (APR 09)
+     constantly; without this, iOS would underline them as
+     tappable phone-number links. -->
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
+
 <title>Turko — Profile</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -75,6 +117,19 @@
           area above the pinned header so library cards don't show
           through during scroll) */
     --page-frame-height: var(--space-3);
+
+    /* ─── Effective top offset ────────────────────────────────────
+       Combined offset from the device's physical top edge to the
+       top of the ticket. Accounts for:
+       - The device safe-area inset (height of the dynamic island /
+         notch zone, varies by device — iPhone 14 Pro: 59px,
+         iPhone SE: 20px, etc.). env() returns 0 if not in a PWA
+         standalone context.
+       - The Turko page-frame above the ticket (always-visible
+         page-bg strip).
+       Used by .page padding-top, .header sticky top, and the two
+       .page-frame-shield layers so they all align consistently. */
+    --top-offset: calc(env(safe-area-inset-top, 0) + var(--page-frame-height));
 
     /* ─── Dashed rule pattern ─────────────────────────────────────
        The dashed horizontal rule used as structural separator
@@ -186,6 +241,12 @@
   }
 
   *, *::before, *::after { box-sizing: border-box; }
+  /* Disable the default mobile tap highlight (the gray-blue overlay
+     that iOS and Android paint over interactive elements on touch).
+     Each interactive element handles its own press feedback (opacity,
+     scale) consistent with the Turko visual language; the system
+     overlay would interfere with that. */
+  * { -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; padding: 0; }
   body {
     font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
@@ -194,7 +255,14 @@
     -webkit-font-smoothing: antialiased;
     font-feature-settings: "tnum" 1;
     line-height: var(--leading-snug);
+    /* Hide scrollbars across browsers while keeping scroll
+       functional. Turko reads as a standalone ticket; visible
+       scrollbars look like browser chrome and break the
+       app-on-paper illusion. */
+    scrollbar-width: none;        /* Firefox */
+    -ms-overflow-style: none;     /* IE / old Edge */
   }
+  body::-webkit-scrollbar { display: none; } /* WebKit (Safari/Chrome) */
   /* ─── Page-frame shield (top + corner extensions) ───────────────
      The fixed strip at the top of the viewport that masks the area
      above the pinned sticky header during scroll. Without it, the
@@ -223,14 +291,21 @@
     top: 0;
     left: 0;
     right: 0;
-    height: var(--page-frame-height);
+    /* Height includes the device safe-area inset (the space behind
+       the dynamic island / notch on modern iPhones) plus our own
+       page-frame above the ticket. With viewport-fit=cover, our
+       background extends under the system UI; the shield keeps it
+       opaque and consistent during scroll. */
+    height: var(--top-offset);
     background: var(--color-bg);
     z-index: 51;
     pointer-events: none;
   }
   .page-frame-shield .corner {
     position: fixed;
-    top: var(--page-frame-height);
+    /* Anchored just below the shield so the corner cutouts align
+       with the rounded top edge of the pinned header. */
+    top: var(--top-offset);
     height: var(--profile-corner-radius);
     width: var(--profile-corner-radius);
   }
@@ -268,7 +343,7 @@
   .page {
     display: flex;
     justify-content: center;
-    padding: var(--page-frame-height) var(--space-4) 0;
+    padding: var(--top-offset) var(--space-4) 0;
   }
 
   /* ═══════════════════════════════════════════════════════════════
@@ -314,7 +389,7 @@
      with the dashed hairline they form the upper perforation. */
   .header {
     position: sticky;
-    top: var(--page-frame-height);
+    top: var(--top-offset);
     z-index: 50;
     background: var(--color-paper);
     margin: 0 calc(-1 * var(--profile-padding-x)) var(--space-5);
