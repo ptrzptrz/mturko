@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+
+<!-- Study #11 — skeleton loader playground.
+     
+     Interactive sandbox to compare 5 skeleton strategies:
+       A  — classic shimmer (gradient sweep)
+       D  — mock card with opacity pulse
+       Ef — "inking" card: skeleton → fade-in 300ms
+       Ep — "inking" card: skeleton → printing (blobs materialize progressively)
+       Ei — "inking" card: skeleton → instant swap
+     
+     Controls at top, 60-card library below. Click any strategy button
+     or "Trigger loading" to replay the animation. Timing slider
+     controls how long the loading state lasts before data "arrives". -->
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#fafaf6" />
+
+<title>Turko — skeleton loader playground</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+
+  /* ═══════════════════════════════════════════════════════════════
+     TOKENS
+     ═══════════════════════════════════════════════════════════════ */
+  :root {
+    --paper-white: #fafaf6;
+    --paper-bg:    #f1f0ec;
+    --ink-black:   #0a0a0a;
+    --ink-blue:    #1a2838;
+    --grey-medium: #9a9893;
+    --grey-light:  #c9c7c0;
+    --grey-ultralight: #e5e4df;   /* new: skeleton placeholder tone */
+
+    --color-paper:     var(--paper-white);
+    --color-bg:        var(--paper-bg);
+    --color-ink:       var(--ink-black);
+    --color-ink-faded: var(--grey-medium);
+    --color-rule:      var(--grey-light);
+    --color-card-bg:   var(--color-bg);
+    --color-skeleton:  var(--grey-ultralight);
+
+    --thumb-ink: var(--ink-blue);
+
+    --space-1:  4px;
+    --space-2:  8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 28px;
+    --space-7: 40px;
+    --space-8: 56px;
+
+    --text-xxs:  9px;
+    --text-xs:   10px;
+    --text-sm:   11px;
+    --text-base: 12px;
+    --text-md:   13px;
+    --text-lg:   14px;
+
+    --weight-regular: 400;
+    --weight-medium:  500;
+    --weight-bold:    700;
+
+    --track-tight:   0.02em;
+    --track-wide:    0.1em;
+    --track-widest:  0.22em;
+
+    --leading-snug:   1.5;
+
+    --card-radius: 12px;
+    --card-padding: var(--space-3);
+
+    --dashed-rule-pattern: 6px 1px;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     RESETS
+     ═══════════════════════════════════════════════════════════════ */
+  *, *::before, *::after { box-sizing: border-box; }
+  * { -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar { display: none; }
+  body {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "tnum" 1;
+    line-height: var(--leading-snug);
+    padding: var(--space-6) var(--space-4) var(--space-8);
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  h1.page-title {
+    font-size: 20px;
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--track-tight);
+    margin: 0 0 var(--space-1);
+  }
+  .page-subtitle {
+    font-size: var(--text-xs);
+    color: var(--color-ink-faded);
+    letter-spacing: var(--track-wide);
+    margin-bottom: var(--space-5);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     CONTROLS PANEL
+     ═══════════════════════════════════════════════════════════════ */
+  .controls {
+    border-top: 1px solid var(--color-rule);
+    border-bottom: 1px solid var(--color-rule);
+    padding: var(--space-4) 0;
+    margin-bottom: var(--space-5);
+  }
+  .control-label {
+    font-size: var(--text-xxs);
+    letter-spacing: var(--track-widest);
+    color: var(--color-ink-faded);
+    margin-bottom: var(--space-2);
+  }
+  .control-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin-bottom: var(--space-3);
+  }
+  .control-group:last-child {
+    margin-bottom: 0;
+  }
+  .btn {
+    font-family: inherit;
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--track-wide);
+    color: var(--color-ink);
+    background: transparent;
+    border: 1px solid var(--color-rule);
+    border-radius: 4px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background 150ms ease, border-color 150ms ease;
+  }
+  .btn:hover {
+    background: var(--color-bg);
+  }
+  .btn.active {
+    background: var(--color-ink);
+    color: var(--color-paper);
+    border-color: var(--color-ink);
+  }
+  .btn.trigger {
+    border-color: var(--color-ink);
+  }
+
+  .status {
+    font-size: var(--text-xxs);
+    letter-spacing: var(--track-wide);
+    color: var(--color-ink-faded);
+    margin-top: var(--space-2);
+  }
+  .status .loading-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-ink);
+    margin-right: 6px;
+    vertical-align: middle;
+    animation: status-dot-pulse 1s ease-in-out infinite;
+  }
+  .status.idle .loading-dot {
+    animation: none;
+    background: var(--color-rule);
+  }
+  @keyframes status-dot-pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     LIBRARY GRID
+     ═══════════════════════════════════════════════════════════════ */
+  .library {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-2);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     CARD — complete anatomy
+     ═══════════════════════════════════════════════════════════════ */
+  .card {
+    background: var(--color-card-bg);
+    border-radius: var(--card-radius);
+    padding: var(--card-padding);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card .meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: var(--space-2);
+    min-height: 12px;
+  }
+  .card .meta .date {
+    font-size: var(--text-xxs);
+    letter-spacing: var(--track-wide);
+    color: var(--color-ink-faded);
+  }
+  .card .meta .cat {
+    font-size: var(--text-xxs);
+    font-weight: var(--weight-regular);
+    letter-spacing: var(--track-widest);
+    color: var(--color-ink-faded);
+  }
+
+  .card .thumb {
+    aspect-ratio: 1;
+    width: 100%;
+    display: block;
+    overflow: hidden;
+    border-radius: 6px;
+    margin-bottom: var(--space-3);
+    position: relative;
+  }
+  .card .thumb svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .card .opp {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--track-tight);
+    color: var(--color-ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: var(--space-1);
+    min-height: 16px;
+  }
+
+  .card .foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    min-height: 20px;
+  }
+  .card .foot .result {
+    font-size: var(--text-md);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--track-tight);
+    color: var(--color-ink);
+  }
+  .card .foot .delta {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--track-tight);
+    color: var(--color-ink-faded);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     STRATEGY A — SHIMMER
+     Rectangles with sweeping gradient. Classic "social media" look.
+     ═══════════════════════════════════════════════════════════════ */
+  .card.s-shimmer .meta,
+  .card.s-shimmer .opp,
+  .card.s-shimmer .foot { display: none; }
+
+  .card.s-shimmer::before,
+  .card.s-shimmer::after,
+  .card.s-shimmer .thumb {
+    content: '';
+    background: linear-gradient(
+      90deg,
+      var(--color-skeleton) 0%,
+      #f2f1ed 50%,
+      var(--color-skeleton) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer-sweep 1.4s linear infinite;
+    border-radius: 4px;
+  }
+  .card.s-shimmer .thumb {
+    aspect-ratio: 1;
+    margin-bottom: var(--space-3);
+  }
+  .card.s-shimmer .thumb svg { display: none; }
+  .card.s-shimmer::before {
+    display: block;
+    height: 9px;
+    margin-bottom: var(--space-2);
+    margin-top: 0;
+  }
+  .card.s-shimmer::after {
+    display: block;
+    height: 11px;
+    margin-top: var(--space-3);
+    width: 70%;
+  }
+  @keyframes shimmer-sweep {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     STRATEGY D — MOCK CARD WITH OPACITY PULSE
+     Full anatomy but every text is a grey bar, thumb is grey block.
+     Whole card pulses opacity 0.5 → 1 → 0.5.
+     ═══════════════════════════════════════════════════════════════ */
+  .card.s-pulse {
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  .card.s-pulse .meta .date,
+  .card.s-pulse .meta .cat,
+  .card.s-pulse .opp,
+  .card.s-pulse .foot .result,
+  .card.s-pulse .foot .delta {
+    color: transparent !important;
+    background: var(--color-skeleton);
+    border-radius: 3px;
+    display: inline-block;
+  }
+  .card.s-pulse .meta .date { width: 40px; height: 9px; }
+  .card.s-pulse .meta .cat { width: 34px; height: 9px; }
+  .card.s-pulse .opp { width: 72%; height: 11px; }
+  .card.s-pulse .foot .result { width: 36px; height: 13px; }
+  .card.s-pulse .foot .delta { width: 26px; height: 10px; }
+  .card.s-pulse .thumb {
+    background: var(--color-skeleton);
+  }
+  .card.s-pulse .thumb svg { display: none; }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     STRATEGY E — "INKING CARD"
+     The card always contains the REAL content (text + SVG blobs).
+     When `.loading` is set, we OVERLAY skeleton styles that hide
+     the real content behind grey placeholders.
+     When `.loading` is removed and `.done-X` is added, the skeleton
+     overlay transitions out, revealing the real content underneath.
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── Skeleton state: grey bars replace text, grey block replaces thumb ── */
+  .card.s-ink.loading .meta .date,
+  .card.s-ink.loading .meta .cat,
+  .card.s-ink.loading .opp,
+  .card.s-ink.loading .foot .result,
+  .card.s-ink.loading .foot .delta {
+    color: transparent !important;
+    background: var(--color-skeleton);
+    border-radius: 3px;
+    display: inline-block;
+  }
+  .card.s-ink.loading .meta .date { width: 40px; height: 9px; }
+  .card.s-ink.loading .meta .cat { width: 34px; height: 9px; }
+  .card.s-ink.loading .opp { width: 72%; height: 11px; }
+  .card.s-ink.loading .foot .result { width: 36px; height: 13px; }
+  .card.s-ink.loading .foot .delta { width: 26px; height: 10px; }
+
+  .card.s-ink.loading .thumb {
+    background: var(--color-skeleton);
+    animation: thumb-breathe 1.8s ease-in-out infinite;
+  }
+  /* Hide the real SVG blobs while loading */
+  .card.s-ink.loading .thumb svg {
+    opacity: 0;
+  }
+
+  @keyframes thumb-breathe {
+    0%, 100% { opacity: 0.75; }
+    50% { opacity: 1; }
+  }
+
+  /* ── E-fade: real content fades in smoothly ─────────────────── */
+  .card.s-ink.done-fade .meta .date,
+  .card.s-ink.done-fade .meta .cat,
+  .card.s-ink.done-fade .opp,
+  .card.s-ink.done-fade .foot .result,
+  .card.s-ink.done-fade .foot .delta {
+    animation: text-fade-in 350ms ease-out;
+  }
+  .card.s-ink.done-fade .thumb svg {
+    animation: thumb-svg-fade-in 400ms ease-out;
+  }
+  @keyframes text-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes thumb-svg-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* ── E-print: blobs materialize one by one like ink pooling ──── */
+  .card.s-ink.done-print .meta .date,
+  .card.s-ink.done-print .meta .cat,
+  .card.s-ink.done-print .opp,
+  .card.s-ink.done-print .foot .result,
+  .card.s-ink.done-print .foot .delta {
+    animation: text-fade-in 500ms ease-out;
+  }
+  /* Each blob animates from hidden to visible with its own delay.
+     Delays are set inline per-ellipse by the render code. */
+  .card.s-ink.done-print .thumb svg ellipse {
+    animation: blob-ink-in 450ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  }
+  @keyframes blob-ink-in {
+    from {
+      opacity: 0;
+      transform: scale(0.5);
+      transform-origin: center;
+      transform-box: fill-box;
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+      transform-origin: center;
+      transform-box: fill-box;
+    }
+  }
+
+  /* ── E-instant: no transition at all, content just appears ─── */
+  /* Nothing to animate — the class change is the transition */
+
+</style>
+</head>
+<body>
+
+<h1 class="page-title">TURKO — SKELETON PLAYGROUND</h1>
+<div class="page-subtitle">5 STRATEGIES · 60 CARDS · REPLAYABLE</div>
+
+<div class="controls">
+  <div class="control-label">STRATEGY</div>
+  <div class="control-group" id="strategy-group">
+    <button class="btn" data-strategy="shimmer">A · SHIMMER</button>
+    <button class="btn" data-strategy="pulse">D · MOCK PULSE</button>
+    <button class="btn active" data-strategy="ink-fade">E · FADE</button>
+    <button class="btn" data-strategy="ink-print">E · PRINT</button>
+    <button class="btn" data-strategy="ink-instant">E · INSTANT</button>
+  </div>
+
+  <div class="control-label">LOAD TIME</div>
+  <div class="control-group" id="timing-group">
+    <button class="btn" data-timing="500">500 MS</button>
+    <button class="btn active" data-timing="1200">1200 MS</button>
+    <button class="btn" data-timing="2500">2500 MS</button>
+  </div>
+
+  <div class="control-group">
+    <button class="btn trigger" id="trigger">↻  TRIGGER LOADING</button>
+  </div>
+
+  <div class="status idle" id="status">
+    <span class="loading-dot"></span>
+    <span id="status-text">Idle — click Trigger to start</span>
+  </div>
+</div>
+
+<div class="library" id="library"></div>
+
+<script>
+(function () {
+
+  // ═══════════════════════════════════════════════════════════════
+  // DATASETS — same 14 matches
+  // ═══════════════════════════════════════════════════════════════
+
+  const DATASETS = [
+    { date: ['APR','09'], opp: 'M.ROSSI', category: 'BLITZ', delta: '+14', kind: 'win', playedAs: 'W', flagFall: false,
+      whiteTimes: [2.1,2.8,3.5,4.2,5.1,6.8,8.4,10.1,12.8,15.4,9.8,11.2,13.5,12.1,9.7,11.8,10.4,12.6,14.2,11.5,9.3,10.8,11.9,13.4,10.6,9.5,11.2,10.8,9.7,8.4],
+      blackTimes: [3.2,3.8,4.1,5.2,6.4,8.1,10.2,12.7,14.8,18.3,11.5,13.2,15.8,14.6,12.1,13.9,12.4,14.8,16.2,13.8,11.2,12.8,14.1,15.9,12.4,11.1,13.2,12.8,11.5] },
+    { date: ['APR','08'], opp: 'L.BIANCHI', category: 'BLITZ', delta: '+18', kind: 'win', playedAs: 'W', flagFall: true,
+      whiteTimes: [2.8,2.1,3.2,2.4,3.5,3.1,2.9,2.2,5.5,7.1,6.2,8.4,9.2,7.9,10.6,9.4,18.4,9.3,11.1,13.6,12.9,14.3,13.1,11.9,15.6,12.4,11.0,11.5,13.9,10.3,12.6,11.9,10.7,12.4,11.1,10.8,9.9,11.3,10.6,9.4,9.7],
+      blackTimes: [3.1,2.5,3.6,2.8,3.3,4.2,4.9,3.7,9.7,11.2,10.4,13.7,16.1,14.5,16.3,15.8,15.1,16.8,15.5,14.3,22.0,15.6,16.5,16.1,14.8,16.3,15.1,15.5,16.4,15.8,8.1,7.6,7.1,6.6,6.1,5.6,5.1,4.6,4.1,3.1] },
+    { date: ['APR','05'], opp: 'A.VERDI', category: 'BLITZ', delta: '+2', kind: 'draw', playedAs: 'B', flagFall: false,
+      whiteTimes: Array.from({length:60},(_,i)=>{const b=4+2*Math.sin(i*0.35);const s=(i===18||i===38)?10:0;return Math.round((b+s)*10)/10;}),
+      blackTimes: Array.from({length:60},(_,i)=>{const b=4.5+2.2*Math.sin(i*0.31+1);const s=(i===22||i===45)?11:0;return Math.round((b+s)*10)/10;}) },
+    { date: ['APR','01'], opp: 'P.COLOMBO', category: 'BLITZ', delta: '−9', kind: 'neg', playedAs: 'W', flagFall: false,
+      whiteTimes: Array.from({length:38},(_,i)=>{const b=5+3*Math.sin(i*0.28);const s=(i===11||i===25)?15:0;return Math.max(1,Math.round((b+s)*10)/10);}),
+      blackTimes: Array.from({length:38},(_,i)=>{const b=4+2.8*Math.sin(i*0.26+0.5);const s=(i===14||i===29)?13:0;return Math.max(1,Math.round((b+s)*10)/10);}) },
+    { date: ['APR','03'], opp: 'F.CONTI', category: 'RAPID', delta: '−10', kind: 'neg', playedAs: 'B', flagFall: false,
+      whiteTimes: Array.from({length:80},(_,i)=>{const b=12+8*Math.sin(i*0.2)+6*Math.cos(i*0.09);const s=(i===14||i===33||i===57)?35:0;return Math.max(2,Math.round((b+s)*10)/10);}),
+      blackTimes: Array.from({length:80},(_,i)=>{const b=10+7*Math.sin(i*0.22+0.5)+5*Math.cos(i*0.11);const s=(i===20||i===42||i===67)?40:0;return Math.max(2,Math.round((b+s)*10)/10);}) },
+    { date: ['MAR','25'], opp: 'D.ESPOSITO', category: 'RAPID', delta: '+15', kind: 'win', playedAs: 'W', flagFall: false,
+      whiteTimes: Array.from({length:62},(_,i)=>{const b=14+5*Math.sin(i*0.15);const s=(i===25||i===48)?45:0;return Math.max(3,Math.round((b+s)*10)/10);}),
+      blackTimes: Array.from({length:62},(_,i)=>{const b=16+6*Math.sin(i*0.17+0.8);const s=(i===21||i===52)?38:0;return Math.max(3,Math.round((b+s)*10)/10);}) },
+    { date: ['MAR','18'], opp: 'R.MARINI', category: 'RAPID', delta: '+7', kind: 'win', playedAs: 'B', flagFall: true,
+      whiteTimes: Array.from({length:54},(_,i)=>{const b=10+7*Math.sin(i*0.19);const s=(i===17||i===39)?50:0;return Math.max(2,Math.round((b+s)*10)/10);}),
+      blackTimes: Array.from({length:54},(_,i)=>{const b=12+5*Math.sin(i*0.21+0.3);const s=(i===11||i===45)?55:0;return Math.max(1,Math.round((b+s)*10)/10);}) },
+    { date: ['MAR','12'], opp: 'E.GALLO', category: 'RAPID', delta: '−5', kind: 'neg', playedAs: 'W', flagFall: false,
+      whiteTimes: Array.from({length:90},(_,i)=>{const b=9+4*Math.sin(i*0.11);const s=(i===30||i===70)?30:0;return Math.max(2,Math.round((b+s)*10)/10);}),
+      blackTimes: Array.from({length:90},(_,i)=>{const b=8+5*Math.sin(i*0.13+1);const s=(i===38||i===76)?32:0;return Math.max(2,Math.round((b+s)*10)/10);}) },
+    { date: ['MAR','30'], opp: 'S.LOMBARDI', category: 'CLASSIC', delta: '−25', kind: 'neg', playedAs: 'W', flagFall: false,
+      whiteTimes: Array.from({length:120},(_,i)=>{const b=30+15*Math.sin(i*0.12);const d=(i===12||i===34||i===68||i===95)?120:0;return Math.max(5,Math.round((b+d)*10)/10);}),
+      blackTimes: Array.from({length:120},(_,i)=>{const b=28+18*Math.sin(i*0.14+1);const d=(i===18||i===45||i===78||i===105)?140:0;return Math.max(5,Math.round((b+d)*10)/10);}) },
+    { date: ['MAR','15'], opp: 'V.PAGANO', category: 'CLASSIC', delta: '+20', kind: 'win', playedAs: 'B', flagFall: false,
+      whiteTimes: Array.from({length:95},(_,i)=>{const b=35+10*Math.sin(i*0.13);const d=(i===20||i===55||i===80)?180:0;return Math.max(8,Math.round((b+d)*10)/10);}),
+      blackTimes: Array.from({length:95},(_,i)=>{const b=30+12*Math.sin(i*0.11+0.7);const d=(i===25||i===60||i===85)?200:0;return Math.max(8,Math.round((b+d)*10)/10);}) },
+    { date: ['MAR','01'], opp: 'G.SANTORO', category: 'CLASSIC', delta: '+3', kind: 'draw', playedAs: 'W', flagFall: false,
+      whiteTimes: Array.from({length:75},(_,i)=>{const b=25+8*Math.sin(i*0.15);const d=(i===35||i===60)?110:0;return Math.max(4,Math.round((b+d)*10)/10);}),
+      blackTimes: Array.from({length:75},(_,i)=>{const b=22+10*Math.sin(i*0.16+0.4);const d=(i===28||i===55||i===68)?130:0;return Math.max(4,Math.round((b+d)*10)/10);}) },
+    { date: ['MAR','28'], opp: 'G.NERI', category: 'BULLET', delta: '+8', kind: 'win', playedAs: 'W', flagFall: true,
+      whiteTimes: [1.2,0.8,1.5,1.1,0.6,0.9,1.8,1.4,2.1,1.6,1.2,1.8,2.4,1.9,2.6,1.8,2.2,1.4],
+      blackTimes: [1.4,1.1,1.7,1.3,0.9,1.2,2.1,1.7,2.4,1.9,1.5,2.1,2.7,2.2,3.1,2.4,2.8,1.9] },
+    { date: ['MAR','22'], opp: 'U.RICCI', category: 'BULLET', delta: '−6', kind: 'neg', playedAs: 'W', flagFall: true,
+      whiteTimes: [0.8,0.6,1.1,0.9,1.3,1.0,1.5,1.2,0.7,1.1,0.9,1.4,1.8,1.3,1.6],
+      blackTimes: [1.0,0.7,1.2,0.8,1.4,0.9,1.3,1.1,0.5,1.0,0.8,1.3,1.7,1.2,1.5,1.1] },
+    { date: ['MAR','09'], opp: 'T.MORETTI', category: 'BULLET', delta: '+11', kind: 'win', playedAs: 'B', flagFall: false,
+      whiteTimes: [1.5,1.1,1.8,1.4,2.0,1.6,2.3,1.9,2.5,2.0,1.6,2.1,2.7,2.2,2.9,2.3,2.6,2.0,2.4,1.8,1.5],
+      blackTimes: [1.6,1.2,1.9,1.5,2.1,1.7,2.4,2.0,2.6,2.1,1.7,2.2,2.8,2.3,3.0,2.4,2.7,2.1,2.5,1.9,1.6] }
+  ];
+
+  const INK = 'var(--thumb-ink)';
+
+  // ═══════════════════════════════════════════════════════════════
+  // PRNG + gen-art engine (same as card-test-10)
+  // ═══════════════════════════════════════════════════════════════
+
+  function mulberry32(seed) {
+    let s = seed >>> 0;
+    return function () {
+      s = (s + 0x6D2B79F5) | 0;
+      let t = s;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function seedFromDataset(d) {
+    const str = d.date.join('') + d.opp + d.category + d.whiteTimes.join(',') + d.blackTimes.join(',');
+    let h = 2166136261;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+
+  function recipeFor(dataset) {
+    const wT = dataset.whiteTimes;
+    const bT = dataset.blackTimes;
+    const allT = [...wT, ...bT];
+    const moves = Math.max(wT.length, bT.length);
+    const mean = allT.reduce((a, b) => a + b, 0) / allT.length;
+    const variance = allT.reduce((a, t) => a + (t - mean) ** 2, 0) / allT.length;
+    const normalizedVariance = Math.min(1, Math.sqrt(variance) / mean);
+
+    const peakIdxW = wT.indexOf(Math.max(...wT));
+    const peakIdxB = bT.indexOf(Math.max(...bT));
+    const peakIdx = wT[peakIdxW] > bT[peakIdxB] ? peakIdxW : peakIdxB;
+    const peakPosition = peakIdx / moves;
+    const peakValue = Math.max(...allT);
+    const peakMagnitude = Math.min(1, (peakValue / mean - 1) / 3);
+
+    const totalW = wT.reduce((a, b) => a + b, 0);
+    const totalB = bT.reduce((a, b) => a + b, 0);
+    const balance = (totalW - totalB) / (totalW + totalB);
+
+    const half = Math.floor(allT.length / 2);
+    const firstHalf = allT.slice(0, half).reduce((a, b) => a + b, 0) / half;
+    const secondHalf = allT.slice(half).reduce((a, b) => a + b, 0) / (allT.length - half);
+    const momentum = Math.tanh((secondHalf - firstHalf) / (mean || 1));
+
+    const resultVector = { win: 1, neg: -1, draw: 0 }[dataset.kind] || 0;
+
+    return {
+      seed: seedFromDataset(dataset),
+      category: dataset.category,
+      moves,
+      normalizedVariance,
+      peakPosition,
+      peakMagnitude,
+      balance,
+      momentum,
+      resultVector,
+      flagFall: dataset.flagFall
+    };
+  }
+
+
+  // Produces the blob SVG. When `stagger` is truthy, each ellipse gets
+  // an inline `animation-delay` for the blob-ink-in keyframe (used by
+  // E-print strategy).
+  function renderAppleBlobs(dataset, W, H, stagger) {
+    const r = recipeFor(dataset);
+    const rng = mulberry32(r.seed);
+
+    const blobCount = { BULLET: 2, BLITZ: 3, RAPID: 4, CLASSIC: 5 }[r.category] || 3;
+    const N = blobCount + (rng() > 0.6 ? 1 : 0);
+
+    let defs = '';
+    let shapes = '';
+
+    const peakIdx = Math.floor(rng() * N);
+
+    function verticalBias() {
+      const u = rng();
+      if (r.resultVector === 1) return Math.pow(u, 1.5) * 0.9 + 0.05;
+      if (r.resultVector === -1) return 1 - Math.pow(u, 1.5) * 0.9 - 0.05;
+      return 0.5 + (u - 0.5) * 0.5;
+    }
+
+    for (let i = 0; i < N; i++) {
+      const isPeak = (i === peakIdx);
+
+      let cx, cy;
+      if (isPeak) {
+        cx = (0.2 + r.peakPosition * 0.6) * W;
+        cy = verticalBias() * H;
+      } else {
+        const outside = rng() < 0.4;
+        if (outside) {
+          const edge = Math.floor(rng() * 4);
+          if (edge === 0) { cx = rng() * W; cy = -H * (0.15 + rng() * 0.3); }
+          else if (edge === 1) { cx = W + W * (0.15 + rng() * 0.3); cy = rng() * H; }
+          else if (edge === 2) { cx = rng() * W; cy = H + H * (0.15 + rng() * 0.3); }
+          else { cx = -W * (0.15 + rng() * 0.3); cy = rng() * H; }
+        } else {
+          cx = (0.1 + rng() * 0.8) * W;
+          cy = verticalBias() * H;
+        }
+      }
+
+      cx += r.balance * W * 0.12;
+
+      const sizeBoost = { BULLET: 0.85, BLITZ: 1.0, RAPID: 1.15, CLASSIC: 1.3 }[r.category] || 1;
+      const baseRadius = isPeak
+        ? (0.5 + r.peakMagnitude * 0.4) * W * sizeBoost
+        : (0.35 + rng() * 0.35) * W * sizeBoost;
+
+      const elongation = 1 + r.normalizedVariance * 0.6 * (rng() * 2 - 1);
+      const rx = baseRadius * (1 + Math.abs(elongation) * 0.3);
+      const ry = baseRadius / (1 + Math.abs(elongation) * 0.25);
+
+      const rotBase = r.momentum * Math.PI * 0.3;
+      const rotVar = Math.PI * (0.15 + r.normalizedVariance * 0.4);
+      const rotation = rotBase + (rng() - 0.5) * rotVar * 2;
+      const rotDeg = (rotation * 180 / Math.PI).toFixed(1);
+
+      let centerOpacity = isPeak
+        ? 0.30 + r.peakMagnitude * 0.15
+        : 0.14 + rng() * 0.15;
+
+      if (r.flagFall && cx > W * 0.7) {
+        centerOpacity *= 1 - ((cx / W - 0.7) / 0.5) * 0.6;
+        centerOpacity = Math.max(0.03, centerOpacity);
+      }
+
+      const gradId = `g-${r.seed.toString(16)}-${i}`;
+      defs += `<radialGradient id="${gradId}" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="${INK}" stop-opacity="${centerOpacity.toFixed(3)}" />
+        <stop offset="40%" stop-color="${INK}" stop-opacity="${(centerOpacity * 0.6).toFixed(3)}" />
+        <stop offset="75%" stop-color="${INK}" stop-opacity="${(centerOpacity * 0.18).toFixed(3)}" />
+        <stop offset="100%" stop-color="${INK}" stop-opacity="0" />
+      </radialGradient>`;
+
+      // For the "print" strategy, each blob gets a staggered delay so
+      // they appear one by one, like ink pooling onto paper. The peak
+      // blob shows up LAST (it's the "subject", the final accent).
+      let inlineStyle = '';
+      if (stagger) {
+        const order = isPeak ? N : i;  // peak goes last
+        const delay = 80 + order * 60; // 80ms base, then +60ms per blob
+        inlineStyle = ` style="animation-delay: ${delay}ms;"`;
+      }
+
+      shapes += `<ellipse cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="${rx.toFixed(1)}" ry="${ry.toFixed(1)}" fill="url(#${gradId})" transform="rotate(${rotDeg} ${cx.toFixed(1)} ${cy.toFixed(1)})"${inlineStyle} />`;
+    }
+
+    return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><defs>${defs}</defs>${shapes}</svg>`;
+  }
+
+
+  // ═══════════════════════════════════════════════════════════════
+  // CARD RENDER — full data
+  // ═══════════════════════════════════════════════════════════════
+
+  function resultGlyph(dataset) {
+    return { win: 'WIN', neg: 'LOSS', draw: 'DRAW' }[dataset.kind] || '—';
+  }
+
+  // Render a card. `stagger` parameter is only meaningful for E-print
+  // (it makes blobs animate one by one). For other strategies it's false.
+  function renderCard(dataset, stagger) {
+    const dateStr = `${dataset.date[0]} ${dataset.date[1]}`;
+    const result = resultGlyph(dataset);
+    return `
+      <div class="card">
+        <div class="meta">
+          <span class="date">${dateStr}</span>
+          <span class="cat">${dataset.category}</span>
+        </div>
+        <div class="thumb">${renderAppleBlobs(dataset, 100, 100, stagger)}</div>
+        <div class="opp">${dataset.opp}</div>
+        <div class="foot">
+          <span class="result">${result}</span>
+          <span class="delta">${dataset.delta}</span>
+        </div>
+      </div>
+    `;
+  }
+
+
+  // ═══════════════════════════════════════════════════════════════
+  // STATE & CONTROLS
+  // ═══════════════════════════════════════════════════════════════
+
+  let currentStrategy = 'ink-fade';
+  let currentTiming = 1200;
+  let loadingTimeout = null;
+
+  const library = document.getElementById('library');
+  const statusEl = document.getElementById('status');
+  const statusText = document.getElementById('status-text');
+
+  // Build the shuffled dataset list (stable across replays so that
+  // the same cards appear in the same positions — easier to compare).
+  const shufRng = mulberry32(12345);
+  const shuffled = [];
+  for (let i = 0; i < 60; i++) {
+    shuffled.push(DATASETS[Math.floor(shufRng() * DATASETS.length)]);
+  }
+
+  function setStatus(text, loading) {
+    statusText.textContent = text;
+    statusEl.classList.toggle('idle', !loading);
+  }
+
+  function cardsHTML(strategy, stagger) {
+    // For shimmer: render empty .card with strategy class (CSS handles
+    // the skeleton look entirely with pseudo-elements)
+    if (strategy === 'shimmer') {
+      return Array(60).fill(0).map(() => `<div class="card s-shimmer"></div>`).join('');
+    }
+    // For pulse: render real cards with s-pulse class (skeleton styles
+    // overlay the real content; transitions to real content via replacement)
+    if (strategy === 'pulse') {
+      return shuffled.map(d => renderCard(d, false).replace('class="card"', 'class="card s-pulse"')).join('');
+    }
+    // For E variants: always render the REAL card content, then add
+    // "s-ink loading" class to overlay skeleton styles. The loading
+    // class will be removed and replaced with done-X on transition.
+    return shuffled.map(d => renderCard(d, stagger).replace('class="card"', 'class="card s-ink loading"')).join('');
+  }
+
+  function showLoadingState(strategy) {
+    const staggerForPrint = (strategy === 'ink-print');
+    library.innerHTML = cardsHTML(strategy, staggerForPrint);
+    setStatus('Loading…', true);
+  }
+
+  function showLoadedState(strategy) {
+    const cards = library.querySelectorAll('.card');
+
+    if (strategy === 'shimmer' || strategy === 'pulse') {
+      // These strategies replace the DOM entirely (no real content was
+      // ever rendered for shimmer; pulse had text bars masking the real
+      // content). Re-render with real cards.
+      library.innerHTML = shuffled.map(d => renderCard(d, false)).join('');
+    } else if (strategy === 'ink-fade') {
+      // Remove loading overlay, trigger fade-in on real content
+      cards.forEach(c => {
+        c.classList.remove('loading');
+        c.classList.add('done-fade');
+      });
+    } else if (strategy === 'ink-print') {
+      // Remove loading overlay, blobs animate in with staggered delays
+      cards.forEach(c => {
+        c.classList.remove('loading');
+        c.classList.add('done-print');
+      });
+    } else if (strategy === 'ink-instant') {
+      // Just remove loading — real content appears instantly
+      cards.forEach(c => {
+        c.classList.remove('loading');
+      });
+    }
+    setStatus('Loaded — click Trigger to replay', false);
+  }
+
+  function triggerLoading() {
+    clearTimeout(loadingTimeout);
+    showLoadingState(currentStrategy);
+    loadingTimeout = setTimeout(() => {
+      showLoadedState(currentStrategy);
+    }, currentTiming);
+  }
+
+  // Wire up strategy buttons
+  document.querySelectorAll('#strategy-group .btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#strategy-group .btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentStrategy = btn.dataset.strategy;
+      triggerLoading();
+    });
+  });
+
+  // Wire up timing buttons
+  document.querySelectorAll('#timing-group .btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#timing-group .btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentTiming = parseInt(btn.dataset.timing, 10);
+    });
+  });
+
+  // Trigger button
+  document.getElementById('trigger').addEventListener('click', triggerLoading);
+
+  // Initial load
+  triggerLoading();
+
+})();
+</script>
+
+</body>
+</html>
