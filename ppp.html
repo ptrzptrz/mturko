@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+
+<!-- ─── Viewport ─────────────────────────────────────────────────
+     Zoom disabled: Turko has a controlled typographic system at
+     fixed sizes; accidental zoom would break the layout. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+<!-- ─── Theme color ──────────────────────────────────────────────
+     Colors the browser chrome and iOS PWA status bar area.
+     KEEP IN SYNC WITH --paper-white in :root. -->
+<meta name="theme-color" content="#fafaf6" />
+
+<!-- ─── Apple PWA ────────────────────────────────────────────────
+     Standalone fullscreen when installed from "Add to Home Screen".
+     status-bar-style=default so the theme-color applies to the
+     status bar (black-translucent renders as black on iOS). -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Turko" />
+<meta name="mobile-web-app-capable" content="yes" />
+
+<!-- ─── Format detection ─────────────────────────────────────────
+     Prevent iOS from auto-linking ratings (1556) and dates as
+     tappable phone numbers or calendar events. -->
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
+
+<title>Turko — Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+
+  /* ═══════════════════════════════════════════════════════════════
+     1. DESIGN SYSTEM TOKENS
+     ─────────────────────────────────────────────────────────────
+     Shared with receipt (index.html) and statement (statement.html).
+     Until convergence into a shared stylesheet, they are duplicated
+     intentionally. Some may appear unused here — do not remove
+     without coordinating with the other two files.
+     ═══════════════════════════════════════════════════════════════ */
+  :root {
+
+    /* ── Colors: primitives ── */
+    --paper-white: #fafaf6;
+    --paper-bg:    #f1f0ec;
+    --ink-black:   #0a0a0a;
+    --ink-blue:    #1a2838;
+    --grey-medium: #9a9893;
+    --grey-light:  #c9c7c0;
+
+    /* ── Colors: semantic ── */
+    --color-paper:     var(--paper-white);
+    --color-bg:        var(--paper-bg);
+    --color-ink:       var(--ink-black);
+    --color-ink-faded: var(--grey-medium);
+    --color-rule:      var(--grey-light);
+    --thumb-ink:       var(--ink-blue);
+
+    /* ── Spacing ── */
+    --space-1:  4px;
+    --space-2:  8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 28px;
+    --space-7: 40px;
+    --space-8: 56px;
+
+    /* ── Typography: sizes ── */
+    --text-xxs:  9px;
+    --text-xs:   10px;
+    --text-sm:   11px;
+    --text-base: 12px;
+    --text-md:   13px;
+    --text-lg:   14px;
+    --text-xl:   26px;
+
+    --text-display: var(--text-xl);
+
+    /* ── Typography: weights ── */
+    --weight-regular: 400;
+    --weight-medium:  500;
+    --weight-bold:    700;
+
+    /* ── Typography: tracking ── */
+    --track-tight:   0.02em;
+    --track-default: 0.05em;
+    --track-wide:    0.1em;
+    --track-widest:  0.22em;
+    --track-brand:  -0.01em;
+
+    /* ── Typography: line heights ── */
+    --leading-tight:  1;
+    --leading-snug:   1.5;
+    --leading-normal: 1.7;
+
+    /* ── Borders ── */
+    --border-width: 1px;
+
+    /* ── Shared components ── */
+    --seg-bar-height: 6px;
+    --x-axis-height: 14px;
+    --dashed-rule-pattern: 6px 1px;
+
+
+    /* ═══════════════════════════════════════════════════════════════
+       2. PROFILE-SPECIFIC TOKENS
+       ═══════════════════════════════════════════════════════════════ */
+
+    /* ── Layout ── */
+    --profile-max-width:      420px;
+    --profile-padding-x:      var(--space-4);
+    --profile-padding-bottom: calc(var(--fab-size) + var(--fab-inset) * 2);
+    --profile-title-size:     24px;
+    --touch-target:           44px;
+
+    /* ── Card ──
+       --color-card-bg derives from --color-bg so it follows any
+       future change to the page surface color automatically.
+       --card-thumb-radius is separate from --card-radius because
+       the inner thumbnail has a tighter corner radius than the
+       outer card for a "document with inset image" feel. */
+    --color-card-bg:      var(--color-bg);
+    --card-radius:        12px;
+    --card-thumb-radius:  6px;
+
+    /* ── FAB: dimensions ── */
+    --fab-size:         52px;
+    --fab-inset:        var(--space-5);
+    --fab-glyph-size:   28px;
+    --fab-glyph-offset: -2px;
+    --fab-border-width: 2px;
+
+    /* ── FAB: spring physics (read by JS via getPropertyValue) ── */
+    --fab-press-scale:      0.96;
+    --fab-spring-stiffness: 400;
+    --fab-spring-damping:   38;
+
+    /* ── FAB: halo ── */
+    --fab-halo-color: rgba(10, 10, 10, 0.18);
+    --fab-halo-scale: 1.22;
+
+    /* ── FAB: transitions ── */
+    --fab-press-duration:   220ms;
+    --fab-release-duration: 700ms;
+    --fab-press-easing:     cubic-bezier(0.4, 0, 0.3, 1);
+    --fab-release-easing:   cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* ── Card animation durations ──
+       --anim-fade        quick reveal for subsequent session opens
+       --anim-print-text  text fade-in during the ceremonial print
+       --anim-print-blob  per-blob ink-in duration
+       --anim-thumb-breathe  pulsing of the skeleton thumb block */
+    --anim-fade:           350ms;
+    --anim-print-text:     700ms;
+    --anim-print-blob:     700ms;
+    --anim-thumb-breathe:  1800ms;
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════════
+     3. RESETS
+     ═══════════════════════════════════════════════════════════════ */
+  *, *::before, *::after { box-sizing: border-box; }
+  * { -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    scrollbar-width: none;       /* Firefox */
+    -ms-overflow-style: none;    /* IE / old Edge */
+  }
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar { display: none; }   /* WebKit / Blink */
+  body {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "tnum" 1;
+    line-height: var(--leading-snug);
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════════
+     4. PAGE + PROFILE
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* .page centers .profile. On wide viewports the body bg
+     (--color-paper) flanks the column seamlessly. */
+  .page {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* The profile is a fullscreen view, not a receipt object.
+     The receipt metaphor is reserved for outputs (match receipt,
+     statement) produced from this space. */
+  .profile {
+    width: 100%;
+    max-width: var(--profile-max-width);
+    min-height: 100vh;
+    padding: 0 var(--profile-padding-x) var(--profile-padding-bottom);
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════════
+     5. HEADER — identity, sticky
+     ═══════════════════════════════════════════════════════════════
+     Title (nickname) + rating tabs. Sticky top: 0, dashed hairline
+     at the bottom as the only separator. Full-bleed via negative
+     margin so the rule extends edge-to-edge. */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--color-paper);
+    margin: 0 calc(-1 * var(--profile-padding-x)) var(--space-5);
+    padding: var(--space-5) var(--profile-padding-x) var(--space-3);
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--border-width);
+    background-image: linear-gradient(to right, var(--color-rule) 50%, transparent 50%);
+    background-size: var(--dashed-rule-pattern);
+    background-repeat: repeat-x;
+  }
+  .header .title {
+    font-size: var(--profile-title-size);
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--track-tight);
+    margin: 0 0 var(--space-2);
+  }
+  .header-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .header-info .row {
+    font-size: var(--text-xs);
+    letter-spacing: var(--track-wide);
+    color: var(--color-ink-faded);
+    line-height: var(--leading-snug);
+  }
+  .header-info .row .dot {
+    margin: 0 var(--space-2);
+  }
+  .header-info .row .val {
+    color: var(--color-ink);
+    font-weight: var(--weight-medium);
+  }
+
+  /* ── Rating tabs ──
+     Tappable (→ statement, Phase 4). No visual affordance.
+     Tap target expanded to --touch-target via invisible padding. */
+  .header-info .rating-tab {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-1);
+    cursor: pointer;
+    user-select: none;
+    padding: calc((var(--touch-target) - var(--text-xs)) / 2) var(--space-1);
+    margin: calc(-1 * (var(--touch-target) - var(--text-xs)) / 2) calc(-1 * var(--space-1));
+  }
+  .header-info .rating-tab:active {
+    opacity: 0.5;
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════════
+     6. LIBRARY — 3-column match card grid
+     ═══════════════════════════════════════════════════════════════ */
+  .library {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-2);
+  }
+  /* ─── Match card ──────────────────────────────────────────────
+     Anatomy (top to bottom):
+       · .meta   — date (left) + category (right), both xxs grey
+       · .thumb  — square generative-art thumbnail, ink-blue blobs
+       · .opp    — opponent nickname, sm medium uppercase
+       · .foot   — result (bold ink, left) + delta (sm grey, right)
+     The result is a player-centric glyph (WIN / LOSS / DRAW),
+     not the chess 1-0/0-1 notation — so the user can read the
+     outcome without needing to know which color they played. */
+  .match-card {
+    background: var(--color-card-bg);
+    border-radius: var(--card-radius);
+    padding: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    user-select: none;
+  }
+  .match-card:active { opacity: 0.6; }
+
+  /* ── Row 1: meta (date + category) ── */
+  .match-card .meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: var(--space-2);
+  }
+  .match-card .meta .date {
+    font-size: var(--text-xxs);
+    letter-spacing: var(--track-wide);
+    color: var(--color-ink-faded);
+  }
+  .match-card .meta .cat {
+    font-size: var(--text-xxs);
+    font-weight: var(--weight-regular);
+    letter-spacing: var(--track-widest);
+    color: var(--color-ink-faded);
+  }
+
+  /* ── Row 2: thumbnail ──
+     Square aspect-ratio; the SVG inside fills the container.
+     The thumb block is where the generative-art blobs render. */
+  .match-card .thumb {
+    aspect-ratio: 1;
+    width: 100%;
+    overflow: hidden;
+    border-radius: var(--card-thumb-radius);
+    margin-bottom: var(--space-3);
+  }
+  .match-card .thumb svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* ── Row 3: opponent ── */
+  .match-card .opp {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--track-tight);
+    color: var(--color-ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: var(--space-1);
+  }
+
+  /* ── Row 4: result + delta ──
+     Result is the peak (bold ink). Delta is always subdued (grey),
+     uniform for win/loss/draw — the outcome is already carried by
+     the result glyph, the delta just reports the rating change. */
+  .match-card .foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .match-card .foot .result {
+    font-size: var(--text-md);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--track-tight);
+    color: var(--color-ink);
+  }
+  .match-card .foot .delta {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--track-tight);
+    color: var(--color-ink-faded);
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════════
+     7. CARD ANIMATIONS — loading + entrance
+     ═══════════════════════════════════════════════════════════════
+     Every card lives in one of three states, controlled by classes:
+
+       · .loading           skeleton state: grey placeholders overlay
+                            the real content, thumb block pulses softly
+       · .done-print        first session load: blobs ink in with
+                            staggered delays (ceremonial, ~1.2s total)
+       · .done-fade         subsequent opens same session: smooth fade
+                            reveals the content (discreet, 350ms)
+
+     Plus a special state for a match that just arrived:
+
+       · .new-match         print-solo at 2× speed — only this card
+                            inks its blobs while others stay static.
+                            Triggered after the user plays a match.
+
+     The loading state OVERLAYS the real content rather than replacing
+     it: the card always renders the real data underneath, skeleton
+     styles just hide them. This makes the transition mechanic simple
+     (remove .loading, add .done-X) and keeps the HTML structure
+     identical throughout all states. */
+
+  /* ── LOADING STATE: skeleton overlay ── */
+  .match-card.loading .meta .date,
+  .match-card.loading .meta .cat,
+  .match-card.loading .opp,
+  .match-card.loading .foot .result,
+  .match-card.loading .foot .delta {
+    color: transparent !important;
+    background: var(--grey-light);
+    border-radius: 3px;
+    display: inline-block;
+  }
+  /* Fixed placeholder dimensions — independent from real content
+     width so the layout doesn't jump when data arrives. */
+  .match-card.loading .meta .date  { width: 40px; height: 9px; }
+  .match-card.loading .meta .cat   { width: 34px; height: 9px; }
+  .match-card.loading .opp         { width: 72%;  height: 11px; }
+  .match-card.loading .foot .result { width: 36px; height: 13px; }
+  .match-card.loading .foot .delta  { width: 26px; height: 10px; }
+
+  .match-card.loading .thumb {
+    background: var(--grey-light);
+    animation: thumb-breathe var(--anim-thumb-breathe) ease-in-out infinite;
+  }
+  .match-card.loading .thumb svg {
+    opacity: 0;
+  }
+  @keyframes thumb-breathe {
+    0%, 100% { opacity: 0.75; }
+    50%      { opacity: 1; }
+  }
+
+  /* ── DONE-FADE: discreet reveal (subsequent session opens) ── */
+  .match-card.done-fade .meta .date,
+  .match-card.done-fade .meta .cat,
+  .match-card.done-fade .opp,
+  .match-card.done-fade .foot .result,
+  .match-card.done-fade .foot .delta {
+    animation: card-text-fade-in var(--anim-fade) ease-out;
+  }
+  .match-card.done-fade .thumb svg {
+    animation: card-thumb-fade-in var(--anim-fade) ease-out;
+  }
+
+  /* ── DONE-PRINT: ceremonial ink deposit (first session open) ── */
+  .match-card.done-print .meta .date,
+  .match-card.done-print .meta .cat,
+  .match-card.done-print .opp,
+  .match-card.done-print .foot .result,
+  .match-card.done-print .foot .delta {
+    animation: card-text-fade-in var(--anim-print-text) ease-out;
+  }
+  .match-card.done-print .thumb svg ellipse {
+    animation: blob-ink-in var(--anim-print-blob) cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  }
+
+  /* ── NEW-MATCH: print-solo at 2× speed (just-arrived card) ── */
+  .match-card.new-match {
+    animation: card-text-fade-in calc(var(--anim-print-text) * 2) ease-out both;
+  }
+  .match-card.new-match .thumb svg ellipse {
+    animation: blob-ink-in calc(var(--anim-print-blob) * 2) cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  }
+
+  /* Shared keyframes */
+  @keyframes card-text-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes card-thumb-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes blob-ink-in {
+    from {
+      opacity: 0;
+      transform: scale(0.5);
+      transform-origin: center;
+      transform-box: fill-box;
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+      transform-origin: center;
+      transform-box: fill-box;
+    }
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════════
+     8. FAB — floating new-match trigger
+     ═══════════════════════════════════════════════════════════════
+     Paper-white circle, ink border, bottom-right of .profile.
+     No shadow. Spring press feedback via JS; radial halo on press.
+
+     DOM: .fab-wrap > .halo + .fab > .plus */
+  .fab-wrap {
+    position: fixed;
+    right: max(
+      calc(var(--space-4) + var(--fab-inset)),
+      calc(50% - (var(--profile-max-width) / 2) + var(--fab-inset))
+    );
+    bottom: var(--fab-inset);
+    width: var(--fab-size);
+    height: var(--fab-size);
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .fab {
+    width: var(--fab-size);
+    height: var(--fab-size);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    border: var(--fab-border-width) solid var(--color-ink);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: var(--weight-regular);
+    font-size: var(--fab-glyph-size);
+    line-height: 1;
+    position: relative;
+    z-index: 2;
+    transform: scale(1);
+    will-change: transform;
+  }
+  .fab .plus {
+    pointer-events: none;
+    display: block;
+    margin-top: var(--fab-glyph-offset);
+  }
+  .halo {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, var(--fab-halo-color) 0%, transparent 65%);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+    transform: scale(1);
+    will-change: opacity, transform;
+    transition:
+      opacity   var(--fab-release-duration) var(--fab-release-easing),
+      transform var(--fab-release-duration) var(--fab-release-easing);
+  }
+  .fab-wrap.pressed .halo {
+    opacity: 1;
+    transform: scale(var(--fab-halo-scale));
+    transition:
+      opacity   var(--fab-press-duration) var(--fab-press-easing),
+      transform var(--fab-press-duration) var(--fab-press-easing);
+  }
+
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="profile">
+
+    <!-- 1. HEADER -->
+    <div class="header">
+      <div class="title">PATRIZIO</div>
+      <div class="header-info">
+        <div class="row">
+          <div class="rating-tab" data-category="blitz">BLITZ <span class="val">1556</span></div>
+          <span class="dot">·</span>
+          <div class="rating-tab" data-category="rapid">RAPID <span class="val">1480</span></div>
+          <span class="dot">·</span>
+          <div class="rating-tab" data-category="classic">CLASSIC <span class="val">1520</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. LIBRARY -->
+    <div class="library" id="library"></div>
+
+  </div>
+</div>
+
+<!-- FAB -->
+<div class="fab-wrap" id="fab" aria-label="Start new match">
+  <span class="halo"></span>
+  <div class="fab"><span class="plus">+</span></div>
+</div>
+
+<script>
+(function () {
+
+  // ═══════════════════════════════════════════════════════════════
+  // THUMBNAIL GEN-ART ENGINE
+  // ─────────────────────────────────────────────────────────────
+  // Apple-style soft gradient blobs that encode each match's shape.
+  // Every thumbnail is DETERMINISTIC from the match data: the seed
+  // is a hash of date+opp+category+times, so the same match always
+  // renders the same blobs. No PNG storage, no pre-computation —
+  // the visual emerges from the data at render time.
+  //
+  // Three ingredients shape the composition:
+  //   · peakPosition      → X coordinate of the "subject" blob
+  //   · resultVector      → vertical bias (win rises, loss sinks)
+  //   · category          → size multiplier and blob count
+  // And several modifiers refine the feel:
+  //   · variance, balance, momentum → rotation and asymmetry
+  //   · flagFall                    → right-edge dissolve
+  //
+  // The code block below is written to be HOISTABLE: in Phase 8
+  // these four functions will move to a shared module used by the
+  // profile, receipt thumbnails (if added), and any future view.
+  // ═══════════════════════════════════════════════════════════════
+
+  function mulberry32(seed) {
+    let s = seed >>> 0;
+    return function () {
+      s = (s + 0x6D2B79F5) | 0;
+      let t = s;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function seedFromDataset(d) {
+    const str = d.date.join('') + d.opp + d.category
+              + d.whiteTimes.join(',') + d.blackTimes.join(',');
+    let h = 2166136261;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+
+  function recipeFor(dataset) {
+    const wT = dataset.whiteTimes;
+    const bT = dataset.blackTimes;
+    const allT = [...wT, ...bT];
+    const moves = Math.max(wT.length, bT.length);
+    const mean = allT.reduce((a, b) => a + b, 0) / allT.length;
+    const variance = allT.reduce((a, t) => a + (t - mean) ** 2, 0) / allT.length;
+    const normalizedVariance = Math.min(1, Math.sqrt(variance) / mean);
+
+    const peakIdxW = wT.indexOf(Math.max(...wT));
+    const peakIdxB = bT.indexOf(Math.max(...bT));
+    const peakIdx = wT[peakIdxW] > bT[peakIdxB] ? peakIdxW : peakIdxB;
+    const peakPosition = peakIdx / moves;
+    const peakValue = Math.max(...allT);
+    const peakMagnitude = Math.min(1, (peakValue / mean - 1) / 3);
+
+    const totalW = wT.reduce((a, b) => a + b, 0);
+    const totalB = bT.reduce((a, b) => a + b, 0);
+    const balance = (totalW - totalB) / (totalW + totalB);
+
+    const half = Math.floor(allT.length / 2);
+    const firstHalf = allT.slice(0, half).reduce((a, b) => a + b, 0) / half;
+    const secondHalf = allT.slice(half).reduce((a, b) => a + b, 0) / (allT.length - half);
+    const momentum = Math.tanh((secondHalf - firstHalf) / (mean || 1));
+
+    const resultVector = { win: 1, neg: -1, draw: 0 }[dataset.kind] || 0;
+
+    return {
+      seed: seedFromDataset(dataset),
+      category: dataset.category,
+      moves, normalizedVariance,
+      peakPosition, peakMagnitude,
+      balance, momentum, resultVector,
+      flagFall: dataset.flagFall
+    };
+  }
+
+  // Category → number of base blobs. Bullet feels sparse, classic
+  // feels richly layered. Also influences size multiplier below.
+  const BLOB_COUNT_BY_CATEGORY = { BULLET: 2, BLITZ: 3, RAPID: 4, CLASSIC: 5 };
+  const SIZE_BOOST_BY_CATEGORY = { BULLET: 0.85, BLITZ: 1.0, RAPID: 1.15, CLASSIC: 1.3 };
+
+  // Renders the thumbnail SVG. Returns a string — callers inject it
+  // into .thumb via innerHTML. Uses radialGradient for natural edge
+  // softness (no blur filter needed). Blobs partially exit the frame
+  // to create an "atmospheric window" feel.
+  //
+  // The ink color is --thumb-ink (var(--ink-blue) by default). Passing
+  // the CSS variable lets the render respect theme/palette changes.
+  function renderAppleBlobs(dataset, W, H) {
+    const r = recipeFor(dataset);
+    const rng = mulberry32(r.seed);
+    const INK = 'var(--thumb-ink)';
+
+    const baseN = BLOB_COUNT_BY_CATEGORY[r.category] || 3;
+    const N = baseN + (rng() > 0.6 ? 1 : 0);
+    const sizeBoost = SIZE_BOOST_BY_CATEGORY[r.category] || 1;
+
+    // One blob acts as the "subject", anchored at peakPosition along X.
+    // Its size scales with peak magnitude (how dramatic the think was).
+    const peakIdx = Math.floor(rng() * N);
+
+    // Vertical bias driven by match result (win rises, loss sinks,
+    // draw hovers). Uses a skewed distribution instead of a hard push.
+    function verticalBias() {
+      const u = rng();
+      if (r.resultVector === 1)  return Math.pow(u, 1.5) * 0.9 + 0.05;
+      if (r.resultVector === -1) return 1 - Math.pow(u, 1.5) * 0.9 - 0.05;
+      return 0.5 + (u - 0.5) * 0.5;
+    }
+
+    let defs = '';
+    let shapes = '';
+
+    for (let i = 0; i < N; i++) {
+      const isPeak = (i === peakIdx);
+
+      // ── Position ──
+      let cx, cy;
+      if (isPeak) {
+        cx = (0.2 + r.peakPosition * 0.6) * W;
+        cy = verticalBias() * H;
+      } else {
+        // 40% of non-peak blobs are centered outside the frame —
+        // they peek in from the edges, creating depth.
+        const outside = rng() < 0.4;
+        if (outside) {
+          const edge = Math.floor(rng() * 4);
+          if (edge === 0)      { cx = rng() * W;                            cy = -H * (0.15 + rng() * 0.3); }
+          else if (edge === 1) { cx = W + W * (0.15 + rng() * 0.3);         cy = rng() * H; }
+          else if (edge === 2) { cx = rng() * W;                            cy = H + H * (0.15 + rng() * 0.3); }
+          else                 { cx = -W * (0.15 + rng() * 0.3);            cy = rng() * H; }
+        } else {
+          cx = (0.1 + rng() * 0.8) * W;
+          cy = verticalBias() * H;
+        }
+      }
+      cx += r.balance * W * 0.12; // subtle horizontal tilt from balance
+
+      // ── Size ── (blobs are bigger than the thumbnail itself)
+      const baseRadius = isPeak
+        ? (0.5 + r.peakMagnitude * 0.4) * W * sizeBoost
+        : (0.35 + rng() * 0.35) * W * sizeBoost;
+      const elongation = 1 + r.normalizedVariance * 0.6 * (rng() * 2 - 1);
+      const rx = baseRadius * (1 + Math.abs(elongation) * 0.3);
+      const ry = baseRadius / (1 + Math.abs(elongation) * 0.25);
+
+      // ── Rotation ── (momentum gives base tilt; variance adds jitter)
+      const rotBase = r.momentum * Math.PI * 0.3;
+      const rotVar  = Math.PI * (0.15 + r.normalizedVariance * 0.4);
+      const rotDeg  = ((rotBase + (rng() - 0.5) * rotVar * 2) * 180 / Math.PI).toFixed(1);
+
+      // ── Center opacity ──
+      let centerOpacity = isPeak
+        ? 0.30 + r.peakMagnitude * 0.15
+        : 0.14 + rng() * 0.15;
+      // Flag fall dissolves the right edge: blobs past 70% X fade out.
+      if (r.flagFall && cx > W * 0.7) {
+        centerOpacity *= 1 - ((cx / W - 0.7) / 0.5) * 0.6;
+        centerOpacity = Math.max(0.03, centerOpacity);
+      }
+
+      // ── Radial gradient definition + ellipse ──
+      const gradId = `g-${r.seed.toString(16)}-${i}`;
+      defs += `<radialGradient id="${gradId}" cx="50%" cy="50%" r="50%">`
+            + `<stop offset="0%"   stop-color="${INK}" stop-opacity="${centerOpacity.toFixed(3)}" />`
+            + `<stop offset="40%"  stop-color="${INK}" stop-opacity="${(centerOpacity * 0.6).toFixed(3)}" />`
+            + `<stop offset="75%"  stop-color="${INK}" stop-opacity="${(centerOpacity * 0.18).toFixed(3)}" />`
+            + `<stop offset="100%" stop-color="${INK}" stop-opacity="0" />`
+            + `</radialGradient>`;
+
+      shapes += `<ellipse cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}"`
+              + ` rx="${rx.toFixed(1)}" ry="${ry.toFixed(1)}"`
+              + ` fill="url(#${gradId})"`
+              + ` transform="rotate(${rotDeg} ${cx.toFixed(1)} ${cy.toFixed(1)})" />`;
+    }
+
+    return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg"`
+         + ` preserveAspectRatio="none"><defs>${defs}</defs>${shapes}</svg>`;
+  }
+
+
+  // ─── Mock dataset generator ────────────────────────────────────
+  // Generates 60 deterministic mock matches with all the fields the
+  // thumbnail gen-art engine needs. Each match has:
+  //   · date, category, opp, kind, playedAs, flagFall
+  //   · delta (derived from kind with realistic values)
+  //   · whiteTimes[], blackTimes[] (per-ply think time arrays)
+  //
+  // Distributions modelled after Patrizio's statement in CLAUDE.md:
+  //   · 60% blitz, 25% rapid, 10% classic, 5% bullet
+  //   · 55% win, 40% loss, 5% draw (matches the 55.4% win rate)
+  //   · ~10% end by flag fall
+  //
+  // In Phase 8 this generator is replaced by the Supabase query.
+
+  function buildMockMatches(count, seed) {
+    // Seeded PRNG so the library is stable across reloads
+    let s = seed >>> 0;
+    function rand() {
+      s = (s + 0x6D2B79F5) | 0;
+      let t = s;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    }
+    function pick(arr) { return arr[Math.floor(rand() * arr.length)]; }
+
+    const OPPONENTS = [
+      'M.ROSSI', 'L.BIANCHI', 'A.VERDI', 'F.CONTI', 'G.NERI',
+      'S.LOMBARDI', 'P.COLOMBO', 'D.ESPOSITO', 'R.MARINI',
+      'E.GALLO', 'V.PAGANO', 'G.SANTORO', 'U.RICCI', 'T.MORETTI',
+      'C.BRUNO', 'I.FERRARI', 'N.GRECO', 'B.COSTA'
+    ];
+
+    // Category time-control profiles: [baseMean, noiseAmplitude, moveRange]
+    const CATEGORY_PROFILES = {
+      BULLET:  { mean: 1.5, spread: 0.8, moves: [14, 22] },
+      BLITZ:   { mean: 7,   spread: 5,   moves: [28, 42] },
+      RAPID:   { mean: 12,  spread: 8,   moves: [45, 90] },
+      CLASSIC: { mean: 28,  spread: 15,  moves: [75, 120] }
+    };
+
+    const matches = [];
+    let currentDate = new Date(2026, 3, 17); // Apr 17, 2026 (today in mock)
+
+    for (let i = 0; i < count; i++) {
+      // ── Category (weighted pick) ──
+      const catRoll = rand();
+      const category = catRoll < 0.60 ? 'BLITZ'
+                     : catRoll < 0.85 ? 'RAPID'
+                     : catRoll < 0.95 ? 'CLASSIC'
+                     : 'BULLET';
+      const profile = CATEGORY_PROFILES[category];
+
+      // ── Result (weighted pick) ──
+      const kindRoll = rand();
+      const kind = kindRoll < 0.55 ? 'win'
+                 : kindRoll < 0.95 ? 'neg'
+                 : 'draw';
+
+      // ── Delta (sign follows kind, magnitude realistic) ──
+      const deltaMag = Math.floor(5 + rand() * 18);
+      let delta;
+      if (kind === 'win')  delta = `+${deltaMag}`;
+      else if (kind === 'neg') delta = `−${deltaMag}`;
+      else delta = (rand() > 0.5 ? '+' : '−') + Math.floor(1 + rand() * 4);
+
+      // ── Flag fall (~10% of games) ──
+      const flagFall = rand() < 0.10;
+
+      // ── Played color ──
+      const playedAs = rand() < 0.5 ? 'W' : 'B';
+
+      // ── Move-time arrays ──
+      const numMoves = Math.floor(profile.moves[0] + rand() * (profile.moves[1] - profile.moves[0]));
+      function thinkArray(n, phaseOffset) {
+        const arr = [];
+        // Place 1-3 spikes (peak thinks) at random positions
+        const spikes = new Set();
+        const numSpikes = 1 + Math.floor(rand() * 3);
+        for (let k = 0; k < numSpikes; k++) {
+          spikes.add(Math.floor(rand() * n));
+        }
+        for (let j = 0; j < n; j++) {
+          const wave = profile.mean + profile.spread * Math.sin(j * 0.2 + phaseOffset);
+          const spike = spikes.has(j) ? profile.mean * (2 + rand() * 2) : 0;
+          const v = Math.max(0.5, Math.round((wave + spike) * 10) / 10);
+          arr.push(v);
+        }
+        return arr;
+      }
+      const whiteTimes = thinkArray(numMoves, rand() * Math.PI * 2);
+      // Black has one fewer entry if flag fell on black's move 
+      const blackLen = flagFall ? numMoves - 1 : numMoves;
+      const blackTimes = thinkArray(blackLen, rand() * Math.PI * 2);
+
+      // ── Date (walk backward with irregular gaps 1-4 days) ──
+      const monthLabels = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+      const dayStr = String(currentDate.getDate()).padStart(2, '0');
+      const date = [monthLabels[currentDate.getMonth()], dayStr];
+
+      matches.push({
+        date, opp: pick(OPPONENTS), category, kind, playedAs, flagFall, delta,
+        whiteTimes, blackTimes
+      });
+
+      // Step back 1-4 days
+      const daysBack = 1 + Math.floor(rand() * 4);
+      currentDate.setDate(currentDate.getDate() - daysBack);
+    }
+
+    return matches;
+  }
+
+  const matches = buildMockMatches(60, 20260417);
+
+  // Player-centric result glyph. Carries the meaning of the game
+  // outcome without requiring the user to know which color they
+  // played (unlike 1-0 / 0-1). Same vocabulary as the statement's
+  // FORM row (L W W W L).
+  function resultGlyph(dataset) {
+    return { win: 'WIN', neg: 'LOSS', draw: 'DRAW' }[dataset.kind] || '—';
+  }
+
+  // ─── Render library ───────────────────────────────────────────
+  // Each card's anatomy follows the v10 design:
+  //   · meta  — date (left) + category (right)
+  //   · thumb — generative-art SVG blobs (deterministic from match data)
+  //   · opp   — opponent nickname
+  //   · foot  — result glyph (WIN/LOSS/DRAW) + delta (rating change)
+  //
+  // When `stagger` is true, each blob's animation-delay is set inline.
+  // This is the only inline style allowed — the delay is dynamic per
+  // blob index, cannot be expressed as a static CSS rule.
+  function renderCard(m, stagger) {
+    const N_BLOBS = BLOB_COUNT_BY_CATEGORY[m.category] || 3;
+    const svgHtml = renderAppleBlobs(m, 100, 100);
+    let thumbHtml = svgHtml;
+
+    if (stagger) {
+      // Add animation-delay to each <ellipse> in sequence. Delay
+      // pattern: 100ms base + 80ms per blob. For a typical blitz
+      // card with 3 blobs this totals ~340ms of staggered arrival.
+      let idx = 0;
+      thumbHtml = svgHtml.replace(/<ellipse /g, () => {
+        const delay = 100 + (idx++) * 80;
+        return `<ellipse style="animation-delay: ${delay}ms" `;
+      });
+    }
+
+    return `
+      <div class="match-card loading">
+        <div class="meta">
+          <span class="date">${m.date[0]} ${m.date[1]}</span>
+          <span class="cat">${m.category}</span>
+        </div>
+        <div class="thumb">${thumbHtml}</div>
+        <div class="opp">${m.opp}</div>
+        <div class="foot">
+          <span class="result">${resultGlyph(m)}</span>
+          <span class="delta">${m.delta}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // ─── Opening strategy ─────────────────────────────────────────
+  // Controls how the library transitions from skeleton to real cards.
+  //
+  //   first open of session  →  done-print (blobs ink in with stagger)
+  //   later opens this session → done-fade (smooth reveal)
+  //
+  // The flag is module-level — no localStorage. It resets on page
+  // reload / PWA cold start, which is exactly the behavior we want:
+  // every "fresh launch" of Turko opens with the ceremony.
+  let firstLoadUsed = false;
+
+  // In production (Phase 8) this becomes the Supabase fetch. For the
+  // frontend-first phase it's a fixed delay so we can see the skeleton.
+  // 600ms is long enough to register, short enough to not annoy.
+  const MOCK_FETCH_DELAY = 600;
+
+  const libraryEl = document.getElementById('library');
+
+  function openLibrary() {
+    const useFirstLoad = !firstLoadUsed;
+    const doneClass = useFirstLoad ? 'done-print' : 'done-fade';
+    const stagger = useFirstLoad;
+
+    // 1. Render skeleton state (cards with .loading, real content hidden)
+    libraryEl.innerHTML = matches.map(m => renderCard(m, stagger)).join('');
+
+    // 2. After simulated fetch, transition to loaded state
+    setTimeout(() => {
+      libraryEl.querySelectorAll('.match-card').forEach(card => {
+        card.classList.remove('loading');
+        card.classList.add(doneClass);
+      });
+      if (useFirstLoad) firstLoadUsed = true;
+    }, MOCK_FETCH_DELAY);
+  }
+
+  openLibrary();
+
+  // ─── Test hook: simulate a new match arriving ─────────────────
+  // In production this fires after a match is completed + confirmed.
+  // For now it's exposed on window so you can call it from devtools
+  // to see the print-solo animation: window.turkoAddMatch()
+  // The new card is a plausible BLITZ win against a random opponent.
+  window.turkoAddMatch = function () {
+    const today = new Date();
+    const monthLabels = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    const OPPONENTS = ['C.BRUNO','I.FERRARI','N.GRECO','B.COSTA','M.ROSSI'];
+    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+    const moves = 30 + Math.floor(Math.random() * 12);
+    function genTimes(n, phase) {
+      return Array.from({ length: n }, (_, i) => {
+        const base = 7 + 5 * Math.sin(i * 0.2 + phase);
+        const spike = (i === Math.floor(n * 0.4)) ? 14 : 0;
+        return Math.max(0.5, Math.round((base + spike) * 10) / 10);
+      });
+    }
+    const newMatch = {
+      date: [monthLabels[today.getMonth()], String(today.getDate()).padStart(2, '0')],
+      opp: pick(OPPONENTS),
+      category: 'BLITZ',
+      kind: 'win',
+      playedAs: 'W',
+      flagFall: false,
+      delta: `+${10 + Math.floor(Math.random() * 10)}`,
+      whiteTimes: genTimes(moves, Math.random() * Math.PI * 2),
+      blackTimes: genTimes(moves, Math.random() * Math.PI * 2)
+    };
+
+    // Prepend to the dataset (so the library stays consistent if reopened)
+    matches.unshift(newMatch);
+
+    // Render just this card, insert at top of the grid with the
+    // new-match class so it animates print-solo at 2× speed.
+    // No .loading → it appears directly in animating state.
+    const cardHtml = renderCard(newMatch, true)
+      .replace('class="match-card loading"', 'class="match-card new-match"');
+    libraryEl.insertAdjacentHTML('afterbegin', cardHtml);
+
+    // Keep library at 60 cards: drop the oldest
+    const all = libraryEl.children;
+    if (all.length > 60) all[all.length - 1].remove();
+
+    return 'New match added: ' + newMatch.opp;
+  };
+
+  // ─── Rating tabs (placeholder — Phase 4) ─────────────────────
+  document.querySelectorAll('.rating-tab').forEach(tab => {
+    tab.addEventListener('click', () => {});
+  });
+
+  // ─── FAB spring ───────────────────────────────────────────────
+  function makeSpring({ stiffness, damping, mass, onUpdate }) {
+    let value = 1, target = 1, velocity = 0, raf = null;
+    const dt = 1 / 60;
+    function tick() {
+      velocity += ((-stiffness * (value - target)) + (-damping * velocity)) / mass * dt;
+      value += velocity * dt;
+      onUpdate(value);
+      if (Math.abs(velocity) < 5e-4 && Math.abs(value - target) < 5e-4) {
+        value = target; velocity = 0; onUpdate(value); raf = null;
+      } else { raf = requestAnimationFrame(tick); }
+    }
+    return { setTarget(t) { target = t; if (!raf) raf = requestAnimationFrame(tick); } };
+  }
+
+  const wrap = document.getElementById('fab');
+  const circle = wrap.querySelector('.fab');
+  const rs = getComputedStyle(document.documentElement);
+  const spring = makeSpring({
+    stiffness: +rs.getPropertyValue('--fab-spring-stiffness'),
+    damping:   +rs.getPropertyValue('--fab-spring-damping'),
+    mass: 1,
+    onUpdate(v) { circle.style.transform = `scale(${v})`; }
+  });
+  const ps = +rs.getPropertyValue('--fab-press-scale');
+
+  wrap.addEventListener('pointerdown', () => { spring.setTarget(ps); wrap.classList.add('pressed'); });
+  const up = () => { spring.setTarget(1); wrap.classList.remove('pressed'); };
+  wrap.addEventListener('pointerup', up);
+  wrap.addEventListener('pointerleave', up);
+  wrap.addEventListener('pointercancel', up);
+  wrap.addEventListener('click', () => {}); // Phase 4
+})();
+</script>
+
+</body>
+</html>
